@@ -1,0 +1,84 @@
+rpostgis 0.6
+============
+
+NEW FUNCTIONS
+
+* `pgGetPts`: Retrieve point geometries
+
+
+rpostgis 0.5
+============
+
+NEW FUNCTIONS
+
+* `pgColumn`: Add or remove a column (replaces `pgDropColumn`)
+
+OVERALL CHANGES
+
+* Code completely commented and cleaned
+
+
+rpostgis 0.4
+============
+
+NEW FUNCTIONS
+
+* `pgMakePts` and `pgMakeStp`: Add a POINT or LINESTRING geometry field
+
+
+rpostgis 0.3.1
+==============
+
+OVERALL CHANGES
+
+* Global change for `display = TRUE` to print the executed or
+  non-executed query
+
+
+rpostgis 0.3
+============
+
+OVERALL CHANGES
+
+* Non executed examples added for each function
+
+* `display = TRUE` by defaults for all functions
+
+NEW FUNCTIONS
+
+* `pgAsDate`: Converts to timestamp
+
+* `pgDrop`: Drop table/view/schema
+
+* `pgSchema`: Create schema
+
+ENHANCEMENTS
+
+* `pgComment`: Allows comments on schemas
+
+
+rpostgis 0.2
+============
+
+OVERALL CHANGES
+
+* Change the package name to `rtpostgis`
+
+* Change every `db`- function to `pg`- function, in order to avoid
+  confusion with standard `DBI` or `RPostgreSQL` functions
+
+
+RPostgreSQLmod 0.1
+==================
+
+NEW FUNCTIONS
+
+* `dbAddKey`: Add key
+
+* `dbComment`: Comment table/view
+
+* `dbVacuum`: VACUUM
+
+* `dbDropColumn`: Removing a Column
+
+* `dbIndex`: CREATE INDEX

@@ -1,0 +1,43 @@
+\name{pgComment}
+\alias{pgComment}
+\title{Comment table/view/schema}
+\usage{
+  pgComment(conn, name, comment,
+    type = c("table", "view", "schema"), display = TRUE,
+    exec = TRUE)
+}
+\arguments{
+  \item{conn}{A connection object.}
+
+  \item{name}{A character string specifying a PostgreSQL
+  table, view or schema name.}
+
+  \item{comment}{A character string specifying the
+  comment.}
+
+  \item{type}{The type of the object to comment, either
+  \code{table} or \code{view}}
+
+  \item{display}{Logical. Whether to display the query
+  (defaults to \code{TRUE}).}
+
+  \item{exec}{Logical. Whether to execute the query
+  (defaults to \code{TRUE}).}
+}
+\description{
+  Comment on a table, a view or a schema.
+}
+\examples{
+pgComment(name = c("fla", "bli"), comment = "Comment on a view.",
+    type = "view", exec = FALSE)
+pgComment(name = "fla", comment = "Comment on a schema.", type = "schema",
+    exec = FALSE)
+}
+\author{
+  Mathieu Basille \email{basille@ase-research.org}
+}
+\seealso{
+  The PostgreSQL documentation:
+  \url{http://www.postgresql.org/docs/current/static/sql-comment.html}
+}
+

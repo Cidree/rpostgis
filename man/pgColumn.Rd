@@ -1,0 +1,51 @@
+\name{pgColumn}
+\alias{pgColumn}
+\title{Add or remove a column}
+\usage{
+  pgColumn(conn, name, colname, action = c("add", "drop"),
+    coltype = "integer", cascade = FALSE, display = TRUE,
+    exec = TRUE)
+}
+\arguments{
+  \item{conn}{A connection object.}
+
+  \item{name}{A character string specifying a PostgreSQL
+  table name.}
+
+  \item{colname}{A character string specifying the name of
+  the column to which the key will be associated.}
+
+  \item{action}{A character string specifying if the column
+  is to be added (\code{"add"}, default) or removed
+  (\code{"drop"}).}
+
+  \item{coltype}{A character string indicating the type of
+  the column, if \code{action = "add"}.}
+
+  \item{cascade}{Logical. Whether to drop foreign key
+  constraints of other tables, if \code{action = "drop"}.}
+
+  \item{display}{Logical. Whether to display the query
+  (defaults to \code{TRUE}).}
+
+  \item{exec}{Logical. Whether to execute the query
+  (defaults to \code{TRUE}).}
+}
+\description{
+  Add or remove a column to/from a table.
+}
+\examples{
+## Add an integer column
+pgColumn(name = c("fla", "bli"), colname = "field", exec = FALSE)
+## Drop a column (with CASCADE)
+pgColumn(name = c("fla", "bli"), colname = "field", action = "drop",
+    cascade = TRUE, exec = FALSE)
+}
+\author{
+  Mathieu Basille \email{basille@ase-research.org}
+}
+\seealso{
+  The PostgreSQL documentation:
+  \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
+}
+

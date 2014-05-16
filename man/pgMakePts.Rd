@@ -1,0 +1,66 @@
+\name{pgMakePts}
+\alias{pgMakePts}
+\alias{pgMakeStp}
+\title{Add a POINT or LINESTRING geometry field.}
+\usage{
+  pgMakePts(conn, name, colname = "pts_geom", x = "x",
+    y = "y", srid, index = TRUE, display = TRUE,
+    exec = TRUE)
+
+  pgMakeStp(conn, name, colname = "stp_geom", x = "x",
+    y = "y", dx = "dx", dy = "dy", srid, index = TRUE,
+    display = TRUE, exec = TRUE)
+}
+\arguments{
+  \item{conn}{A connection object.}
+
+  \item{name}{A character string specifying a PostgreSQL
+  table name.}
+
+  \item{colname}{A character string specifying the name of
+  the new geometry column.}
+
+  \item{x}{The name of the x/longitude field.}
+
+  \item{y}{The name of the y/latitude field.}
+
+  \item{dx}{The name of the dx field (i.e. increment in x
+  direction).}
+
+  \item{dy}{The name of the dy field (i.e. increment in y
+  direction).}
+
+  \item{srid}{A valid SRID for the new geometry.}
+
+  \item{index}{Logical. Whether to create an index on the
+  new geometry.}
+
+  \item{display}{Logical. Whether to display the query
+  (defaults to \code{TRUE}).}
+
+  \item{exec}{Logical. Whether to execute the query
+  (defaults to \code{TRUE}).}
+}
+\description{
+  Add a new POINT or LINESTRING geometry field.
+}
+\examples{
+## Create a new POINT field called "pts_geom"
+pgMakePts(name = c("fla", "bli"), x = "longitude", y = "latitude",
+    srid = 4326, exec = FALSE)
+
+## Create a new LINESTRING field called "stp_geom"
+pgMakeStp(name = c("fla", "bli"), x = "longitude", y = "latitude",
+    dx = "xdiff", dy = "ydiff", srid = 4326, exec = FALSE)
+}
+\author{
+  Mathieu Basille \email{basille@ase-research.org}
+}
+\seealso{
+  The PostGIS documentation for \code{ST_MakePoint}:
+  \url{http://postgis.net/docs/ST_MakePoint.html}, and for
+  \code{ST_MakeLine}:
+  \url{http://postgis.net/docs/ST_MakeLine.html}, which are
+  the main functions of the call.
+}
+
