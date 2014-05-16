@@ -1,0 +1,54 @@
+\name{pgIndex}
+\alias{pgIndex}
+\title{CREATE INDEX}
+\usage{
+  pgIndex(conn, name, colname, idxname, unique = FALSE,
+    method = c("btree", "hash", "rtree", "gist"),
+    display = TRUE, exec = TRUE)
+}
+\arguments{
+  \item{conn}{A connection object.}
+
+  \item{name}{A character string specifying a PostgreSQL
+  table name.}
+
+  \item{colname}{A character string specifying the name of
+  the column to which the key will be associated.}
+
+  \item{idxname}{A character string specifying the name of
+  the index to be created. By default, this is the name of
+  the table (without the schema) suffixed by \code{_idx}.}
+
+  \item{unique}{Logical. Causes the system to check for
+  duplicate values in the table when the index is created
+  (if data already exist) and each time data is added.
+  Attempts to insert or update data which would result in
+  duplicate entries will generate an error.}
+
+  \item{method}{The name of the method to be used for the
+  index. Choices are "btree", "hash", "rtree", and "gist".
+  The default method is btree.}
+
+  \item{display}{Logical. Whether to display the query
+  (defaults to \code{TRUE}).}
+
+  \item{exec}{Logical. Whether to execute the query
+  (defaults to \code{TRUE}).}
+}
+\description{
+  Defines a new index.
+}
+\examples{
+pgIndex(name = c("fla", "bli"), colname = "wkb_geometry", method = "gist",
+    exec = FALSE)
+}
+\author{
+  Mathieu Basille \email{basille@ase-research.org}
+}
+\seealso{
+  The PostgreSQL documentation:
+  \url{http://www.postgresql.org/docs/current/static/sql-createindex.html};
+  the PostGIS documentation for GiST indexes:
+  \url{http://postgis.net/docs/using_postgis_dbmanagement.html#id541286}
+}
+

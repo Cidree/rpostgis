@@ -1,0 +1,45 @@
+\name{pgVacuum}
+\alias{pgVacuum}
+\title{VACUUM}
+\usage{
+  pgVacuum(conn, name, full = FALSE, verbose = FALSE,
+    analyze = TRUE, display = TRUE, exec = TRUE)
+}
+\arguments{
+  \item{conn}{A connection object.}
+
+  \item{name}{A character string specifying a PostgreSQL
+  table name.}
+
+  \item{full}{Logical. Whether to perform a "full" vacuum,
+  which can reclaim more space, but takes much longer and
+  exclusively locks the table.}
+
+  \item{verbose}{Logical. Whether to print a detailed
+  vacuum activity report for each table.}
+
+  \item{analyze}{Logical. Whether to update statistics used
+  by the planner to determine the most efficient way to
+  execute a query (default to \code{TRUE}).}
+
+  \item{display}{Logical. Whether to display the query
+  (defaults to \code{TRUE}).}
+
+  \item{exec}{Logical. Whether to execute the query
+  (defaults to \code{TRUE}).}
+}
+\description{
+  Performs a VACUUM (garbage-collect and optionally
+  analyze) on a table.
+}
+\examples{
+pgVacuum(name = c("fla", "bli"), full = TRUE, exec = FALSE)
+}
+\author{
+  Mathieu Basille \email{basille@ase-research.org}
+}
+\seealso{
+  The PostgreSQL documentation:
+  \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
+}
+

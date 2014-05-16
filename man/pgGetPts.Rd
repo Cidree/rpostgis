@@ -1,0 +1,46 @@
+\name{pgGetPts}
+\alias{pgGetPts}
+\title{Retrieve point geometries}
+\usage{
+  pgGetPts(conn, name, pts = "pts_geom", colname = NULL,
+    include = TRUE)
+}
+\arguments{
+  \item{conn}{A connection object.}
+
+  \item{name}{A character string specifying a PostgreSQL
+  table, view or schema name.}
+
+  \item{pts}{The name of the point geometry column.}
+
+  \item{colname}{The name of the columns to include or
+  exclude (defaults to \code{NULL}, i.e. no column).}
+
+  \item{include}{Include or exclude \code{colname} (default
+  \code{TRUE}). If \code{colname = NULL} and \code{include
+  = FALSE}, all columns are retrieved.}
+}
+\value{
+  A SpatialPoints or a SpatialPointsDataFrame
+}
+\description{
+  Retrieve point geometries from a PostGIS table, and
+  convert it to a SpatialPoints or a
+  SpatialPointsDataFrame.
+}
+\examples{
+\dontrun{
+## Retrieve only the points in the column 'pts_geom'
+pgGetPts(conn, c("fla", "bli"))
+## Return a SpatialPointsDataFrame with columns c1 & c2 as data
+pgGetPts(conn, c("fla", "bli"), colname = c("c1", "c2"))
+## Return a SpatialPointsDataFrame with every column except c1 & c2 as
+## data
+pgGetPts(conn, c("fla", "bli"), colname = c("c1", "c2"), include = FALSE)
+## Return a SpatialPointsDataFrame with every column as data
+pgGetPts(conn, c("fla", "bli"), include = FALSE)}
+}
+\author{
+  Mathieu Basille \email{basille@ase-research.org}
+}
+

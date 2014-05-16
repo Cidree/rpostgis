@@ -1,0 +1,48 @@
+\name{pgAddKey}
+\alias{pgAddKey}
+\title{Add key}
+\usage{
+  pgAddKey(conn, name, colname,
+    type = c("primary", "foreign"), reference, colref,
+    display = TRUE, exec = TRUE)
+}
+\arguments{
+  \item{conn}{A connection object.}
+
+  \item{name}{A character string specifying a PostgreSQL
+  table name.}
+
+  \item{colname}{A character string specifying the name of
+  the column to which the key will be assign.}
+
+  \item{type}{The type of the key, either \code{primary} or
+  \code{foreign}}
+
+  \item{reference}{A character string specifying a foreign
+  table name to which the foreign key will be associated.}
+
+  \item{colref}{A character string specifying the name of
+  the primary key in the foreign table to which the foreign
+  key will be associated.}
+
+  \item{display}{Logical. Whether to display the query
+  (defaults to \code{TRUE}).}
+
+  \item{exec}{Logical. Whether to execute the query
+  (defaults to \code{TRUE}).}
+}
+\description{
+  Add a primary or foreign key to a table column.
+}
+\examples{
+pgAddKey(name = c("fla", "bli"), colname = "id", type = "foreign",
+    reference = c("flu", "bla"), colref = "id", exec = FALSE)
+}
+\author{
+  Mathieu Basille \email{basille@ase-research.org}
+}
+\seealso{
+  The PostgreSQL documentation:
+  \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
+}
+

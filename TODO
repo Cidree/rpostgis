@@ -1,0 +1,11 @@
+* pgIntersectPts (pg-functions.R)
+
+* pgIntersectStp (pgIntersectsSts in pg-functions.R)
+
+* sqlCopyCSV (pg-functions.R)
+
+* Change pgAddKey into pgKey (+ action = "drop"?)
+
+* pgIndex, pgComment --> action = "drop"?
+
+* pgColumn --> action = "rename"? (and other functions?) ou bien pgRename( table, index, sequence, view, column )?

@@ -1,0 +1,19 @@
+\docType{package}
+\name{rpostgis}
+\alias{rpostgis}
+\alias{rpostgis-package}
+\title{PostGIS and PostgreSQL functions}
+\description{
+  rpostgis
+}
+\details{
+  This package provides additional functions to the
+  \code{RPostgreSQL} package, mostly convenient wrappers to
+  PostgreSQL queries, with some PostGIS oriented functions.
+  For a list of documented functions, use
+  \code{library(help = "rpostgis")}
+}
+\author{
+  Mathieu Basille \email{basille@ase-research.org}
+}
+

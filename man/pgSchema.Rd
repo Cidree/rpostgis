@@ -1,0 +1,32 @@
+\name{pgSchema}
+\alias{pgSchema}
+\title{Create schema}
+\usage{
+  pgSchema(conn, name, display = TRUE, exec = TRUE)
+}
+\arguments{
+  \item{conn}{A connection object.}
+
+  \item{name}{A character string specifying a PostgreSQL
+  schema name.}
+
+  \item{display}{Logical. Whether to display the query
+  (defaults to \code{TRUE}).}
+
+  \item{exec}{Logical. Whether to execute the query
+  (defaults to \code{TRUE}).}
+}
+\description{
+  Create a schema.
+}
+\examples{
+pgSchema(name = "schema", exec = FALSE)
+}
+\author{
+  Mathieu Basille \email{basille@ase-research.org}
+}
+\seealso{
+  The PostgreSQL documentation:
+  \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
+}
+
