@@ -1,3 +1,5 @@
 .Rbuildignore
 .Rproj.user
 rpostgis.Rproj
+.RData
+.Rhistory
