@@ -1,4 +1,6 @@
-#' Load a point geometry stored in a PostgreSQL database into R.
+# pgis2spts
+#
+#' @title Load a point geometry stored in a PostgreSQL database into R.
 #'
 #' @param conn A connection object created in RPostgreSQL package.
 #' @param table character, Name of the schema-qualified table in Postgresql holding the geometry.
@@ -7,14 +9,18 @@
 #' @param proj numeric, Can be set to TRUE to automatically take the SRID for the table in the database. Alternatively, the number of EPSG-specified projection of the geometry (Default is NULL, resulting in no projection.)
 #' @param other.cols character, names of additional columns from table (comma-seperated) to append to dataset (Default is all columns, other.cols=NULL returns a SpatialPoints object)
 #' @param query character, additional SQL to append to modify select query from table
+#' @author David Bucklin \email{david.bucklin@gmail.com}
+#' @export
 #' @return SpatialPointsDataFrame or SpatialPoints
 #' @examples
-#' #library(RPostgreSQL)
-#' #drv<-dbDriver("PostgreSQL")
-#' #conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
+#' \dontrun{
+#' library(RPostgreSQL)
+#' drv<-dbDriver("PostgreSQL")
+#' conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
 #'
-#' #pgis2spts(conn,'schema.tablename')
-#' #pgis2spts(conn,'schema.cities',geom='citygeom',gid='city_ID',proj=4326,query = "AND city_population > 10000")
+#' pgis2spts(conn,'schema.tablename')
+#' pgis2spts(conn,'schema.cities',geom='citygeom',gid='city_ID',proj=4326,query = "AND city_population > 10000")
+#' }
 
 pgis2spts <- function(conn,table,geom='geom',gid='gid',proj=NULL,other.cols='*',query=NULL) {
 

@@ -1,4 +1,6 @@
-#' Load a linestring geometry stored in a PostgreSQL database into R.
+# pgis2slin
+#
+#' @title Load a linestring geometry stored in a PostgreSQL database into R.
 #'
 #' @param conn A connection object created in RPostgreSQL package.
 #' @param table character, Name of the schema-qualified table in Postgresql holding the geometry.
@@ -7,14 +9,18 @@
 #' @param proj numeric, Can be set to TRUE to automatically take the SRID for the table in the database. Alternatively, the number of EPSG-specified projection of the geometry (Default is NULL, resulting in no projection.)
 #' @param other.cols character, names of additional columns from table (comma-seperated) to append to dataset (Default is all columns, NULL returns a SpatialLines object)
 #' @param query character, additional SQL to append to modify select query from table
+#' @author David Bucklin \email{david.bucklin@gmail.com}
+#' @export
 #' @return SpatialLinesDataFrame or SpatialLines
 #' @examples
-#' #library(RPostgreSQL)
-#' #drv<-dbDriver("PostgreSQL")
-#' #conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
+#' \dontrun{
+#' library(RPostgreSQL)
+#' drv<-dbDriver("PostgreSQL")
+#' conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
 #'
-#' #pgis2slin(conn,'schema.tablename')
-#' #pgis2slin(conn,'schema.roads',geom='roadgeom',gid='road_ID',proj=4326,other.cols=NULL, query = "AND field = \'highway\'")
+#' pgis2slin(conn,'schema.tablename')
+#' pgis2slin(conn,'schema.roads',geom='roadgeom',gid='road_ID',proj=4326,other.cols=NULL, query = "AND field = \'highway\'")
+#' }
 
 pgis2slin <- function(conn,table,geom='geom',gid='gid',proj=NULL,other.cols = '*',query=NULL) {
 

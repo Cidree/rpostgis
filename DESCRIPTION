@@ -11,4 +11,4 @@ Depends:
     sp
 License: GPL (>= 3)
 URL: http://ase-research.org/basille/rpostgis
-
+RoxygenNote: 5.0.1

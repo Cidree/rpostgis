@@ -1,4 +1,5 @@
-#' Load a raster stored in a PostgreSQL database into R.
+# pgis2rast
+#' @title Load a raster stored in a PostgreSQL database into R.
 #'
 #' @param conn A connection object created in RPostgreSQL package.
 #' @param table Name of the schema-qualified table in Postgresql holding the raster.
@@ -6,14 +7,18 @@
 #' @param proj Can be set to TRUE to automatically take the SRID for the table in the database. Alternatively, the number of EPSG-specified projection of the geometry (Default is NULL, resulting in no projection.)
 #' @param digits numeric, precision for detecting whether points are on a regular grid (a low number of digits is a low precision) - From rasterFromXYZ function (raster package)
 #' @param NSEW numeric, clipping box for raster with four arguments (north, south, east, west) indicating the projection-specific limits with which to clip the raster.
+#' @author David Bucklin \email{david.bucklin@gmail.com}
+#' @export
 #' @return RasterLayer
 #' @examples
-#' #library(RPostgreSQL)
-#' #drv<-dbDriver("PostgreSQL")
-#' #conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
+#' \dontrun{
+#' library(RPostgreSQL)
+#' drv<-dbDriver("PostgreSQL")
+#' conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
 #'
-#' #pgis2rast(conn,'schema.tablename')
-#' #pgis2rast(conn,'schema.tablename',proj=4326,digits=9,NSEW=c(55,50,17,12))
+#' pgis2rast(conn,'schema.tablename')
+#' pgis2rast(conn,'schema.tablename',proj=4326,digits=9,NSEW=c(55,50,17,12))
+#' }
 
 pgis2rast <- function(conn,table,rast='rast',proj=NULL,digits=9, NSEW=c(NULL,NULL,NULL,NULL)){
 
