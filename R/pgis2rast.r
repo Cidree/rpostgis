@@ -22,10 +22,6 @@
 
 pgis2rast <- function(conn,table,rast='rast',proj=NULL,digits=9, NSEW=c(NULL,NULL,NULL,NULL)){
 
-  require(raster)
-  require(rgdal)
-  require(RPostgreSQL)
-
   if (!is.null(NSEW) && is.null(proj)) {stop('proj is required if a clipping box is given')}
 
   if (isTRUE(proj)){
@@ -41,7 +37,7 @@ pgis2rast <- function(conn,table,rast='rast',proj=NULL,digits=9, NSEW=c(NULL,NUL
   }
 
   if(!is.null(proj)) {
-    p4s<-as.character(CRS(paste0("+init=epsg:",proj)))
+    p4s<-CRS(paste0("+init=epsg:",proj))@projargs
     return(rasterFromXYZ(trast,crs=CRS(p4s),digits=digits))
   } else {return(rasterFromXYZ(trast,digits=digits))}
 }

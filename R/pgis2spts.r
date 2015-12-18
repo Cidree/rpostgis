@@ -24,11 +24,6 @@
 
 pgis2spts <- function(conn,table,geom='geom',gid='gid',proj=NULL,other.cols='*',query=NULL) {
 
-  require(sp)
-  require(rgdal)
-  require(rgeos)
-  require(RPostgreSQL)
-
   if (is.null(other.cols))
   {dfTemp<-suppressWarnings(dbGetQuery(conn,paste0("select ",gid," as tgid,st_astext(",geom,") as wkt from ",table," where ",geom," is not null ",query,";")))
   row.names(dfTemp) = dfTemp$tgid}
@@ -42,7 +37,7 @@ pgis2spts <- function(conn,table,geom='geom',gid='gid',proj=NULL,other.cols='*',
       t2<-strsplit(table,".",fixed=TRUE)[[1]]
       proj<-dbGetQuery(conn,paste0("select srid from public.geometry_columns where f_table_schema = '",t2[1],"' AND f_table_name = '",t2[2],"';"))$srid
     }
-    p4s<-as.character(CRS(paste0("+init=epsg:",proj)))
+    p4s<-CRS(paste0("+init=epsg:",proj))@projargs
     tt<-mapply(function(x,y,z) readWKT(x,y,z), x=dfTemp[,2], y=dfTemp[,1], z=p4s)
   }
 
