@@ -4,7 +4,8 @@
 \alias{pgGetPts}
 \title{Retrieve point geometries}
 \usage{
-pgGetPts(conn, name, pts = "pts_geom", colname = NULL, include = TRUE)
+pgGetPts(conn, name, gid = "gid", pts = "pts_geom", colname = NULL,
+  include = TRUE)
 }
 \arguments{
 \item{conn}{A connection object.}

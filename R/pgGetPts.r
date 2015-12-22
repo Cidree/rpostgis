@@ -27,24 +27,34 @@
 ##' pgGetPts(conn, c("fla", "bli"), colname = c("c1", "c2"), include = FALSE)
 ##' ## Return a SpatialPointsDataFrame with every column as data
 ##' pgGetPts(conn, c("fla", "bli"), include = FALSE)}
-pgGetPts <- function(conn, name, pts = "pts_geom", colname = NULL,
+pgGetPts <- function(conn, name, gid = "gid", pts = "pts_geom", colname = NULL,
     include = TRUE)
 {
     ## Check and prepare the schema.name
     if (length(name) %in% 1:2)
         table <- paste(name, collapse = ".")
     else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    
+    ## Check if MULTI or single geom
+    str<- paste0("SELECT DISTINCT ST_GeometryType(",pts,") AS type FROM ", table, " WHERE ", pts, " IS NOT NULL;")
+    typ <-dbGetQuery(conn,str)
+    
+    ## Retrieve the SRID
+    str <- paste0("SELECT DISTINCT(ST_SRID(", pts, ")) FROM ",
+                  table, " WHERE ", pts, " IS NOT NULL;")
+    srid <- dbGetQuery(conn, str)
+    ## Check if the SRID is unique, otherwise throw an error
+    if (nrow(srid) != 1)
+      stop("Multiple SRIDs in the point geometry")
+    
+    #make spatialpoints* for single geom types
+    if (length(typ$type) == 1 && typ$type == "ST_Point") {
+    
     ## Retrieve the coordinates
     str <- paste0("SELECT ST_X(", pts, ") AS x, ST_Y(", pts,
         ") AS y FROM ", table, " WHERE ", pts, " IS NOT NULL;")
     coords <- dbGetQuery(conn, str)
-    ## Retrieve the SRID
-    str <- paste0("SELECT DISTINCT(ST_SRID(", pts, ")) FROM ",
-        table, " WHERE ", pts, " IS NOT NULL;")
-    srid <- dbGetQuery(conn, str)
-    ## Check if the SRID is unique, otherwise throw an error
-    if (nrow(srid) != 1)
-        stop("Multiple SRIDs in the point geometry")
+    
     ## Generate a SpatialPoints if all columns excluded
     if (is.null(colname) & include == TRUE) {
         sp <- SpatialPoints(coords, proj4string = CRS(paste0("+init=epsg:",
@@ -73,5 +83,42 @@ pgGetPts <- function(conn, name, pts = "pts_geom", colname = NULL,
         sp <- SpatialPointsDataFrame(coords, data = data,
             proj4string = CRS(paste0("+init=epsg:", srid)))
     }
+    }
+    
+    #make spatialmultipoints* for multi-point types
+    else {
+      str <- paste0("SELECT ",gid," as gid, ST_AsText(", pts, ") AS geom FROM ", table, " WHERE ", pts, " IS NOT NULL;")
+      coords <- dbGetQuery(conn, str)
+      
+      if (is.null(colname) & include == TRUE) {
+        tt<-mapply(function(x,y,z) readWKT(x,y,z), x=coords[[2]], y=coords[[1]], z=CRS(paste0("+init=epsg:", srid))@projargs)
+        sp<-SpatialMultiPoints(tt,proj4string = CRS(paste0("+init=epsg:",srid)))
+      }
+      
+      else {
+        ## Case of explicit columns to add
+        if (!is.null(colname) & include == TRUE)
+          nm <- colname
+        ## Other cases
+        else {
+          ## All columns
+          nm <- dbListFields(conn, name)
+          ## Columns to exclude
+          if (!is.null(colname) & include == FALSE)
+            nm <- nm[!(nm %in% colname)]
+        }
+        ## Remove the column of points
+        nm <- nm[!(nm %in% pts)]
+        ## Prepare the string and retrieve the data
+        str <- paste0("SELECT \"", paste0(nm, collapse = "\", \""),
+                      "\" FROM ", table, " WHERE ", pts, " IS NOT NULL;")
+        data <- dbGetQuery(conn, str)
+        ## Generate a SpatialPointsDataFrame
+        sp <- SpatialMultiPointsDataFrame(tt, data = data,
+                                     proj4string = CRS(paste0("+init=epsg:", srid)))
+      }
+      
+    }
+     
     return(sp)
 }
