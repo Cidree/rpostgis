@@ -1,4 +1,4 @@
-# pgis2rast
+# pgGetRast
 #' @title Load a raster stored in a PostgreSQL database into R.
 #'
 #' @param conn A connection object created in RPostgreSQL package.
@@ -16,11 +16,11 @@
 #' drv<-dbDriver("PostgreSQL")
 #' conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
 #'
-#' pgis2rast(conn,'schema.tablename')
-#' pgis2rast(conn,'schema.tablename',proj=4326,digits=9,NSEW=c(55,50,17,12))
+#' pgGetRast(conn,'schema.tablename')
+#' pgGetRast(conn,'schema.tablename',proj=4326,digits=9,NSEW=c(55,50,17,12))
 #' }
 
-pgis2rast <- function(conn,table,rast='rast',proj=NULL,digits=9, NSEW=c(NULL,NULL,NULL,NULL)){
+pgGetRast <- function(conn,table,rast='rast',proj=NULL,digits=9, NSEW=c(NULL,NULL,NULL,NULL)){
 
   if (!is.null(NSEW) && is.null(proj)) {stop('proj is required if a clipping box is given')}
 

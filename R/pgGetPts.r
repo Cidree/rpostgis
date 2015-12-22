@@ -7,41 +7,42 @@
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table, view
 ##' or schema name.
-##' @param pts The name of the point geometry column.
-##' @param colname The name of the columns to include or exclude
-##' (defaults to \code{NULL}, i.e. no column).
-##' @param include Include or exclude \code{colname} (default
-##' \code{TRUE}). If \code{colname = NULL} and \code{include = FALSE},
-##' all columns are retrieved.
-##' @return A SpatialPoints or a SpatialPointsDataFrame
-##' @author Mathieu Basille \email{basille@@ase-research.org}
+##' @param geom The name of the point geometry column. (Default = 'geom')
+##' @param gid Name of the column in 'table' holding the ID. Should be unique if additional columns of unique data are being appended. \code{gid=NULL} (default) automatically creates a new unique ID for each row in the table.
+##' @param other.cols Names of columns in the table to retrieve, comma seperated in one character element (e.g. \code{other.cols="col1,col2"}. Default is to attach all columns in a SpatialPointsDataFrame, \code{other.cols=NULL] returns a SpatialPoints.}
+##' @return A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame
+##' @author David Bucklin \email{david.bucklin@gmail.com}
 ##' @export
 ##' @examples
 ##' \dontrun{
-##' ## Retrieve only the points in the column 'pts_geom'
+##' ## Retrieve a SpatialPointsDataFrame with all data from table 'fla.bli', with geometry in the column 'geom'
 ##' pgGetPts(conn, c("fla", "bli"))
 ##' ## Return a SpatialPointsDataFrame with columns c1 & c2 as data
-##' pgGetPts(conn, c("fla", "bli"), colname = c("c1", "c2"))
-##' ## Return a SpatialPointsDataFrame with every column except c1 & c2 as
-##' ## data
-##' pgGetPts(conn, c("fla", "bli"), colname = c("c1", "c2"), include = FALSE)
-##' ## Return a SpatialPointsDataFrame with every column as data
-##' pgGetPts(conn, c("fla", "bli"), include = FALSE)}
-pgGetPts <- function(conn, name, gid = "gid", pts = "pts_geom", colname = NULL,
-    include = TRUE)
+##' pgGetPts(conn, c("fla", "bli"), other.cols = "c1,c2")
+##' ## Return a SpatialPoints, retaining id from table as rownames
+##' pgGetPts(conn, c("fla", "bli"), gid = "bli_id", other.cols = FALSE)
+##' }
+
+pgGetPts <- function(conn,name,geom = "geom", gid = NULL, other.cols="*",query=NULL)
 {
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2)
+    if (length(name) %in% 1:2) {
         table <- paste(name, collapse = ".")
-    else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    }
+    else {stop("The table name should be \"table\" or c(\"schema\", \"table\").")}
+    
+    ## if ID not specified, set it to generate row numbers
+    if (is.null(gid)) {
+      gid<-"row_number() over()"
+    }
     
     ## Check if MULTI or single geom
-    str<- paste0("SELECT DISTINCT ST_GeometryType(",pts,") AS type FROM ", table, " WHERE ", pts, " IS NOT NULL;")
+    str<- paste0("SELECT DISTINCT ST_GeometryType(",geom,") AS type FROM ", table, " WHERE ", geom, " IS NOT NULL;")
     typ <-dbGetQuery(conn,str)
     
     ## Retrieve the SRID
-    str <- paste0("SELECT DISTINCT(ST_SRID(", pts, ")) FROM ",
-                  table, " WHERE ", pts, " IS NOT NULL;")
+    str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ",
+                  table, " WHERE ", geom, " IS NOT NULL;")
     srid <- dbGetQuery(conn, str)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) != 1)
@@ -49,75 +50,49 @@ pgGetPts <- function(conn, name, gid = "gid", pts = "pts_geom", colname = NULL,
     
     #make spatialpoints* for single geom types
     if (length(typ$type) == 1 && typ$type == "ST_Point") {
+      
+      #get data
+      if (is.null(other.cols)){
+      str<-paste0("select ",gid," as tgid,ST_X(", geom, ") AS x, ST_Y(", geom ,") AS y from ",table," where ",geom," is not null ",query,";")
+      } else {
+      str<-paste0("select ",gid," as tgid,ST_X(", geom, ") AS x, ST_Y(", geom ,") AS y,",other.cols," from ",table," where ",geom," is not null ",query,";")
+      }
+      dbData<-suppressWarnings(dbGetQuery(conn,str))
+      row.names(dbData) = dbData$tgid
     
-    ## Retrieve the coordinates
-    str <- paste0("SELECT ST_X(", pts, ") AS x, ST_Y(", pts,
-        ") AS y FROM ", table, " WHERE ", pts, " IS NOT NULL;")
-    coords <- dbGetQuery(conn, str)
-    
-    ## Generate a SpatialPoints if all columns excluded
-    if (is.null(colname) & include == TRUE) {
-        sp <- SpatialPoints(coords, proj4string = CRS(paste0("+init=epsg:",
-            srid)))
-    }
-    ## Otherwise generate a SpatialPointsDataFrame with data
-    else {
-        ## Case of explicit columns to add
-        if (!is.null(colname) & include == TRUE)
-            nm <- colname
-        ## Other cases
-        else {
-            ## All columns
-            nm <- dbListFields(conn, name)
-            ## Columns to exclude
-            if (!is.null(colname) & include == FALSE)
-                nm <- nm[!(nm %in% colname)]
+    ## Generate a SpatialPoints object
+      sp <- SpatialPoints(data.frame(x=dbData$x,y=dbData$y,row.names=dbData$tgid), proj4string = CRS(paste0("+init=epsg:",srid)))
+      
+    ## Append data to spdf if requested
+      if (!is.null(other.cols)){
+        cols<-colnames(dbData)
+        cols <- cols[!(cols %in% c('tgid','x','y',geom))]
+        sp<-SpatialPointsDataFrame(sp, dbData[cols],match.ID=TRUE)
         }
-        ## Remove the column of points
-        nm <- nm[!(nm %in% pts)]
-        ## Prepare the string and retrieve the data
-        str <- paste0("SELECT \"", paste0(nm, collapse = "\", \""),
-            "\" FROM ", table, " WHERE ", pts, " IS NOT NULL;")
-        data <- dbGetQuery(conn, str)
-        ## Generate a SpatialPointsDataFrame
-        sp <- SpatialPointsDataFrame(coords, data = data,
-            proj4string = CRS(paste0("+init=epsg:", srid)))
-    }
     }
     
     #make spatialmultipoints* for multi-point types
     else {
-      str <- paste0("SELECT ",gid," as gid, ST_AsText(", pts, ") AS geom FROM ", table, " WHERE ", pts, " IS NOT NULL;")
-      coords <- dbGetQuery(conn, str)
       
-      if (is.null(colname) & include == TRUE) {
-        tt<-mapply(function(x,y,z) readWKT(x,y,z), x=coords[[2]], y=coords[[1]], z=CRS(paste0("+init=epsg:", srid))@projargs)
-        sp<-SpatialMultiPoints(tt,proj4string = CRS(paste0("+init=epsg:",srid)))
+      if (is.null(other.cols)){
+        str<-paste0("select ",gid," as tgid,st_astext(",geom,") as wkt from ",table," where ",geom," is not null ",query,";")
+      } else {
+        str<-paste0("select ",gid," as tgid,st_astext(",geom,") as wkt,",other.cols," from ",table," where ",geom," is not null ",query,";")
       }
       
-      else {
-        ## Case of explicit columns to add
-        if (!is.null(colname) & include == TRUE)
-          nm <- colname
-        ## Other cases
-        else {
-          ## All columns
-          nm <- dbListFields(conn, name)
-          ## Columns to exclude
-          if (!is.null(colname) & include == FALSE)
-            nm <- nm[!(nm %in% colname)]
-        }
-        ## Remove the column of points
-        nm <- nm[!(nm %in% pts)]
-        ## Prepare the string and retrieve the data
-        str <- paste0("SELECT \"", paste0(nm, collapse = "\", \""),
-                      "\" FROM ", table, " WHERE ", pts, " IS NOT NULL;")
-        data <- dbGetQuery(conn, str)
-        ## Generate a SpatialPointsDataFrame
-        sp <- SpatialMultiPointsDataFrame(tt, data = data,
-                                     proj4string = CRS(paste0("+init=epsg:", srid)))
-      }
+      dbData<-suppressWarnings(dbGetQuery(conn,str))
+      row.names(dbData) = dbData$tgid
       
+      #create spatialMultiPoints
+      tt<-mapply(function(x,y,z) readWKT(x,y,z), x=dbData$wkt, y=dbData$tgid, z=CRS(paste0("+init=epsg:", srid))@projargs)
+      sp<-SpatialMultiPoints(tt,proj4string = CRS(paste0("+init=epsg:",srid)))
+      
+      ## Append data to spdf if requested
+      if (!is.null(other.cols)){
+        cols<-colnames(dbData)
+        cols <- cols[!(cols %in% c('tgid','wkt',geom))]
+        sp<-SpatialMultiPointsDataFrame(tt, dbData[cols])
+      }
     }
      
     return(sp)

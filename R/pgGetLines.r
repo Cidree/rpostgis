@@ -1,4 +1,4 @@
-# pgis2slin
+# pgGetLines
 #
 #' @title Load a linestring geometry stored in a PostgreSQL database into R.
 #'
@@ -18,12 +18,16 @@
 #' drv<-dbDriver("PostgreSQL")
 #' conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
 #'
-#' pgis2slin(conn,'schema.tablename')
-#' pgis2slin(conn,'schema.roads',geom='roadgeom',gid='road_ID',proj=4326,other.cols=NULL, query = "AND field = \'highway\'")
+#' pgGetLines(conn,'schema.tablename')
+#' pgGetLines(conn,'schema.roads',geom='roadgeom',gid='road_ID',proj=4326,other.cols=NULL, query = "AND field = \'highway\'")
 #' }
 
-pgis2slin <- function(conn,table,geom='geom',gid='gid',proj=NULL,other.cols = '*',query=NULL) {
+pgGetLines <- function(conn,table,geom='geom',gid=NULL,proj=NULL,other.cols = '*',query=NULL) {
 
+  if (is.null(gid)) {
+    gid<-"row_number() over()"
+  }
+  
   if (is.null(other.cols))
   {dfTemp<-suppressWarnings(dbGetQuery(conn,paste0("select ",gid," as tgid,st_astext(",geom,") as wkt from ",table," where ",geom," is not null ",query,";")))
   row.names(dfTemp) = dfTemp$tgid}
