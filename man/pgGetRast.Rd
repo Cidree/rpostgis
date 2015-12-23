@@ -10,15 +10,23 @@ pgGetRast(conn, table, rast = "rast", proj = NULL, digits = 9,
 \arguments{
 \item{conn}{A connection object created in RPostgreSQL package.}
 
-\item{table}{Name of the schema-qualified table in Postgresql holding the raster.}
+\item{table}{Name of the schema-qualified table in Postgresql 
+holding the raster.}
 
 \item{rast}{Name of the column in 'table' holding the raster object}
 
-\item{proj}{Can be set to TRUE to automatically take the SRID for the table in the database. Alternatively, the number of EPSG-specified projection of the geometry (Default is NULL, resulting in no projection.)}
+\item{proj}{Can be set to TRUE to automatically take the SRID for 
+the table in the database. Alternatively, the number of 
+EPSG-specified projection of the geometry (Default is NULL, 
+resulting in no projection.)}
 
-\item{digits}{numeric, precision for detecting whether points are on a regular grid (a low number of digits is a low precision) - From rasterFromXYZ function (raster package)}
+\item{digits}{numeric, precision for detecting whether points 
+are on a regular grid (a low number of digits is a low precision) -
+From rasterFromXYZ function (raster package)}
 
-\item{NSEW}{numeric, clipping box for raster with four arguments (north, south, east, west) indicating the projection-specific limits with which to clip the raster.}
+\item{NSEW}{numeric, clipping box for raster with four arguments
+(north, south, east, west) indicating the projection-specific 
+limits with which to clip the raster.}
 }
 \value{
 RasterLayer
@@ -27,10 +35,12 @@ RasterLayer
 \dontrun{
 library(RPostgreSQL)
 drv<-dbDriver("PostgreSQL")
-conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
+conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
+               user='user',password='password')
 
 pgGetRast(conn,'schema.tablename')
-pgGetRast(conn,'schema.tablename',proj=4326,digits=9,NSEW=c(55,50,17,12))
+pgGetRast(conn,'schema.tablename',proj=4326,digits=9,
+         NSEW=c(55,50,17,12))
 }
 }
 \author{

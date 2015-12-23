@@ -15,9 +15,14 @@ or schema name.}
 
 \item{geom}{The name of the point geometry column. (Default = 'geom')}
 
-\item{gid}{Name of the column in 'table' holding the ID. Should be unique if additional columns of unique data are being appended. \code{gid=NULL} (default) automatically creates a new unique ID for each row in the table.}
+\item{gid}{Name of the column in 'table' holding the ID. Should be unique
+if additional columns of unique data are being appended. \code{gid=NULL} 
+(default) automatically creates a new unique ID for each row in the table.}
 
-\item{other.cols}{Names of columns in the table to retrieve, comma seperated in one character element (e.g. \code{other.cols="col1,col2"}. Default is to attach all columns in a SpatialPointsDataFrame, \code{other.cols=NULL] returns a SpatialPoints.}}
+\item{other.cols}{Names of columns in the table to retrieve, comma seperated
+in one character element (e.g. \code{other.cols='col1,col2'}. Default is to
+attach all columns in a SpatialPointsDataFrame, \code{other.cols=NULL] 
+returns a SpatialPoints.}}
 }
 \value{
 A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame
@@ -28,12 +33,13 @@ a SpatialPoints or a SpatialPointsDataFrame.
 }
 \examples{
 \dontrun{
-## Retrieve a SpatialPointsDataFrame with all data from table 'fla.bli', with geometry in the column 'geom'
-pgGetPts(conn, c("fla", "bli"))
+## Retrieve a SpatialPointsDataFrame with all data from table 'fla.bli',
+with geometry in the column 'geom'
+pgGetPts(conn, c('fla', 'bli'))
 ## Return a SpatialPointsDataFrame with columns c1 & c2 as data
-pgGetPts(conn, c("fla", "bli"), other.cols = "c1,c2")
+pgGetPts(conn, c('fla', 'bli'), other.cols = 'c1,c2')
 ## Return a SpatialPoints, retaining id from table as rownames
-pgGetPts(conn, c("fla", "bli"), gid = "bli_id", other.cols = FALSE)
+pgGetPts(conn, c('fla', 'bli'), gid = 'bli_id', other.cols = FALSE)
 }
 }
 \author{

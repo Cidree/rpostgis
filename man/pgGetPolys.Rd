@@ -4,23 +4,33 @@
 \alias{pgGetPolys}
 \title{Load a polygon geometry stored in a PostgreSQL database into R.}
 \usage{
-pgGetPolys(conn, table, geom = "geom", gid = NULL, proj = NULL,
-  other.cols = "*", query = NULL)
+pgGetPolys(conn, table, geom = "geom", gid = NULL, other.cols = "*",
+  query = NULL)
 }
 \arguments{
 \item{conn}{A connection object created in RPostgreSQL package.}
 
-\item{table}{character, Name of the schema-qualified table in Postgresql holding the geometry.}
+\item{table}{character, Name of the schema-qualified table in 
+Postgresql holding the geometry.}
 
-\item{geom}{character, Name of the column in 'table' holding the geometry object (Default = 'geom')}
+\item{geom}{character, Name of the column in 'table' holding the 
+geometry object (Default = 'geom')}
 
-\item{gid}{character, Name of the column in 'table' holding the ID for each polygon geometry. Should be unique if additional columns of unique data are being appended. (Default = 'gid')}
+\item{gid}{character, Name of the column in 'table' holding the ID 
+for each polygon geometry. Should be unique if additional columns 
+of unique data are being appended. (Default = 'gid')}
 
-\item{proj}{numeric, Can be set to TRUE to automatically take the SRID for the table in the database. Alternatively, the number of EPSG-specified projection of the geometry (Default is NULL, resulting in no projection.)}
+\item{other.cols}{character, names of additional columns from table
+(comma-seperated) to append to dataset (Default is all columns, 
+other.cols=NULL returns a SpatialPolygons object)}
 
-\item{other.cols}{character, names of additional columns from table (comma-seperated) to append to dataset (Default is all columns, other.cols=NULL returns a SpatialPolygons object)}
+\item{query}{character, additional SQL to append to modify 
+select query from table}
 
-\item{query}{character, additional SQL to append to modify select query from table}
+\item{proj}{numeric, Can be set to TRUE to automatically take the
+SRID for the table in the database. Alternatively, the number of
+EPSG-specified projection of the geometry (Default is NULL, 
+resulting in no projection.)}
 }
 \value{
 SpatialPolygonsDataFrame or SpatialPolygons
@@ -29,10 +39,13 @@ SpatialPolygonsDataFrame or SpatialPolygons
 \dontrun{
 library(RPostgreSQL)
 drv<-dbDriver("PostgreSQL")
-conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',user='user',password='password')
+conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
+               user='user',password='password')
 
 pgGetPolys(conn,'schema.tablename')
-pgGetPolys(conn,'schema.states',geom='statesgeom',gid='state_ID',proj=4326,other.cols='area,population', query = "AND area > 1000000 ORDER BY population LIMIT 10")
+pgGetPolys(conn,'schema.states',geom='statesgeom',gid='state_ID',
+           other.cols='area,population', 
+           query = "AND area > 1000000 ORDER BY population LIMIT 10")
 }
 }
 \author{
