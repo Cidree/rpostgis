@@ -31,6 +31,9 @@ limits with which to clip the raster.}
 \value{
 RasterLayer
 }
+\description{
+Retrieve rasters from a PostGIS table
+}
 \examples{
 \dontrun{
 library(RPostgreSQL)

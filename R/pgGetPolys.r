@@ -1,4 +1,6 @@
 # pgGetPolys
+#' Retrieve polygon geometries from a PostGIS table, and convert it to
+#' a SpatialPolygons or a SpatialPolygonsDataFrame.
 #
 #' @title Load a polygon geometry stored in a PostgreSQL database into R.
 #'

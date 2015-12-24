@@ -30,6 +30,10 @@ select query from table}
 \value{
 SpatialLinesDataFrame or SpatialLines
 }
+\description{
+Retrieve line geometries from a PostGIS table, and convert it to
+a SpatialLines or a SpatialLinesDataFrame.
+}
 \examples{
 \dontrun{
 library(RPostgreSQL)

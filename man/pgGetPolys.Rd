@@ -35,6 +35,10 @@ resulting in no projection.)}
 \value{
 SpatialPolygonsDataFrame or SpatialPolygons
 }
+\description{
+Retrieve polygon geometries from a PostGIS table, and convert it to
+a SpatialPolygons or a SpatialPolygonsDataFrame.
+}
 \examples{
 \dontrun{
 library(RPostgreSQL)

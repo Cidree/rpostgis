@@ -1,4 +1,6 @@
 # pgGetLines
+#' Retrieve line geometries from a PostGIS table, and convert it to
+#' a SpatialLines or a SpatialLinesDataFrame.
 #
 #' @title Load a linestring geometry stored in a PostgreSQL database into R.
 #'
