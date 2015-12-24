@@ -2,7 +2,8 @@ rpostgis 0.7
 =============
 NEW FUNCTIONS
 
-Initial merge with pgis2r package, with four new functions (`pgis2rast`,`pgis2slin`,`pgis2spol`,`pgis2spts`)
+Initial merge with pgis2r package, incorporating support for loading geometry/raster objects stored in 
+PostgreSQL databases in R, using functions (`pgGetRast`,`pgGetLines`,`pgGetPolys`).
 
 
 rpostgis 0.6.1
