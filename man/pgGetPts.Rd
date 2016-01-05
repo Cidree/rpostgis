@@ -4,14 +4,15 @@
 \alias{pgGetPts}
 \title{Retrieve point geometries}
 \usage{
-pgGetPts(conn, name, geom = "geom", gid = NULL, other.cols = "*",
+pgGetPts(conn, table, geom = "geom", gid = NULL, other.cols = "*",
   query = NULL)
 }
 \arguments{
-\item{conn}{A connection object.}
+\item{conn}{A connection object to a PostgreSQL database}
 
-\item{name}{A character string specifying a PostgreSQL table, view
-or schema name.}
+\item{table}{A character string specifying a PostgreSQL schema (if necessary), 
+and table or view name for the table holding the 
+points geometry (e.g., table = c("schema","table"))}
 
 \item{geom}{The name of the point geometry column. (Default = 'geom')}
 
@@ -33,13 +34,13 @@ a SpatialPoints or a SpatialPointsDataFrame.
 }
 \examples{
 \dontrun{
-## Retrieve a SpatialPointsDataFrame with all data from table 'fla.bli',
+## Retrieve a SpatialPointsDataFrame with all data from table 'schema.tablename',
 with geometry in the column 'geom'
-pgGetPts(conn, c('fla', 'bli'))
+pgGetPts(conn, c('schema','tablename'))
 ## Return a SpatialPointsDataFrame with columns c1 & c2 as data
-pgGetPts(conn, c('fla', 'bli'), other.cols = 'c1,c2')
+pgGetPts(conn, c('schema','tablename'), other.cols = 'c1,c2')
 ## Return a SpatialPoints, retaining id from table as rownames
-pgGetPts(conn, c('fla', 'bli'), gid = 'bli_id', other.cols = FALSE)
+pgGetPts(conn, c('schema','tablename'), gid = 'table_id', other.cols = FALSE)
 }
 }
 \author{

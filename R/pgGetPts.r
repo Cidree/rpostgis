@@ -1,39 +1,40 @@
-## pgGetPts
-##' Retrieve point geometries from a PostGIS table, and convert it to
-##' a SpatialPoints or a SpatialPointsDataFrame.
-##'
-##' @title Retrieve point geometries
-##' @param conn A connection object.
-##' @param name A character string specifying a PostgreSQL table, view
-##' or schema name.
-##' @param geom The name of the point geometry column. (Default = 'geom')
-##' @param gid Name of the column in 'table' holding the ID. Should be unique
-##' if additional columns of unique data are being appended. \code{gid=NULL} 
-##' (default) automatically creates a new unique ID for each row in the table.
-##' @param other.cols Names of columns in the table to retrieve, comma seperated
-##' in one character element (e.g. \code{other.cols='col1,col2'}. Default is to
-##' attach all columns in a SpatialPointsDataFrame, \code{other.cols=NULL] 
-##' returns a SpatialPoints.}
-##' @return A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame
-##' @author David Bucklin \email{david.bucklin@gmail.com}
-##' @export
-##' @examples
-##' \dontrun{
-##' ## Retrieve a SpatialPointsDataFrame with all data from table 'fla.bli',
-##' with geometry in the column 'geom'
-##' pgGetPts(conn, c('fla', 'bli'))
-##' ## Return a SpatialPointsDataFrame with columns c1 & c2 as data
-##' pgGetPts(conn, c('fla', 'bli'), other.cols = 'c1,c2')
-##' ## Return a SpatialPoints, retaining id from table as rownames
-##' pgGetPts(conn, c('fla', 'bli'), gid = 'bli_id', other.cols = FALSE)
-##' }
+# pgGetPts
+#' Retrieve point geometries from a PostGIS table, and convert it to
+#' a SpatialPoints or a SpatialPointsDataFrame.
+#'
+#' @title Retrieve point geometries
+#' @param conn A connection object to a PostgreSQL database
+#' @param table A character string specifying a PostgreSQL schema (if necessary), 
+#' and table or view name for the table holding the 
+#' points geometry (e.g., table = c("schema","table"))
+#' @param geom The name of the point geometry column. (Default = 'geom')
+#' @param gid Name of the column in 'table' holding the ID. Should be unique
+#' if additional columns of unique data are being appended. \code{gid=NULL} 
+#' (default) automatically creates a new unique ID for each row in the table.
+#' @param other.cols Names of columns in the table to retrieve, comma seperated
+#' in one character element (e.g. \code{other.cols='col1,col2'}. Default is to
+#' attach all columns in a SpatialPointsDataFrame, \code{other.cols=NULL] 
+#' returns a SpatialPoints.}
+#' @return A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame
+#' @author David Bucklin \email{david.bucklin@gmail.com}
+#' @export
+#' @examples
+#' \dontrun{
+#' ## Retrieve a SpatialPointsDataFrame with all data from table 'schema.tablename',
+#' with geometry in the column 'geom'
+#' pgGetPts(conn, c('schema','tablename'))
+#' ## Return a SpatialPointsDataFrame with columns c1 & c2 as data
+#' pgGetPts(conn, c('schema','tablename'), other.cols = 'c1,c2')
+#' ## Return a SpatialPoints, retaining id from table as rownames
+#' pgGetPts(conn, c('schema','tablename'), gid = 'table_id', other.cols = FALSE)
+#' }
 
-pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*", 
+pgGetPts <- function(conn, table, geom = "geom", gid = NULL, other.cols = "*", 
                      query = NULL) 
 {
   ## Check and prepare the schema.name
-  if (length(name) %in% 1:2) {
-    table <- paste(name, collapse = ".")
+  if (length(table) %in% 1:2) {
+    table <- paste(table, collapse = ".")
   } else {
     stop("The table name should be \"table\" or c(\"schema\", \"table\").")
   }

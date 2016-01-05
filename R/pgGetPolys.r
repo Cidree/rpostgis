@@ -4,9 +4,10 @@
 #
 #' @title Load a polygon geometry stored in a PostgreSQL database into R.
 #'
-#' @param conn A connection object created in RPostgreSQL package.
-#' @param table character, Name of the schema-qualified table in 
-#' Postgresql holding the geometry.
+#' @param conn A connection object to a PostgreSQL database
+#' @param table A character string specifying a PostgreSQL schema (if necessary), 
+#' and table or view name for the table holding the polygon 
+#' geometry (e.g., table = c("schema","table"))
 #' @param geom character, Name of the column in 'table' holding the 
 #' geometry object (Default = 'geom')
 #' @param gid character, Name of the column in 'table' holding the ID 
@@ -31,8 +32,8 @@
 #' conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
 #'                user='user',password='password')
 #'
-#' pgGetPolys(conn,'schema.tablename')
-#' pgGetPolys(conn,'schema.states',geom='statesgeom',gid='state_ID',
+#' pgGetPolys(conn,c('schema','tablename'))
+#' pgGetPolys(conn,c('schema','states'),geom='statesgeom',gid='state_ID',
 #'            other.cols='area,population', 
 #'            query = "AND area > 1000000 ORDER BY population LIMIT 10")
 #' }
@@ -53,7 +54,7 @@ pgGetPolys <- function(conn, table, geom = "geom", gid = NULL,
   srid <- dbGetQuery(conn, str)
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) 
-    stop("Multiple SRIDs in the line geometry")
+    stop("Multiple SRIDs in the polygon geometry")
   
   if (is.null(gid)) {
     gid <- "row_number() over()"

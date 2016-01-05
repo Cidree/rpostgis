@@ -8,10 +8,11 @@ pgGetLines(conn, table, geom = "geom", gid = NULL, other.cols = "*",
   query = NULL)
 }
 \arguments{
-\item{conn}{A connection object created in RPostgreSQL package.}
+\item{conn}{A connection object to a PostgreSQL database}
 
-\item{table}{character, Name of the schema-qualified table in 
-Postgresql holding the geometry.}
+\item{table}{A character string specifying a PostgreSQL schema (if necessary), 
+and table or view name for the table holding the lines 
+geometry (e.g., table = c("schema","table"))}
 
 \item{geom}{character, Name of the column in 'table' holding
 the geometry object (Default = 'geom')}
@@ -41,8 +42,8 @@ drv<-dbDriver("PostgreSQL")
 conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
                user='user',password='password')
 
-pgGetLines(conn,'schema.tablename')
-pgGetLines(conn,'schema.roads',geom='roadgeom',gid='road_ID',
+pgGetLines(conn,c('schema','tablename'))
+pgGetLines(conn,c('schema','roads'),geom='roadgeom',gid='road_ID',
            other.cols=NULL, query = "AND field = \\'highway\\'")
 }
 }

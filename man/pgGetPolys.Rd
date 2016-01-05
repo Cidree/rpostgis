@@ -8,10 +8,11 @@ pgGetPolys(conn, table, geom = "geom", gid = NULL, other.cols = "*",
   query = NULL)
 }
 \arguments{
-\item{conn}{A connection object created in RPostgreSQL package.}
+\item{conn}{A connection object to a PostgreSQL database}
 
-\item{table}{character, Name of the schema-qualified table in 
-Postgresql holding the geometry.}
+\item{table}{A character string specifying a PostgreSQL schema (if necessary), 
+and table or view name for the table holding the polygon 
+geometry (e.g., table = c("schema","table"))}
 
 \item{geom}{character, Name of the column in 'table' holding the 
 geometry object (Default = 'geom')}
@@ -46,8 +47,8 @@ drv<-dbDriver("PostgreSQL")
 conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
                user='user',password='password')
 
-pgGetPolys(conn,'schema.tablename')
-pgGetPolys(conn,'schema.states',geom='statesgeom',gid='state_ID',
+pgGetPolys(conn,c('schema','tablename'))
+pgGetPolys(conn,c('schema','states'),geom='statesgeom',gid='state_ID',
            other.cols='area,population', 
            query = "AND area > 1000000 ORDER BY population LIMIT 10")
 }

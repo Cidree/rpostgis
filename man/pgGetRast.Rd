@@ -4,25 +4,21 @@
 \alias{pgGetRast}
 \title{Load a raster stored in a PostgreSQL database into R.}
 \usage{
-pgGetRast(conn, table, rast = "rast", proj = NULL, digits = 9,
-  NSEW = c(NULL, NULL, NULL, NULL))
+pgGetRast(conn, table, rast = "rast", digits = 9, NSEW = c(NULL, NULL,
+  NULL, NULL))
 }
 \arguments{
-\item{conn}{A connection object created in RPostgreSQL package.}
+\item{conn}{A connection object to a PostgreSQL database}
 
-\item{table}{Name of the schema-qualified table in Postgresql 
-holding the raster.}
+\item{table}{A character string specifying a PostgreSQL schema (if necessary), 
+and table or view name for the table holding the 
+raster (e.g., table = c("schema","table"))}
 
 \item{rast}{Name of the column in 'table' holding the raster object}
 
-\item{proj}{Can be set to TRUE to automatically take the SRID for 
-the table in the database. Alternatively, the number of 
-EPSG-specified projection of the geometry (Default is NULL, 
-resulting in no projection.)}
-
 \item{digits}{numeric, precision for detecting whether points 
 are on a regular grid (a low number of digits is a low precision) -
-From rasterFromXYZ function (raster package)}
+From rasterFromXYZ function (\code{raster} package)}
 
 \item{NSEW}{numeric, clipping box for raster with four arguments
 (north, south, east, west) indicating the projection-specific 
@@ -41,8 +37,8 @@ drv<-dbDriver("PostgreSQL")
 conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
                user='user',password='password')
 
-pgGetRast(conn,'schema.tablename')
-pgGetRast(conn,'schema.tablename',proj=4326,digits=9,
+pgGetRast(conn,c('schema','tablename'))
+pgGetRast(conn,c('schema','DEM'),digits=9,
          NSEW=c(55,50,17,12))
 }
 }
