@@ -43,6 +43,7 @@ pgGetRast <- function(conn, table, rast = "rast",
   str <- paste0("SELECT DISTINCT(ST_SRID(", rast, ")) FROM ", 
                 table, " WHERE ", rast, " IS NOT NULL;")
   srid <- dbGetQuery(conn, str)
+  
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) 
     stop("Multiple SRIDs in the raster")

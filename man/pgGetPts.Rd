@@ -20,10 +20,10 @@ points geometry (e.g., table = c("schema","table"))}
 if additional columns of unique data are being appended. \code{gid=NULL} 
 (default) automatically creates a new unique ID for each row in the table.}
 
-\item{other.cols}{Names of columns in the table to retrieve, comma seperated
-in one character element (e.g. \code{other.cols='col1,col2'}. Default is to
-attach all columns in a SpatialPointsDataFrame, \code{other.cols=NULL] 
-returns a SpatialPoints.}}
+\item{other.cols}{Names of specific columns in the table to retrieve, comma seperated
+in one character element (e.g. \code{other.cols='col1,col2'}. The default is to
+attach all columns in a SpatialPointsDataFrame. Setting \code{other.cols=NULL} 
+will return a SpatialPoints.}
 }
 \value{
 A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame
@@ -45,5 +45,7 @@ pgGetPts(conn, c('schema','tablename'), gid = 'table_id', other.cols = FALSE)
 }
 \author{
 David Bucklin \email{david.bucklin@gmail.com}
+
+Mathieu Basille \email{basille@ase-research.org}
 }
 

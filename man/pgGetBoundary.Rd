@@ -23,8 +23,8 @@ geometry or raster object (Default = 'geom')}
 SpatialPolygon
 }
 \description{
-Retrieve bounding envelope of all geometries or rasters in a table in Postgresql
-as a SpatialPolygon.
+Retrieve bounding envelope (rectangle) of all geometries or rasters in a 
+table in Postgresql.
 }
 \examples{
 \dontrun{

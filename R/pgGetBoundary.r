@@ -1,6 +1,6 @@
 # pgGetBoundary
-#' Retrieve bounding envelope of all geometries or rasters in a table in Postgresql
-#' as a SpatialPolygon.
+#' Retrieve bounding envelope (rectangle) of all geometries or rasters in a 
+#' table in Postgresql.
 #
 #' @title Returns bounding envelope of all combined geometries or
 #' rasters stored in a table in a PostgreSQL database.
