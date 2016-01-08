@@ -5,14 +5,15 @@
 #' @title Load a linestring geometry stored in a PostgreSQL database into R.
 #'
 #' @param conn A connection object to a PostgreSQL database
-#' @param table A character string specifying a PostgreSQL schema (if necessary), 
+#' @param name A character string specifying a PostgreSQL schema (if necessary), 
 #' and table or view name for the table holding the lines 
-#' geometry (e.g., table = c("schema","table"))
-#' @param geom character, Name of the column in 'table' holding
+#' geometry (e.g., name = c("schema","table"))
+#' @param geom character, Name of the column in 'name' holding
 #' the geometry object (Default = 'geom')
-#' @param gid character, Name of the column in 'table' holding 
+#' @param gid character, Name of the column in 'name' holding 
 #' the ID for each line. Should be unique if additional columns of 
-#' unique data are being appended. (Default = 'gid')
+#' unique data are being appended. \code{gid=NULL} 
+#' (default) automatically creates a new unique ID for each row in the table.
 #' @param other.cols character, names of additional columns from 
 #' table (comma-seperated) to append to dataset (Default is all 
 #' columns, NULL returns a SpatialLines object)
@@ -33,19 +34,19 @@
 #'            other.cols=NULL, query = "AND field = \'highway\'")
 #' }
 
-pgGetLines <- function(conn, table, geom = "geom", gid = NULL, 
+pgGetLines <- function(conn, name, geom = "geom", gid = NULL, 
                        other.cols = "*", query = NULL) {
   
   ## Check and prepare the schema.name
-  if (length(table) %in% 1:2) {
-    table <- paste(table, collapse = ".")
+  if (length(name) %in% 1:2) {
+    name <- paste(name, collapse = ".")
   } else {
     stop("The table name should be \"table\" or c(\"schema\", \"table\").")
   }
   
   ## Retrieve the SRID
   str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", 
-                table, " WHERE ", geom, " IS NOT NULL;")
+                name, " WHERE ", geom, " IS NOT NULL;")
   srid <- dbGetQuery(conn, str)
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) 
@@ -57,13 +58,13 @@ pgGetLines <- function(conn, table, geom = "geom", gid = NULL,
   
   if (is.null(other.cols)) {
     que <- paste0("select ", gid, " as tgid,st_astext(", 
-                  geom, ") as wkt from ", table, " where ", geom, " is not null ", 
+                  geom, ") as wkt from ", name, " where ", geom, " is not null ", 
                   query, ";")
     dfTemp <- suppressWarnings(dbGetQuery(conn, que))
     row.names(dfTemp) = dfTemp$tgid
   } else {
     que <- paste0("select ", gid, " as tgid,st_astext(", 
-                  geom, ") as wkt,", other.cols, " from ", table, " where ", 
+                  geom, ") as wkt,", other.cols, " from ", name, " where ", 
                   geom, " is not null ", query, ";")
     dfTemp <- suppressWarnings(dbGetQuery(conn, que))
     row.names(dfTemp) = dfTemp$tgid

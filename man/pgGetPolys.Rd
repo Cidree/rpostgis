@@ -4,22 +4,23 @@
 \alias{pgGetPolys}
 \title{Load a polygon geometry stored in a PostgreSQL database into R.}
 \usage{
-pgGetPolys(conn, table, geom = "geom", gid = NULL, other.cols = "*",
+pgGetPolys(conn, name, geom = "geom", gid = NULL, other.cols = "*",
   query = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{table}{A character string specifying a PostgreSQL schema (if necessary), 
+\item{name}{A character string specifying a PostgreSQL schema (if necessary), 
 and table or view name for the table holding the polygon 
-geometry (e.g., table = c("schema","table"))}
+geometry (e.g., name = c("schema","table"))}
 
-\item{geom}{character, Name of the column in 'table' holding the 
+\item{geom}{character, Name of the column in 'name' holding the 
 geometry object (Default = 'geom')}
 
-\item{gid}{character, Name of the column in 'table' holding the ID 
+\item{gid}{character, Name of the column in 'name' holding the ID 
 for each polygon geometry. Should be unique if additional columns 
-of unique data are being appended. (Default = 'gid')}
+of unique data are being appended. \code{gid=NULL} 
+(default) automatically creates a new unique ID for each row in the table.}
 
 \item{other.cols}{character, names of additional columns from table
 (comma-seperated) to append to dataset (Default is all columns, 
@@ -27,11 +28,6 @@ other.cols=NULL returns a SpatialPolygons object)}
 
 \item{query}{character, additional SQL to append to modify 
 select query from table}
-
-\item{proj}{numeric, Can be set to TRUE to automatically take the
-SRID for the table in the database. Alternatively, the number of
-EPSG-specified projection of the geometry (Default is NULL, 
-resulting in no projection.)}
 }
 \value{
 SpatialPolygonsDataFrame or SpatialPolygons

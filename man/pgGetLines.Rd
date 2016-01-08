@@ -4,22 +4,23 @@
 \alias{pgGetLines}
 \title{Load a linestring geometry stored in a PostgreSQL database into R.}
 \usage{
-pgGetLines(conn, table, geom = "geom", gid = NULL, other.cols = "*",
+pgGetLines(conn, name, geom = "geom", gid = NULL, other.cols = "*",
   query = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{table}{A character string specifying a PostgreSQL schema (if necessary), 
+\item{name}{A character string specifying a PostgreSQL schema (if necessary), 
 and table or view name for the table holding the lines 
-geometry (e.g., table = c("schema","table"))}
+geometry (e.g., name = c("schema","table"))}
 
-\item{geom}{character, Name of the column in 'table' holding
+\item{geom}{character, Name of the column in 'name' holding
 the geometry object (Default = 'geom')}
 
-\item{gid}{character, Name of the column in 'table' holding 
+\item{gid}{character, Name of the column in 'name' holding 
 the ID for each line. Should be unique if additional columns of 
-unique data are being appended. (Default = 'gid')}
+unique data are being appended. \code{gid=NULL} 
+(default) automatically creates a new unique ID for each row in the table.}
 
 \item{other.cols}{character, names of additional columns from 
 table (comma-seperated) to append to dataset (Default is all 

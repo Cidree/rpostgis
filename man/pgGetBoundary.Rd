@@ -5,19 +5,17 @@
 \title{Returns bounding envelope of all combined geometries or
 rasters stored in a table in a PostgreSQL database.}
 \usage{
-pgGetBoundary(conn, table, geom = "geom", raster = FALSE)
+pgGetBoundary(conn, name, geom = "geom")
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{table}{A character string specifying a PostgreSQL schema (if necessary), 
+\item{name}{A character string specifying a PostgreSQL schema (if necessary), 
 and table or view name for the table holding the geometries/raster(s) 
-(e.g., table = c("schema","table"))}
+(e.g., name = c("schema","table"))}
 
-\item{geom}{character, Name of the column in 'table' holding the 
+\item{geom}{character, Name of the column in 'name' holding the 
 geometry or raster object (Default = 'geom')}
-
-\item{raster}{logical, Set to TRUE if using for raster objects (Default = FALSE)}
 }
 \value{
 SpatialPolygon
@@ -34,7 +32,7 @@ conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
                user='user',password='password')
 
 pgGetBoundary(conn,c('schema','polys'),geom = 'polygon')
-pgGetBoundary(conn,c('schema','rasters'),geom='rast',raster=TRUE)
+pgGetBoundary(conn,c('schema','rasters'),geom='rast')
 }
 }
 \author{

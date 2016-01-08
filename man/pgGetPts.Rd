@@ -4,19 +4,19 @@
 \alias{pgGetPts}
 \title{Retrieve point geometries}
 \usage{
-pgGetPts(conn, table, geom = "geom", gid = NULL, other.cols = "*",
+pgGetPts(conn, name, geom = "geom", gid = NULL, other.cols = "*",
   query = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{table}{A character string specifying a PostgreSQL schema (if necessary), 
+\item{name}{A character string specifying a PostgreSQL schema (if necessary), 
 and table or view name for the table holding the 
-points geometry (e.g., table = c("schema","table"))}
+points geometry (e.g., name = c("schema","table"))}
 
 \item{geom}{The name of the point geometry column. (Default = 'geom')}
 
-\item{gid}{Name of the column in 'table' holding the ID. Should be unique
+\item{gid}{Name of the column in 'name' holding the ID. Should be unique
 if additional columns of unique data are being appended. \code{gid=NULL} 
 (default) automatically creates a new unique ID for each row in the table.}
 
@@ -24,6 +24,9 @@ if additional columns of unique data are being appended. \code{gid=NULL}
 in one character element (e.g. \code{other.cols='col1,col2'}. The default is to
 attach all columns in a SpatialPointsDataFrame. Setting \code{other.cols=NULL} 
 will return a SpatialPoints.}
+
+\item{query}{character, additional SQL to append to modify 
+select query from table}
 }
 \value{
 A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame

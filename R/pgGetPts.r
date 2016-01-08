@@ -4,17 +4,19 @@
 #'
 #' @title Retrieve point geometries
 #' @param conn A connection object to a PostgreSQL database
-#' @param table A character string specifying a PostgreSQL schema (if necessary), 
+#' @param name A character string specifying a PostgreSQL schema (if necessary), 
 #' and table or view name for the table holding the 
-#' points geometry (e.g., table = c("schema","table"))
+#' points geometry (e.g., name = c("schema","table"))
 #' @param geom The name of the point geometry column. (Default = 'geom')
-#' @param gid Name of the column in 'table' holding the ID. Should be unique
+#' @param gid Name of the column in 'name' holding the ID. Should be unique
 #' if additional columns of unique data are being appended. \code{gid=NULL} 
 #' (default) automatically creates a new unique ID for each row in the table.
 #' @param other.cols Names of specific columns in the table to retrieve, comma seperated
 #' in one character element (e.g. \code{other.cols='col1,col2'}. The default is to
 #' attach all columns in a SpatialPointsDataFrame. Setting \code{other.cols=NULL} 
 #' will return a SpatialPoints.
+#' @param query character, additional SQL to append to modify 
+#' select query from table
 #' @return A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @author Mathieu Basille \email{basille@@ase-research.org}
@@ -30,12 +32,12 @@
 #' pgGetPts(conn, c('schema','tablename'), gid = 'table_id', other.cols = FALSE)
 #' }
 
-pgGetPts <- function(conn, table, geom = "geom", gid = NULL, other.cols = "*", 
+pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*", 
                      query = NULL) 
 {
   ## Check and prepare the schema.name
-  if (length(table) %in% 1:2) {
-    table <- paste(table, collapse = ".")
+  if (length(name) %in% 1:2) {
+    name <- paste(name, collapse = ".")
   } else {
     stop("The table name should be \"table\" or c(\"schema\", \"table\").")
   }
@@ -47,11 +49,11 @@ pgGetPts <- function(conn, table, geom = "geom", gid = NULL, other.cols = "*",
   
   ## Check if MULTI or single geom
   str <- paste0("SELECT DISTINCT ST_GeometryType(", geom, ") AS type FROM ", 
-                table, " WHERE ", geom, " IS NOT NULL;")
+                name, " WHERE ", geom, " IS NOT NULL;")
   typ <- dbGetQuery(conn, str)
   
   ## Retrieve the SRID
-  str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", table, 
+  str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", name, 
                 " WHERE ", geom, " IS NOT NULL;")
   srid <- dbGetQuery(conn, str)
   ## Check if the SRID is unique, otherwise throw an error
@@ -64,11 +66,11 @@ pgGetPts <- function(conn, table, geom = "geom", gid = NULL, other.cols = "*",
     # get data
     if (is.null(other.cols)) {
       str <- paste0("select ", gid, " as tgid,ST_X(", geom, ") AS x, ST_Y(", 
-                    geom, ") AS y from ", table, " where ", geom, " is not null ", 
+                    geom, ") AS y from ", name, " where ", geom, " is not null ", 
                     query, ";")
     } else {
       str <- paste0("select ", gid, " as tgid,ST_X(", geom, ") AS x, ST_Y(", 
-                    geom, ") AS y,", other.cols, " from ", table, " where ", 
+                    geom, ") AS y,", other.cols, " from ", name, " where ", 
                     geom, " is not null ", query, ";")
     }
     dbData <- suppressWarnings(dbGetQuery(conn, str))
@@ -90,11 +92,11 @@ pgGetPts <- function(conn, table, geom = "geom", gid = NULL, other.cols = "*",
     
     if (is.null(other.cols)) {
       str <- paste0("select ", gid, " as tgid,st_astext(", geom, 
-                    ") as wkt from ", table, " where ", geom, " is not null ", 
+                    ") as wkt from ", name, " where ", geom, " is not null ", 
                     query, ";")
     } else {
       str <- paste0("select ", gid, " as tgid,st_astext(", geom, 
-                    ") as wkt,", other.cols, " from ", table, " where ", geom, 
+                    ") as wkt,", other.cols, " from ", name, " where ", geom, 
                     " is not null ", query, ";")
     }
     
