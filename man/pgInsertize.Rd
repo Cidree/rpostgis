@@ -18,17 +18,16 @@ Character string which is suitable for pasting into a SQL INSERT statement
 Formats an R data frame as a character string as insert values for a PostgreSQL insert statement.
 }
 \examples{
+
+data<-data.frame(a=c(1,2,3),b=c(4,NA,6),c=c(7,'text',9))
+values<-pgInsertize(df=data)
+
 \dontrun{
 library(RPostgreSQL)
 drv<-dbDriver("PostgreSQL")
 conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
                user='user',password='password')
-}
 
-data<-data.frame(a=c(1,2,3),b=c(4,NA,6),c=c(7,'text',9))
-values<-pgInsertize(data)
-
-\dontrun{
 dbSendQuery(conn,paste0("INSERT INTO schema.table (col1,col2,col3) VALUES ",values,";"))
 }
 }
