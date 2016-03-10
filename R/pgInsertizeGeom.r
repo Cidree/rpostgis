@@ -5,6 +5,7 @@
 #'
 #' @param sdf A Spatial*DataFrame
 #' @param db.na A character string, value to change NAs to (defaults to "NULL")
+#' @param multi Logical, if PostGIS geometry column is of Multi* type set to TRUE
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
 #' @return Character string which is suitable for pasting into a SQL INSERT statement for PostGIS spatial tables.
@@ -27,7 +28,7 @@
 #' dbSendQuery(conn,paste0("INSERT INTO schema.table (col1,col2,col3,geom) VALUES ",values,";"))
 #' }
 
-pgInsertizeGeom<- function(sdf,db.na = "NULL") {
+pgInsertizeGeom<- function(sdf,db.na = "NULL",multi=FALSE) {
   
   dat<-sdf@data
   geom999<-writeWKT(sdf,byid=TRUE)
@@ -41,12 +42,21 @@ pgInsertizeGeom<- function(sdf,db.na = "NULL") {
 
   #format rows of data frame
   if (!is.na(proj)) {
-  d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
-                                  "',ST_GeomFromText('",x[length(colnames(df))],"',",proj,"))"))} else {
-  warning("spatial projection is unknown. Use projection(sp) is you want to set it.")
-  d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
-                                  "',ST_GeomFromText('",x[length(colnames(df))],"'))"))
-                                  }
+    if (multi == TRUE) {
+      d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
+                                  "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"',",proj,")))")) 
+    } else {
+      d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
+                                        "',ST_GeomFromText('",x[length(colnames(df))],"',",proj,"))"))}
+  } else {
+    warning("spatial projection is unknown. Use projection(sp) if you want to set it.")
+    if (multi == TRUE) {
+      d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
+                                  "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"')))"))
+    } else {
+      d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
+                                        "',ST_GeomFromText('",x[length(colnames(df))],"'))"))}
+  }
   
   d1<-gsub("'NULL'","NULL",d1)
   d1<-paste(d1,collapse=",")

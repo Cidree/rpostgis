@@ -4,12 +4,14 @@
 \alias{pgInsertizeGeom}
 \title{Formats an R Spatial*DataFrame as character string insert values for a PostgreSQL insert statement.}
 \usage{
-pgInsertizeGeom(sdf, db.na = "NULL")
+pgInsertizeGeom(sdf, db.na = "NULL", multi = FALSE)
 }
 \arguments{
 \item{sdf}{A Spatial*DataFrame}
 
 \item{db.na}{A character string, value to change NAs to (defaults to "NULL")}
+
+\item{multi}{Logical, if PostGIS geometry column is of Multi* type set to TRUE}
 }
 \value{
 Character string which is suitable for pasting into a SQL INSERT statement for PostGIS spatial tables.
