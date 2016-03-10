@@ -25,6 +25,7 @@
 pgInsertize <- function(df,db.na = "NULL") {
   
   #set NA to user-specified NULL value
+  df[] <- lapply(df, as.character)
   df[is.na(df)]<-db.na
   
   #format rows of data frame
