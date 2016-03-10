@@ -1,14 +1,16 @@
 Package: rpostgis
-Version: 0.6.1
-Date: 2015-06-26
+Version: 0.7
+Date: 2016-01-05
 Title: PostGIS and PostgreSQL related functions
 Description: This package provides additional functions to the RPostgreSQL
     package, mostly convenient wrappers, with some PostGIS oriented functions.
-Author: Mathieu Basille
-Maintainer: Mathieu Basille <basille@ase-research.org>
+Author: Mathieu Basille, David Bucklin
+Maintainer: David Bucklin <david.bucklin@gmail.com>
 Depends:
+    raster,
+    rgeos,
     RPostgreSQL,
     sp
 License: GPL (>= 3)
 URL: http://ase-research.org/basille/rpostgis
-
+RoxygenNote: 5.0.1

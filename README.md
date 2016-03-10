@@ -15,7 +15,7 @@ You need to use the package
 from Hadley Wickham:
 
 	library(devtools)
-	install_github("basille/rpostgis")
+	install_github("mablab/rpostgis")
 
 
 ## Installation of the released versions
