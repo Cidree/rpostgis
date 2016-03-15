@@ -4,12 +4,17 @@
 \alias{pgInsertize}
 \title{Formats an R data frame as a character string for use in a PostgreSQL insert statement.}
 \usage{
-pgInsertize(df, db.na = "NULL")
+pgInsertize(df, db.na = "NULL", check = NULL, conn = NULL)
 }
 \arguments{
 \item{df}{A data frame}
 
 \item{db.na}{A character string, value to change NAs to (defaults to "NULL")}
+
+\item{check}{character, schema and table of the PostgreSQL table to compare columns of data frame with 
+If not NULL (default), a list is returned with matching column names and insert string}
+
+\item{conn}{A database connection (if a table is given in for "check" parameter)}
 }
 \value{
 Character string which is suitable for pasting into a SQL INSERT statement
@@ -19,16 +24,28 @@ Formats an R data frame as a character string as insert values for a PostgreSQL 
 }
 \examples{
 
-data<-data.frame(a=c(1,2,3),b=c(4,NA,6),c=c(7,'text',9))
-values<-pgInsertize(df=data)
-
 \dontrun{
+#connect to database
 library(RPostgreSQL)
 drv<-dbDriver("PostgreSQL")
 conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
                user='user',password='password')
+}
 
+data<-data.frame(a=c(1,2,3),b=c(4,NA,6),c=c(7,'text',9))
+
+#just return insert values
+values<-pgInsertize(df=data)
+
+\dontrun{
 dbSendQuery(conn,paste0("INSERT INTO schema.table (col1,col2,col3) VALUES ",values,";"))
+
+#return list of matching columns in destination DB table and insert values
+values.list<-pgInsertize(df=data,check=c("schema","table"),conn=conn)
+
+#review values.list to check if columns match
+#insert values in existing database table
+dbSendQuery(conn,paste0("INSERT INTO schema.table (",values.list$db.cols.insert,") VALUES ",values.list$insert.data,";"))
 }
 }
 \author{
