@@ -2,25 +2,28 @@
 % Please edit documentation in R/pgInsertize.r
 \name{pgInsertize}
 \alias{pgInsertize}
-\title{Formats an R data frame as a character string for use in a PostgreSQL insert statement.}
+\title{Formats an R data frame for insert into a PostgreSQL table (using pgInsert)}
 \usage{
-pgInsertize(df, db.na = "NULL", check = NULL, conn = NULL)
+pgInsertize(df, db.na = "NULL", force.match = NULL, conn = NULL)
 }
 \arguments{
 \item{df}{A data frame}
 
 \item{db.na}{A character string, value to change NAs to (defaults to "NULL")}
 
-\item{check}{character, schema and table of the PostgreSQL table to compare columns of data frame with 
-If not NULL (default), a list is returned with matching column names and insert string}
+\item{force.match}{character, schema and table of the PostgreSQL table to compare columns of data frame with 
+If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
+to match the database table. If NULL, all columns will be kept in the same order given in the data frame.}
 
-\item{conn}{A database connection (if a table is given in for "check" parameter)}
+\item{conn}{A database connection (required if a table is given in for "force.match" parameter)}
 }
 \value{
-Character string which is suitable for pasting into a SQL INSERT statement
+List containing two character strings- (1) db.cols.insert, a character string of the database column
+names to make inserts on, and (2) insert.data, a character string of the data to insert. See examples for 
+usage within the \code{dbSendQuery} function.
 }
 \description{
-Formats an R data frame as a character string as insert values for a PostgreSQL insert statement.
+Formats an R data frame for insert into a PostgreSQL table (using pgInsert)
 }
 \examples{
 
@@ -34,18 +37,19 @@ conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
 
 data<-data.frame(a=c(1,2,3),b=c(4,NA,6),c=c(7,'text',9))
 
-#just return insert values
+#format all columns for insert
 values<-pgInsertize(df=data)
 
 \dontrun{
-dbSendQuery(conn,paste0("INSERT INTO schema.table (col1,col2,col3) VALUES ",values,";"))
+# insert data in database table (note that an error will be given if all insert columns 
+# do not match exactly to database table columns)
+pgInsert(conn,c("schema","table"),pgi=values)
 
-#return list of matching columns in destination DB table and insert values
-values.list<-pgInsertize(df=data,check=c("schema","table"),conn=conn)
+##
+#run with forced matching of database table column names
+values<-pgInsertize(df=data,force.match=c("schema","table"),conn=conn)
 
-#review values.list to check if columns match
-#insert values in existing database table
-dbSendQuery(conn,paste0("INSERT INTO schema.table (",values.list$db.cols.insert,") VALUES ",values.list$insert.data,";"))
+pgInsert(conn,c("schema","table"),pgi=values)
 }
 }
 \author{

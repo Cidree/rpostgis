@@ -1,11 +1,16 @@
 # pgInsertizeGeom
-#' Formats an R Spatial*DataFrame as character string insert values for a PostgreSQL insert statement.
+#' Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (using pgInsert).
 #
-#' @title Formats an R Spatial*DataFrame as character string insert values for a PostgreSQL insert statement.
+#' @title Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (using pgInsert).
 #'
 #' @param sdf A Spatial*DataFrame
 #' @param db.na A character string, value to change NAs to (defaults to "NULL")
+#' @param geom character string, the name of geometry column in the database table. (defaults to 'geom')
 #' @param multi Logical, if PostGIS geometry column is of Multi* type set to TRUE
+#' @param force.match character, schema and table of the PostgreSQL table to compare columns of data frame with 
+#' If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
+#' to match the database table. If NULL, all columns will be kept in the same order given in the data frame.
+#' @param conn A database connection (if a table is given in for "force.match" parameter)
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
 #' @return Character string which is suitable for pasting into a SQL INSERT statement for PostGIS spatial tables.
@@ -15,7 +20,12 @@
 #' data(meuse)
 #' coords <- SpatialPoints(meuse[, c("x", "y")])
 #' spdf<- SpatialPointsDataFrame(coords, meuse)
-#' values<-pgInsertizeGeom(sdf=spdf)
+#' 
+#' #remove "." from column name
+#' colnames(spdf@data)[colnames(spdf@data) == 'dist.m']<-"dist_m"
+#' 
+#' #format data for insert
+#' pgi<-pgInsertizeGeom(spdf,geom="point")
 #' 
 #' \dontrun{
 #'
@@ -24,14 +34,33 @@
 #' conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
 #'                user='user',password='password')
 #' 
-#' ##Note that the geometry column must always be last in the insert column list
-#' dbSendQuery(conn,paste0("INSERT INTO schema.table (col1,col2,col3,geom) VALUES ",values,";"))
+#' #insert data in database table (note that an error will be given if all insert columns do not match exactly to database table columns)
+#' pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
 #' }
 
-pgInsertizeGeom<- function(sdf,db.na = "NULL",multi=FALSE) {
+pgInsertizeGeom<- function(sdf,db.na = "NULL",geom='geom',multi=FALSE,force.match=NULL,conn=NULL) {
   
   dat<-sdf@data
   geom999<-writeWKT(sdf,byid=TRUE)
+  
+  rcols<-colnames(dat)
+  
+  if (!is.null(force.match)) {
+    db.cols<-pgColumnInfo(conn,name=(c(force.match[1],force.match[2])))$column_name
+    
+    if (is.na(match(geom,db.cols))) {stop('Geometry column name not found in database table.')}
+    
+    db.cols.match<-db.cols[!is.na(match(db.cols,rcols))]
+    db.cols.insert<-c(db.cols.match,geom)
+    
+    #reorder data frame columns
+    df<-dat[db.cols.match]
+    
+    message(paste0(length(colnames(df))," out of ",length(rcols)," columns of the data frame match database table columns and will be formatted."))
+    
+  } else {
+    db.cols.insert<-c(rcols,geom)
+  }
   
   proj<-strsplit(as.character(sdf@proj4string), "[: ]+")[[1]][2]
   
@@ -61,5 +90,7 @@ pgInsertizeGeom<- function(sdf,db.na = "NULL",multi=FALSE) {
   d1<-gsub("'NULL'","NULL",d1)
   d1<-paste(d1,collapse=",")
   
-  return(d1)
+  lis<-list(db.cols.insert=db.cols.insert,insert.data=d1)
+  
+  return(lis)
 }
