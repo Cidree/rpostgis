@@ -1,10 +1,9 @@
 # pgInsertize
-#' Formats an R data frame for insert into a PostgreSQL table (using pgInsert)
+#' Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)
 #
-#' @title Formats an R data frame for insert into a PostgreSQL table (using pgInsert)
+#' @title Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)
 #'
 #' @param df A data frame
-#' @param db.na A character string, value to change NAs to (defaults to "NULL")
 #' @param force.match character, schema and table of the PostgreSQL table to compare columns of data frame with 
 #' If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
 #' to match the database table. If NULL, all columns will be kept in the same order given in the data frame.
@@ -13,7 +12,7 @@
 #' @export
 #' @return List containing two character strings- (1) db.cols.insert, a character string of the database column
 #' names to make inserts on, and (2) insert.data, a character string of the data to insert. See examples for 
-#' usage within the \code{dbSendQuery} function.
+#' usage within the \code{pgInsert} function.
 #' @examples
 #' 
 #' \dontrun{
@@ -41,7 +40,7 @@
 #' pgInsert(conn,c("schema","table"),pgi=values)
 #' }
 
-pgInsertize <- function(df,db.na = "NULL",force.match=NULL,conn=NULL) {
+pgInsertize <- function(df,force.match=NULL,conn=NULL) {
   
   rcols<-colnames(df)
   
@@ -62,7 +61,7 @@ pgInsertize <- function(df,db.na = "NULL",force.match=NULL,conn=NULL) {
   
   #set NA to user-specified NULL value
   df[] <- lapply(df, as.character)
-  df[is.na(df)]<-db.na
+  df[is.na(df)]<-"NULL"
   
   #format rows of data frame
   d1<-apply(df,1,function(x) paste0("('",toString(paste(x,collapse="','")),"')"))

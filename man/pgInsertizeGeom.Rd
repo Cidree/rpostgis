@@ -4,13 +4,11 @@
 \alias{pgInsertizeGeom}
 \title{Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (using pgInsert).}
 \usage{
-pgInsertizeGeom(sdf, db.na = "NULL", geom = "geom", multi = FALSE,
-  force.match = NULL, conn = NULL)
+pgInsertizeGeom(sdf, geom = "geom", multi = FALSE, force.match = NULL,
+  conn = NULL)
 }
 \arguments{
 \item{sdf}{A Spatial*DataFrame}
-
-\item{db.na}{A character string, value to change NAs to (defaults to "NULL")}
 
 \item{geom}{character string, the name of geometry column in the database table. (defaults to 'geom')}
 
@@ -23,7 +21,9 @@ to match the database table. If NULL, all columns will be kept in the same order
 \item{conn}{A database connection (if a table is given in for "force.match" parameter)}
 }
 \value{
-Character string which is suitable for pasting into a SQL INSERT statement for PostGIS spatial tables.
+List containing two character strings- (1) db.cols.insert, a character string of the database column
+names to make inserts on, and (2) insert.data, a character string of the data to insert. See examples for 
+usage within the \code{pgInsert} function.
 }
 \description{
 Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (using pgInsert).
@@ -48,7 +48,8 @@ drv<-dbDriver("PostgreSQL")
 conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
                user='user',password='password')
 
-#insert data in database table (note that an error will be given if all insert columns do not match exactly to database table columns)
+# insert data in database table (note that an error will be given if all 
+# insert columns do not match exactly to database table columns)
 pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
 }
 }

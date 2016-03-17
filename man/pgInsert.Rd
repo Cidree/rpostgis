@@ -4,14 +4,14 @@
 \alias{pgInsert}
 \title{Inserts data from a pgInsertize* object into a PostgreSQL table}
 \usage{
-pgInsert(conn, table, pgi)
+pgInsert(conn, name, pgi)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{pgi}{A list of columns to insert to and the formatted insert data (an output object from pgInsertize() or pgInsertizeGeom())}
+\item{name}{character strings specifying a PostgreSQL schema and table name to insert into (e.g., name = c("schema","table"))}
 
-\item{name}{A character string specifying a PostgreSQL schema (if necessary), and table or view name for the table holding the lines geometry (e.g., name = c("schema","table"))}
+\item{pgi}{A list of columns to insert to and the formatted insert data (the output object from pgInsertize() or pgInsertizeGeom())}
 }
 \value{
 DBIResult
@@ -33,7 +33,6 @@ colnames(spdf@data)[colnames(spdf@data) == 'dist.m']<-"dist_m"
 pgi<-pgInsertizeGeom(spdf,geom="point")
 
 \dontrun{
-
 library(RPostgreSQL)
 drv<-dbDriver("PostgreSQL")
 conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',

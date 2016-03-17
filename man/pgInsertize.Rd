@@ -2,14 +2,12 @@
 % Please edit documentation in R/pgInsertize.r
 \name{pgInsertize}
 \alias{pgInsertize}
-\title{Formats an R data frame for insert into a PostgreSQL table (using pgInsert)}
+\title{Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)}
 \usage{
-pgInsertize(df, db.na = "NULL", force.match = NULL, conn = NULL)
+pgInsertize(df, force.match = NULL, conn = NULL)
 }
 \arguments{
 \item{df}{A data frame}
-
-\item{db.na}{A character string, value to change NAs to (defaults to "NULL")}
 
 \item{force.match}{character, schema and table of the PostgreSQL table to compare columns of data frame with 
 If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
@@ -20,10 +18,10 @@ to match the database table. If NULL, all columns will be kept in the same order
 \value{
 List containing two character strings- (1) db.cols.insert, a character string of the database column
 names to make inserts on, and (2) insert.data, a character string of the data to insert. See examples for 
-usage within the \code{dbSendQuery} function.
+usage within the \code{pgInsert} function.
 }
 \description{
-Formats an R data frame for insert into a PostgreSQL table (using pgInsert)
+Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)
 }
 \examples{
 
