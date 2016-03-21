@@ -49,13 +49,20 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
                 name, " WHERE ", geom, " IS NOT NULL;")
   srid <- dbGetQuery(conn, str)
   ## Check if the SRID is unique, otherwise throw an error
-  if (nrow(srid) != 1) 
-    stop("Multiple SRIDs in the line geometry")
+  if (nrow(srid) != 1) {
+    stop("Multiple SRIDs in the line geometry")}
   
+  p4s<-CRS(as.character(NA))@projargs
+  try(p4s<-CRS(paste0("+init=epsg:", srid$st_srid))@projargs,silent=TRUE)
+  
+  if (is.na(p4s)) {warning("Table SRID not found. Projection will be undefined (NA)")}
+  
+  #check gid
   if (is.null(gid)) {
     gid <- "row_number() over()"
   }
   
+  #check other.cols
   if (is.null(other.cols)) {
     que <- paste0("select ", gid, " as tgid,st_astext(", 
                   geom, ") as wkt from ", name, " where ", geom, " is not null ", 
@@ -69,8 +76,8 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     dfTemp <- suppressWarnings(dbGetQuery(conn, que))
     row.names(dfTemp) = dfTemp$tgid
   }
-  
-  p4s <- CRS(paste0("+init=epsg:", srid$st_srid))@projargs
+
+  #make spatiallines
   tt <- mapply(function(x, y, z) readWKT(x, y, z), x = dfTemp[,2]
                , y = dfTemp[, 1], z = p4s)
   

@@ -60,6 +60,11 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
   if (nrow(srid) != 1) 
     stop("Multiple SRIDs in the point geometry")
   
+  proj4<-CRS(as.character(NA))
+  try(proj4<-CRS(paste0("+init=epsg:", srid$st_srid)),silent=TRUE)
+  
+  if (is.na(proj4@projargs)) {warning("Table SRID not found. Projection will be undefined (NA)")}
+  
   # make spatialpoints* for single geom types
   if (length(typ$type) == 1 && typ$type == "ST_Point") {
     
@@ -78,7 +83,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     
     ## Generate a SpatialPoints object
     sp <- SpatialPoints(data.frame(x = dbData$x, y = dbData$y, row.names = dbData$tgid), 
-                        proj4string = CRS(paste0("+init=epsg:", srid$st_srid)))
+                        proj4string = proj4)
     
     ## Append data to spdf if requested
     if (!is.null(other.cols)) {
@@ -105,16 +110,14 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     
     # create spatialMultiPoints
     tt <- mapply(function(x, y, z) readWKT(x, y, z), x = dbData$wkt, 
-                 y = dbData$tgid, z = CRS(paste0("+init=epsg:", srid$st_srid))@projargs)
-    sp <- SpatialMultiPoints(tt, proj4string = CRS(paste0("+init=epsg:", 
-                                                          srid$st_srid)))
+                 y = dbData$tgid, z = proj4@projargs)
+    sp <- SpatialMultiPoints(tt, proj4string = proj4)
     
     ## Append data to spdf if requested
     if (!is.null(other.cols)) {
       cols <- colnames(dbData)
       cols <- cols[!(cols %in% c("tgid", "wkt", geom))]
-      sp <- SpatialMultiPointsDataFrame(tt, dbData[cols], proj4string = CRS(paste0("+init=epsg:", 
-                                                                                   srid$st_srid)))
+      sp <- SpatialMultiPointsDataFrame(tt, dbData[cols], proj4string = proj4)
     }
   }
   
