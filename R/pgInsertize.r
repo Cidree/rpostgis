@@ -64,7 +64,7 @@ pgInsertize <- function(df,force.match=NULL,conn=NULL) {
   df[is.na(df)]<-"NULL"
   
   #format rows of data frame
-  d1<-apply(df,1,function(x) paste0("('",toString(paste(x,collapse="','")),"')"))
+  d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x,fixed=TRUE),collapse="','")),"')"))
   d1<-gsub("'NULL'","NULL",d1)
   d1<-paste(d1,collapse=",")
   

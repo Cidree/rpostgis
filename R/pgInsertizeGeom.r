@@ -69,23 +69,25 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
   df<-cbind(dat,geom999)
   df[] <- lapply(df, as.character)
   
+  #set all NA to NULL
   df[is.na(df)]<-"NULL"
-
+  
+  #double all single ' to escape
   #format rows of data frame
   if (!is.na(proj)) {
     if (multi == TRUE) {
-      d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
+      d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                   "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"',",proj,")))")) 
     } else {
-      d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
+      d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                         "',ST_GeomFromText('",x[length(colnames(df))],"',",proj,"))"))}
   } else {
     warning("spatial projection is unknown. Use projection(sp) if you want to set it.")
     if (multi == TRUE) {
-      d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
+      d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                   "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"')))"))
     } else {
-      d1<-apply(df,1,function(x) paste0("('",toString(paste(x[1:length(colnames(df))-1],collapse="','")),
+      d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                         "',ST_GeomFromText('",x[length(colnames(df))],"'))"))}
   }
   
