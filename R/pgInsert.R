@@ -5,6 +5,9 @@
 #' @param conn A connection object to a PostgreSQL database
 #' @param name character strings specifying a PostgreSQL schema and table name to insert into (e.g., name = c("schema","table"))
 #' @param pgi A list of columns to insert to and the formatted insert data (the output object from pgInsertize() or pgInsertizeGeom())
+#' @param encoding Character vector of length 2, containing the from/to encodings for the 
+#' data (as in the function \code{iconv}. For example, if your dataset contain certain latin characters (e.g., accent marks),
+#' and the database is in UTF-8, use \code{encoding = c("latin1","UTF-8")}. Left NULL, no conversion will be done.
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
 #' @return DBIResult
@@ -32,7 +35,9 @@
 #' pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
 #' }
 
-pgInsert<-function(conn,name,pgi) {
+pgInsert<-function(conn,name,pgi,encoding=NULL) {
+  
+  if(!is.null(encoding)) {pgi$insert.data<-iconv(pgi$insert.data,encoding[1],encoding[2])}
   
   cols<-pgi$db.cols.insert
   values<-pgi$insert.data

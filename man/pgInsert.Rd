@@ -4,7 +4,7 @@
 \alias{pgInsert}
 \title{Inserts data from a pgInsertize* object into a PostgreSQL table}
 \usage{
-pgInsert(conn, name, pgi)
+pgInsert(conn, name, pgi, encoding = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -12,6 +12,10 @@ pgInsert(conn, name, pgi)
 \item{name}{character strings specifying a PostgreSQL schema and table name to insert into (e.g., name = c("schema","table"))}
 
 \item{pgi}{A list of columns to insert to and the formatted insert data (the output object from pgInsertize() or pgInsertizeGeom())}
+
+\item{encoding}{Character vector of length 2, containing the from/to encodings for the 
+data (as in the function \code{iconv}. For example, if your dataset contain certain latin characters (e.g., accent marks),
+and the database is in UTF-8, use \code{encoding = c("latin1","UTF-8")}. Left NULL, no conversion will be done.}
 }
 \value{
 DBIResult
