@@ -45,6 +45,10 @@ pgInsertize <- function(df,force.match=NULL,conn=NULL) {
   rcols<-colnames(df)
   
   if (!is.null(force.match)) {
+    
+    if(length(force.match) == 1) {force.match[2]<-force.match
+                                  force.match[1]<-"public"}
+    
     db.cols<-pgColumnInfo(conn,name=(c(force.match[1],force.match[2])))$column_name
     
     db.cols.match<-db.cols[!is.na(match(db.cols,rcols))]
@@ -53,7 +57,7 @@ pgInsertize <- function(df,force.match=NULL,conn=NULL) {
     #reorder data frame columns
     df<-df[db.cols.match]
     
-    message(paste0(length(colnames(df))," out of ",length(rcols)," columns of the data frame match database table columns and will be formatted."))
+    message(paste0(length(colnames(df))," out of ",length(rcols)," columns of the data frame match database table columns and will be formatted for database insert."))
 
   } else {
     db.cols.insert<-rcols

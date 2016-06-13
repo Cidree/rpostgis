@@ -21,6 +21,10 @@
 #' }
 
 pgColumnInfo<- function(conn,name,allinfo=FALSE) {
+  
+  if(length(name) == 1) {name[2]<-name
+                        name[1]<-"public"}
+  
   if (allinfo) {cols<-"*"} else {cols<-"column_name,data_type,is_nullable,character_maximum_length"}
   
   df<-dbGetQuery(conn,paste0("SELECT ",cols," FROM information_schema.columns

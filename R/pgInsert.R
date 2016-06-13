@@ -41,6 +41,9 @@ pgInsert<-function(conn,name,pgi,encoding=NULL) {
   
   cols<-pgi$db.cols.insert
   values<-pgi$insert.data
+  
+  if(length(name) == 1) {name[2]<-name
+                        name[1]<-"public"}
 
   db.cols<-pgColumnInfo(conn,name=(c(name[1],name[2])))$column_name
   

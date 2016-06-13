@@ -48,6 +48,10 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
   rcols<-colnames(dat)
   
   if (!is.null(force.match)) {
+    
+    if(length(force.match) == 1) {force.match[2]<-force.match
+    force.match[1]<-"public"}
+    
     db.cols<-pgColumnInfo(conn,name=(c(force.match[1],force.match[2])))$column_name
     
     if (is.na(match(geom,db.cols))) {stop('Geometry column name not found in database table.')}
@@ -82,7 +86,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                         "',ST_GeomFromText('",x[length(colnames(df))],"',",proj,"))"))}
   } else {
-    warning("spatial projection is unknown. Use projection(sp) if you want to set it.")
+    warning("spatial projection is unknown (SRID = 0). Use projection(sp) if you want to set it.")
     if (multi == TRUE) {
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                   "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"')))"))
