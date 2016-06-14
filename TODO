@@ -1,6 +1,8 @@
-* pgIntersectPts (pg-functions.R)
+* pgInsertizeGeom - needs to add create.table argument, copy structure from pgInsertize
 
-* pgIntersectStp (pgIntersectsSts in pg-functions.R)
+* pgIntersectPts (pg-functions.R) -> move to rpostgisLT(?)
+
+* pgIntersectStp (pgIntersectsSts in pg-functions.R) -> move to rpostgisLT(?)
 
 * sqlCopyCSV (pg-functions.R)
 

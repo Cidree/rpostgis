@@ -47,9 +47,9 @@ If you want to insert into a different table, set pgi$in.table<-'schema.differen
   if(!is.null(encoding)) {pgi$insert.data<-iconv(pgi$insert.data,encoding[1],encoding[2])}
   
   #create table if specified
-  if (!is.null(records$db.new.table))
+  if (!is.null(pgi$db.new.table))
   {
-    qt<-dbSendQuery(conn,records$db.new.table)
+    qt<-dbSendQuery(conn,pgi$db.new.table)
   }
   
   #set name of table
@@ -67,13 +67,14 @@ If you want to insert into a different table, set pgi$in.table<-'schema.differen
   
   cols2<-paste0('("',paste(cols,collapse='","'),'")')
   
-  #need to suppress PostgreSQL log??? Below not working
-  suppressMessages(try(
-      q<-dbSendQuery(conn,paste0("Insert into ",paste(name,collapse='.'),cols2," VALUES ",values,";"))
-        ))
-  if(exists("qt") & !exists("q")) {
-    dbSendQuery(conn,paste0("drop table ",pgi$in.table,";"))
-    stop(paste0("Insert failed. Table ",pgi$in.table," was dropped from database."))
-  }
+  ##how to suppress PostgreSQL log printing??? Below not working
+  try(qi<-dbSendQuery(conn,paste0("Insert into ",paste(name,collapse='.'),cols2," VALUES ",values,";")))
   
+  ##drop newly created table if insert fails
+  if(exists("qt") & !exists("qi")) {
+    dbSendQuery(conn,paste0("drop table ",pgi$in.table,";"))
+    stop(paste0("Insert failed. Table '",pgi$in.table,"' was dropped from database."))
+  } else {
+    print(paste0("Data inserted into table '",paste(name,collapse='.'),"'"))
+  }
 }

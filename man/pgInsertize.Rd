@@ -2,9 +2,12 @@
 % Please edit documentation in R/pgInsertize.r
 \name{pgInsertize}
 \alias{pgInsertize}
+\alias{print.pgi}
 \title{Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)}
 \usage{
 pgInsertize(df, create.table = NULL, force.match = NULL, conn = NULL)
+
+\method{print}{pgi}(pgi)
 }
 \arguments{
 \item{df}{A data frame}
@@ -17,6 +20,8 @@ If specified, only columns in the data frame that exactly match the database tab
 to match the database table. Default is NULL (all columns names will be kept, and in the same order given in the data frame.)}
 
 \item{conn}{A database connection (required if a table is given in for "force.match" parameter)}
+
+\item{object}{A list of class \code{pgi}, output from the pgInsertize() or pgInsertizeGeom() functions from the rpostgis package.}
 }
 \value{
 pgi object, a list containing four character strings- (1) in.table, the table name which will be 

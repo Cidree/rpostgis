@@ -43,7 +43,7 @@
 pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NULL) {
   
   dat<-sdf@data
-  geom999<-writeWKT(sdf,byid=TRUE)
+  geom.1<-writeWKT(sdf,byid=TRUE)
   
   rcols<-colnames(dat)
   
@@ -67,7 +67,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
   
   proj<-strsplit(as.character(sdf@proj4string), "[: ]+")[[1]][2]
   
-  df<-cbind(dat,geom999)
+  df<-cbind(dat,geom.1)
   df[] <- lapply(df, as.character)
   
   #set all NA to NULL
@@ -99,4 +99,27 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
   
   class(lis)<-"pgi"
   return(lis)
+}
+
+
+# print.pgi
+#
+#' @rdname pgInsertizeGeom
+#' @param object A list of class \code{pgi}, output from the pgInsertize() or pgInsertizeGeom() functions from the rpostgis package.
+#' @export
+print.pgi <- function(pgi) {
+  cat('pgi object: PostgreSQL insert object from pgInsertize* function in rpostgis. Use with pgInsert() to insert into database table.')
+  cat('\n************************************\n')
+  if(!is.null(pgi$in.tab)) {
+    cat(paste0('Insert table: ',pgi$in.tab))
+    cat('\n************************************\n')
+  }
+  if(!is.null(pgi$db.new.table)) {
+    cat(paste0("SQL to create new table: ",pgi$db.new.table))
+    cat('\n************************************\n')
+  }
+  cat(paste0("Columns to insert into: ",paste(pgi$db.cols.insert,collapse=",")))
+  cat('\n************************************\n')
+  cat(paste0("Formatted insert data: ",substr(pgi$insert.data,0,1000)))
+  if(nchar(pgi$insert.data) > 1000) {cat("........Only the first 1000 characters shown")}
 }

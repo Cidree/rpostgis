@@ -2,10 +2,13 @@
 % Please edit documentation in R/pgInsertizeGeom.r
 \name{pgInsertizeGeom}
 \alias{pgInsertizeGeom}
+\alias{print.pgi}
 \title{Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).}
 \usage{
 pgInsertizeGeom(sdf, geom = "geom", multi = FALSE, force.match = NULL,
   conn = NULL)
+
+\method{print}{pgi}(pgi)
 }
 \arguments{
 \item{sdf}{A Spatial*DataFrame}
@@ -19,6 +22,8 @@ If specified, only columns in the data frame that exactly match the database tab
 to match the database table. If NULL, all columns will be kept in the same order given in the data frame.}
 
 \item{conn}{A database connection (if a table is given in for "force.match" parameter)}
+
+\item{object}{A list of class \code{pgi}, output from the pgInsertize() or pgInsertizeGeom() functions from the rpostgis package.}
 }
 \value{
 List containing two character strings- (1) db.cols.insert, a character string of the database column
