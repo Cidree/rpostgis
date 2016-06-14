@@ -2,7 +2,7 @@
 % Please edit documentation in R/pgInsertizeGeom.r
 \name{pgInsertizeGeom}
 \alias{pgInsertizeGeom}
-\title{Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (using pgInsert).}
+\title{Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).}
 \usage{
 pgInsertizeGeom(sdf, geom = "geom", multi = FALSE, force.match = NULL,
   conn = NULL)
@@ -26,7 +26,7 @@ names to make inserts on, and (2) insert.data, a character string of the data to
 usage within the \code{pgInsert} function.
 }
 \description{
-Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (using pgInsert).
+Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
 }
 \examples{
 
@@ -39,7 +39,7 @@ spdf<- SpatialPointsDataFrame(coords, meuse)
 colnames(spdf@data)[colnames(spdf@data) == 'dist.m']<-"dist_m"
 
 #format data for insert
-pgi<-pgInsertizeGeom(spdf,geom="point")
+pgi<-pgInsertizeGeom(spdf,geom="point_geom")
 
 \dontrun{
 

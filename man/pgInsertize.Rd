@@ -4,20 +4,26 @@
 \alias{pgInsertize}
 \title{Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)}
 \usage{
-pgInsertize(df, force.match = NULL, conn = NULL)
+pgInsertize(df, create.table = NULL, force.match = NULL, conn = NULL)
 }
 \arguments{
 \item{df}{A data frame}
 
+\item{create.table}{character, schema and table of the PostgreSQL table to create (actual table creation will be 
+done in later in pgInsert().) Column names will be converted to PostgreSQL-compliant names. Default is NULL (no new table created).}
+
 \item{force.match}{character, schema and table of the PostgreSQL table to compare columns of data frame with 
 If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
-to match the database table. If NULL, all columns will be kept in the same order given in the data frame.}
+to match the database table. Default is NULL (all columns names will be kept, and in the same order given in the data frame.)}
 
 \item{conn}{A database connection (required if a table is given in for "force.match" parameter)}
 }
 \value{
-List containing two character strings- (1) db.cols.insert, a character string of the database column
-names to make inserts on, and (2) insert.data, a character string of the data to insert. See examples for 
+pgi object, a list containing four character strings- (1) in.table, the table name which will be 
+created or inserted into, if specifed by either create.table or force.match,
+(2) db.new.table, the SQL statement to create the new table, if specified in create.table, 
+(3) db.cols.insert, a character string of the database column names to make inserts on, and 
+(4) insert.data, a character string of the data to insert. See examples for 
 usage within the \code{pgInsert} function.
 }
 \description{

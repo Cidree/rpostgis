@@ -1,7 +1,7 @@
 # pgInsertizeGeom
-#' Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (using pgInsert).
+#' Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
 #
-#' @title Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (using pgInsert).
+#' @title Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
 #'
 #' @param sdf A Spatial*DataFrame
 #' @param geom character string, the name of geometry column in the database table. (defaults to 'geom')

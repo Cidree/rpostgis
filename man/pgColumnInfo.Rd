@@ -10,7 +10,7 @@ pgColumnInfo(conn, name, allinfo = FALSE)
 \item{conn}{A connection object to a PostgreSQL database}
 
 \item{name}{A character string specifying a PostgreSQL schema (if necessary), 
-and table or view name for the table holding the lines 
+and table or view name 
 geometry (e.g., name = c("schema","table"))}
 
 \item{allinfo}{logical, Get all information on table? Default is column names, types, nullable, and maximum length of character columns}
