@@ -73,6 +73,15 @@ pgInsertize <- function(df,force.match=NULL,conn=NULL) {
   d1<-paste(d1,collapse=",")
   
   lis<-list(db.cols.insert=db.cols.insert,insert.data=d1)
+  class(lis)<-"pgi"
   
   return(lis)
+}
+
+#default print
+print.pgi <- function(x) {
+  cat(paste0("Columns to insert into: ",paste(x$db.cols.insert,collapse=",")))
+  cat('\n')
+  cat(paste0("Insert data: ",substr(x$insert.data,0,1000)))
+  if(nchar(x$insert.data) > 1000) {cat("...Only the first 1000 characters shown")}
 }
