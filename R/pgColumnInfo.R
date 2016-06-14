@@ -22,6 +22,8 @@
 
 pgColumnInfo<- function(conn,name,allinfo=FALSE) {
   
+  name<-strsplit(paste(name,collapse='.'),split='.',fixed=T)[[1]]
+  
   if(length(name) == 1) {name[2]<-name
                         name[1]<-"public"}
   

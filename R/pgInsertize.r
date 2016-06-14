@@ -4,9 +4,11 @@
 #' @title Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)
 #'
 #' @param df A data frame
+#' @param create.table character, schema and table of the PostgreSQL table to create (actual table creation will be 
+#' done in later in pgInsert().) Column names will be converted to PostgreSQL-compliant names. Default is NULL (no new table created).
 #' @param force.match character, schema and table of the PostgreSQL table to compare columns of data frame with 
 #' If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
-#' to match the database table. If NULL, all columns will be kept in the same order given in the data frame.
+#' to match the database table. Default is NULL (all columns names will be kept, and in the same order given in the data frame.)
 #' @param conn A database connection (required if a table is given in for "force.match" parameter)
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
@@ -40,16 +42,35 @@
 #' pgInsert(conn,c("schema","table"),pgi=values)
 #' }
 
-pgInsertize <- function(df,force.match=NULL,conn=NULL) {
+pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL) {
   
   rcols<-colnames(df)
+  replace <- "[+-.,!@$%^&*();/|<>]"
+  in.tab<-NULL
+  new.table<-NULL
+  
+  if (!is.null(create.table) & !is.null(force.match)) {
+      stop("Either create.table or force.match must be null.")
+  }
+  
+  if (!is.null(create.table)) {
+
+    drv <- dbDriver("PostgreSQL")
+    
+    message("Making table names DB-compliant (replacing special characters with '_').")
+    #make column names DB-compliant
+    t.names<-tolower(gsub(replace,"_",rcols))
+    colnames(df)<-t.names
+    
+    in.tab<-paste(create.table,collapse='.')
+    #make create table statement
+    new.table<-postgresqlBuildTableDefinition(drv,name=create.table,obj=df,row.names=FALSE)
+  }
+  
   
   if (!is.null(force.match)) {
     
-    if(length(force.match) == 1) {force.match[2]<-force.match
-                                  force.match[1]<-"public"}
-    
-    db.cols<-pgColumnInfo(conn,name=(c(force.match[1],force.match[2])))$column_name
+    db.cols<-pgColumnInfo(conn,name=force.match)$column_name
     
     db.cols.match<-db.cols[!is.na(match(db.cols,rcols))]
     db.cols.insert<-db.cols.match
@@ -58,9 +79,18 @@ pgInsertize <- function(df,force.match=NULL,conn=NULL) {
     df<-df[db.cols.match]
     
     message(paste0(length(colnames(df))," out of ",length(rcols)," columns of the data frame match database table columns and will be formatted for database insert."))
-
+    
+    in.tab<-paste(force.match,collapse='.')
+    
   } else {
-    db.cols.insert<-rcols
+    
+    #if new table is created, use new column names, else use same data frame column names
+    if (!is.null(create.table)) {
+      db.cols.insert<-t.names } else
+      { 
+        in.tab<-NULL
+        db.cols.insert<-rcols
+      }
   }
   
   #set NA to user-specified NULL value
@@ -72,7 +102,8 @@ pgInsertize <- function(df,force.match=NULL,conn=NULL) {
   d1<-gsub("'NULL'","NULL",d1)
   d1<-paste(d1,collapse=",")
   
-  lis<-list(db.cols.insert=db.cols.insert,insert.data=d1)
+  #create pgi object
+  lis<-list(in.table=in.tab,db.new.table=new.table,db.cols.insert=db.cols.insert,insert.data=d1)
   class(lis)<-"pgi"
   
   return(lis)
@@ -80,8 +111,18 @@ pgInsertize <- function(df,force.match=NULL,conn=NULL) {
 
 #default print
 print.pgi <- function(x) {
+  cat('PostgreSQL insert object from pgInsertize* function in rpostgis. Use with pgInsert() to insert into database table.')
+  cat('\n************************************\n')
+  if(!is.null(x$in.tab)) {
+    cat(paste0('Insert table: ',x$in.tab))
+    cat('\n************************************\n')
+  }
+  if(!is.null(x$db.new.table)) {
+    cat(paste0("SQL to create new table: ",x$db.new.table))
+    cat('\n************************************\n')
+  }
   cat(paste0("Columns to insert into: ",paste(x$db.cols.insert,collapse=",")))
-  cat('\n')
-  cat(paste0("Insert data: ",substr(x$insert.data,0,1000)))
-  if(nchar(x$insert.data) > 1000) {cat("...Only the first 1000 characters shown")}
+  cat('\n************************************\n')
+  cat(paste0("Formatted insert data: ",substr(x$insert.data,0,1000)))
+  if(nchar(x$insert.data) > 1000) {cat("........Only the first 1000 characters shown")}
 }

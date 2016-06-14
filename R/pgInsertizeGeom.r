@@ -49,10 +49,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
   
   if (!is.null(force.match)) {
     
-    if(length(force.match) == 1) {force.match[2]<-force.match
-    force.match[1]<-"public"}
-    
-    db.cols<-pgColumnInfo(conn,name=(c(force.match[1],force.match[2])))$column_name
+    db.cols<-pgColumnInfo(conn,name=force.match)$column_name
     
     if (is.na(match(geom,db.cols))) {stop('Geometry column name not found in database table.')}
     
@@ -102,13 +99,4 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
   
   class(lis)<-"pgi"
   return(lis)
-}
-
-
-#default print
-print.pgi <- function(x) {
-  cat(paste0("Columns to insert into: ",paste(x$db.cols.insert,collapse=",")))
-  cat('\n')
-  cat(paste0("Insert data: ",substr(x$insert.data,0,1000)))
-  if(nchar(x$insert.data) > 1000) {cat("...Only the first 1000 characters shown")}
 }
