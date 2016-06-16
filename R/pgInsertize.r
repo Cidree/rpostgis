@@ -13,8 +13,8 @@
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
 #' @return pgi object, a list containing four character strings- (1) in.table, the table name which will be 
-#' created or inserted into, if specifed by either create.table or force.match,
-#' (2) db.new.table, the SQL statement to create the new table, if specified in create.table, 
+#' created or inserted into, if specifed by either create.table or force.match (else NULL)
+#' (2) db.new.table, the SQL statement to create the new table, if specified in create.table (else NULL), 
 #' (3) db.cols.insert, a character string of the database column names to make inserts on, and 
 #' (4) insert.data, a character string of the data to insert. See examples for 
 #' usage within the \code{pgInsert} function.

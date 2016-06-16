@@ -1,3 +1,5 @@
+# WORKING ON WKB- NOT FULLY TESTED
+# Tests show writeWKB() was much faster than writeWKT() for large sp objects (>10000 rows), otherwise performance was similar or slightly faster with writeWKT().
 # pgInsertizeGeom
 #' Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
 #
@@ -11,7 +13,7 @@
 #' to match the database table. If NULL, all columns will be kept in the same order given in the data frame.
 #' @param conn A database connection (if a table is given in for "force.match" parameter)
 #' @author David Bucklin \email{david.bucklin@gmail.com}
-#' @export
+#' #@export
 #' @return List containing two character strings- (1) db.cols.insert, a character string of the database column
 #' names to make inserts on, and (2) insert.data, a character string of the data to insert. See examples for 
 #' usage within the \code{pgInsert} function.
@@ -40,10 +42,10 @@
 #' pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
 #' }
 
-pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NULL) {
+pgInsertizeGeomwkb<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NULL) {
   
   dat<-sdf@data
-  geom.1<-writeWKT(sdf,byid=TRUE)
+  geom.1<-unlist(lapply(writeWKB(sdf),function(x) {paste(x,collapse="")}))
   
   rcols<-colnames(dat)
   
@@ -79,18 +81,18 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
   if (!is.na(proj)) {
     if (multi == TRUE) {
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                  "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"',",proj,")))")) 
+                                        "',ST_Multi(ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,")))")) 
     } else {
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                        "',ST_GeomFromText('",x[length(colnames(df))],"',",proj,"))"))}
+                                        "',ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,"))"))}
   } else {
     warning("spatial projection is unknown (SRID = 0). Use projection(sp) if you want to set it.")
     if (multi == TRUE) {
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                  "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"')))"))
+                                        "',ST_Multi('",x[length(colnames(df))],"'))"))
     } else {
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                        "',ST_GeomFromText('",x[length(colnames(df))],"'))"))}
+                                        "','",x[length(colnames(df))],"')"))}
   }
   
   d1<-gsub("'NULL'","NULL",d1)
