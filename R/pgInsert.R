@@ -67,12 +67,12 @@ If you want to insert into a different table, set pgi$in.table<-'schema.differen
   
   cols2<-paste0('("',paste(cols,collapse='","'),'")')
   
-  ##how to suppress PostgreSQL log printing??? Below not working
-  try(qi<-dbSendQuery(conn,paste0("Insert into ",paste(name,collapse='.'),cols2," VALUES ",values,";")))
+  ##how to suppress PostgreSQL log printing?? (maybe not possible - at database level, not R)
+  try(qi<-dbSendQuery(conn,paste0('Insert into "',paste(name,collapse='.'),'"',cols2,' VALUES ',values,';')))
   
   ##drop newly created table if insert fails
   if(exists("qt") & !exists("qi")) {
-    dbSendQuery(conn,paste0("drop table ",pgi$in.table,";"))
+    dbSendQuery(conn,paste0('drop table "',pgi$in.table,'";'))
     stop(paste0("Insert failed. Table '",pgi$in.table,"' was dropped from database."))
   } else {
     print(paste0("Data inserted into table '",paste(name,collapse='.'),"'"))
