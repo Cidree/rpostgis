@@ -24,9 +24,6 @@
 #' coords <- SpatialPoints(meuse[, c("x", "y")])
 #' spdf<- SpatialPointsDataFrame(coords, meuse)
 #' 
-#' #remove "." from column name
-#' colnames(spdf@data)[colnames(spdf@data) == 'dist.m']<-"dist_m"
-#' 
 #' #format data for insert
 #' pgi<-pgInsertizeGeom(spdf,geom="point_geom")
 #' 
@@ -87,7 +84,7 @@ pgInsertizeGeomwkb<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                         "',ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,"))"))}
   } else {
-    warning("spatial projection is unknown (SRID = 0). Use projection(sp) if you want to set it.")
+    warning("spatial projection is unknown/unreadable and will be NA in insert object (SRID = 0). Use projection(sp) if you want to set it.")
     if (multi == TRUE) {
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                         "',ST_Multi('",x[length(colnames(df))],"'))"))

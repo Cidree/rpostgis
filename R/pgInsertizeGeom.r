@@ -22,9 +22,6 @@
 #' coords <- SpatialPoints(meuse[, c("x", "y")])
 #' spdf<- SpatialPointsDataFrame(coords, meuse)
 #' 
-#' #remove "." from column name
-#' colnames(spdf@data)[colnames(spdf@data) == 'dist.m']<-"dist_m"
-#' 
 #' #format data for insert
 #' pgi<-pgInsertizeGeom(spdf,geom="point_geom")
 #' 
