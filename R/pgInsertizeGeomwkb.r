@@ -7,7 +7,7 @@
 #'
 #' @param sdf A Spatial*DataFrame
 #' @param geom character string, the name of geometry column in the database table. (defaults to 'geom')
-#' @param multi Logical, if PostGIS geometry column is of Multi* type set to TRUE
+#' @param multi Logical, if PostGIS geometry column to insert into is of Multi* type set to TRUE
 #' @param force.match character, schema and table of the PostgreSQL table to compare columns of data frame with 
 #' If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
 #' to match the database table. If NULL, all columns will be kept in the same order given in the data frame.
@@ -41,6 +41,7 @@
 
 pgInsertizeGeomwkb<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NULL) {
   
+  
   dat<-sdf@data
   geom.1<-unlist(lapply(writeWKB(sdf),function(x) {paste(x,collapse="")}))
   
@@ -67,6 +68,7 @@ pgInsertizeGeomwkb<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=
   #extract proj
   proj<-NA
   try(proj<-showEPSG(as.character(sdf@proj4string)),silent=TRUE)
+  if(proj == "OGRERR_UNSUPPORTED_SRS") {proj<-NA}
   
   df<-cbind(dat,geom.1)
   df[] <- lapply(df, as.character)
@@ -84,7 +86,7 @@ pgInsertizeGeomwkb<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                         "',ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,"))"))}
   } else {
-    warning("spatial projection is unknown/unreadable and will be NA in insert object (SRID = 0). Use projection(sp) if you want to set it.")
+    warning("spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0). Use projection(sp) if you want to set it.")
     if (multi == TRUE) {
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                         "',ST_Multi('",x[length(colnames(df))],"'))"))

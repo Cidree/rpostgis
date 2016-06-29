@@ -40,7 +40,7 @@ pgInsert<-function(conn,pgi,name=NULL,encoding=NULL) {
   
   if(!is.null(pgi$in.table) & !is.null(name) & !identical(pgi$in.table,name)) {
     stop(paste0("pgi object already has insert table set to (",pgi$in.table,"). Set name=NULL and re=run. 
-If you want to insert into a different table, set pgi$in.table<-'schema.different_table'"))
+                If you want to insert into a different table, set pgi$in.table<-'schema.different_table'"))
   }
   
   #change encoding if specified
@@ -71,10 +71,14 @@ If you want to insert into a different table, set pgi$in.table<-'schema.differen
   try(qi<-dbSendQuery(conn,paste0('Insert into "',paste(name,collapse='.'),'"',cols2,' VALUES ',values,';')))
   
   ##drop newly created table if insert fails
-  if(exists("qt") & !exists("qi")) {
+  if(!is.null(pgi$db.new.table) & !exists("qi")) {
     dbSendQuery(conn,paste0('drop table "',pgi$in.table,'";'))
     stop(paste0("Insert failed. Table '",pgi$in.table,"' was dropped from database."))
-  } else {
+  } 
+  
+  if (exists("qi")) {
     print(paste0("Data inserted into table '",paste(name,collapse='.'),"'"))
+  } else {
+    print("Insert failed.")
   }
 }

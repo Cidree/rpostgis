@@ -67,7 +67,7 @@ pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL) {
     
     in.tab<-paste(create.table,collapse='.')
     #make create table statement
-    new.table<-postgresqlBuildTableDefinition(drv,name=create.table,obj=df,row.names=FALSE)
+    new.table<-postgresqlBuildTableDefinition(drv,name=in.tab,obj=df,row.names=FALSE)
   }
   
   

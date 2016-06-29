@@ -37,12 +37,55 @@
 #' pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
 #' }
 
-pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NULL) {
+pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.match=NULL,conn=NULL) {
   
   dat<-sdf@data
   geom.1<-writeWKT(sdf,byid=TRUE)
   
   rcols<-colnames(dat)
+  replace <- "[+-.,!@$%^&*();/|<>]"
+  in.tab<-NULL
+  new.table<-NULL
+  
+  #extract proj
+  proj<-NA
+  try(proj<-showEPSG(as.character(sdf@proj4string)),silent=TRUE)
+  if(!is.na(proj) & proj == "OGRERR_UNSUPPORTED_SRS") {proj<-NA}
+  #
+  
+  if (!is.null(create.table) & !is.null(force.match)) {
+    stop("Either create.table or force.match must be null.")
+  }
+  
+  if (!is.null(create.table)) {
+    
+    drv <- dbDriver("PostgreSQL")
+    
+    message("Making table names DB-compliant (replacing special characters with '_').")
+    #make column names DB-compliant
+    t.names<-tolower(gsub(replace,"_",rcols))
+    colnames(dat)<-t.names
+    
+    in.tab<-paste(create.table,collapse='.')
+    #make create table statement
+    new.table<-postgresqlBuildTableDefinition(drv,name=in.tab,obj=dat,row.names=FALSE)
+    
+    #create and append add geometry field statement
+    #create match table (Multi is user option)
+    typematch<-data.frame(sp=c("SpatialPoints","SpatialLines","SpatialPolygons","SpatialMultiPoints"),pgis=c("Point","LineString","Polygon","Point"),
+                          stringsAsFactors = FALSE)
+    g.typ<-class(sdf)[1]
+    
+    sptype<-pmatch(typematch$sp,g.typ)
+    pgtype<-na.omit(typematch$pgis[sptype==1])[1]
+
+    if (multi) {pgtype<-paste0("Multi",pgtype)}
+    if (!is.na(proj)) {pgtype<-paste0(pgtype,",",proj)}
+    
+    add.geom<-paste0("ALTER TABLE ",in.tab," ADD COLUMN ",geom," geometry(",pgtype,");")
+    
+    new.table<-paste0(new.table,"; ",add.geom)
+  }
   
   if (!is.null(force.match)) {
     
@@ -58,13 +101,11 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
     
     message(paste0(length(colnames(df))," out of ",length(rcols)," columns of the data frame match database table columns and will be formatted."))
     
+    in.tab<-paste(force.match,collapse='.')
   } else {
     db.cols.insert<-c(rcols,geom)
   }
   
-  #extract proj
-  proj<-NA
-  try(proj<-showEPSG(as.character(sdf@proj4string)),silent=TRUE)
   
   df<-cbind(dat,geom.1)
   df[] <- lapply(df, as.character)
@@ -94,7 +135,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',multi=FALSE,force.match=NULL,conn=NUL
   d1<-gsub("'NULL'","NULL",d1)
   d1<-paste(d1,collapse=",")
   
-  lis<-list(db.cols.insert=db.cols.insert,insert.data=d1)
+  lis<-list(in.table=in.tab,db.new.table=new.table,db.cols.insert=db.cols.insert,insert.data=d1)
   
   class(lis)<-"pgi"
   return(lis)
