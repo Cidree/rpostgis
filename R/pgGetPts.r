@@ -2,7 +2,7 @@
 #' Retrieve point geometries from a PostGIS table, and convert it to
 #' a SpatialPoints or a SpatialPointsDataFrame.
 #'
-#' @title Retrieve point geometries
+#' @title Load a point geometry stored in a PostgreSQL database into R.
 #' @param conn A connection object to a PostgreSQL database
 #' @param name A character string specifying a PostgreSQL schema (if necessary), 
 #' and table or view name for the table holding the 

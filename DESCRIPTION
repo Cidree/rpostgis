@@ -6,11 +6,13 @@ Description: This package provides additional functions to the RPostgreSQL
     package, mostly convenient wrappers, with some PostGIS oriented functions.
 Author: Mathieu Basille, David Bucklin
 Maintainer: David Bucklin <david.bucklin@gmail.com>
-Depends:
+Imports:
     raster,
     rgeos,
     RPostgreSQL,
     sp
+Suggests:
+    wkb
 License: GPL (>= 3)
 URL: http://ase-research.org/basille/rpostgis
 RoxygenNote: 5.0.1

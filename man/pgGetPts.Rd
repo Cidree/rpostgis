@@ -2,7 +2,7 @@
 % Please edit documentation in R/pgGetPts.r
 \name{pgGetPts}
 \alias{pgGetPts}
-\title{Retrieve point geometries}
+\title{Load a point geometry stored in a PostgreSQL database into R.}
 \usage{
 pgGetPts(conn, name, geom = "geom", gid = NULL, other.cols = "*",
   query = NULL)

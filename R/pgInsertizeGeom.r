@@ -1,19 +1,25 @@
 # pgInsertizeGeom
-#' Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
+#' Formats an R sp object (Spatial* or Spatial*DataFrame) for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
 #
-#' @title Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
+#' @title Formats an R sp object (Spatial* or Spatial*DataFrame) for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
 #'
-#' @param sdf A Spatial*DataFrame
-#' @param geom character string, the name of geometry column in the database table. (defaults to 'geom')
-#' @param multi Logical, if PostGIS geometry column is of Multi* type set to TRUE
+#' @param sdf A Spatial* or Spatial*DataFrame
+#' @param geom character string, the name of geometry column in the database table. (existing or to be created; defaults to 'geom')
+#' @param create.table character, schema and table of the PostgreSQL table to create (actual table creation will be 
+#' done in later in pgInsert().) Column names will be converted to PostgreSQL-compliant names. Default is NULL (no new table created).
 #' @param force.match character, schema and table of the PostgreSQL table to compare columns of data frame with 
 #' If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
 #' to match the database table. If NULL, all columns will be kept in the same order given in the data frame.
 #' @param conn A database connection (if a table is given in for "force.match" parameter)
+#' @param multi Logical, if PostGIS geometry column is/will be of Multi* type set to TRUE
+#' @param new.gid character, name of a new sequential ID column to be added to the table. 
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
-#' @return List containing two character strings- (1) db.cols.insert, a character string of the database column
-#' names to make inserts on, and (2) insert.data, a character string of the data to insert. See examples for 
+#' @return List containing four character strings- a list containing four character strings- (1) in.table, the table name which will be 
+#' created or inserted into, if specifed by either create.table or force.match (else NULL)
+#' (2) db.new.table, the SQL statement to create the new table, if specified in create.table (else NULL), 
+#' (3) db.cols.insert, a character string of the database column names to make inserts on, and 
+#' (4) insert.data, a character string of the data to insert. See examples for 
 #' usage within the \code{pgInsert} function.
 #' @examples
 #' 
@@ -37,11 +43,31 @@
 #' pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
 #' }
 
-pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.match=NULL,conn=NULL) {
+pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.match=NULL,conn=NULL,new.gid=NULL) {
   
-  dat<-sdf@data
-  geom.1<-writeWKT(sdf,byid=TRUE)
+  #load wkb library if available
+  wkb.t<-suppressWarnings(require("wkb",quietly = TRUE))
   
+  #if spatial*dataframe, extract data frame
+  dat<-data.frame()
+  try(dat<-sdf@data,silent=TRUE)
+  gid<-1:length(sdf)
+  
+  #if data frame doesn't exist, populated it with seq. id
+  if(length(colnames(dat)) == 0) {
+    dat<-data.frame(gid=gid)
+    if (!is.null(new.gid)) {
+      names(dat)[1]<-new.gid
+    }
+    message(paste0("No data frame; creating sequential id column (",colnames(dat),")."))
+  } else { #else if it exists, add seq. id if new.gid is not null
+    if (!is.null(new.gid)) {
+      if (new.gid %in% colnames(dat)) {stop(paste0("'",new.gid,"' is already a column name in the data frame. Pick a unique name for new.gid or leave it null."))}
+      dat<-cbind(gid,dat)
+      names(dat)[1]<-new.gid
+    }
+  }
+
   rcols<-colnames(dat)
   replace <- "[+-.,!@$%^&*();/|<>]"
   in.tab<-NULL
@@ -97,9 +123,9 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
     db.cols.insert<-c(db.cols.match,geom)
     
     #reorder data frame columns
-    df<-dat[db.cols.match]
+    dat<-dat[db.cols.match]
     
-    message(paste0(length(colnames(df))," out of ",length(rcols)," columns of the data frame match database table columns and will be formatted."))
+    message(paste0(length(colnames(dat))," out of ",length(rcols)," columns of the data frame match database table columns and will be formatted."))
     
     in.tab<-paste(force.match,collapse='.')
   } else {
@@ -107,6 +133,9 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
   }
   
   
+  if (wkb.t) { #wkt conversion
+    
+  geom.1<-writeWKT(sdf,byid=TRUE)
   df<-cbind(dat,geom.1)
   df[] <- lapply(df, as.character)
   
@@ -123,13 +152,43 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                         "',ST_GeomFromText('",x[length(colnames(df))],"',",proj,"))"))}
   } else {
-    warning("spatial projection is unknown/unreadable and will be NA in insert object (SRID = 0). Use projection(sp) if you want to set it.")
+    warning("spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0). Use projection(sp) if you want to set it.")
     if (multi == TRUE) {
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                   "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"')))"))
     } else {
       d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
                                         "',ST_GeomFromText('",x[length(colnames(df))],"'))"))}
+  }
+  } else { #wkb conversion
+    
+    message("Using wkb package...")
+    geom.1<-unlist(lapply(writeWKB(sdf),function(x) {paste(x,collapse="")}))
+    df<-cbind(dat,geom.1)
+    df[] <- lapply(df, as.character)
+    
+    #set all NA to NULL
+    df[is.na(df)]<-"NULL"
+    
+    #double all single ' to escape
+    #format rows of data frame
+    if (!is.na(proj)) {
+      if (multi == TRUE) {
+        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          "',ST_Multi(ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,")))")) 
+      } else {
+        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          "',ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,"))"))}
+    } else {
+      warning("spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0). Use projection(sp) if you want to set it.")
+      if (multi == TRUE) {
+        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          "',ST_Multi('",x[length(colnames(df))],"'))"))
+      } else {
+        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          "','",x[length(colnames(df))],"')"))}
+    }
+    
   }
   
   d1<-gsub("'NULL'","NULL",d1)

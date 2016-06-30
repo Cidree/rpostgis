@@ -3,19 +3,22 @@
 \name{pgInsertizeGeom}
 \alias{pgInsertizeGeom}
 \alias{print.pgi}
-\title{Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).}
+\title{Formats an R sp object (Spatial* or Spatial*DataFrame) for insert (with geometry) into a PostgreSQL table (for use with pgInsert).}
 \usage{
-pgInsertizeGeom(sdf, geom = "geom", multi = FALSE, force.match = NULL,
-  conn = NULL)
+pgInsertizeGeom(sdf, geom = "geom", create.table = NULL, multi = FALSE,
+  force.match = NULL, conn = NULL, new.gid = NULL)
 
 \method{print}{pgi}(pgi)
 }
 \arguments{
-\item{sdf}{A Spatial*DataFrame}
+\item{sdf}{A Spatial* or Spatial*DataFrame}
 
-\item{geom}{character string, the name of geometry column in the database table. (defaults to 'geom')}
+\item{geom}{character string, the name of geometry column in the database table. (existing or to be created; defaults to 'geom')}
 
-\item{multi}{Logical, if PostGIS geometry column is of Multi* type set to TRUE}
+\item{create.table}{character, schema and table of the PostgreSQL table to create (actual table creation will be 
+done in later in pgInsert().) Column names will be converted to PostgreSQL-compliant names. Default is NULL (no new table created).}
+
+\item{multi}{Logical, if PostGIS geometry column is/will be of Multi* type set to TRUE}
 
 \item{force.match}{character, schema and table of the PostgreSQL table to compare columns of data frame with 
 If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
@@ -23,15 +26,20 @@ to match the database table. If NULL, all columns will be kept in the same order
 
 \item{conn}{A database connection (if a table is given in for "force.match" parameter)}
 
+\item{new.gid}{character, name of a new sequential ID column to be added to the table.}
+
 \item{object}{A list of class \code{pgi}, output from the pgInsertize() or pgInsertizeGeom() functions from the rpostgis package.}
 }
 \value{
-List containing two character strings- (1) db.cols.insert, a character string of the database column
-names to make inserts on, and (2) insert.data, a character string of the data to insert. See examples for 
+List containing four character strings- a list containing four character strings- (1) in.table, the table name which will be 
+created or inserted into, if specifed by either create.table or force.match (else NULL)
+(2) db.new.table, the SQL statement to create the new table, if specified in create.table (else NULL), 
+(3) db.cols.insert, a character string of the database column names to make inserts on, and 
+(4) insert.data, a character string of the data to insert. See examples for 
 usage within the \code{pgInsert} function.
 }
 \description{
-Formats an R Spatial*DataFrame for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
+Formats an R sp object (Spatial* or Spatial*DataFrame) for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
 }
 \examples{
 
@@ -39,9 +47,6 @@ library(sp)
 data(meuse)
 coords <- SpatialPoints(meuse[, c("x", "y")])
 spdf<- SpatialPointsDataFrame(coords, meuse)
-
-#remove "." from column name
-colnames(spdf@data)[colnames(spdf@data) == 'dist.m']<-"dist_m"
 
 #format data for insert
 pgi<-pgInsertizeGeom(spdf,geom="point_geom")
@@ -54,7 +59,7 @@ conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
                user='user',password='password')
 
 # insert data in database table (note that an error will be given if all 
-# insert columns do not match exactly to database table columns)
+# insert columns do not have exactly matching database table columns)
 pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
 }
 }
