@@ -5,7 +5,8 @@
 \alias{print.pgi}
 \title{Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)}
 \usage{
-pgInsertize(df, create.table = NULL, force.match = NULL, conn = NULL)
+pgInsertize(df, create.table = NULL, force.match = NULL, conn = NULL,
+  new.id = NULL)
 
 \method{print}{pgi}(pgi)
 }
@@ -20,6 +21,8 @@ If specified, only columns in the data frame that exactly match the database tab
 to match the database table. Default is NULL (all columns names will be kept, and in the same order given in the data frame.)}
 
 \item{conn}{A database connection (required if a table is given in for "force.match" parameter)}
+
+\item{new.id}{character, name of a new sequential integer ID column to be added to the table.}
 
 \item{object}{A list of class \code{pgi}, output from the pgInsertize() or pgInsertizeGeom() functions from the rpostgis package.}
 }

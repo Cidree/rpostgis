@@ -26,7 +26,7 @@ to match the database table. If NULL, all columns will be kept in the same order
 
 \item{conn}{A database connection (if a table is given in for "force.match" parameter)}
 
-\item{new.gid}{character, name of a new sequential ID column to be added to the table.}
+\item{new.gid}{character, name of a new sequential integer ID column to be added to the table.}
 
 \item{object}{A list of class \code{pgi}, output from the pgInsertize() or pgInsertizeGeom() functions from the rpostgis package.}
 }

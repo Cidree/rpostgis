@@ -6,7 +6,7 @@ Description: This package provides additional functions to the RPostgreSQL
     package, mostly convenient wrappers, with some PostGIS oriented functions.
 Author: Mathieu Basille, David Bucklin
 Maintainer: David Bucklin <david.bucklin@gmail.com>
-Imports:
+Depends:
     raster,
     rgeos,
     RPostgreSQL,

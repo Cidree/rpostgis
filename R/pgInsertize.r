@@ -10,6 +10,7 @@
 #' If specified, only columns in the data frame that exactly match the database table will be kept, and reordered
 #' to match the database table. Default is NULL (all columns names will be kept, and in the same order given in the data frame.)
 #' @param conn A database connection (required if a table is given in for "force.match" parameter)
+#' @param new.id character, name of a new sequential integer ID column to be added to the table. 
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
 #' @return pgi object, a list containing four character strings- (1) in.table, the table name which will be 
@@ -45,7 +46,7 @@
 #' pgInsert(conn,c("schema","table"),pgi=values)
 #' }
 
-pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL) {
+pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL,new.id=NULL) {
   
   rcols<-colnames(df)
   replace <- "[+-.,!@$%^&*();/|<>]"
@@ -53,24 +54,42 @@ pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL) {
   new.table<-NULL
   
   if (!is.null(create.table) & !is.null(force.match)) {
-      stop("Either create.table or force.match must be null.")
+    stop("Either create.table or force.match must be null.")
   }
   
+  #add new ID column if new.id is set
+  if (!is.null(new.id)) {
+    if (new.id %in% rcols) {stop(paste0("'",new.id,"' is already a column name in the data frame. Pick a unique name for new.id or leave it null."))}
+    
+    id.num<-1:length(df[,1])
+    df<-cbind(id.num,df)
+    names(df)[1]<-new.id
+    rcols<-colnames(df)
+  }
+
+  #create new table statement if set  
   if (!is.null(create.table)) {
 
     drv <- dbDriver("PostgreSQL")
     
     message("Making table names DB-compliant (replacing special characters with '_').")
-    #make column names DB-compliant
+   
+    #make column and table names DB-compliant
     t.names<-tolower(gsub(replace,"_",rcols))
     colnames(df)<-t.names
     
-    in.tab<-paste(create.table,collapse='.')
+    if (length(create.table) == 1) {
+    nt<-strsplit(create.table,".",fixed=T)[[1]]} else {nt<-create.table}
+    
+    nt<-tolower(gsub(replace,"_",nt))
+    
     #make create table statement
-    new.table<-postgresqlBuildTableDefinition(drv,name=in.tab,obj=df,row.names=FALSE)
+    new.table<-postgresqlBuildTableDefinition(drv,name=nt,obj=df,row.names=FALSE)
+    
+    in.tab<-paste(create.table,collapse='.')
   }
   
-  
+  #match columns to DB table if set
   if (!is.null(force.match)) {
     
     db.cols<-pgColumnInfo(conn,name=force.match)$column_name

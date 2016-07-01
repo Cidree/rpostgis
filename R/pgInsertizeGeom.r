@@ -12,7 +12,7 @@
 #' to match the database table. If NULL, all columns will be kept in the same order given in the data frame.
 #' @param conn A database connection (if a table is given in for "force.match" parameter)
 #' @param multi Logical, if PostGIS geometry column is/will be of Multi* type set to TRUE
-#' @param new.gid character, name of a new sequential ID column to be added to the table. 
+#' @param new.gid character, name of a new sequential integer ID column to be added to the table. 
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
 #' @return List containing four character strings- a list containing four character strings- (1) in.table, the table name which will be 
@@ -53,7 +53,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
   try(dat<-sdf@data,silent=TRUE)
   gid<-1:length(sdf)
   
-  #if data frame doesn't exist, populated it with seq. id
+  #if data frame doesn't exist, populate it with seq. id
   if(length(colnames(dat)) == 0) {
     dat<-data.frame(gid=gid)
     if (!is.null(new.gid)) {
@@ -88,13 +88,20 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
     drv <- dbDriver("PostgreSQL")
     
     message("Making table names DB-compliant (replacing special characters with '_').")
-    #make column names DB-compliant
+
+    #make column and table names DB-compliant
     t.names<-tolower(gsub(replace,"_",rcols))
     colnames(dat)<-t.names
     
-    in.tab<-paste(create.table,collapse='.')
+    if (length(create.table) == 1) {
+      nt<-strsplit(create.table,".",fixed=T)[[1]]} else {nt<-create.table}
+    
+    nt<-tolower(gsub(replace,"_",nt))
+
     #make create table statement
-    new.table<-postgresqlBuildTableDefinition(drv,name=in.tab,obj=dat,row.names=FALSE)
+    new.table<-postgresqlBuildTableDefinition(drv,name=nt,obj=dat,row.names=FALSE)
+    
+    in.tab<-paste(create.table,collapse='.')
     
     #create and append add geometry field statement
     #create match table (Multi is user option)
@@ -133,7 +140,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
   }
   
   
-  if (wkb.t) { #wkt conversion
+  if (!wkb.t) { #wkt conversion
     
   geom.1<-writeWKT(sdf,byid=TRUE)
   df<-cbind(dat,geom.1)
