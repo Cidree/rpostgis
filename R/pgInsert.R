@@ -67,11 +67,11 @@ pgInsert<-function(conn,pgi,name=NULL,encoding=NULL) {
   
   cols2<-paste0('("',paste(cols,collapse='","'),'")')
   
-  ##how to suppress PostgreSQL log printing?? (maybe not possible - at database level, not R)
+  ##send insert query
   try(qi<-dbSendQuery(conn,paste0('Insert into ',paste(name,collapse='.'),cols2,' VALUES ',values,';')))
   
   ##drop newly created table if insert fails
-  if(!is.null(pgi$db.new.table) & !exists("qi")) {
+  if(!is.null(pgi$db.new.table) & exists("qt") & !exists("qi")) {
     dbSendQuery(conn,paste0('drop table "',pgi$in.table,'";'))
     stop(paste0("Insert failed. Table '",pgi$in.table,"' was dropped from database."))
   } 

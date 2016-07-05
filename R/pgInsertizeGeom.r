@@ -12,13 +12,14 @@
 #' to match the database table. If NULL, all columns will be kept in the same order given in the data frame.
 #' @param conn A database connection (if a table is given in for "force.match" parameter)
 #' @param multi Logical, if PostGIS geometry column is/will be of Multi* type set to TRUE
-#' @param new.gid character, name of a new sequential integer ID column to be added to the table. 
+#' @param new.gid character, name of a new sequential integer ID column to be added to the table. For Spatial*DataFrames, the default is no
+#' new gid column. For spatial objects with no data frame (e.g., SpatialPolygons), a "gid" unique integer column is inserted by default.
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
-#' @return List containing four character strings- a list containing four character strings- (1) in.table, the table name which will be 
+#' @return pgi object, a list containing four character strings- a list containing four character strings- (1) in.table, the table name which will be 
 #' created or inserted into, if specifed by either create.table or force.match (else NULL)
 #' (2) db.new.table, the SQL statement to create the new table, if specified in create.table (else NULL), 
-#' (3) db.cols.insert, a character string of the database column names to make inserts on, and 
+#' (3) db.cols.insert, a character string of the database column names to insert into, and 
 #' (4) insert.data, a character string of the data to insert. See examples for 
 #' usage within the \code{pgInsert} function.
 #' @examples
@@ -53,7 +54,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
   try(dat<-sdf@data,silent=TRUE)
   gid<-1:length(sdf)
   
-  #if data frame doesn't exist, populate it with seq. id
+  #if data frame doesn't exist (not a spatial*dataframe object), populate it with seq. id
   if(length(colnames(dat)) == 0) {
     dat<-data.frame(gid=gid)
     if (!is.null(new.gid)) {
@@ -62,7 +63,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
     message(paste0("No data frame; creating sequential id column (",colnames(dat),")."))
   } else { #else if it exists, add seq. id if new.gid is not null
     if (!is.null(new.gid)) {
-      if (new.gid %in% colnames(dat)) {stop(paste0("'",new.gid,"' is already a column name in the data frame. Pick a unique name for new.gid or leave it null."))}
+      if (new.gid %in% colnames(dat)) {stop(paste0("'",new.gid,"' is already a column name in the data frame. Pick a unique name for new.gid or leave it null (no new ID created)."))}
       dat<-cbind(gid,dat)
       names(dat)[1]<-new.gid
     }
@@ -142,6 +143,8 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
   
   if (!wkb.t) { #wkt conversion
     
+  message("Using writeWKT from rgeos package...")
+    
   geom.1<-writeWKT(sdf,byid=TRUE)
   df<-cbind(dat,geom.1)
   df[] <- lapply(df, as.character)
@@ -169,7 +172,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
   }
   } else { #wkb conversion
     
-    message("Using wkb package...")
+    message("Using writeWKB from wkb package...")
     geom.1<-unlist(lapply(writeWKB(sdf),function(x) {paste(x,collapse="")}))
     df<-cbind(dat,geom.1)
     df[] <- lapply(df, as.character)

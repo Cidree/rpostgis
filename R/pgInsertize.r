@@ -16,7 +16,7 @@
 #' @return pgi object, a list containing four character strings- (1) in.table, the table name which will be 
 #' created or inserted into, if specifed by either create.table or force.match (else NULL)
 #' (2) db.new.table, the SQL statement to create the new table, if specified in create.table (else NULL), 
-#' (3) db.cols.insert, a character string of the database column names to make inserts on, and 
+#' (3) db.cols.insert, a character string of the database column names to insert into, and 
 #' (4) insert.data, a character string of the data to insert. See examples for 
 #' usage within the \code{pgInsert} function.
 #' @examples
@@ -59,8 +59,9 @@ pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL,new.id=N
   
   #add new ID column if new.id is set
   if (!is.null(new.id)) {
-    if (new.id %in% rcols) {stop(paste0("'",new.id,"' is already a column name in the data frame. Pick a unique name for new.id or leave it null."))}
-    
+    #check if new.id column name is already in data frame
+    if (new.id %in% rcols) {stop(paste0("'",new.id,"' is already a column name in the data frame. Pick a unique name for new.id or leave it null (no new ID created)."))}
+
     id.num<-1:length(df[,1])
     df<-cbind(id.num,df)
     names(df)[1]<-new.id
