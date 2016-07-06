@@ -56,6 +56,8 @@
 
 pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL,new.id=NULL,alter.names=TRUE) {
   
+  if (!is.data.frame(df)) {stop("df must be a data frame.")}
+  
   replace <- "[+-.,!@$%^&*();/|<>]"
   in.tab<-NULL
   new.table<-NULL
@@ -100,6 +102,7 @@ pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL,new.id=N
   
   #match columns to DB table if set
   if (!is.null(force.match)) {
+    if (is.null(conn)) {stop("Database connection must be specified when using force.match.")}
     
     db.cols<-pgColumnInfo(conn,name=force.match)$column_name
     if (is.null(db.cols)) {stop(paste0("Database table ",paste(force.match,collapse='.')," not found."))}

@@ -127,7 +127,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
     #make create table statement
     new.table<-postgresqlBuildTableDefinition(drv,name=nt,obj=dat,row.names=FALSE)
     
-    in.tab<-paste(create.table,collapse='.')
+    in.tab<-paste(nt,collapse='.')
     
     #create and append add geometry field statement
     #create match table (Multi is user option)
@@ -148,6 +148,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
   }
   
   if (!is.null(force.match)) {
+    if (is.null(conn)) {stop("Database connection must be specified when using force.match.")}
     
     db.cols<-pgColumnInfo(conn,name=force.match)$column_name
     if (is.null(db.cols)) {stop(paste0("Database table ",paste(force.match,collapse='.')," not found."))}
