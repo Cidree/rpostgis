@@ -1,5 +1,10 @@
 # pgInsert
-#' Inserts data from a pgInsertize* object into a PostgreSQL table
+#' This function takes an output object from \code{pgInsertize} or \code{pgInsertizeGeom} and 
+#' performs the database insert (and table creation, if specified in the previous functions) on
+#' the database. If \code{create.table} or \code{force.match} were not specified in the \code{pgInsertize*}
+#' statement, the table to insert into should be specified in \code{name} in this function.
+#' If a new table is created but the data insert statement fails, the new table is dropped from the database (a
+#' message will be given).
 #
 #' @title Inserts data from a pgInsertize* object into a PostgreSQL table
 #' @param conn A connection object to a PostgreSQL database
@@ -19,9 +24,6 @@
 #' coords <- SpatialPoints(meuse[, c("x", "y")])
 #' spdf<- SpatialPointsDataFrame(coords, meuse)
 #' 
-#' #remove "." from column name
-#' colnames(spdf@data)[colnames(spdf@data) == 'dist.m']<-"dist_m"
-#' 
 #' #format data for insert
 #' pgi<-pgInsertizeGeom(spdf,geom="point")
 #' 
@@ -33,7 +35,7 @@
 #' 
 #' # insert data in database table (note that an error will be given if 
 #' # all insert columns do not match exactly to database table columns)
-#' pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
+#' pgInsert(conn,pgi=pgi,name=c("schema","meuse_data"))
 #' }
 
 pgInsert<-function(conn,pgi,name=NULL,encoding=NULL) {
@@ -59,6 +61,7 @@ pgInsert<-function(conn,pgi,name=NULL,encoding=NULL) {
   values<-pgi$insert.data
   
   db.cols<-pgColumnInfo(conn,name=name)$column_name
+  if (is.null(db.cols)) {stop(paste0("Database table ",paste(name,collapse='.')," not found."))}
   
   test<-match(cols,db.cols)
   unmatched<-cols[is.na(test)]

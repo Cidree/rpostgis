@@ -1,5 +1,15 @@
 # pgInsertizeGeom
-#' Formats an R sp object (Spatial* or Spatial*DataFrame) for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
+#' This function takes an R \code{sp} object (Spatial* or Spatial*DataFrame) and returns a package-specific \code{pgi} object, which
+#' is used in the function \code{pgInsert} to insert geometries/data frame rows of the object into the database table. (Note
+#' that this function does not do any modification of the database, it only prepares the data for insert.)
+#' If given a \code{Spatial*DataFrame}, the entire data frame is prepared by default, unless \code{force.match} specifies a database table (along with a database connection \code{conn}),
+#' in which case the R column names are compared to the \code{force.match} column names, and only
+#' exact matches are formatted to be inserted. A new database table can also be prepared to be
+#' created (if so, the actual table is created in \code{pgInsert}) using the \code{create.table} argument. If
+#' \code{new.id} is specified, a new sequential integer field is added to the data frame. For \code{Spatial*}-only objects (no data frame),
+#' a new.id is created by default with name "gid". If the R package \code{wkb} is installed, this function uses \code{writeWKB} to translate the
+#' geometries (faster for large datasets), otherwise the \code{rgeos} function \code{writeWKT} is used.
+#' Note: for inserting regular R data frames, use the function \code{pgInsertize}.
 #
 #' @title Formats an R sp object (Spatial* or Spatial*DataFrame) for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
 #'
@@ -14,6 +24,7 @@
 #' @param multi Logical, if PostGIS geometry column is/will be of Multi* type set to TRUE
 #' @param new.gid character, name of a new sequential integer ID column to be added to the table. For Spatial*DataFrames, the default is no
 #' new gid column. For spatial objects with no data frame (e.g., SpatialPolygons), a "gid" unique integer column is inserted by default.
+#' @param alter.names Logical, whether to make column and table names DB-compliant (remove special characters). Defualt is TRUE.
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
 #' @return pgi object, a list containing four character strings- a list containing four character strings- (1) in.table, the table name which will be 
@@ -30,7 +41,8 @@
 #' spdf<- SpatialPointsDataFrame(coords, meuse)
 #' 
 #' #format data for insert
-#' pgi<-pgInsertizeGeom(spdf,geom="point_geom")
+#' pgi.new<-pgInsertizeGeom(spdf,geom="point_geom",create.table=c("schema","table"),new.gid="pt_gid")
+#' print(pgi.new)
 #' 
 #' \dontrun{
 #'
@@ -41,10 +53,20 @@
 #' 
 #' # insert data in database table (note that an error will be given if all 
 #' # insert columns do not have exactly matching database table columns)
-#' pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
+#' pgInsert(conn,pgi=pgi.new)
+#' 
+#' 
+#' # Inserting into existing table
+#' pgi.existing<-pgInsertizeGeom(spdf,geom="point_geom",force.match=c("schema","table"),conn=conn)
+#' # A warning message is given, since the "dist.m" column is not found in the database table 
+#' # (it was changed to "dist_m" in pgi.new to make name DB-compliant). 
+#' # All other columns are prepared for insert.
+#' print(pgi.existing)
+#' 
+#' pgInsert(conn,pgi=pgi.existing)
 #' }
 
-pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.match=NULL,conn=NULL,new.gid=NULL) {
+pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.match=NULL,conn=NULL,new.gid=NULL,alter.names=TRUE) {
   
   #load wkb library if available
   wkb.t<-suppressWarnings(require("wkb",quietly = TRUE))
@@ -68,11 +90,19 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
       names(dat)[1]<-new.gid
     }
   }
-
-  rcols<-colnames(dat)
+  
   replace <- "[+-.,!@$%^&*();/|<>]"
   in.tab<-NULL
   new.table<-NULL
+  
+  #make db compliant names
+  if (alter.names) {
+    message("Making table names DB-compliant (lowercase and replacing special characters with '_').")
+    #make column and table names DB-compliant
+    t.names<-tolower(gsub(replace,"_",colnames(dat)))
+    colnames(dat)<-t.names
+    geom<-tolower(gsub(replace,"_",geom))
+  }
   
   #extract proj
   proj<-NA
@@ -88,16 +118,11 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
     
     drv <- dbDriver("PostgreSQL")
     
-    message("Making table names DB-compliant (replacing special characters with '_').")
-
-    #make column and table names DB-compliant
-    t.names<-tolower(gsub(replace,"_",rcols))
-    colnames(dat)<-t.names
-    
     if (length(create.table) == 1) {
       nt<-strsplit(create.table,".",fixed=T)[[1]]} else {nt<-create.table}
     
-    nt<-tolower(gsub(replace,"_",nt))
+    if (alter.names) {
+    nt<-tolower(gsub(replace,"_",nt))}
 
     #make create table statement
     new.table<-postgresqlBuildTableDefinition(drv,name=nt,obj=dat,row.names=FALSE)
@@ -119,14 +144,17 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
     add.geom<-paste0("ALTER TABLE ",in.tab," ADD COLUMN ",geom," geometry(",pgtype,");")
     
     new.table<-paste0(new.table,"; ",add.geom)
+    
   }
   
   if (!is.null(force.match)) {
     
     db.cols<-pgColumnInfo(conn,name=force.match)$column_name
+    if (is.null(db.cols)) {stop(paste0("Database table ",paste(force.match,collapse='.')," not found."))}
     
     if (is.na(match(geom,db.cols))) {stop('Geometry column name not found in database table.')}
     
+    rcols<-colnames(dat)
     db.cols.match<-db.cols[!is.na(match(db.cols,rcols))]
     db.cols.insert<-c(db.cols.match,geom)
     
@@ -137,7 +165,7 @@ pgInsertizeGeom<- function(sdf,geom='geom',create.table=NULL,multi=FALSE,force.m
     
     in.tab<-paste(force.match,collapse='.')
   } else {
-    db.cols.insert<-c(rcols,geom)
+    db.cols.insert<-c(colnames(dat),geom)
   }
   
   

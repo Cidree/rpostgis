@@ -1,6 +1,13 @@
 # pgInsertize
-#' Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)
-#
+#' This function takes an R data frame and returns a package-specific \code{pgi} object, which
+#' is used in the function \code{pgInsert} to insert rows of the data frame into the database table. (Note
+#' that this function does not do any modification of the database, it only prepares the R data frame for insert.)
+#' The entire data frame is prepared by default, unless \code{force.match} specifies a database table (along with a database connection \code{conn}),
+#' in which case the R column names are compared to the \code{force.match} column names, and only
+#' exact matches are formatted to be inserted. A new database table can also be prepared to be
+#' created (if so, the actual table is created in \code{pgInsert}) using the \code{create.table} argument. If
+#' \code{new.id} is specified, a new sequential integer field is added to the data frame. Note: for inserting
+#' Spatial* and Spatial*DataFrames types (from \code{sp} package), use the function \code{pgInsertizeGeom}.
 #' @title Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)
 #'
 #' @param df A data frame
@@ -11,6 +18,7 @@
 #' to match the database table. Default is NULL (all columns names will be kept, and in the same order given in the data frame.)
 #' @param conn A database connection (required if a table is given in for "force.match" parameter)
 #' @param new.id character, name of a new sequential integer ID column to be added to the table. 
+#' @param alter.names Logical, whether to make column and table names DB-compliant (remove special characters). Defualt is TRUE.
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export
 #' @return pgi object, a list containing four character strings- (1) in.table, the table name which will be 
@@ -37,18 +45,17 @@
 #' \dontrun{
 #' # insert data in database table (note that an error will be given if all insert columns 
 #' # do not match exactly to database table columns)
-#' pgInsert(conn,c("schema","table"),pgi=values)
+#' pgInsert(conn,pgi=values,name=c("schema","table"))
 #' 
 #' ##
 #' #run with forced matching of database table column names
 #' values<-pgInsertize(df=data,force.match=c("schema","table"),conn=conn)
 #' 
-#' pgInsert(conn,c("schema","table"),pgi=values)
+#' pgInsert(conn,pgi=values)
 #' }
 
-pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL,new.id=NULL) {
+pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL,new.id=NULL,alter.names=TRUE) {
   
-  rcols<-colnames(df)
   replace <- "[+-.,!@$%^&*();/|<>]"
   in.tab<-NULL
   new.table<-NULL
@@ -60,29 +67,30 @@ pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL,new.id=N
   #add new ID column if new.id is set
   if (!is.null(new.id)) {
     #check if new.id column name is already in data frame
-    if (new.id %in% rcols) {stop(paste0("'",new.id,"' is already a column name in the data frame. Pick a unique name for new.id or leave it null (no new ID created)."))}
+    if (new.id %in% colnames(df)) {stop(paste0("'",new.id,"' is already a column name in the data frame. Pick a unique name for new.id or leave it null (no new ID created)."))}
 
     id.num<-1:length(df[,1])
     df<-cbind(id.num,df)
     names(df)[1]<-new.id
-    rcols<-colnames(df)
   }
+  
+  #make db compliant names
+  if (alter.names) {
+    message("Making table names DB-compliant (lowercase and replacing special characters with '_').")
+    t.names<-tolower(gsub(replace,"_",colnames(df)))
+    colnames(df)<-t.names
+    }
 
   #create new table statement if set  
   if (!is.null(create.table)) {
 
     drv <- dbDriver("PostgreSQL")
     
-    message("Making table names DB-compliant (replacing special characters with '_').")
-   
-    #make column and table names DB-compliant
-    t.names<-tolower(gsub(replace,"_",rcols))
-    colnames(df)<-t.names
-    
     if (length(create.table) == 1) {
     nt<-strsplit(create.table,".",fixed=T)[[1]]} else {nt<-create.table}
     
-    nt<-tolower(gsub(replace,"_",nt))
+    if (alter.names) {
+    nt<-tolower(gsub(replace,"_",nt))}
     
     #make create table statement
     new.table<-postgresqlBuildTableDefinition(drv,name=nt,obj=df,row.names=FALSE)
@@ -94,7 +102,9 @@ pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL,new.id=N
   if (!is.null(force.match)) {
     
     db.cols<-pgColumnInfo(conn,name=force.match)$column_name
+    if (is.null(db.cols)) {stop(paste0("Database table ",paste(force.match,collapse='.')," not found."))}
     
+    rcols<-colnames(df)
     db.cols.match<-db.cols[!is.na(match(db.cols,rcols))]
     db.cols.insert<-db.cols.match
     
@@ -106,14 +116,7 @@ pgInsertize <- function(df,create.table=NULL,force.match=NULL,conn=NULL,new.id=N
     in.tab<-paste(force.match,collapse='.')
     
   } else {
-    
-    #if new table is created, use new column names, else use same data frame column names
-    if (!is.null(create.table)) {
-      db.cols.insert<-t.names } else
-      { 
-        in.tab<-NULL
-        db.cols.insert<-rcols
-      }
+    db.cols.insert<-colnames(df)
   }
   
   #set NA to user-specified NULL value

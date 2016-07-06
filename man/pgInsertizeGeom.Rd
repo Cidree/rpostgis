@@ -6,7 +6,7 @@
 \title{Formats an R sp object (Spatial* or Spatial*DataFrame) for insert (with geometry) into a PostgreSQL table (for use with pgInsert).}
 \usage{
 pgInsertizeGeom(sdf, geom = "geom", create.table = NULL, multi = FALSE,
-  force.match = NULL, conn = NULL, new.gid = NULL)
+  force.match = NULL, conn = NULL, new.gid = NULL, alter.names = TRUE)
 
 \method{print}{pgi}(pgi)
 }
@@ -29,6 +29,8 @@ to match the database table. If NULL, all columns will be kept in the same order
 \item{new.gid}{character, name of a new sequential integer ID column to be added to the table. For Spatial*DataFrames, the default is no
 new gid column. For spatial objects with no data frame (e.g., SpatialPolygons), a "gid" unique integer column is inserted by default.}
 
+\item{alter.names}{Logical, whether to make column and table names DB-compliant (remove special characters). Defualt is TRUE.}
+
 \item{object}{A list of class \code{pgi}, output from the pgInsertize() or pgInsertizeGeom() functions from the rpostgis package.}
 }
 \value{
@@ -40,7 +42,17 @@ created or inserted into, if specifed by either create.table or force.match (els
 usage within the \code{pgInsert} function.
 }
 \description{
-Formats an R sp object (Spatial* or Spatial*DataFrame) for insert (with geometry) into a PostgreSQL table (for use with pgInsert).
+This function takes an R \code{sp} object (Spatial* or Spatial*DataFrame) and returns a package-specific \code{pgi} object, which
+is used in the function \code{pgInsert} to insert geometries/data frame rows of the object into the database table. (Note
+that this function does not do any modification of the database, it only prepares the data for insert.)
+If given a \code{Spatial*DataFrame}, the entire data frame is prepared by default, unless \code{force.match} specifies a database table (along with a database connection \code{conn}),
+in which case the R column names are compared to the \code{force.match} column names, and only
+exact matches are formatted to be inserted. A new database table can also be prepared to be
+created (if so, the actual table is created in \code{pgInsert}) using the \code{create.table} argument. If
+\code{new.id} is specified, a new sequential integer field is added to the data frame. For \code{Spatial*}-only objects (no data frame),
+a new.id is created by default with name "gid". If the R package \code{wkb} is installed, this function uses \code{writeWKB} to translate the
+geometries (faster for large datasets), otherwise the \code{rgeos} function \code{writeWKT} is used.
+Note: for inserting regular R data frames, use the function \code{pgInsertize}.
 }
 \examples{
 
@@ -50,7 +62,8 @@ coords <- SpatialPoints(meuse[, c("x", "y")])
 spdf<- SpatialPointsDataFrame(coords, meuse)
 
 #format data for insert
-pgi<-pgInsertizeGeom(spdf,geom="point_geom")
+pgi.new<-pgInsertizeGeom(spdf,geom="point_geom",create.table=c("schema","table"),new.gid="pt_gid")
+print(pgi.new)
 
 \dontrun{
 
@@ -61,7 +74,17 @@ conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
 
 # insert data in database table (note that an error will be given if all 
 # insert columns do not have exactly matching database table columns)
-pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
+pgInsert(conn,pgi=pgi.new)
+
+
+# Inserting into existing table
+pgi.existing<-pgInsertizeGeom(spdf,geom="point_geom",force.match=c("schema","table"),conn=conn)
+# A warning message is given, since the "dist.m" column is not found in the database table 
+# (it was changed to "dist_m" in pgi.new to make name DB-compliant). 
+# All other columns are prepared for insert.
+print(pgi.existing)
+
+pgInsert(conn,pgi=pgi.existing)
 }
 }
 \author{

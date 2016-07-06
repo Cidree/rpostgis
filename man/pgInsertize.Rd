@@ -6,7 +6,7 @@
 \title{Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)}
 \usage{
 pgInsertize(df, create.table = NULL, force.match = NULL, conn = NULL,
-  new.id = NULL)
+  new.id = NULL, alter.names = TRUE)
 
 \method{print}{pgi}(pgi)
 }
@@ -24,6 +24,8 @@ to match the database table. Default is NULL (all columns names will be kept, an
 
 \item{new.id}{character, name of a new sequential integer ID column to be added to the table.}
 
+\item{alter.names}{Logical, whether to make column and table names DB-compliant (remove special characters). Defualt is TRUE.}
+
 \item{object}{A list of class \code{pgi}, output from the pgInsertize() or pgInsertizeGeom() functions from the rpostgis package.}
 }
 \value{
@@ -35,7 +37,15 @@ created or inserted into, if specifed by either create.table or force.match (els
 usage within the \code{pgInsert} function.
 }
 \description{
-Formats an R data frame for insert into a PostgreSQL table (for use with pgInsert)
+This function takes an R data frame and returns a package-specific \code{pgi} object, which
+is used in the function \code{pgInsert} to insert rows of the data frame into the database table. (Note
+that this function does not do any modification of the database, it only prepares the R data frame for insert.)
+The entire data frame is prepared by default, unless \code{force.match} specifies a database table (along with a database connection \code{conn}),
+in which case the R column names are compared to the \code{force.match} column names, and only
+exact matches are formatted to be inserted. A new database table can also be prepared to be
+created (if so, the actual table is created in \code{pgInsert}) using the \code{create.table} argument. If
+\code{new.id} is specified, a new sequential integer field is added to the data frame. Note: for inserting
+Spatial* and Spatial*DataFrames types (from \code{sp} package), use the function \code{pgInsertizeGeom}.
 }
 \examples{
 
@@ -55,13 +65,13 @@ values<-pgInsertize(df=data)
 \dontrun{
 # insert data in database table (note that an error will be given if all insert columns 
 # do not match exactly to database table columns)
-pgInsert(conn,c("schema","table"),pgi=values)
+pgInsert(conn,pgi=values,name=c("schema","table"))
 
 ##
 #run with forced matching of database table column names
 values<-pgInsertize(df=data,force.match=c("schema","table"),conn=conn)
 
-pgInsert(conn,c("schema","table"),pgi=values)
+pgInsert(conn,pgi=values)
 }
 }
 \author{

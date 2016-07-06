@@ -22,7 +22,12 @@ and the database is in UTF-8, use \code{encoding = c("latin1","UTF-8")}. Left NU
 DBIResult
 }
 \description{
-Inserts data from a pgInsertize* object into a PostgreSQL table
+This function takes an output object from \code{pgInsertize} or \code{pgInsertizeGeom} and 
+performs the database insert (and table creation, if specified in the previous functions) on
+the database. If \code{create.table} or \code{force.match} were not specified in the \code{pgInsertize*}
+statement, the table to insert into should be specified in \code{name} in this function.
+If a new table is created but the data insert statement fails, the new table is dropped from the database (a
+message will be given).
 }
 \examples{
 
@@ -30,9 +35,6 @@ library(sp)
 data(meuse)
 coords <- SpatialPoints(meuse[, c("x", "y")])
 spdf<- SpatialPointsDataFrame(coords, meuse)
-
-#remove "." from column name
-colnames(spdf@data)[colnames(spdf@data) == 'dist.m']<-"dist_m"
 
 #format data for insert
 pgi<-pgInsertizeGeom(spdf,geom="point")
@@ -45,7 +47,7 @@ conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
 
 # insert data in database table (note that an error will be given if 
 # all insert columns do not match exactly to database table columns)
-pgInsert(conn,c("schema","meuse_data"),pgi=pgi)
+pgInsert(conn,pgi=pgi,name=c("schema","meuse_data"))
 }
 }
 \author{
