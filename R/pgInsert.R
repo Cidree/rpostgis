@@ -1,5 +1,5 @@
 # pgInsert
-#' This function takes an output object from \code{pgInsertize} or \code{pgInsertizeGeom} and 
+#' This function takes a \code{pgi} list output object from \code{pgInsertize} or \code{pgInsertizeGeom} and 
 #' performs the database insert (and table creation, if specified in the previous functions) on
 #' the database. If \code{create.table} or \code{force.match} were not specified in the \code{pgInsertize*}
 #' statement, the table to insert into should be specified in \code{name} in this function.
@@ -12,7 +12,7 @@
 #' @param name character strings specifying a PostgreSQL schema and table name to insert into (e.g., name = c("schema","table")). 
 #' If table was specified in the pgInsertize* through create.table or force.match, leave this NULL.
 #' @param encoding Character vector of length 2, containing the from/to encodings for the 
-#' data (as in the function \code{iconv}. For example, if your dataset contain certain latin characters (e.g., accent marks),
+#' data (as in the function \code{iconv}). For example, if the dataset contain certain latin characters (e.g., accent marks),
 #' and the database is in UTF-8, use \code{encoding = c("latin1","UTF-8")}. Left NULL, no conversion will be done.
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @export

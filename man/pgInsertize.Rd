@@ -37,7 +37,7 @@ created or inserted into, if specifed by either create.table or force.match (els
 usage within the \code{pgInsert} function.
 }
 \description{
-This function takes an R data frame and returns a package-specific \code{pgi} object, which
+This function takes an R data frame and returns a \code{pgi} list object, which
 is used in the function \code{pgInsert} to insert rows of the data frame into the database table. (Note
 that this function does not do any modification of the database, it only prepares the R data frame for insert.)
 The entire data frame is prepared by default, unless \code{force.match} specifies a database table (along with a database connection \code{conn}),

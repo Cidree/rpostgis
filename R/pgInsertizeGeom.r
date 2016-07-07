@@ -1,5 +1,5 @@
 # pgInsertizeGeom
-#' This function takes an R \code{sp} object (Spatial* or Spatial*DataFrame) and returns a package-specific \code{pgi} object, which
+#' This function takes an R \code{sp} object (Spatial* or Spatial*DataFrame) and returns a \code{pgi} list object, which
 #' is used in the function \code{pgInsert} to insert geometries/data frame rows of the object into the database table. (Note
 #' that this function does not do any modification of the database, it only prepares the data for insert.)
 #' If given a \code{Spatial*DataFrame}, the entire data frame is prepared by default, unless \code{force.match} specifies a database table (along with a database connection \code{conn}),

@@ -8,6 +8,7 @@ Author: Mathieu Basille, David Bucklin
 Maintainer: David Bucklin <david.bucklin@gmail.com>
 Depends:
     raster,
+    rgdal,
     rgeos,
     RPostgreSQL,
     sp
