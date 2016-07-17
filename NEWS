@@ -5,6 +5,10 @@ NEW FUNCTIONS
 
 * `pgPostGIS`: Check and create PostGIS extension.
 
+ENHANCEMENTS
+
+* `pgSchema`: Now returns TRUE if the schema exists (whether it was already available or was just created).
+
 
 rpostgis 0.7
 ============

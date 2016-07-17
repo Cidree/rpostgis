@@ -1,3 +1,5 @@
+## pgPostGIS
+##
 ##' The function checks for the availability of the PostGIS extension,
 ##' and if it is available, but not installed, install
 ##' it. Additionnaly, can also install Topology, Tiger Geocoder and

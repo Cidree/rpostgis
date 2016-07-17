@@ -1,6 +1,6 @@
 Package: rpostgis
 Version: 0.8
-Date: 2016-07-16
+Date: 2016-07-17
 Title: PostGIS and PostgreSQL related functions
 Description: This package provides additional functions to the
     RPostgreSQL package, mostly convenient wrappers, with some PostGIS
