@@ -1,9 +1,10 @@
 ## pgSchema
 ##
-##' Checks the existence, and if necessary, create a schema.
+##' Checks the existence, and if necessary, creates a schema.
 ##'
 ##' @title Check and create schema.
-##' @param conn A connection object.
+##' @param conn A connection object (required, even if \code{exec =
+##'     FALSE}).
 ##' @param name A character string specifying a PostgreSQL schema
 ##'     name.
 ##' @param display Logical. Whether to display the query (defaults to
@@ -17,7 +18,9 @@
 ##' @author Mathieu Basille \email{basille@@ase-research.org}
 ##' @export
 ##' @examples
-##' pgSchema(name = "schema", exec = FALSE)
+##' \dontrun{
+##'     pgSchema(name = "schema", exec = FALSE)
+##' }
 pgSchema <- function(conn, name, display = TRUE, exec = TRUE) {
     ## Check the name of the schema
     if (length(name) != 1)

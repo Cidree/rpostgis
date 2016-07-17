@@ -24,8 +24,10 @@
 ##' @examples
 ##' ## 'exec = FALSE' does not install any extension, but nevertheless
 ##' ## check for available and installed extensions:
-##' pgPostGIS(con, topology = TRUE, tiger = TRUE, sfcgal = TRUE,
-##'     exec = FALSE)
+##' \dontrun{
+##'     pgPostGIS(con, topology = TRUE, tiger = TRUE, sfcgal = TRUE,
+##'         exec = FALSE)
+##' }
 pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
     sfcgal = FALSE, display = TRUE, exec = TRUE) {
     ## Get the list of extensions from PostgreSQL

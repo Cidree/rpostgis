@@ -2,12 +2,13 @@
 % Please edit documentation in R/pgSchema.r
 \name{pgSchema}
 \alias{pgSchema}
-\title{Create schema}
+\title{Check and create schema.}
 \usage{
 pgSchema(conn, name, display = TRUE, exec = TRUE)
 }
 \arguments{
-\item{conn}{A connection object.}
+\item{conn}{A connection object (required, even if \code{exec =
+FALSE}).}
 
 \item{name}{A character string specifying a PostgreSQL schema
 name.}
@@ -18,17 +19,23 @@ name.}
 \item{exec}{Logical. Whether to execute the query (defaults to
 \code{TRUE}).}
 }
+\value{
+\code{TRUE} if the schema exists (whether it was already
+    available or was just created).
+}
 \description{
-Create a schema.
+Checks the existence, and if necessary, creates a schema.
 }
 \examples{
-pgSchema(name = "schema", exec = FALSE)
+\dontrun{
+    pgSchema(name = "schema", exec = FALSE)
+}
 }
 \author{
 Mathieu Basille \email{basille@ase-research.org}
 }
 \seealso{
 The PostgreSQL documentation:
-\url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
+    \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
 }
 
