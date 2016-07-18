@@ -3,6 +3,14 @@ rpostgis 0.8.2
 
 OVERALL CHANGE
 
+* Change 'str' to 'query' + messages instead of cat.
+
+
+rpostgis 0.8.2
+==============
+
+OVERALL CHANGE
+
 * Changed file extension to .R.
 
 
