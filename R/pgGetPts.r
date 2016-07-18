@@ -49,12 +49,14 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
   
   ## Check if MULTI or single geom
   str <- paste0("SELECT DISTINCT ST_GeometryType(", geom, ") AS type FROM ", 
-                name, " WHERE ", geom, " IS NOT NULL;")
+                name, " WHERE ", geom, " IS NOT NULL ", 
+                query, ";")
   typ <- dbGetQuery(conn, str)
   
   ## Retrieve the SRID
   str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", name, 
-                " WHERE ", geom, " IS NOT NULL;")
+                " WHERE ", geom, " IS NOT NULL ", 
+                query, ";")
   srid <- dbGetQuery(conn, str)
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) 

@@ -47,7 +47,8 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
   
   ## Retrieve the SRID
   str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", 
-                name, " WHERE ", geom, " IS NOT NULL;")
+                name, " WHERE ", geom, " IS NOT NULL ", 
+                query, ";")
   srid <- dbGetQuery(conn, str)
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) {

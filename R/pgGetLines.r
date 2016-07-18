@@ -46,11 +46,12 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
   
   ## Retrieve the SRID
   str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", 
-                name, " WHERE ", geom, " IS NOT NULL;")
+                name, " WHERE ", geom, " IS NOT NULL ", 
+                query, ";")
   srid <- dbGetQuery(conn, str)
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) {
-    stop("Multiple SRIDs in the line geometry")}
+    stop("Multiple SRIDs in the linestring geometry")}
   
   p4s<-CRS(as.character(NA))@projargs
   try(p4s<-CRS(paste0("+init=epsg:", srid$st_srid))@projargs,silent=TRUE)
