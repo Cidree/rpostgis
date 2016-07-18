@@ -15,7 +15,7 @@
 ##' \code{TRUE}).
 ##' @seealso The PostgreSQL documentation:
 ##' \url{http://www.postgresql.org/docs/current/static/datatype-datetime.html}
-##' @author Mathieu Basille \email{basille@@ase-research.org}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' pgAsDate(name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)

@@ -36,7 +36,7 @@ pgDrop(name = c("fla", "bli"), type = "view", exec = FALSE)
 pgDrop(name = "fla", type = "schema", cascade = "TRUE", exec = FALSE)
 }
 \author{
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostgreSQL documentation:

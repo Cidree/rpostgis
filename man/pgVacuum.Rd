@@ -37,7 +37,7 @@ table.
 pgVacuum(name = c("fla", "bli"), full = TRUE, exec = FALSE)
 }
 \author{
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostgreSQL documentation:

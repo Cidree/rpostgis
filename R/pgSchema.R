@@ -15,7 +15,7 @@
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
 ##' @return \code{TRUE} if the schema exists (whether it was already
 ##'     available or was just created).
-##' @author Mathieu Basille \email{basille@@ase-research.org}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' \dontrun{

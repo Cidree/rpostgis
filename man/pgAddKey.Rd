@@ -39,7 +39,7 @@ pgAddKey(name = c("fla", "bli"), colname = "id", type = "foreign",
     reference = c("flu", "bla"), colref = "id", exec = FALSE)
 }
 \author{
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostgreSQL documentation:

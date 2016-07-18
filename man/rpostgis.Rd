@@ -16,6 +16,6 @@ list of documented functions, use \code{library(help =
 "rpostgis")}
 }
 \author{
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 

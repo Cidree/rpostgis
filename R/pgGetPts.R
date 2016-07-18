@@ -19,7 +19,7 @@
 #' select query from table
 #' @return A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame
 #' @author David Bucklin \email{david.bucklin@gmail.com}
-#' @author Mathieu Basille \email{basille@@ase-research.org}
+#' @author Mathieu Basille \email{basille@@ufl.edu}
 #' @importFrom sp CRS
 #' @importFrom sp SpatialPoints
 #' @importFrom sp SpatialPointsDataFrame

@@ -19,7 +19,7 @@
 ##' \code{TRUE}).
 ##' @seealso The PostgreSQL documentation:
 ##' \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
-##' @author Mathieu Basille \email{basille@@ase-research.org}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' ## Add an integer column

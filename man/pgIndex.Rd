@@ -43,7 +43,7 @@ pgIndex(name = c("fla", "bli"), colname = "wkb_geometry", method = "gist",
     exec = FALSE)
 }
 \author{
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostgreSQL documentation:

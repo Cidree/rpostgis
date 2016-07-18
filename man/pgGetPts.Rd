@@ -49,6 +49,6 @@ pgGetPts(conn, c('schema','tablename'), gid = 'table_id', other.cols = FALSE)
 \author{
 David Bucklin \email{david.bucklin@gmail.com}
 
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 

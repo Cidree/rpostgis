@@ -26,7 +26,7 @@
 ##' \url{http://www.postgresql.org/docs/current/static/sql-createindex.html};
 ##' the PostGIS documentation for GiST indexes:
 ##' \url{http://postgis.net/docs/using_postgis_dbmanagement.html#id541286}
-##' @author Mathieu Basille \email{basille@@ase-research.org}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' pgIndex(name = c("fla", "bli"), colname = "wkb_geometry", method = "gist",

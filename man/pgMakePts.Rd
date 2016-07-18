@@ -53,7 +53,7 @@ pgMakeStp(name = c("fla", "bli"), x = "longitude", y = "latitude",
     dx = "xdiff", dy = "ydiff", srid = 4326, exec = FALSE)
 }
 \author{
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostGIS documentation for \code{ST_MakePoint}:

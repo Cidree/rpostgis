@@ -34,7 +34,7 @@ pgComment(name = "fla", comment = "Comment on a schema.", type = "schema",
     exec = FALSE)
 }
 \author{
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostgreSQL documentation:

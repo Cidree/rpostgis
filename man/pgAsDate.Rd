@@ -31,7 +31,7 @@ Convert a date field to a timestamp with or without time zone.
 pgAsDate(name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
 }
 \author{
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostgreSQL documentation:

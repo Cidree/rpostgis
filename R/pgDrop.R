@@ -20,7 +20,7 @@
 ##' \url{http://www.postgresql.org/docs/current/static/sql-droptable.html},
 ##' \url{http://www.postgresql.org/docs/current/static/sql-dropview.html},
 ##' \url{http://www.postgresql.org/docs/current/static/sql-dropschema.html}
-##' @author Mathieu Basille \email{basille@@ase-research.org}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' pgDrop(name = c("fla", "bli"), type = "view", exec = FALSE)

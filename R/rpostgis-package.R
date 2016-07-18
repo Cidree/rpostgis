@@ -11,5 +11,5 @@
 ##' @docType package
 ##' @import RPostgreSQL
 ##' @importFrom methods slot "slot<-"
-##' @author Mathieu Basille \email{basille@@ase-research.org}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 NULL

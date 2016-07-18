@@ -41,7 +41,7 @@ pgColumn(name = c("fla", "bli"), colname = "field", action = "drop",
     cascade = TRUE, exec = FALSE)
 }
 \author{
-Mathieu Basille \email{basille@ase-research.org}
+Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostgreSQL documentation:

@@ -20,7 +20,7 @@
 ##' \code{TRUE}).
 ##' @seealso The PostgreSQL documentation:
 ##' \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
-##' @author Mathieu Basille \email{basille@@ase-research.org}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' pgVacuum(name = c("fla", "bli"), full = TRUE, exec = FALSE)

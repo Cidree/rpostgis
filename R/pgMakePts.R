@@ -25,7 +25,7 @@
 ##' \code{ST_MakeLine}:
 ##' \url{http://postgis.net/docs/ST_MakeLine.html}, which are the main
 ##' functions of the call.
-##' @author Mathieu Basille \email{basille@@ase-research.org}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' ## Create a new POINT field called "pts_geom"
