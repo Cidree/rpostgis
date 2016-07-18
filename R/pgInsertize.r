@@ -29,6 +29,9 @@
 #' @param alter.names Logical, whether to make database column and table names DB-compliant (remove special characters). Defualt is TRUE.
 #' (This will need to be set to FALSE if matching to non-standard names in an existing database table using the \code{force.match} setting.)
 #' @author David Bucklin \email{david.bucklin@gmail.com}
+#' @importFrom stats na.omit
+#' @importFrom rgeos writeWKT
+#' @importFrom rgdal showEPSG
 #' @export
 #' @return pgi A list containing four character strings- a list containing four character strings- (1) in.table, the table name which will be 
 #' created or inserted into, if specifed by either create.table or force.match (else NULL)
@@ -109,7 +112,7 @@ pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,fo
   
   #extract proj
   proj<-NA
-  try(proj<-showEPSG(as.character(data.obj@proj4string)),silent=TRUE)
+  try(proj<-rgdal::showEPSG(as.character(data.obj@proj4string)),silent=TRUE)
   if(!is.na(proj) & proj == "OGRERR_UNSUPPORTED_SRS") {proj<-NA}
   #
   
@@ -139,7 +142,7 @@ pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,fo
     g.typ<-class(data.obj)[1]
     
     sptype<-pmatch(typematch$sp,g.typ)
-    pgtype<-na.omit(typematch$pgis[sptype==1])[1]
+    pgtype<-stats::na.omit(typematch$pgis[sptype==1])[1]
     
     if (multi) {pgtype<-paste0("Multi",pgtype)}
     if (!is.na(proj)) {pgtype<-paste0(pgtype,",",proj)}
@@ -177,7 +180,7 @@ pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,fo
     
     message("Using writeWKT from rgeos package...")
     
-    geom.1<-writeWKT(data.obj,byid=TRUE)
+    geom.1<-rgeos::writeWKT(data.obj,byid=TRUE)
     df<-cbind(dat,geom.1)
     df[] <- lapply(df, as.character)
     
@@ -205,7 +208,7 @@ pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,fo
   } else { #wkb conversion
     
     message("Using writeWKB from wkb package...")
-    geom.1<-unlist(lapply(writeWKB(data.obj),function(x) {paste(x,collapse="")}))
+    geom.1<-unlist(lapply(wkb::writeWKB(data.obj),function(x) {paste(x,collapse="")}))
     df<-cbind(dat,geom.1)
     df[] <- lapply(df, as.character)
     

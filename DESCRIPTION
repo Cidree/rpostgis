@@ -7,11 +7,15 @@ Description: This package provides additional functions to the RPostgreSQL
 Author: Mathieu Basille, David Bucklin
 Maintainer: David Bucklin <david.bucklin@gmail.com>
 Depends:
+    R (>= 3.3.0),
+    RPostgreSQL
+Imports:
+    methods,
     raster,
     rgdal,
     rgeos,
-    RPostgreSQL,
-    sp
+    sp,
+    stats
 Suggests:
     wkb
 License: GPL (>= 3)
