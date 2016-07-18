@@ -8,10 +8,12 @@ Description: This package provides additional functions to the
 Author: Mathieu Basille, David Bucklin
 Maintainer: David Bucklin <david.bucklin@gmail.com>
 Depends:
+    RPostgreSQL
+Imports:
     raster,
     rgeos,
-    RPostgreSQL,
-    sp
+    sp,
+    methods
 License: GPL (>= 3)
 URL: http://ase-research.org/basille/rpostgis
 RoxygenNote: 5.0.1

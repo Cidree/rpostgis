@@ -9,5 +9,7 @@
 ##' @title PostGIS and PostgreSQL functions
 ##' @name rpostgis
 ##' @docType package
+##' @import RPostgreSQL
+##' @importFrom methods slot "slot<-"
 ##' @author Mathieu Basille \email{basille@@ase-research.org}
 NULL
