@@ -57,9 +57,9 @@ Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostGIS documentation for \code{ST_MakePoint}:
-\url{http://postgis.net/docs/ST_MakePoint.html}, and for
-\code{ST_MakeLine}:
-\url{http://postgis.net/docs/ST_MakeLine.html}, which are the main
-functions of the call.
+    \url{http://postgis.net/docs/ST_MakePoint.html}, and for
+    \code{ST_MakeLine}:
+    \url{http://postgis.net/docs/ST_MakeLine.html}, which are the
+    main functions of the call.
 }
 

@@ -1,5 +1,5 @@
 ## pgComment
-##
+
 ##' Comment on a table, a view or a schema.
 ##'
 ##' @title Comment table/view/schema
@@ -22,24 +22,27 @@
 ##'     type = "view", exec = FALSE)
 ##' pgComment(name = "fla", comment = "Comment on a schema.", type = "schema",
 ##'     exec = FALSE)
+
 pgComment <- function(conn, name, comment, type = c("table",
     "view", "schema"), display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2)
+    if (length(name) %in% 1:2) {
         name <- paste(name, collapse = ".")
-    else stop("The name should be \"table\", \"schema\" or c(\"schema\", \"table\").")
+    } else stop("The name should be \"table\", \"schema\" or c(\"schema\", \"table\").")
     ## Check and prepare the type
     type <- toupper(match.arg(type))
     ## Build the query
-    str <- paste0("COMMENT ON ", type, " ", name, " IS '", comment,
-        "';")
+    query <- paste0("COMMENT ON ", type, " ", name, " IS '",
+        comment, "';")
     ## Display the query
-    if (display)
-        cat(paste0("Query ", ifelse(exec, "", "not "), "executed:\n",
-            str, "\n--\n"))
+    if (display) {
+        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
+        message(query)
+        message("--")
+    }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, str)
+        dbSendQuery(conn, query)
     ## Return nothing
     return(invisible())
 }

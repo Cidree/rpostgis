@@ -13,8 +13,8 @@ pgVacuum(conn, name, full = FALSE, verbose = FALSE, analyze = TRUE,
 \item{name}{A character string specifying a PostgreSQL table name.}
 
 \item{full}{Logical. Whether to perform a "full" vacuum, which can
-reclaim more space, but takes much longer and exclusively locks
-the table.}
+reclaim more space, but takes much longer and exclusively
+locks the table.}
 
 \item{verbose}{Logical. Whether to print a detailed vacuum
 activity report for each table.}
@@ -41,6 +41,6 @@ Mathieu Basille \email{basille@ufl.edu}
 }
 \seealso{
 The PostgreSQL documentation:
-\url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
+    \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
 }
 

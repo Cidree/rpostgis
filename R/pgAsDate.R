@@ -1,5 +1,5 @@
 ## pgAsDate
-##
+
 ##' Convert a date field to a timestamp with or without time zone.
 ##'
 ##' @title Converts to timestamp
@@ -19,29 +19,31 @@
 ##' @export
 ##' @examples
 ##' pgAsDate(name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
+
 pgAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
-    exec = TRUE)
-{
+    exec = TRUE) {
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2)
+    if (length(name) %in% 1:2) {
         name <- paste(name, collapse = ".")
-    else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
     ## With or without time zones?
     timestamp <- ifelse(is.null(tz), "timestamp", "timestamptz")
     ## What time zone?
     tz <- ifelse(is.null(tz), "", paste0(" AT TIME ZONE '", tz,
         "'"))
     ## Build the query
-    str <- paste0("ALTER TABLE ", name, " ALTER COLUMN ", date,
+    query <- paste0("ALTER TABLE ", name, " ALTER COLUMN ", date,
         " TYPE ", timestamp, " USING ", date, "::timestamp",
         tz, ";")
     ## Display the query
-    if (display)
-        cat(paste0("Query ", ifelse(exec, "", "not "), "executed:\n",
-            str, "\n--\n"))
+    if (display) {
+        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
+        message(query)
+        message("--")
+    }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, str)
+        dbSendQuery(conn, query)
     ## Return nothing
     return(invisible())
 }

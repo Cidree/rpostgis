@@ -1,5 +1,5 @@
 ## pgDrop
-##
+
 ##' Drop a table, a view or a schema.
 ##'
 ##' @title Drop table/view/schema
@@ -25,13 +25,13 @@
 ##' @examples
 ##' pgDrop(name = c("fla", "bli"), type = "view", exec = FALSE)
 ##' pgDrop(name = "fla", type = "schema", cascade = "TRUE", exec = FALSE)
+
 pgDrop <- function(conn, name, type = c("table", "view", "schema"),
-    ifexists = FALSE, cascade = FALSE, display = TRUE, exec = TRUE)
-{
+    ifexists = FALSE, cascade = FALSE, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2)
+    if (length(name) %in% 1:2) {
         name <- paste(name, collapse = ".")
-    else stop("The name should be \"table\", \"schema\" or c(\"schema\", \"table\").")
+    } else stop("The name should be \"table\", \"schema\" or c(\"schema\", \"table\").")
     ## Check and prepare the type
     type <- toupper(match.arg(type))
     ## Argument IF EXISTS
@@ -39,14 +39,16 @@ pgDrop <- function(conn, name, type = c("table", "view", "schema"),
     ## Argument CASCADE
     cascade <- ifelse(cascade, " CASCADE", "")
     ## Build the query
-    str <- paste0("DROP ", type, ifexists, name, cascade, ";")
+    query <- paste0("DROP ", type, ifexists, name, cascade, ";")
     ## Display the query
-    if (display)
-        cat(paste0("Query ", ifelse(exec, "", "not "), "executed:\n",
-            str, "\n--\n"))
+    if (display) {
+        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
+        message(query)
+        message("--")
+    }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, str)
+        dbSendQuery(conn, query)
     ## Return nothing
     return(invisible())
 }

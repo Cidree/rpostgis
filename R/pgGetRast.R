@@ -31,46 +31,40 @@
 ##' pgGetRast(conn, c("schema", "DEM"), digits = 9, boundary = c(55,
 ##'     50, 17, 12))
 ##' }
+
 pgGetRast <- function(conn, name, rast = "rast", digits = 9,
-    boundary = NULL)
-{
-  #format table name
-  if (length(name) %in% 1:2) {
-    name <- paste(name, collapse = ".")
-  } else {
-    stop("The table name should be \"table\" or c(\"schema\", \"table\").")
-  }
-
-  ## Retrieve the SRID
-  str <- paste0("SELECT DISTINCT(ST_SRID(", rast, ")) FROM ",
-                name, " WHERE ", rast, " IS NOT NULL;")
-  srid <- dbGetQuery(conn, str)
-
-  ## Check if the SRID is unique, otherwise throw an error
-  if (nrow(srid) != 1)
-    stop("Multiple SRIDs in the raster")
-
-  if (is.null(boundary)) {
-    trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) as x, ST_Y(ST_Centroid((gv).geom)) as y,
-                                                      (gv).val FROM (SELECT ST_PixelAsPolygons(",
-                                                      rast, ") as gv FROM ", name, ") a;")))
-  } else {
-    if (typeof(boundary) != 'double') {
-      boundary<-c(boundary@bbox[2,2],boundary@bbox[2,1]
-              ,boundary@bbox[1,2],boundary@bbox[1,1])}
-    trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) as x, ST_Y(ST_Centroid((gv).geom)) as y,
-                                                      (gv).val FROM (SELECT ST_PixelAsPolygons(ST_Clip(",
-                                                      rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
-                                                      " ", boundary[1], ",", boundary[4], " ", boundary[2], ",\n  ",
-                                                      boundary[3], " ", boundary[2], ",", boundary[3], " ", boundary[1],
-                                                      ",", boundary[4], " ", boundary[1], "))'),", srid, "))) as gv FROM ",
-                                                      name, "\n  WHERE ST_Intersects(", rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((",
-                                                      boundary[4], " ", boundary[1], ",", boundary[4], " ", boundary[2],
-                                                      ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3], " ",
-                                                      boundary[1], ",", boundary[4], " ", boundary[1], "))'),", srid,
-                                                      "))) a;")))
-  }
-
+    boundary = NULL) {
+    # format table name
+    if (length(name) %in% 1:2) {
+        name <- paste(name, collapse = ".")
+    } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    ## Retrieve the SRID
+    query <- paste0("SELECT DISTINCT(ST_SRID(", rast, ")) FROM ",
+        name, " WHERE ", rast, " IS NOT NULL;")
+    srid <- dbGetQuery(conn, query)
+    ## Check if the SRID is unique, otherwise throw an error
+    if (nrow(srid) != 1)
+        stop("Multiple SRIDs in the raster")
+    if (is.null(boundary)) {
+        trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) as x, ST_Y(ST_Centroid((gv).geom)) as y,\n                                                      (gv).val FROM (SELECT ST_PixelAsPolygons(",
+            rast, ") as gv FROM ", name, ") a;")))
+    } else {
+        if (typeof(boundary) != "double") {
+            boundary <- c(boundary@bbox[2, 2], boundary@bbox[2,
+                1], boundary@bbox[1, 2], boundary@bbox[1, 1])
+        }
+        trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) as x, ST_Y(ST_Centroid((gv).geom)) as y,\n                                                      (gv).val FROM (SELECT ST_PixelAsPolygons(ST_Clip(",
+            rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+            " ", boundary[1], ",", boundary[4], " ", boundary[2],
+            ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
+            " ", boundary[1], ",", boundary[4], " ", boundary[1],
+            "))'),", srid, "))) as gv FROM ", name, "\n  WHERE ST_Intersects(",
+            rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+            " ", boundary[1], ",", boundary[4], " ", boundary[2],
+            ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
+            " ", boundary[1], ",", boundary[4], " ", boundary[1],
+            "))'),", srid, "))) a;")))
+    }
     p4s <- sp::CRS(paste0("+init=epsg:", srid))@projargs
     return(raster::rasterFromXYZ(trast, crs = sp::CRS(p4s), digits = digits))
 }

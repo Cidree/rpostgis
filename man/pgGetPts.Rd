@@ -10,30 +10,33 @@ pgGetPts(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{name}{A character string specifying a PostgreSQL schema (if necessary),
-and table or view name for the table holding the
+\item{name}{A character string specifying a PostgreSQL schema (if
+necessary), and table or view name for the table holding the
 points geometry (e.g., name = c("schema","table"))}
 
-\item{geom}{The name of the point geometry column. (Default = 'geom')}
+\item{geom}{The name of the point geometry column. (Default =
+'geom')}
 
-\item{gid}{Name of the column in 'name' holding the ID. Should be unique
-if additional columns of unique data are being appended. \code{gid=NULL}
-(default) automatically creates a new unique ID for each row in the table.}
+\item{gid}{Name of the column in 'name' holding the ID. Should be
+unique if additional columns of unique data are being
+appended. \code{gid=NULL} (default) automatically creates a new
+unique ID for each row in the table.}
 
-\item{other.cols}{Names of specific columns in the table to retrieve, comma seperated
-in one character element (e.g. \code{other.cols='col1,col2'}. The default is to
-attach all columns in a SpatialPointsDataFrame. Setting \code{other.cols=NULL}
-will return a SpatialPoints.}
+\item{other.cols}{Names of specific columns in the table to
+retrieve, comma seperated in one character element
+(e.g. \code{other.cols='col1,col2'}. The default is to attach
+all columns in a SpatialPointsDataFrame. Setting
+\code{other.cols=NULL} will return a SpatialPoints.}
 
-\item{query}{character, additional SQL to append to modify
-select query from table}
+\item{query}{character, additional SQL to append to modify select
+query from table}
 }
 \value{
 A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame
 }
 \description{
-Retrieve point geometries from a PostGIS table, and convert it to
-a SpatialPoints or a SpatialPointsDataFrame.
+Retrieve point geometries from a PostGIS table, and convert it to a
+SpatialPoints or a SpatialPointsDataFrame.
 }
 \examples{
 \dontrun{

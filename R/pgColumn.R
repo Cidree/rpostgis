@@ -1,5 +1,5 @@
 ## pgColumn
-##
+
 ##' Add or remove a column to/from a table.
 ##'
 ##' @title Add or remove a column
@@ -27,28 +27,30 @@
 ##' ## Drop a column (with CASCADE)
 ##' pgColumn(name = c("fla", "bli"), colname = "field", action = "drop",
 ##'     cascade = TRUE, exec = FALSE)
+
 pgColumn <- function(conn, name, colname, action = c("add", "drop"),
-    coltype = "integer", cascade = FALSE, display = TRUE, exec = TRUE)
-{
+    coltype = "integer", cascade = FALSE, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2)
+    if (length(name) %in% 1:2) {
         table <- paste(name, collapse = ".")
-    else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
     ## Check and translate to upper case the action
     action <- toupper(match.arg(action))
     ## 'args' for the coltype or cascade
     args <- ifelse(action == "ADD", coltype, ifelse(cascade,
         "CASCADE", ""))
     ## Build the query
-    str <- paste0("ALTER TABLE ", table, " ", action, " COLUMN ",
+    query <- paste0("ALTER TABLE ", table, " ", action, " COLUMN ",
         colname, " ", args, ";")
     ## Display the query
-    if (display)
-        cat(paste0("Query ", ifelse(exec, "", "not "), "executed:\n",
-            str, "\n--\n"))
+    if (display) {
+        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
+        message(query)
+        message("--")
+    }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, str)
+        dbSendQuery(conn, query)
     ## Return nothing
     return(invisible())
 }

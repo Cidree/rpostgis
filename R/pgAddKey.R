@@ -1,5 +1,5 @@
 ## pgAddKey
-##
+
 ##' Add a primary or foreign key to a table column.
 ##'
 ##' @title Add key
@@ -25,34 +25,37 @@
 ##' @examples
 ##' pgAddKey(name = c("fla", "bli"), colname = "id", type = "foreign",
 ##'     reference = c("flu", "bla"), colref = "id", exec = FALSE)
+
 pgAddKey <- function(conn, name, colname, type = c("primary",
     "foreign"), reference, colref, display = TRUE, exec = TRUE) {
     type <- toupper(match.arg(type))
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2)
+    if (length(name) %in% 1:2) {
         table <- paste(name, collapse = ".")
-    else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
     ## If no reference, empty string
-    if (missing(reference))
+    if (missing(reference)) {
         references <- ""
-    ## Else, check and prepare the schema.name of the reference table
-    else {
+    } else {
+        ## Else, check and prepare the schema.name of the reference
+        ## table
         if (length(name) %in% 1:2)
-            reftable <- paste(reference, collapse = ".")
-        else stop("The reference table name should be \"table\" or c(\"schema\", \"table\").")
+            reftable <- paste(reference, collapse = ".") else stop("The reference table name should be \"table\" or c(\"schema\", \"table\").")
         references <- paste0(" REFERENCES ", reftable, " (",
             colref, ")")
     }
     ## Build the query
-    str <- paste0("ALTER TABLE ", table, " ADD ", type, " KEY (",
+    query <- paste0("ALTER TABLE ", table, " ADD ", type, " KEY (",
         colname, ")", references, ";")
     ## Display the query
-    if (display)
-        cat(paste0("Query ", ifelse(exec, "", "not "), "executed:\n",
-            str, "\n--\n"))
+    if (display) {
+        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
+        message(query)
+        message("--")
+    }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, str)
+        dbSendQuery(conn, query)
     ## Return nothing
     return(invisible())
 }

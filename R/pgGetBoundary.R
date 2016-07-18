@@ -23,38 +23,37 @@
 ##' pgGetBoundary(conn, c("schema", "polys"), geom = "polygon")
 ##' pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 ##' }
-pgGetBoundary <- function(conn, name, geom = "geom")
-{
-  ## Check and prepare the schema.name
-  if (length(name) %in% 1:2) {
-    name <- paste(name, collapse = ".")
-  } else {
-    stop("The table name should be \"table\" or c(\"schema\", \"table\").")
-  }
 
-  ## Check data type
-  str<-paste0("SELECT DISTINCT pg_typeof(",geom,") AS type FROM ",name,"
-              WHERE ",geom," IS NOT NULL;")
-  type<-suppressWarnings(dbGetQuery(conn,str))
-  if (type$type == 'raster') {func<-'st_union'} else if
-    (type$type == 'geometry') {func<-'st_collect'} else
-    {stop(paste0(geom," column does not contain geometries or rasters"))}
-
-  ## Retrieve the SRID
-  str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ",
-                name, " WHERE ", geom, " IS NOT NULL;")
-  srid <- dbGetQuery(conn, str)
-  ## Check if the SRID is unique, otherwise throw an error
-  if (nrow(srid) != 1)
-    stop("Multiple SRIDs in the geometry/raster")
-
-  p4s <- sp::CRS(paste0("+init=epsg:", srid$st_srid))@projargs
-
-  #retrieve envelope
-  str<-paste0('SELECT st_astext(st_envelope('
-              ,func,'(',geom,'))) FROM ',name,';')
-  wkt<-suppressWarnings(dbGetQuery(conn,str))
-
-  env<-rgeos::readWKT(wkt$st_astext,p4s=p4s)
-  return(env)
+pgGetBoundary <- function(conn, name, geom = "geom") {
+    ## Check and prepare the schema.name
+    if (length(name) %in% 1:2) {
+        name <- paste(name, collapse = ".")
+    } else {
+        stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    }
+    ## Check data type
+    query <- paste0("SELECT DISTINCT pg_typeof(", geom, ") AS type FROM ",
+        name, "\n              WHERE ", geom, " IS NOT NULL;")
+    type <- suppressWarnings(dbGetQuery(conn, query))
+    if (type$type == "raster") {
+        func <- "st_union"
+    } else if (type$type == "geometry") {
+        func <- "st_collect"
+    } else {
+        stop(paste0(geom, " column does not contain geometries or rasters"))
+    }
+    ## Retrieve the SRID
+    query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ",
+        name, " WHERE ", geom, " IS NOT NULL;")
+    srid <- dbGetQuery(conn, query)
+    ## Check if the SRID is unique, otherwise throw an error
+    if (nrow(srid) != 1)
+        stop("Multiple SRIDs in the geometry/raster")
+    p4s <- sp::CRS(paste0("+init=epsg:", srid$st_srid))@projargs
+    # retrieve envelope
+    query <- paste0("SELECT st_astext(st_envelope(", func, "(",
+        geom, "))) FROM ", name, ";")
+    wkt <- suppressWarnings(dbGetQuery(conn, query))
+    env <- rgeos::readWKT(wkt$st_astext, p4s = p4s)
+    return(env)
 }
