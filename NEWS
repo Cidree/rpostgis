@@ -1,3 +1,11 @@
+rpostgis 0.8.1
+==============
+
+OVERALL CHANGE
+
+* Fixed dependencies (DESCRIPTION, namespace, ::).
+
+
 rpostgis 0.8
 ============
 
