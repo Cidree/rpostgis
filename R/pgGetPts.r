@@ -20,6 +20,12 @@
 #' @return A Spatial(Multi)Points or a Spatial(Multi)PointsDataFrame
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @author Mathieu Basille \email{basille@@ase-research.org}
+#' @importFrom sp CRS
+#' @importFrom sp SpatialPoints
+#' @importFrom sp SpatialPointsDataFrame
+#' @importFrom sp SpatialMultiPoints
+#' @importFrom sp SpatialMultiPointsDataFrame
+#' @importFrom rgeos readWKT
 #' @export
 #' @examples
 #' \dontrun{
@@ -42,28 +48,31 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     stop("The table name should be \"table\" or c(\"schema\", \"table\").")
   }
   
+  #check table exists
+  tab.list<-dbGetQuery(conn,"select (f_table_schema||'.'||f_table_name) as geo_tables from public.geometry_columns;")
+  if (!name %in% tab.list$geo_tables)
+  {stop(paste0("Table/view '",name,"' does not exist, or does not have geometry column (not listed in public.geometry_columns."))}
+  
   ## if ID not specified, set it to generate row numbers
   if (is.null(gid)) {
     gid <- "row_number() over()"
   }
   
   ## Check if MULTI or single geom
-  str <- paste0("SELECT DISTINCT ST_GeometryType(", geom, ") AS type FROM ", 
-                name, " WHERE ", geom, " IS NOT NULL ", 
-                query, ";")
-  typ <- dbGetQuery(conn, str)
+  temp.query <- paste0("SELECT DISTINCT ST_GeometryType(", geom, ") AS type FROM ", 
+                name, " WHERE ", geom, " IS NOT NULL ", query, ";")
+  typ <- dbGetQuery(conn, temp.query)
   
   ## Retrieve the SRID
-  str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", name, 
-                " WHERE ", geom, " IS NOT NULL ", 
-                query, ";")
-  srid <- dbGetQuery(conn, str)
+  temp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", name, 
+                " WHERE ", geom, " IS NOT NULL ", query, ";")
+  srid <- dbGetQuery(conn, temp.query)
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) 
     stop("Multiple SRIDs in the point geometry")
   
-  proj4<-CRS(as.character(NA))
-  try(proj4<-CRS(paste0("+init=epsg:", srid$st_srid)),silent=TRUE)
+  proj4<-sp::CRS(as.character(NA))
+  try(proj4<-sp::CRS(paste0("+init=epsg:", srid$st_srid)),silent=TRUE)
   
   if (is.na(proj4@projargs)) {warning("Table SRID not found. Projection will be undefined (NA)")}
   
@@ -72,54 +81,54 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     
     # get data
     if (is.null(other.cols)) {
-      str <- paste0("select ", gid, " as tgid,ST_X(", geom, ") AS x, ST_Y(", 
+      temp.query <- paste0("select ", gid, " as tgid,ST_X(", geom, ") AS x, ST_Y(", 
                     geom, ") AS y from ", name, " where ", geom, " is not null ", 
                     query, ";")
     } else {
-      str <- paste0("select ", gid, " as tgid,ST_X(", geom, ") AS x, ST_Y(", 
+      temp.query <- paste0("select ", gid, " as tgid,ST_X(", geom, ") AS x, ST_Y(", 
                     geom, ") AS y,", other.cols, " from ", name, " where ", 
                     geom, " is not null ", query, ";")
     }
-    dbData <- suppressWarnings(dbGetQuery(conn, str))
+    dbData <- suppressWarnings(dbGetQuery(conn, temp.query))
     row.names(dbData) = dbData$tgid
     
     ## Generate a SpatialPoints object
-    sp <- SpatialPoints(data.frame(x = dbData$x, y = dbData$y, row.names = dbData$tgid), 
+    sp <- sp::SpatialPoints(data.frame(x = dbData$x, y = dbData$y, row.names = dbData$tgid), 
                         proj4string = proj4)
     
     ## Append data to spdf if requested
     if (!is.null(other.cols)) {
       cols <- colnames(dbData)
       cols <- cols[!(cols %in% c("tgid", "x", "y", geom))]
-      sp <- SpatialPointsDataFrame(sp, dbData[cols], match.ID = TRUE)
+      sp <- sp::SpatialPointsDataFrame(sp, dbData[cols], match.ID = TRUE)
     }
   } else {
     
     ## make SpatialMultiPoints(Dataframe) for multi-point types
     
     if (is.null(other.cols)) {
-      str <- paste0("select ", gid, " as tgid,st_astext(", geom, 
+      temp.query <- paste0("select ", gid, " as tgid,st_astext(", geom, 
                     ") as wkt from ", name, " where ", geom, " is not null ", 
                     query, ";")
     } else {
-      str <- paste0("select ", gid, " as tgid,st_astext(", geom, 
+      temp.query <- paste0("select ", gid, " as tgid,st_astext(", geom, 
                     ") as wkt,", other.cols, " from ", name, " where ", geom, 
                     " is not null ", query, ";")
     }
     
-    dbData <- suppressWarnings(dbGetQuery(conn, str))
+    dbData <- suppressWarnings(dbGetQuery(conn, temp.query))
     row.names(dbData) = dbData$tgid
     
     # create spatialMultiPoints
-    tt <- mapply(function(x, y, z) readWKT(x, y, z), x = dbData$wkt, 
+    tt <- mapply(function(x, y, z) rgeos::readWKT(x, y, z), x = dbData$wkt, 
                  y = dbData$tgid, z = proj4@projargs)
-    sp <- SpatialMultiPoints(tt, proj4string = proj4)
+    sp <- sp::SpatialMultiPoints(tt, proj4string = proj4)
     
     ## Append data to spdf if requested
     if (!is.null(other.cols)) {
       cols <- colnames(dbData)
       cols <- cols[!(cols %in% c("tgid", "wkt", geom))]
-      sp <- SpatialMultiPointsDataFrame(tt, dbData[cols], proj4string = proj4)
+      sp <- sp::SpatialMultiPointsDataFrame(tt, dbData[cols], proj4string = proj4)
     }
   }
   

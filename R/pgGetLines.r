@@ -20,6 +20,11 @@
 #' @param query character, additional SQL to append to modify 
 #' select query from table
 #' @author David Bucklin \email{david.bucklin@gmail.com}
+#' @importFrom sp CRS
+#' @importFrom sp SpatialLines
+#' @importFrom sp SpatialLinesDataFrame
+#' @importFrom rgeos readWKT 
+#' @importFrom methods slot
 #' @export
 #' @return SpatialLinesDataFrame or SpatialLines
 #' @examples
@@ -44,17 +49,22 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     stop("The table name should be \"table\" or c(\"schema\", \"table\").")
   }
   
+  #check table exists
+  tab.list<-dbGetQuery(conn,"select (f_table_schema||'.'||f_table_name) as geo_tables from public.geometry_columns;")
+  if (!name %in% tab.list$geo_tables)
+  {stop(paste0("Table/view '",name,"' does not exist, or does not have geometry column (not listed in public.geometry_columns."))}
+  
   ## Retrieve the SRID
-  str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", 
+  temp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", 
                 name, " WHERE ", geom, " IS NOT NULL ", 
                 query, ";")
-  srid <- dbGetQuery(conn, str)
+  srid <- dbGetQuery(conn, temp.query)
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) {
     stop("Multiple SRIDs in the linestring geometry")}
   
-  p4s<-CRS(as.character(NA))@projargs
-  try(p4s<-CRS(paste0("+init=epsg:", srid$st_srid))@projargs,silent=TRUE)
+  p4s<-sp::CRS(as.character(NA))@projargs
+  try(p4s<-sp::CRS(paste0("+init=epsg:", srid$st_srid))@projargs,silent=TRUE)
   
   if (is.na(p4s)) {warning("Table SRID not found. Projection will be undefined (NA)")}
   
@@ -65,38 +75,38 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
   
   #check other.cols
   if (is.null(other.cols)) {
-    que <- paste0("select ", gid, " as tgid,st_astext(", 
+    temp.query <- paste0("select ", gid, " as tgid,st_astext(", 
                   geom, ") as wkt from ", name, " where ", geom, " is not null ", 
                   query, ";")
-    dfTemp <- suppressWarnings(dbGetQuery(conn, que))
+    dfTemp <- suppressWarnings(dbGetQuery(conn, temp.query))
     row.names(dfTemp) = dfTemp$tgid
   } else {
-    que <- paste0("select ", gid, " as tgid,st_astext(", 
+    temp.query <- paste0("select ", gid, " as tgid,st_astext(", 
                   geom, ") as wkt,", other.cols, " from ", name, " where ", 
                   geom, " is not null ", query, ";")
-    dfTemp <- suppressWarnings(dbGetQuery(conn, que))
+    dfTemp <- suppressWarnings(dbGetQuery(conn, temp.query))
     row.names(dfTemp) = dfTemp$tgid
   }
 
   #make spatiallines
-  tt <- mapply(function(x, y, z) readWKT(x, y, z), x = dfTemp[,2]
+  tt <- mapply(function(x, y, z) rgeos::readWKT(x, y, z), x = dfTemp[,2]
                , y = dfTemp[, 1], z = p4s)
   
-  Sline <- SpatialLines(lapply(1:length(tt), function(i) {
-    lin <- slot(tt[[i]], "lines")[[1]]
-    slot(lin, "ID") <- slot(slot(tt[[i]], "lines")[[1]], 
+  Sline <- sp::SpatialLines(lapply(1:length(tt), function(i) {
+    lin <- methods::slot(tt[[i]], "lines")[[1]]
+    methods::slot(lin, "ID") <- methods::slot(methods::slot(tt[[i]], "lines")[[1]], 
                             "ID")  ##assign original ID to Line
     lin
   }))
   
-  Sline@proj4string <- slot(tt[[1]], "proj4string")
+  Sline@proj4string <- methods::slot(tt[[1]], "proj4string")
   
   if (is.null(other.cols)) {
     return(Sline)
   } else {
     try(dfTemp[geom] <- NULL)
     try(dfTemp["wkt"] <- NULL)
-    spdf <- SpatialLinesDataFrame(Sline, dfTemp)
+    spdf <- sp::SpatialLinesDataFrame(Sline, dfTemp)
     spdf@data["tgid"] <- NULL
     return(spdf)
   }

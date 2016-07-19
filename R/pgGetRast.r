@@ -18,6 +18,8 @@
 #' limits with which to clip the raster. NULL (default) will
 #' return the full raster.
 #' @author David Bucklin \email{david.bucklin@gmail.com}
+#' @importFrom raster rasterFromXYZ
+#' @importFrom sp CRS
 #' @export
 #' @return RasterLayer
 #' @examples
@@ -41,6 +43,11 @@ pgGetRast <- function(conn, name, rast = "rast",
   } else {
     stop("The table name should be \"table\" or c(\"schema\", \"table\").")
   }
+  
+  #check table exists
+  tab.list<-dbGetQuery(conn,"select (r_table_schema||'.'||r_table_name) as rast_tables from public.raster_columns;")
+  if (!name %in% tab.list$rast_tables)
+  {stop(paste0("Table/view '",name,"' does not exist, or does not have geometry column (not listed in public.raster_columns)"))}
   
   ## Retrieve the SRID
   str <- paste0("SELECT DISTINCT(ST_SRID(", rast, ")) FROM ", 
@@ -72,6 +79,6 @@ pgGetRast <- function(conn, name, rast = "rast",
                                                       "))) a;")))
   }
   
-    p4s <- CRS(paste0("+init=epsg:", srid))@projargs
-    return(rasterFromXYZ(trast, crs = CRS(p4s), digits = digits))
+    p4s <- sp::CRS(paste0("+init=epsg:", srid))@projargs
+    return(raster::rasterFromXYZ(trast, crs = sp::CRS(p4s), digits = digits))
 } 
