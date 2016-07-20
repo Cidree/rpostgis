@@ -31,7 +31,7 @@ if additional columns of unique data are being appended. \code{gid=NULL}
 \item{other.cols}{Names of specific columns in the table to retrieve, comma seperated
 in one character element (e.g. \code{other.cols='col1,col2'}. The default is to
 attach all columns in a Spatial*DataFrame. Setting \code{other.cols=NULL} 
-will return a Spatial-only object (no data frame).}
+will return a Spatial-only object (no data).}
 
 \item{query}{character, additional SQL to append to modify 
 select query from table. Must begin with "AND ..."; see below for examples.}

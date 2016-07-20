@@ -12,6 +12,9 @@
 #' @param geom character, Name of the column in 'name' holding the 
 #' geometry or raster object (Default = 'geom')
 #' @author David Bucklin \email{david.bucklin@gmail.com}
+#' @importFrom sp CRS
+#' @importFrom sp SpatialPolygons
+#' @importFrom rgeos readWKT
 #' @export
 #' @return SpatialPolygon
 #' @examples
@@ -34,29 +37,45 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     stop("The table name should be \"table\" or c(\"schema\", \"table\").")
   }
   
+  #check table exists
+  temp.query<-paste0("select geo FROM 
+                     (select (gc.f_table_schema||'.'||gc.f_table_name) as tab, gc.f_geometry_column as geo 
+                     FROM public.geometry_columns as gc 
+                     UNION
+                     select rc.r_table_schema||'.'||rc.r_table_name as tab, rc.r_raster_column as geo
+                     FROM public.raster_columns as rc) a
+                     where tab  = '",name,"';")
+  
+  tab.list<-dbGetQuery(conn,temp.query)$geo
+  if (is.null(tab.list)) {
+    stop(paste0("Table/view '",name,"' is not listed in public.geometry_columns or public.raster_columns."))
+  } else if (!geom %in% tab.list) {
+    stop(paste0("Table/view '",name,"' geometry/raster column not found. Available geometry/raster columns: ",paste(tab.list,collapse=", ")))
+  }
+  
   ## Check data type
-  str<-paste0("SELECT DISTINCT pg_typeof(",geom,") AS type FROM ",name," 
+  temp.query<-paste0("SELECT DISTINCT pg_typeof(",geom,") AS type FROM ",name," 
               WHERE ",geom," IS NOT NULL;")
-  type<-suppressWarnings(dbGetQuery(conn,str))
+  type<-suppressWarnings(dbGetQuery(conn,temp.query))
   if (type$type == 'raster') {func<-'st_union'} else if 
     (type$type == 'geometry') {func<-'st_collect'} else
     {stop(paste0(geom," column does not contain geometries or rasters"))}
   
   ## Retrieve the SRID
-  str <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", 
+  temp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", 
                 name, " WHERE ", geom, " IS NOT NULL;")
-  srid <- dbGetQuery(conn, str)
+  srid <- dbGetQuery(conn, temp.query)
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) 
     stop("Multiple SRIDs in the geometry/raster")
 
-  p4s <- CRS(paste0("+init=epsg:", srid$st_srid))@projargs
+  p4s <- sp::CRS(paste0("+init=epsg:", srid$st_srid))@projargs
 
   #retrieve envelope
-  str<-paste0('SELECT st_astext(st_envelope('
+  temp.query<-paste0('SELECT st_astext(st_envelope('
               ,func,'(',geom,'))) FROM ',name,';')
-  wkt<-suppressWarnings(dbGetQuery(conn,str))
+  wkt<-suppressWarnings(dbGetQuery(conn,temp.query))
 
-  env<-readWKT(wkt$st_astext,p4s=p4s)
+  env<-rgeos::readWKT(wkt$st_astext,p4s=p4s)
   return(env)
 }

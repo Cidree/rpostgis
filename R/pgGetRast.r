@@ -45,14 +45,20 @@ pgGetRast <- function(conn, name, rast = "rast",
   }
   
   #check table exists
-  tab.list<-dbGetQuery(conn,"select (r_table_schema||'.'||r_table_name) as rast_tables from public.raster_columns;")
-  if (!name %in% tab.list$rast_tables)
-  {stop(paste0("Table/view '",name,"' does not exist, or does not have geometry column (not listed in public.raster_columns)"))}
+  temp.query<-paste0("select r_raster_column as geo from public.raster_columns 
+                     where (r_table_schema||'.'||r_table_name) = '",name,"';")
+  
+  tab.list<-dbGetQuery(conn,temp.query)$geo
+  if (is.null(tab.list)) {
+    stop(paste0("Table '",name,"' is not listed in public.raster_columns."))
+  } else if (!rast %in% tab.list) {
+    stop(paste0("Table '",name,"' raster column '",rast,"' not found. Available raster columns: ",paste(tab.list,collapse=", ")))
+  }
   
   ## Retrieve the SRID
-  str <- paste0("SELECT DISTINCT(ST_SRID(", rast, ")) FROM ", 
+  temp.query <- paste0("SELECT DISTINCT(ST_SRID(", rast, ")) FROM ", 
                 name, " WHERE ", rast, " IS NOT NULL;")
-  srid <- dbGetQuery(conn, str)
+  srid <- dbGetQuery(conn, temp.query)
   
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) != 1) 
