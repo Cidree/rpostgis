@@ -73,8 +73,12 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
                        " WHERE ", geom, " IS NOT NULL ", query, ";")
   srid <- dbGetQuery(conn, temp.query)
   ## Check if the SRID is unique, otherwise throw an error
-  if (nrow(srid) != 1) 
-    stop("Multiple SRIDs in the point geometry")
+  if (nrow(srid) > 1) {
+    stop("Multiple SRIDs in the point geometry")}
+  else if (nrow(srid) < 1) {
+    stop("Database table is empty.")
+  }
+    
   
   proj4<-sp::CRS(as.character(NA))
   try(proj4<-sp::CRS(paste0("+init=epsg:", srid$st_srid)),silent=TRUE)
@@ -189,8 +193,11 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
                        query, ";")
   srid <- dbGetQuery(conn, temp.query)
   ## Check if the SRID is unique, otherwise throw an error
-  if (nrow(srid) != 1) {
+  if (nrow(srid) > 1) {
     stop("Multiple SRIDs in the linestring geometry")}
+  else if (nrow(srid) < 1) {
+    stop("Database table is empty.")
+  }
   
   p4s<-sp::CRS(as.character(NA))@projargs
   try(p4s<-sp::CRS(paste0("+init=epsg:", srid$st_srid))@projargs,silent=TRUE)
@@ -291,8 +298,11 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
   srid <- dbGetQuery(conn, temp.query)
   
   ## Check if the SRID is unique, otherwise throw an error
-  if (nrow(srid) != 1) {
+  if (nrow(srid) > 1) {
     stop("Multiple SRIDs in the polygon geometry")}
+  else if (nrow(srid) < 1) {
+    stop("Database table is empty.")
+  }
   
   p4s<-sp::CRS(as.character(NA))@projargs
   try(p4s<-sp::CRS(paste0("+init=epsg:", srid$st_srid))@projargs,silent=TRUE)

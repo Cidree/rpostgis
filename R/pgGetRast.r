@@ -61,8 +61,11 @@ pgGetRast <- function(conn, name, rast = "rast",
   srid <- dbGetQuery(conn, temp.query)
   
   ## Check if the SRID is unique, otherwise throw an error
-  if (nrow(srid) != 1) 
-    stop("Multiple SRIDs in the raster")
+  if (nrow(srid) > 1) {
+    stop("Multiple SRIDs in the raster")}
+  else if (nrow(srid) < 1) {
+    stop("Database table is empty.")
+  }
   
   if (is.null(boundary)) {
     trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) as x, ST_Y(ST_Centroid((gv).geom)) as y, 

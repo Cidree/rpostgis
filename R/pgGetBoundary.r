@@ -66,8 +66,11 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
                 name, " WHERE ", geom, " IS NOT NULL;")
   srid <- dbGetQuery(conn, temp.query)
   ## Check if the SRID is unique, otherwise throw an error
-  if (nrow(srid) != 1) 
-    stop("Multiple SRIDs in the geometry/raster")
+  if (nrow(srid) > 1) {
+    stop("Multiple SRIDs in the geometry/raster")}
+  else if (nrow(srid) < 1) {
+    stop("Database table is empty.")
+  }
 
   p4s <- sp::CRS(paste0("+init=epsg:", srid$st_srid))@projargs
 
