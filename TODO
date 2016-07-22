@@ -1,5 +1,3 @@
-* pgInsertizeGeom - needs to add create.table argument, copy structure from pgInsertize
-
 * pgIntersectPts (pg-functions.R) -> move to rpostgisLT(?)
 
 * pgIntersectStp (pgIntersectsSts in pg-functions.R) -> move to rpostgisLT(?)
@@ -11,3 +9,14 @@
 * pgIndex, pgComment --> action = "drop"?
 
 * pgColumn --> action = "rename"? (and other functions?) ou bien pgRename( table, index, sequence, view, column )?
+
+7/21/16
+
+* add st_isvalid check to pgGet* functions
+
+* add support for loading "geography" data type in pgGet* functions
+
+* update pgGetRast.r to load rasters from PostGIS type
+
+* insert rasters into tables
+
