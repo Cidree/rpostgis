@@ -38,7 +38,7 @@
 
 pgSRID<-function(CRS,conn,create=FALSE,new.srid=NULL) {
   
-  if (!pgPostGIS(conn)) {stop("PostGIS is not enabled on this database.")}
+  if (!suppressMessages(pgPostGIS(conn))) {stop("PostGIS is not enabled on this database.")}
   
   #check object
   if(class(CRS)[1] != "CRS") {
