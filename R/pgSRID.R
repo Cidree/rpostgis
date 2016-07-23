@@ -1,8 +1,8 @@
 # pgSRID
 #' This function takes `CRS`-class object and a PostgreSQL database connection (with PostGIS extension),
 #' and returns the matching SRID(s) for that CRS. If a match is not found,
-#' a new entry can be created in the PostgreSQL `spatial_ref_sys table` using the
-#' parameters specified by the CRS. New entries will be created with the auth_name = 'rpostgis_custom'.
+#' a new entry can be created in the PostgreSQL `spatial_ref_sys` table using the
+#' parameters specified by the CRS. New entries will be created with auth_name = 'rpostgis_custom'.
 #
 #' @title Find the matching PostGIS SRID for a CRS object (or create a new SRID if not found)
 #' @param CRS CRS object, created through a call to `CRS()` from library `sp`.
