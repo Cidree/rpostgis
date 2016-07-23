@@ -84,7 +84,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
   temp.query<-paste0("SELECT proj4text as p4s from spatial_ref_sys WHERE srid = ",srid$st_srid,";")
   db.proj4<-dbGetQuery(conn,temp.query)$p4s
   
-  try(proj4<-sp::CRS(db.proj4),silent=TRUE)
+  if (!is.null(db.proj4)) {try(proj4<-sp::CRS(db.proj4),silent=TRUE)}
   
   if (is.na(proj4@projargs)) {warning("Table SRID not found. Projection will be undefined (NA)")}
   
@@ -206,8 +206,8 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
   
   temp.query<-paste0("SELECT proj4text as p4s from spatial_ref_sys WHERE srid = ",srid$st_srid,";")
   db.proj4<-dbGetQuery(conn,temp.query)$p4s
-  
-  try(p4s<-sp::CRS(db.proj4)@projargs,silent=TRUE)
+
+  if (!is.null(db.proj4)) {try(p4s<-sp::CRS(db.proj4)@projargs,silent=TRUE)}
   
   if (is.na(p4s)) {warning("Table SRID not found. Projection will be undefined (NA)")}
   
@@ -316,7 +316,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
   temp.query<-paste0("SELECT proj4text as p4s from spatial_ref_sys WHERE srid = ",srid$st_srid,";")
   db.proj4<-dbGetQuery(conn,temp.query)$p4s
   
-  try(p4s<-sp::CRS(db.proj4)@projargs,silent=TRUE)
+  if (!is.null(db.proj4)) {try(p4s<-sp::CRS(db.proj4)@projargs,silent=TRUE)}
   
   if (is.na(p4s)) {warning("Table SRID not found. Projection will be undefined (NA)")}
   
