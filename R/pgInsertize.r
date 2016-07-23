@@ -75,7 +75,9 @@
 pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,force.match=NULL,conn=NULL,new.id=NULL,alter.names=TRUE) {
   
   #load wkb library if available
-  wkb.t<-suppressWarnings(require("wkb",quietly = TRUE))
+  #wkb.t<-suppressWarnings(require("wkb",quietly = TRUE))
+  wkb.t<-FALSE
+  #NEED TO FIX wkb before re-enabling
   
   #if spatial*dataframe, extract data frame
   dat<-data.frame()
