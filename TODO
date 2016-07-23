@@ -20,3 +20,16 @@
 
 * insert rasters into tables
 
+* add automatic checking for MULTI types in pgInsertizeGeom
+
+* add pgInsertize process into pgInsert
+
+
+KNOWN ISSUES
+
+* wkb translation issues in pgInsertizeGeom (results in negative polygon areas)
+
+
+
+
+
