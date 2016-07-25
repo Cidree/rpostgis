@@ -24,8 +24,6 @@
 #' @param conn A database connection (if a table is given in for "force.match" parameter)
 #' @param new.id character, name of a new sequential integer ID column to be added to the table. 
 #' (for spatial objects without data frames, this column is created even if left NULL and defaults to the name 'gid')
-#' @param multi Logical, if PostGIS geometry column is/will be of Multi* type set to TRUE
-#' new gid column. For spatial objects with no data frame (e.g., SpatialPolygons), a "gid" unique integer column is inserted by default.
 #' @param alter.names Logical, whether to make database column and table names DB-compliant (remove special characters). Defualt is TRUE.
 #' (This will need to be set to FALSE if matching to non-standard names in an existing database table using the \code{force.match} setting.)
 #' @author David Bucklin \email{david.bucklin@gmail.com}
@@ -72,10 +70,18 @@
 #' pgInsert(conn,pgi=pgi.existing)
 #' }
 
-pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,force.match=NULL,conn=NULL,new.id=NULL,alter.names=TRUE) {
+pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NULL,conn=NULL,new.id=NULL,alter.names=TRUE) {
   
   #load wkb library if available
   wkb.t<-suppressWarnings(require("wkb",quietly = TRUE))
+  #wkb.t<-FALSE
+  
+  #check multi
+  mx<-1 #if points
+  try(mx<-max(unlist(lapply(sapply(slot(data.obj, "polygons"), slot, "Polygons"),function(x) {length(x)}))),silent=TRUE)
+  try(mx<-max(unlist(lapply(sapply(slot(data.obj, "lines"), slot, "Lines"),function(x) {length(x)}))),silent=TRUE)
+
+  if (mx > 1) {multi<-TRUE} else {multi<-FALSE}
 
   #if spatial*dataframe, extract data frame
   dat<-data.frame()
@@ -110,11 +116,19 @@ pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,fo
     geom<-tolower(gsub(replace,"_",geom))
   }
   
-  #extract proj
-  proj<-NA
-  try(proj<-rgdal::showEPSG(as.character(data.obj@proj4string)),silent=TRUE)
-  if(!is.na(proj) & proj == "OGRERR_UNSUPPORTED_SRS") {proj<-NA}
-  #
+  if (!is.null(conn)) {
+    proj<-NULL
+    try(proj<-pgSRID(data.obj@proj4string,conn=conn))
+  }
+  
+  if (is.null(proj)) {
+    #extract proj
+    proj<-NA
+    try(proj<-rgdal::showEPSG(as.character(data.obj@proj4string)),silent=TRUE)
+    if(!is.na(proj) & proj == "OGRERR_UNSUPPORTED_SRS") {proj<-NA}
+    #  
+  }
+  
   
   if (!is.null(create.table) & !is.null(force.match)) {
     stop("Either create.table or force.match must be null.")
@@ -136,7 +150,7 @@ pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,fo
     in.tab<-paste(nt,collapse='.')
     
     #create and append add geometry field statement
-    #create match table (Multi is user option)
+    #create match table
     typematch<-data.frame(sp=c("SpatialPoints","SpatialLines","SpatialPolygons","SpatialMultiPoints"),pgis=c("Point","LineString","Polygon","Point"),
                           stringsAsFactors = FALSE)
     g.typ<-class(data.obj)[1]
@@ -176,7 +190,9 @@ pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,fo
   }
   
   
-  if (!wkb.t | multi) { #wkt conversion, multi not handled correctly by wkb at this time...
+  if (!wkb.t | multi | class(data.obj)[1] %in% c("SpatialLines","SpatialLinesDataFrame")) { 
+    #wkt conversion, multi not handled correctly by wkb at this time,
+    #and wkb only outputs MULTILINESTRINGS (so all linestrings are sent using WKT)
     
     message("Using writeWKT from rgeos package...")
     

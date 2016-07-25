@@ -11,7 +11,8 @@ pgSRID(CRS, conn, create = FALSE, new.srid = NULL)
 
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{create}{Logical. If no matching SRID is found, should a new SRID be created?}
+\item{create}{Logical. If no matching SRID is found, should a new SRID be created? 
+User must have write access on spatial_ref_sys table.}
 
 \item{new.srid}{integer. Optional SRID to give to a newly created SRID. If left NULL (default),
 the next open value of `srid` in `spatial_ref_sys` between 880000 and 890000 will be used.}
@@ -22,8 +23,8 @@ SRID code (integer)
 \description{
 This function takes `CRS`-class object and a PostgreSQL database connection (with PostGIS extension),
 and returns the matching SRID(s) for that CRS. If a match is not found,
-a new entry can be created in the PostgreSQL `spatial_ref_sys table` using the
-parameters specified by the CRS. New entries will be created with the auth_name = 'rpostgis_custom'.
+a new entry can be created in the PostgreSQL `spatial_ref_sys` table using the
+parameters specified by the CRS. New entries will be created with auth_name = 'rpostgis_custom'.
 }
 \examples{
 

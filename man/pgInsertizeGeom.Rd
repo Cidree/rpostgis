@@ -7,9 +7,8 @@
 \title{Format R data objects (data frames, spatial data frames, or spatial-only objects) 
 for insert into a PostgreSQL table (for use with pgInsert).}
 \usage{
-pgInsertizeGeom(data.obj, geom = "geom", multi = FALSE,
-  create.table = NULL, force.match = NULL, conn = NULL, new.id = NULL,
-  alter.names = TRUE)
+pgInsertizeGeom(data.obj, geom = "geom", create.table = NULL,
+  force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE)
 
 pgInsertize(data.obj, create.table = NULL, force.match = NULL,
   conn = NULL, new.id = NULL, alter.names = TRUE)
@@ -20,9 +19,6 @@ pgInsertize(data.obj, create.table = NULL, force.match = NULL,
 \item{data.obj}{A Spatial* or Spatial*DataFrame, or data frame for \code{pgInsertize}.}
 
 \item{geom}{character string, the name of geometry column in the database table. (existing or to be created; defaults to 'geom')}
-
-\item{multi}{Logical, if PostGIS geometry column is/will be of Multi* type set to TRUE
-new gid column. For spatial objects with no data frame (e.g., SpatialPolygons), a "gid" unique integer column is inserted by default.}
 
 \item{create.table}{character, schema and table of the PostgreSQL table to create (actual table creation will be 
 done in later in pgInsert().) Column names will be converted to PostgreSQL-compliant names. Default is NULL (no new table created).}

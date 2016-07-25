@@ -7,7 +7,8 @@
 #' @title Find the matching PostGIS SRID for a CRS object (or create a new SRID if not found)
 #' @param CRS CRS object, created through a call to `CRS()` from library `sp`.
 #' @param conn A connection object to a PostgreSQL database
-#' @param create Logical. If no matching SRID is found, should a new SRID be created?
+#' @param create Logical. If no matching SRID is found, should a new SRID be created? 
+#' User must have write access on spatial_ref_sys table.
 #' @param new.srid integer. Optional SRID to give to a newly created SRID. If left NULL (default),
 #' the next open value of `srid` in `spatial_ref_sys` between 880000 and 890000 will be used.
 #' @author David Bucklin \email{david.bucklin@gmail.com}
