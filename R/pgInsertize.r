@@ -75,10 +75,8 @@
 pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,force.match=NULL,conn=NULL,new.id=NULL,alter.names=TRUE) {
   
   #load wkb library if available
-  #wkb.t<-suppressWarnings(require("wkb",quietly = TRUE))
-  wkb.t<-FALSE
-  #NEED TO FIX wkb before re-enabling
-  
+  wkb.t<-suppressWarnings(require("wkb",quietly = TRUE))
+
   #if spatial*dataframe, extract data frame
   dat<-data.frame()
   try(dat<-data.obj@data,silent=TRUE)
@@ -178,7 +176,7 @@ pgInsertizeGeom<- function(data.obj,geom='geom',multi=FALSE,create.table=NULL,fo
   }
   
   
-  if (!wkb.t) { #wkt conversion
+  if (!wkb.t | multi) { #wkt conversion, multi not handled correctly by wkb at this time...
     
     message("Using writeWKT from rgeos package...")
     
