@@ -116,8 +116,8 @@ pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NU
     geom<-tolower(gsub(replace,"_",geom))
   }
   
+  proj<-NULL
   if (!is.null(conn)) {
-    proj<-NULL
     try(proj<-pgSRID(data.obj@proj4string,conn=conn))
   }
   
@@ -126,9 +126,7 @@ pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NU
     proj<-NA
     try(proj<-rgdal::showEPSG(as.character(data.obj@proj4string)),silent=TRUE)
     if(!is.na(proj) & proj == "OGRERR_UNSUPPORTED_SRS") {proj<-NA}
-    #  
   }
-  
   
   if (!is.null(create.table) & !is.null(force.match)) {
     stop("Either create.table or force.match must be null.")
@@ -136,18 +134,14 @@ pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NU
   
   if (!is.null(create.table)) {
     
+    nt<-pgtablenamefix(create.table)
+    
     drv <- dbDriver("PostgreSQL")
     
-    if (length(create.table) == 1) {
-      nt<-strsplit(create.table,".",fixed=T)[[1]]} else {nt<-create.table}
-    
-    if (alter.names) {
-      nt<-tolower(gsub(replace,"_",nt))}
-    
     #make create table statement
-    new.table<-postgresqlBuildTableDefinition(drv,name=nt,obj=dat,row.names=FALSE)
+    new.table<-postgresqlBuildTableDefinition(drv,name=gsub('"',"",nt),obj=dat,row.names=FALSE)
     
-    in.tab<-paste(nt,collapse='.')
+    in.tab<-nt
     
     #create and append add geometry field statement
     #create match table
@@ -161,7 +155,7 @@ pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NU
     if (multi) {pgtype<-paste0("Multi",pgtype)}
     if (!is.na(proj)) {pgtype<-paste0(pgtype,",",proj)}
     
-    add.geom<-paste0("ALTER TABLE ",in.tab," ADD COLUMN ",geom," geometry(",pgtype,");")
+    add.geom<-paste0("ALTER TABLE ",in.tab[1],".",in.tab[2]," ADD COLUMN ",geom," geometry(",pgtype,");")
     
     new.table<-paste0(new.table,"; ",add.geom)
     
@@ -170,8 +164,12 @@ pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NU
   if (!is.null(force.match)) {
     if (is.null(conn)) {stop("Database connection must be specified when using force.match.")}
     
-    db.cols<-pgColumnInfo(conn,name=force.match)$column_name
-    if (is.null(db.cols)) {stop(paste0("Database table ",paste(force.match,collapse='.')," not found."))}
+    #name fixing
+    nt<-pgtablenamefix(force.match)
+    in.tab<-nt
+      
+    db.cols<-pgColumnInfo(conn,name=gsub('"',"",nt))$column_name
+    if (is.null(db.cols)) {stop(paste0("Database table ",paste(nt,collapse='.')," not found."))}
     
     if (is.na(match(geom,db.cols))) {stop('Geometry column name not found in database table.')}
     
@@ -184,20 +182,25 @@ pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NU
     
     message(paste0(length(colnames(dat))," out of ",length(rcols)," columns of the data frame match database table columns and will be formatted."))
     
-    in.tab<-paste(force.match,collapse='.')
   } else {
     db.cols.insert<-c(colnames(dat),geom)
   }
   
+  #data string open and close characters (NULLed when only geometry is inserted)
+  open<-"'"
+  close<-"',"
   
   if (!wkb.t | multi | class(data.obj)[1] %in% c("SpatialLines","SpatialLinesDataFrame")) { 
-    #wkt conversion, multi not handled correctly by wkb at this time,
+    #wkt conversion, multipolygons not handled correctly by wkb at this time,
     #and wkb only outputs MULTILINESTRINGS (so all linestrings are sent using WKT)
     
     message("Using writeWKT from rgeos package...")
     
     geom.1<-rgeos::writeWKT(data.obj,byid=TRUE)
-    df<-cbind(dat,geom.1)
+    if (length(colnames(dat)) == 0) {df<-data.frame(geom.1)
+    open<-NULL
+    close<-NULL} else {
+      df<-cbind(dat,geom.1)}
     df[] <- lapply(df, as.character)
     
     #set all NA to NULL
@@ -207,25 +210,28 @@ pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NU
     #format rows of data frame
     if (!is.na(proj)) {
       if (multi == TRUE) {
-        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                          "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"',",proj,")))")) 
+        d1<-apply(df,1,function(x) paste0("(",open,toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          close,"ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"',",proj,")))")) 
       } else {
-        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                          "',ST_GeomFromText('",x[length(colnames(df))],"',",proj,"))"))}
+        d1<-apply(df,1,function(x) paste0("(",open,toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          close,"ST_GeomFromText('",x[length(colnames(df))],"',",proj,"))"))}
     } else {
       warning("spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0). Use projection(sp) if you want to set it.")
       if (multi == TRUE) {
-        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                          "',ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"')))"))
+        d1<-apply(df,1,function(x) paste0("(",open,toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          close,"ST_Multi(ST_GeomFromText('",x[length(colnames(df))],"')))"))
       } else {
-        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                          "',ST_GeomFromText('",x[length(colnames(df))],"'))"))}
+        d1<-apply(df,1,function(x) paste0("(",open,toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          close,"ST_GeomFromText('",x[length(colnames(df))],"'))"))}
     }
   } else { #wkb conversion
     
     message("Using writeWKB from wkb package...")
     geom.1<-unlist(lapply(wkb::writeWKB(data.obj),function(x) {paste(x,collapse="")}))
-    df<-cbind(dat,geom.1)
+    if (length(colnames(dat)) == 0) {df<-data.frame(geom.1)
+      open<-NULL
+      close<-NULL} else {
+      df<-cbind(dat,geom.1)}
     df[] <- lapply(df, as.character)
     
     #set all NA to NULL
@@ -235,19 +241,19 @@ pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NU
     #format rows of data frame
     if (!is.na(proj)) {
       if (multi == TRUE) {
-        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                          "',ST_Multi(ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,")))")) 
+        d1<-apply(df,1,function(x) paste0("(",open,toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          close,"ST_Multi(ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,")))")) 
       } else {
-        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                          "',ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,"))"))}
+        d1<-apply(df,1,function(x) paste0("(",open,toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          close,"ST_SetSRID('",x[length(colnames(df))],"'::geometry,",proj,"))"))}
     } else {
       warning("spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0). Use projection(sp) if you want to set it.")
       if (multi == TRUE) {
-        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                          "',ST_Multi('",x[length(colnames(df))],"'))"))
+        d1<-apply(df,1,function(x) paste0("(",open,toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          close,"ST_Multi('",x[length(colnames(df))],"'))"))
       } else {
-        d1<-apply(df,1,function(x) paste0("('",toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
-                                          "','",x[length(colnames(df))],"')"))}
+        d1<-apply(df,1,function(x) paste0("(",open,toString(paste(gsub("'","''",x[1:length(colnames(df))-1],fixed=TRUE),collapse="','")),
+                                          close,"'",x[length(colnames(df))],"')"))}
     }
     
   }
@@ -325,27 +331,27 @@ pgInsertize <- function(data.obj,create.table=NULL,force.match=NULL,conn=NULL,ne
 
   #create new table statement if set  
   if (!is.null(create.table)) {
+    
+    nt<-pgtablenamefix(create.table)
 
     drv <- dbDriver("PostgreSQL")
     
-    if (length(create.table) == 1) {
-    nt<-strsplit(create.table,".",fixed=T)[[1]]} else {nt<-create.table}
-    
-    if (alter.names) {
-    nt<-tolower(gsub(replace,"_",nt))}
-    
     #make create table statement
-    new.table<-postgresqlBuildTableDefinition(drv,name=nt,obj=data.obj,row.names=FALSE)
+    new.table<-postgresqlBuildTableDefinition(drv,name=gsub('"',"",nt),obj=data.obj,row.names=FALSE)
     
-    in.tab<-paste(create.table,collapse='.')
+    in.tab<-nt
   }
   
   #match columns to DB table if set
   if (!is.null(force.match)) {
     if (is.null(conn)) {stop("Database connection must be specified when using force.match.")}
     
-    db.cols<-pgColumnInfo(conn,name=force.match)$column_name
-    if (is.null(db.cols)) {stop(paste0("Database table ",paste(force.match,collapse='.')," not found."))}
+    #name fixing
+    nt<-pgtablenamefix(force.match)
+    in.tab<-nt
+    
+    db.cols<-pgColumnInfo(conn,name=gsub('"',"",nt))$column_name
+    if (is.null(db.cols)) {stop(paste0("Database table ",paste(nt,collapse='.')," not found."))}
     
     rcols<-colnames(data.obj)
     db.cols.match<-db.cols[!is.na(match(db.cols,rcols))]
@@ -354,9 +360,9 @@ pgInsertize <- function(data.obj,create.table=NULL,force.match=NULL,conn=NULL,ne
     #reorder data frame columns
     data.obj<-data.obj[db.cols.match]
     
+    if (length(colnames(data.obj)) == 0) {stop("No column name matches found in database table.")}
     message(paste0(length(colnames(data.obj))," out of ",length(rcols)," columns of the data frame match database table columns and will be formatted for database insert."))
     
-    in.tab<-paste(force.match,collapse='.')
     
   } else {
     db.cols.insert<-colnames(data.obj)
@@ -388,7 +394,7 @@ print.pgi <- function(pgi) {
   cat('pgi object: PostgreSQL insert object from pgInsertize* function in rpostgis. Use with pgInsert() to insert into database table.')
   cat('\n************************************\n')
   if(!is.null(pgi$in.tab)) {
-    cat(paste0('Insert table: ',pgi$in.tab))
+    cat(paste0('Insert table: ',paste(pgi$in.tab,collapse=".")))
     cat('\n************************************\n')
   }
   if(!is.null(pgi$db.new.table)) {

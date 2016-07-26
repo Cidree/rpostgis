@@ -22,10 +22,8 @@
 
 pgColumnInfo<- function(conn,name,allinfo=FALSE) {
   
-  name<-strsplit(paste(name,collapse='.'),split='.',fixed=T)[[1]]
-  
-  if(length(name) == 1) {name[2]<-name
-                        name[1]<-"public"}
+  name<-pgtablenamefix(name)
+  name<-gsub('"','',name)
   
   if (allinfo) {cols<-"*"} else {cols<-"column_name,data_type,is_nullable,character_maximum_length"}
   
