@@ -17,7 +17,6 @@
 #' @importFrom sp CRS
 #' @importFrom rgdal showWKT
 #' @importFrom rgdal showEPSG
-#' @importFrom rgdal CRSargs
 #' @examples
 #' 
 #' \dontrun{
@@ -39,6 +38,8 @@
 
 pgSRID<-function(CRS,conn,create=FALSE,new.srid=NULL) {
   
+  #use rgdal suggests
+  
   if (!suppressMessages(pgPostGIS(conn))) {stop("PostGIS is not enabled on this database.")}
   
   #check object
@@ -47,7 +48,7 @@ pgSRID<-function(CRS,conn,create=FALSE,new.srid=NULL) {
   }
   
   #extract p4s
-  p4s<-rgdal::CRSargs(CRS)
+  p4s<-CRS@projargs
   
   #if CRS is undefined (NA), return 0
   if(is.na(p4s)) {
@@ -103,7 +104,7 @@ pgSRID<-function(CRS,conn,create=FALSE,new.srid=NULL) {
     }
     }
     
-    #insert new SRID
+    #insert new SRID 
     query<-paste0("insert into spatial_ref_sys (srid,auth_name,auth_srid,srtext,proj4text) VALUES (",
       srid,",'rpostgis_custom',",srid,",'",rgdal::showWKT(p4s),"','",p4s,"');")
     

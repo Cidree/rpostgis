@@ -32,8 +32,8 @@ to match the database table. If NULL, all columns will be kept in the same order
 \item{new.id}{character, name of a new sequential integer ID column to be added to the table. 
 (for spatial objects without data frames, this column is created even if left NULL and defaults to the name 'gid')}
 
-\item{alter.names}{Logical, whether to make database column and table names DB-compliant (remove special characters). Defualt is TRUE.
-(This will need to be set to FALSE if matching to non-standard names in an existing database table using the \code{force.match} setting.)}
+\item{alter.names}{Logical, whether to make database column names DB-compliant (remove special characters). Defualt is TRUE.
+(This should to be set to FALSE to match to non-standard names in an existing database table using the \code{force.match} setting.)}
 
 \item{pgi}{A list of class \code{pgi}, output from the pgInsertize() or pgInsertizeGeom() functions from the rpostgis package.}
 }

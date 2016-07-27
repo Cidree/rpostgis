@@ -26,7 +26,7 @@ to match the database table.}
 (for spatial objects without data frames, this column is created even if left NULL and defaults to the name 'gid').
 Must match an existing column name (and numeric type) when used with \code{force.match}, otherwise it will be discarded.}
 
-\item{alter.names}{Logical, whether to make database column and table names DB-compliant (remove special characters). Defualt is TRUE.
+\item{alter.names}{Logical, whether to make database column names DB-compliant (remove special characters). Defualt is TRUE.
 (This should to be set to FALSE to match to non-standard names in an existing database table using the \code{force.match} setting.)}
 
 \item{encoding}{Character vector of length 2, containing the from/to encodings for the 
