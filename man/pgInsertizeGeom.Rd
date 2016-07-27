@@ -48,15 +48,21 @@ usage within the \code{pgInsert} function.
 \description{
 These functions take an R \code{sp} object (Spatial* or Spatial*DataFrame; for \code{pgInsertizeGeom}) 
 or data frame (for \code{pgInsertize}) and return a \code{pgi} list object, which
-is used in the function \code{pgInsert} to insert rows of the object into the database table. (Note
-that these functions do not do any modification of the database, it only prepares the data for insert.)
-The entire data frame is prepared by default, unless \code{force.match} specifies a database table (along with a database connection \code{conn}),
-in which case the R column names are compared to the \code{force.match} column names, and only
-exact matches are formatted to be inserted. A new database table can also be prepared to be
-created (if so, the actual table is created in \code{pgInsert}) using the \code{create.table} argument. If
-\code{new.id} is specified, a new sequential integer field is added to the data frame. For \code{Spatial*}-only objects (no data frame),
-a new.id is created by default with name "gid". For \code{pgInsertizeGeom}, if the R package \code{wkb} is installed, this function uses \code{writeWKB} to translate the
-geometries (faster for large datasets), otherwise the \code{rgeos} function \code{writeWKT} is used.
+can be used in the function \code{pgInsert} to insert rows of the object into the database table. (Note
+that these functions do not do any modification of the database, it only prepares the data for insert.) The
+function \code{pgInsert} is a wrapper around these functions, so \code{pgInsertize*} should only be used in 
+situations where data preparation and insert need to be seperated.
+}
+\details{
+The entire data frame is prepared by default, unless \code{force.match} specifies a database table 
+(along with a database connection \code{conn}), in which case the R column names are compared 
+to the \code{force.match} column names, and only exact matches are formatted to be inserted.
+
+A new database table can also be prepared to be created using the \code{create.table} argument. 
+If \code{new.id} is specified, a new sequential integer field is added to the data frame. 
+For \code{Spatial*}-only objects (no data frame), a new.id is created by default with name "gid". 
+For \code{pgInsertizeGeom}, if the R package \code{wkb} is installed, this function uses \code{writeWKB} to translate the
+geometries for some spatial types (faster with large datasets), otherwise the \code{rgeos} function \code{writeWKT} is used.
 }
 \examples{
 
@@ -78,7 +84,7 @@ conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
 
 # insert data in database table (note that an error will be given if all 
 # insert columns do not have exactly matching database table columns)
-pgInsert(conn,pgi=pgi.new)
+pgInsert(conn=conn,data.obj=pgi.new)
 
 
 # Inserting into existing table
@@ -88,7 +94,7 @@ pgi.existing<-pgInsertizeGeom(spdf,geom="point_geom",force.match=c("schema","tab
 # All other columns are prepared for insert.
 print(pgi.existing)
 
-pgInsert(conn,pgi=pgi.existing)
+pgInsert(conn=conn,data.obj=pgi.existing)
 }
 
 \dontrun{
@@ -110,13 +116,13 @@ values<-pgInsertize(data.obj=data)
 \dontrun{
 # insert data in database table (note that an error will be given if all insert columns 
 # do not match exactly to database table columns)
-pgInsert(conn,pgi=values,name=c("schema","table"))
+pgInsert(conn,data.obj=values,name=c("schema","table"))
 
 ##
 #run with forced matching of database table column names
 values<-pgInsertize(data.obj=data,force.match=c("schema","table"),conn=conn)
 
-pgInsert(conn,pgi=values)
+pgInsert(conn,data.obj=values)
 }
 }
 \author{

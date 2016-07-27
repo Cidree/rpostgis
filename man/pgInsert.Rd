@@ -45,12 +45,14 @@ column names, and only exact matches are formatted to be inserted. A new
 database table can also be created using the \code{create.table} argument. If
 \code{new.id} is specified, a new sequential integer field is added to the 
 data frame for insert. For \code{Spatial*}-only objects (no data frame),
-a new.id is created by default with name "gid". For \code{pgInsertizeGeom},
-if the R package \code{wkb} is installed, this function will use \code{writeWKB}
-for certain datasets (non-Multi, non-Linestring), which is faster for large datasets. 
+a new.id is created by default with name "gid".
+}
+\details{
+If the R package \code{wkb} is installed, this function will use \code{writeWKB}
+for certain datasets (non-Multi types, non-Linestring), which is faster for large datasets. 
 In all other cases the \code{rgeos} function \code{writeWKT} is used.
  
-If the table specified in \code{create.table} is created, but the data insert statement fails,
+If the table is created but the data insert statement fails,
 \code{create.table} is dropped from the database (a message will be given).
 }
 \examples{

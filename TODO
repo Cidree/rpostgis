@@ -12,7 +12,7 @@
 
 7/21/16
 
-* add st_isvalid check to pgGet* functions
+* add st_isvalid check to pgGet* functions(?)
 
 * add support for loading "geography" data type in pgGet* functions
 
@@ -20,15 +20,9 @@
 
 * insert rasters into tables
 
-* add automatic checking for MULTI types in pgInsertizeGeom
-
-* add pgInsertize process into pgInsert
-
-
 KNOWN ISSUES
 
-* wkb translation issues in pgInsertizeGeom (results in negative polygon areas)
-
+* writing with wkb does not support MULTIPOLYGONS, LINESTRINGS
 
 
 

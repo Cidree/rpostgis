@@ -40,22 +40,19 @@
 pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*", 
                      query = NULL) 
 {
-  ## Check and prepare the schema.name
-  if (length(name) %in% 1:2) {
-    name <- paste(name, collapse = ".")
-  } else {
-    stop("The table name should be \"table\" or c(\"schema\", \"table\").")
-  }
+  name<-pgtablenamefix(name)
+  nameque<-paste(name,collapse=".")
+  namechar<-gsub('"','',name)
   
   #check table exists
   temp.query<-paste0("select f_geometry_column as geo from public.geometry_columns 
-                     where (f_table_schema||'.'||f_table_name) = '",name,"';")
+                     where f_table_schema = '",namechar[1],"' and f_table_name = '",namechar[2],"';")
   
   tab.list<-dbGetQuery(conn,temp.query)$geo
   if (is.null(tab.list)) {
-    stop(paste0("Table/view '",name,"' is not listed in public.geometry_columns."))
+    stop(paste0("Table/view '",nameque,"' is not listed in public.geometry_columns."))
   } else if (!geom %in% tab.list) {
-    stop(paste0("Table/view '",name,"' geometry column not found. Available geometry columns: ",paste(tab.list,collapse=", ")))
+    stop(paste0("Table/view '",nameque,"' geometry column not found. Available geometry columns: ",paste(tab.list,collapse=", ")))
   }
   
   ## if ID not specified, set it to generate row numbers
@@ -65,13 +62,14 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
   
   ## Check if MULTI or single geom
   temp.query <- paste0("SELECT DISTINCT ST_GeometryType(", geom, ") AS type FROM ", 
-                       name, " WHERE ", geom, " IS NOT NULL ", query, ";")
+                       nameque, " WHERE ", geom, " IS NOT NULL ", query, ";")
   typ <- dbGetQuery(conn, temp.query)
   
   ## Retrieve the SRID
-  temp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", name, 
+  temp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", nameque, 
                        " WHERE ", geom, " IS NOT NULL ", query, ";")
   srid <- dbGetQuery(conn, temp.query)
+  
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) > 1) {
     stop("Multiple SRIDs in the point geometry")}
@@ -94,11 +92,11 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     # get data
     if (is.null(other.cols)) {
       temp.query <- paste0("select ", gid, " as tgid,ST_X(", geom, ") AS x, ST_Y(", 
-                           geom, ") AS y from ", name, " where ", geom, " is not null ", 
+                           geom, ") AS y from ", nameque, " where ", geom, " is not null ", 
                            query, ";")
     } else {
       temp.query <- paste0("select ", gid, " as tgid,ST_X(", geom, ") AS x, ST_Y(", 
-                           geom, ") AS y,", other.cols, " from ", name, " where ", 
+                           geom, ") AS y,", other.cols, " from ", nameque, " where ", 
                            geom, " is not null ", query, ";")
     }
     dbData <- suppressWarnings(dbGetQuery(conn, temp.query))
@@ -120,11 +118,11 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     
     if (is.null(other.cols)) {
       temp.query <- paste0("select ", gid, " as tgid,st_astext(", geom, 
-                           ") as wkt from ", name, " where ", geom, " is not null ", 
+                           ") as wkt from ", nameque, " where ", geom, " is not null ", 
                            query, ";")
     } else {
       temp.query <- paste0("select ", gid, " as tgid,st_astext(", geom, 
-                           ") as wkt,", other.cols, " from ", name, " where ", geom, 
+                           ") as wkt,", other.cols, " from ", nameque, " where ", geom, 
                            " is not null ", query, ";")
     }
     
@@ -172,27 +170,24 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 pgGetLines <- function(conn, name, geom = "geom", gid = NULL, 
                        other.cols = "*", query = NULL) {
   
-  ## Check and prepare the schema.name
-  if (length(name) %in% 1:2) {
-    name <- paste(name, collapse = ".")
-  } else {
-    stop("The table name should be \"table\" or c(\"schema\", \"table\").")
-  }
+  name<-pgtablenamefix(name)
+  nameque<-paste(name,collapse=".")
+  namechar<-gsub('"','',name)
   
   #check table exists
   temp.query<-paste0("select f_geometry_column as geo from public.geometry_columns 
-                     where (f_table_schema||'.'||f_table_name) = '",name,"';")
+                     where f_table_schema = '",namechar[1],"' and f_table_name = '",namechar[2],"';")
   
   tab.list<-dbGetQuery(conn,temp.query)$geo
   if (is.null(tab.list)) {
-    stop(paste0("Table/view '",name,"' is not listed in public.geometry_columns."))
+    stop(paste0("Table/view '",nameque,"' is not listed in public.geometry_columns."))
   } else if (!geom %in% tab.list) {
-    stop(paste0("Table/view '",name,"' geometry column not found. Available geometry columns: ",paste(tab.list,collapse=", ")))
+    stop(paste0("Table/view '",nameque,"' geometry column not found. Available geometry columns: ",paste(tab.list,collapse=", ")))
   }
   
   ## Retrieve the SRID
   temp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", 
-                       name, " WHERE ", geom, " IS NOT NULL ", 
+                       nameque, " WHERE ", geom, " IS NOT NULL ", 
                        query, ";")
   srid <- dbGetQuery(conn, temp.query)
   ## Check if the SRID is unique, otherwise throw an error
@@ -219,13 +214,13 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
   #check other.cols
   if (is.null(other.cols)) {
     temp.query <- paste0("select ", gid, " as tgid,st_astext(", 
-                         geom, ") as wkt from ", name, " where ", geom, " is not null ", 
+                         geom, ") as wkt from ", nameque, " where ", geom, " is not null ", 
                          query, ";")
     dfTemp <- suppressWarnings(dbGetQuery(conn, temp.query))
     row.names(dfTemp) = dfTemp$tgid
   } else {
     temp.query <- paste0("select ", gid, " as tgid,st_astext(", 
-                         geom, ") as wkt,", other.cols, " from ", name, " where ", 
+                         geom, ") as wkt,", other.cols, " from ", nameque, " where ", 
                          geom, " is not null ", query, ";")
     dfTemp <- suppressWarnings(dbGetQuery(conn, temp.query))
     row.names(dfTemp) = dfTemp$tgid
@@ -280,27 +275,24 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
 pgGetPolys <- function(conn, name, geom = "geom", gid = NULL, 
                        other.cols = "*", query = NULL) {
   
-  ## Check and prepare the schema.name
-  if (length(name) %in% 1:2) {
-    name <- paste(name, collapse = ".")
-  } else {
-    stop("The table name should be \"table\" or c(\"schema\", \"table\").")
-  }
+  name<-pgtablenamefix(name)
+  nameque<-paste(name,collapse=".")
+  namechar<-gsub('"','',name)
   
   #check table exists
   temp.query<-paste0("select f_geometry_column as geo from public.geometry_columns 
-                     where (f_table_schema||'.'||f_table_name) = '",name,"';")
+                     where f_table_schema = '",namechar[1],"' and f_table_name = '",namechar[2],"';")
   
   tab.list<-dbGetQuery(conn,temp.query)$geo
   if (is.null(tab.list)) {
-    stop(paste0("Table/view '",name,"' is not listed in public.geometry_columns."))
+    stop(paste0("Table/view '",nameque,"' is not listed in public.geometry_columns."))
   } else if (!geom %in% tab.list) {
-    stop(paste0("Table/view '",name,"' geometry column not found. Available geometry columns: ",paste(tab.list,collapse=", ")))
+    stop(paste0("Table/view '",nameque,"' geometry column not found. Available geometry columns: ",paste(tab.list,collapse=", ")))
   }
   
   ## Retrieve the SRID
   temp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ", 
-                       name, " WHERE ", geom, " IS NOT NULL ", 
+                       nameque, " WHERE ", geom, " IS NOT NULL ", 
                        query, ";")
   srid <- dbGetQuery(conn, temp.query)
   
@@ -328,13 +320,13 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
   #check other columns
   if (is.null(other.cols)) {
     temp.query <- paste0("select ", gid, " as tgid,st_astext(", 
-                         geom, ") as wkt from ", name, " where ", geom, " is not null ", 
+                         geom, ") as wkt from ", nameque, " where ", geom, " is not null ", 
                          query, ";")
     dfTemp <- suppressWarnings(dbGetQuery(conn, temp.query))
     row.names(dfTemp) = dfTemp$tgid
   } else {
     temp.query <- paste0("select ", gid, " as tgid,st_astext(", 
-                         geom, ") as wkt,", other.cols, " from ", name, " where ", 
+                         geom, ") as wkt,", other.cols, " from ", nameque, " where ", 
                          geom, " is not null ", query, ";")
     dfTemp <- suppressWarnings(dbGetQuery(conn, temp.query))
     row.names(dfTemp) = dfTemp$tgid

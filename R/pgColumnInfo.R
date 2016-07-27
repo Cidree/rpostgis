@@ -22,7 +22,7 @@
 
 pgColumnInfo<- function(conn,name,allinfo=FALSE) {
   
-  name<-pgtablenamefix(name)
+  name<-rpostgis::pgtablenamefix(name)
   name<-gsub('"','',name)
   
   if (allinfo) {cols<-"*"} else {cols<-"column_name,data_type,is_nullable,character_maximum_length"}

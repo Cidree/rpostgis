@@ -2,7 +2,7 @@
 % Please edit documentation in R/pgtablenamefix.R
 \name{pgtablenamefix}
 \alias{pgtablenamefix}
-\title{format input for database table names}
+\title{Format input for database schema/table names}
 \usage{
 pgtablenamefix(t.nm)
 }
