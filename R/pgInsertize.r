@@ -29,8 +29,8 @@
 #' @param conn A database connection (if a table is given in for "force.match" parameter)
 #' @param new.id character, name of a new sequential integer ID column to be added to the table. 
 #' (for spatial objects without data frames, this column is created even if left NULL and defaults to the name 'gid')
-#' @param alter.names Logical, whether to make database column and table names DB-compliant (remove special characters). Defualt is TRUE.
-#' (This will need to be set to FALSE if matching to non-standard names in an existing database table using the \code{force.match} setting.)
+#' @param alter.names Logical, whether to make database column names DB-compliant (remove special characters). Defualt is TRUE.
+#' (This should to be set to FALSE to match to non-standard names in an existing database table using the \code{force.match} setting.)
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @importFrom stats na.omit
 #' @importFrom rgeos writeWKT
