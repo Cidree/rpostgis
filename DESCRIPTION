@@ -1,8 +1,10 @@
 Package: rpostgis
 Version: 0.9
-Date: 2016-07-20
+Date: 2016-07-28
 Title: PostGIS and PostgreSQL related functions
-Description: This package provides general usage functions for PostgreSQL and PostGIS, including geometry/raster import into R and geometry export from R to PostgreSQL.
+Description: This package provides general usage functions for
+    PostgreSQL and PostGIS, including geometry/raster import into R
+    and geometry export from R to PostgreSQL.
 Authors@R: c(
     person("Mathieu", "Basille", email = "basille@ufl.edu", role =
            c("aut")),
