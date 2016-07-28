@@ -14,11 +14,11 @@ Depends:
 Imports:
     methods,
     raster,
-    rgdal,
     rgeos,
     sp,
     stats
 Suggests:
+    rgdal,
     wkb
 License: GPL (>= 3)
 LazyData: true

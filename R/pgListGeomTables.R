@@ -16,7 +16,7 @@
 
 pgListGeomTables<-function(conn){
   if(suppressMessages(pgPostGIS(conn))) {
-    temp.query<-"SELECT f_table_schema as schema_name, f_table_schema as table_name, f_geometry_column as geom_column, type as geometry_type
+    temp.query<-"SELECT f_table_schema as schema_name, f_table_name as table_name, f_geometry_column as geom_column, type as geometry_type
     FROM public.geometry_columns;"
     
     tab<-dbGetQuery(conn,temp.query)

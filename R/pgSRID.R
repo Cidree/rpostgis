@@ -15,8 +15,6 @@
 #' @export
 #' @return SRID code (integer)
 #' @importFrom sp CRS
-#' @importFrom rgdal showWKT
-#' @importFrom rgdal showEPSG
 #' @examples
 #' 
 #' \dontrun{
@@ -38,8 +36,6 @@
 
 pgSRID<-function(CRS,conn,create=FALSE,new.srid=NULL) {
   
-  #use rgdal suggests
-  
   if (!suppressMessages(pgPostGIS(conn))) {stop("PostGIS is not enabled on this database.")}
   
   #check object
@@ -56,62 +52,81 @@ pgSRID<-function(CRS,conn,create=FALSE,new.srid=NULL) {
     return(srid)
   }
   
-  # check for matching EPSG with showEPSG
-  srid<-"OGRERR_UNSUPPORTED_SRS"
-  try(srid<-rgdal::showEPSG(p4s))
-  
-  if(srid != "OGRERR_UNSUPPORTED_SRS") {
-    query<-paste0("SELECT srid from spatial_ref_sys where auth_name = 'EPSG' and auth_srid = ",srid,";")
-    epsg.srid<-dbGetQuery(conn,query)$srid
-    
-    if (length(epsg.srid) > 0) {
-    return(epsg.srid)
-    }
+  # check if can extract EPSG directly
+  epsg.ext<-regmatches(p4s,regexpr('init=epsg:(\\d*)',p4s))
+  if (length(epsg.ext) == 1) {
+     epsg<-strsplit(epsg.ext,":")[[1]][2]
+     temp.query<-paste0("SELECT srid from spatial_ref_sys where auth_name = 'EPSG' and auth_srid = ",epsg,";")
+     srid<-dbGetQuery(conn,temp.query)$srid
+     
+     if (length(srid) > 0) {
+       return(srid)
+     }
   }
   
-  # if EPSG not found, check for matching p4s in spatial_ref_sys (with or without trailing white space)
-  query<-paste0("SELECT srid FROM spatial_ref_sys WHERE proj4text = '",p4s,"'
-                OR regexp_replace(proj4text,'[[:space:]]+$','') = '",p4s,"';")
-  q<-dbGetQuery(conn,query)
+  # check for matching p4s in spatial_ref_sys (with or without trailing white space)
+  temp.query<-paste0("SELECT srid FROM spatial_ref_sys WHERE (proj4text = '",p4s,"'
+                OR regexp_replace(proj4text,'[[:space:]]+$','') = '",p4s,"');")
+  q<-dbGetQuery(conn,temp.query)
   srid<-q$srid
   
   if (length(q) > 0)
   {
-  return(srid) 
-  } else {
-    
-    if (!create) {stop("No SRID matches found. Re-run with create=TRUE to create new SRID entry in spatial_ref_sys.")}
-    
-    if (!is.null(new.srid)) {
-      #check if exists
-      query<-paste0("SELECT srid FROM spatial_ref_sys WHERE srid = ",new.srid,";")
-      check.srid<-dbGetQuery(conn,query)
-      if (length(check.srid) > 0) {stop(paste0("SRID ",new.srid," already exists in spatial_ref_sys. 
-                                               Select a new new.srid or leave it NULL to select the next open SRID between 880000 and 890000."))}
-      srid<-new.srid
-    } else {
-    #create new SRID
-    #find next SRID for custom set (prefix 88, first value = 880001)
-    query<-"select min(series) as new from generate_series(880001,890000) as series where series not in
-    (SELECT srid FROM spatial_ref_sys WHERE srid > 880000 AND srid < 890000)"
-    
-    new<-dbGetQuery(conn,query)$new
-    
-    if (is.na(new)) {
-      stop("No available SRIDs between 880001-890000. Delete some or manually set new.srid.")
-    } else {
-      srid<-new
-    }
-    }
-    
-    #insert new SRID 
-    query<-paste0("insert into spatial_ref_sys (srid,auth_name,auth_srid,srtext,proj4text) VALUES (",
-      srid,",'rpostgis_custom',",srid,",'",rgdal::showWKT(p4s),"','",p4s,"');")
-    
-    dbSendQuery(conn,query)
-    message(paste0("No matches were found in spatial_ref_sys. New SRID created (",srid,")."))
-    return(srid)
+    return(srid) 
   }
+  
+  # check for matching EPSG with showEPSG (rgdal dependency)
+  if (suppressWarnings(require("rgdal",quietly = TRUE))) {
+    epsg<-"OGRERR_UNSUPPORTED_SRS"
+    try(epsg<-rgdal::showEPSG(p4s))
+    
+    if(epsg != "OGRERR_UNSUPPORTED_SRS") {
+      temp.query<-paste0("SELECT srid from spatial_ref_sys where auth_name = 'EPSG' and auth_srid = ",epsg,";")
+      srid<-dbGetQuery(conn,temp.query)$srid
+      
+      if (length(srid) > 0) {
+      return(srid)
+      }
+    }
+  }
+    
+  if (!create) {stop("No SRID matches found. Re-run with create=TRUE to create new SRID entry in spatial_ref_sys.")}
+  
+  #### if none of the above methods worked, create new SRID
+  if (!is.null(new.srid)) {
+    #check if exists
+    temp.query<-paste0("SELECT srid FROM spatial_ref_sys WHERE srid = ",new.srid,";")
+    check.srid<-dbGetQuery(conn,temp.query)
+    if (length(check.srid) > 0) {stop(paste0("SRID ",new.srid," already exists in spatial_ref_sys. 
+                                             Select a new new.srid or leave it NULL to select the next open SRID between 880000 and 890000."))}
+    srid<-new.srid
+  } else {
+  #find next SRID for custom set (prefix 88, first value = 880001)
+  temp.query<-"select min(series) as new from generate_series(880001,890000) as series where series not in
+  (SELECT srid FROM spatial_ref_sys WHERE srid > 880000 AND srid < 890000)"
+  
+  new<-dbGetQuery(conn,temp.query)$new
+  
+  if (is.na(new)) {
+    stop("No available SRIDs between 880001-890000. Delete some or manually set new.srid.")
+  } else {
+    srid<-new
+  }
+  }
+  
+  proj.wkt<-'NA'
+  if(suppressWarnings(require("rgdal",quietly = TRUE))) {
+    try(proj.wkt<-rgdal::showWKT(p4s))
+  } else {
+    message("Package 'rgdal' is not installed. New SRID will be created, but srtext column (WKT representation of projection)
+            will be 'NA'.")
+  }
+  
+  #insert new SRID 
+  temp.query<-paste0("insert into spatial_ref_sys (srid,auth_name,auth_srid,srtext,proj4text) VALUES (",
+    srid,",'rpostgis_custom',",srid,",'",proj.wkt,"','",p4s,"');")
+  
+  dbSendQuery(conn,temp.query)
+  message(paste0("No matches were found in spatial_ref_sys. New SRID created (",srid,")."))
+  return(srid)
 }
-
-

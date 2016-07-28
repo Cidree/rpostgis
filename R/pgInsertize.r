@@ -34,7 +34,6 @@
 #' @author David Bucklin \email{david.bucklin@gmail.com}
 #' @importFrom stats na.omit
 #' @importFrom rgeos writeWKT
-#' @importFrom rgdal showEPSG
 #' @export
 #' @return pgi A list containing four character strings- a list containing four character strings- (1) in.table, the table name which will be 
 #' created or inserted into, if specifed by either create.table or force.match (else NULL)
@@ -121,16 +120,20 @@ pgInsertizeGeom<- function(data.obj,geom='geom',create.table=NULL,force.match=NU
     geom<-tolower(gsub(replace,"_",geom))
   }
   
+  # handle projections - first check if connection given; if so, try to resolve SRID
+  # if it doesn't exist, try to create (if no writing for user on spatial_ref_sys, will fail quietly)
   proj<-NULL
   if (!is.null(conn)) {
-    try(proj<-pgSRID(data.obj@proj4string,conn=conn))
+    try(proj<-pgSRID(data.obj@proj4string,conn=conn,create=TRUE),silent = TRUE)
   }
   
-  if (is.null(proj)) {
+  # if (user didn't specify conn, or pgSRID failed) AND rgdal is installed,
+  # then try to get EPSG
+  if (is.null(proj) & suppressWarnings(require("rgdal",quietly = TRUE))) {
     #extract proj
-    proj<-NA
+    proj<-"OGRERR_UNSUPPORTED_SRS"
     try(proj<-rgdal::showEPSG(as.character(data.obj@proj4string)),silent=TRUE)
-    if(!is.na(proj) & proj == "OGRERR_UNSUPPORTED_SRS") {proj<-NA}
+    if(proj == "OGRERR_UNSUPPORTED_SRS") {proj<-NA}
   }
   
   if (!is.null(create.table) & !is.null(force.match)) {
