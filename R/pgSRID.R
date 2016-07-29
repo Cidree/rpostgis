@@ -1,15 +1,16 @@
 ## pgSRID
 
-##' This function takes \code{\link[sp]{CRS}}-class object and a PostgreSQL database
-##' connection (with PostGIS extension), and returns the matching
-##' SRID(s) for that CRS. If a match is not found, a new entry can be
-##' created in the PostgreSQL \code{spatial_ref_sys} table using the
-##' parameters specified by the CRS. New entries will be created with
-##' \code{auth_name = 'rpostgis_custom'}.
+##' This function takes \code{\link[sp]{CRS}}-class object and a
+##' PostgreSQL database connection (with PostGIS extension), and
+##' returns the matching SRID(s) for that CRS. If a match is not
+##' found, a new entry can be created in the PostgreSQL
+##' \code{spatial_ref_sys} table using the parameters specified by the
+##' CRS. New entries will be created with \code{auth_name =
+##' 'rpostgis_custom'}.
 ##'
 ##' @title Find (or create) PostGIS SRID based on CRS object.
 ##' @param conn A connection object to a PostgreSQL database.
-##' @param CRS CRS object, created through a call to
+##' @param crs CRS object, created through a call to
 ##'     \code{\link[sp]{CRS}}.
 ##' @param create Logical. If no matching SRID is found, should a new
 ##'     SRID be created? User must have write access on
@@ -17,7 +18,7 @@
 ##' @param new.srid Integer. Optional SRID to give to a newly created
 ##'     SRID. If left NULL (default), the next open value of
 ##'     \code{srid} in \code{spatial_ref_sys} between 880000 and
-##'     890000 will be used.
+##'     889999 will be used.
 ##' @return SRID code (integer).
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @export
@@ -36,23 +37,24 @@
 ##' pgSRID(conn, crs2, create = TRUE)
 ##' }
 
-pgSRID <- function(conn, CRS, create = FALSE, new.srid = NULL) {
+pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
+    ## Check if PostGIS is enabled
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
     }
     ## check object
-    if (class(CRS)[1] != "CRS") {
+    if (!inherits(crs, "CRS") {
         stop("Object is not of class CRS.")
     }
     ## extract p4s
-    p4s <- CRS@projargs
-    ## if CRS is undefined (NA), return 0
+    p4s <- crs@projargs
+    ## if crs is undefined (NA), return 0
     if (is.na(p4s)) {
         srid <- 0
         return(srid)
     }
     ## check if can extract EPSG directly
-    epsg.ext <- regmatches(p4s, regexpr('init=epsg:(\d*)', p4s))
+    epsg.ext <- regmatches(p4s, regexpr('init=epsg:(\\d*)', p4s))
     if (length(epsg.ext) == 1) {
         epsg <- strsplit(epsg.ext, ":")[[1]][2]
         temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE auth_name = 'EPSG' AND auth_srid = ",
@@ -64,8 +66,8 @@ pgSRID <- function(conn, CRS, create = FALSE, new.srid = NULL) {
     }
     ## check for matching p4s in spatial_ref_sys (with or without
     ## trailing white space)
-    temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE (proj4text = '",
-        p4s, "'\n                OR regexp_replace(proj4text,'[[:space:]]+$','') = '",
+    temp.query <- paste0("SELECT srid FROM spatial_ref_sys\nWHERE\n(proj4text = '",
+        p4s, "'\n OR\n regexp_replace(proj4text,'[[:space:]]+$','') = '",
         p4s, "');")
     q <- dbGetQuery(conn, temp.query)
     srid <- q$srid
@@ -95,25 +97,25 @@ pgSRID <- function(conn, CRS, create = FALSE, new.srid = NULL) {
             new.srid, ";")
         check.srid <- dbGetQuery(conn, temp.query)
         if (length(check.srid) > 0) {
-            stop(paste0("SRID ", new.srid, " already exists in spatial_ref_sys.\n                                             Select a new new.srid or leave it NULL to select the next open SRID between 880000 and 890000."))
+            stop(paste0("SRID ", new.srid, " already exists in 'spatial_ref_sys'.\nSelect another 'new.srid' or leave it to 'NULL' to select the next open SRID between 880000 and 889999."))
         }
         srid <- new.srid
     } else {
         ## find next SRID for custom set (prefix 88, first value =
         ## 880001)
         temp.query <- "SELECT min(series) AS new FROM generate_series(880001,890000) AS series WHERE series NOT IN\n  (SELECT srid FROM spatial_ref_sys WHERE srid > 880000 AND srid < 890000)"
-        new <- dbGetQuery(conn, temp.query)$new
-        if (is.na(new)) {
-            stop("No available SRIDs between 880001-890000. Delete some or manually set new.srid.")
+        new.srid <- dbGetQuery(conn, temp.query)$new
+        if (is.na(new.srid)) {
+            stop("No available SRIDs between 880001 and 889999. Delete some or manually set 'new.srid'.")
         } else {
-            srid <- new
+            srid <- new.srid
         }
     }
     proj.wkt <- "NA"
     if (suppressWarnings(require("rgdal", quietly = TRUE))) {
         try(proj.wkt <- rgdal::showWKT(p4s))
     } else {
-        message("Package 'rgdal' is not installed. New SRID will be created, but srtext column (WKT representation of projection)\n            will be 'NA'.")
+        message("Package 'rgdal' is not installed.\nNew SRID will be created, but 'srtext' column (WKT representation of projection) will be 'NA'.")
     }
     ## insert new SRID
     temp.query <- paste0("INSERT INTO spatial_ref_sys (srid,auth_name,auth_srid,srtext,proj4text) VALUES (",
