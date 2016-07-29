@@ -6,7 +6,8 @@
 ##' found, a new entry can be created in the PostgreSQL
 ##' \code{spatial_ref_sys} table using the parameters specified by the
 ##' CRS. New entries will be created with \code{auth_name =
-##' 'rpostgis_custom'}.
+##' 'rpostgis_custom'}, with the default value being the next open value
+##' between 880000-889999 (a different SRID value can be entered if desired.)
 ##'
 ##' @title Find (or create) PostGIS SRID based on CRS object.
 ##' @param conn A connection object to a PostgreSQL database.
@@ -17,7 +18,7 @@
 ##'     \code{spatial_ref_sys} table.
 ##' @param new.srid Integer. Optional SRID to give to a newly created
 ##'     SRID. If left NULL (default), the next open value of
-##'     \code{srid} in \code{spatial_ref_sys} between 880000 and
+##'     \code{srid} in \code{spatial_ref_sys} between 880001 and
 ##'     889999 will be used.
 ##' @return SRID code (integer).
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
@@ -43,7 +44,7 @@ pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
         stop("PostGIS is not enabled on this database.")
     }
     ## check object
-    if (!inherits(crs, "CRS") {
+    if (!inherits(crs, "CRS")) {
         stop("Object is not of class CRS.")
     }
     ## extract p4s
@@ -69,13 +70,14 @@ pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
     temp.query <- paste0("SELECT srid FROM spatial_ref_sys\nWHERE\n(proj4text = '",
         p4s, "'\n OR\n regexp_replace(proj4text,'[[:space:]]+$','') = '",
         p4s, "');")
-    q <- dbGetQuery(conn, temp.query)
-    srid <- q$srid
-    if (length(q) > 0) {
+    srid <- dbGetQuery(conn, temp.query)$srid
+    
+    if (length(srid) > 0) {
         return(srid)
     }
     ## check for matching EPSG with showEPSG (rgdal dependency)
-    if (suppressWarnings(require("rgdal", quietly = TRUE))) {
+    if (suppressWarnings(suppressPackageStartupMessages(require("rgdal")))) {
+      message("Using function 'rgdal::showEPSG' to look for a match.")
         epsg <- "OGRERR_UNSUPPORTED_SRS"
         try(epsg <- rgdal::showEPSG(p4s))
         if (epsg != "OGRERR_UNSUPPORTED_SRS") {
@@ -112,7 +114,7 @@ pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
         }
     }
     proj.wkt <- "NA"
-    if (suppressWarnings(require("rgdal", quietly = TRUE))) {
+    if (suppressWarnings(suppressPackageStartupMessages(require("rgdal")))) {
         try(proj.wkt <- rgdal::showWKT(p4s))
     } else {
         message("Package 'rgdal' is not installed.\nNew SRID will be created, but 'srtext' column (WKT representation of projection) will be 'NA'.")
