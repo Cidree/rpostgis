@@ -32,7 +32,7 @@ found, a new entry can be created in the PostgreSQL
 \code{spatial_ref_sys} table using the parameters specified by the
 CRS. New entries will be created with \code{auth_name =
 'rpostgis_custom'}, with the default value being the next open value
-between 880000-889999 (a different SRID value can be entered if desired.)
+between 880001-889999 (a different SRID value can be entered if desired.)
 }
 \examples{
 \dontrun{
