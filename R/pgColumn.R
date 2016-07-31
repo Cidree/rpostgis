@@ -6,19 +6,21 @@
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param colname A character string specifying the name of the
-##' column to which the key will be associated.
+##'     column to which the key will be associated.
 ##' @param action A character string specifying if the column is to be
-##' added (\code{"add"}, default) or removed (\code{"drop"}).
+##'     added (\code{"add"}, default) or removed (\code{"drop"}).
 ##' @param coltype A character string indicating the type of the
-##' column, if \code{action = "add"}.
+##'     column, if \code{action = "add"}.
 ##' @param cascade Logical. Whether to drop foreign key constraints of
-##' other tables, if \code{action = "drop"}.
+##'     other tables, if \code{action = "drop"}.
 ##' @param display Logical. Whether to display the query (defaults to
-##' \code{TRUE}).
+##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
-##' \code{TRUE}).
+##'     \code{TRUE}).
+##' @return \code{TRUE} if the column was successfully added or
+##'     removed.
 ##' @seealso The PostgreSQL documentation:
-##' \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
+##'     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
@@ -40,17 +42,17 @@ pgColumn <- function(conn, name, colname, action = c("add", "drop"),
     args <- ifelse(action == "ADD", coltype, ifelse(cascade,
         "CASCADE", ""))
     ## Build the query
-    query <- paste0("ALTER TABLE ", table, " ", action, " COLUMN ",
+    tmp.query <- paste0("ALTER TABLE ", table, " ", action, " COLUMN ",
         colname, " ", args, ";")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, query)
-    ## Return nothing
-    return(invisible())
+        dbSendQuery(conn, tmp.query)
+    ## Return TRUE
+    return(TRUE)
 }
