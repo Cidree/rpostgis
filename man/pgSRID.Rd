@@ -2,50 +2,53 @@
 % Please edit documentation in R/pgSRID.R
 \name{pgSRID}
 \alias{pgSRID}
-\title{Find the matching PostGIS SRID for a CRS object (or create a new SRID if not found)}
+\title{Find (or create) PostGIS SRID based on CRS object.}
 \usage{
-pgSRID(CRS, conn, create = FALSE, new.srid = NULL)
+pgSRID(conn, crs, create = FALSE, new.srid = NULL)
 }
 \arguments{
-\item{CRS}{CRS object, created through a call to `CRS()` from library `sp`.}
+\item{conn}{A connection object to a PostgreSQL database.}
 
-\item{conn}{A connection object to a PostgreSQL database}
+\item{crs}{CRS object, created through a call to
+\code{\link[sp]{CRS}}.}
 
-\item{create}{Logical. If no matching SRID is found, should a new SRID be created? 
-User must have write access on spatial_ref_sys table.}
+\item{create}{Logical. If no matching SRID is found, should a new
+SRID be created? User must have write access on
+\code{spatial_ref_sys} table.}
 
-\item{new.srid}{integer. Optional SRID to give to a newly created SRID. If left NULL (default),
-the next open value of `srid` in `spatial_ref_sys` between 880000 and 890000 will be used.}
+\item{new.srid}{Integer. Optional SRID to give to a newly created
+SRID. If left NULL (default), the next open value of
+\code{srid} in \code{spatial_ref_sys} between 880001 and
+889999 will be used.}
 }
 \value{
-SRID code (integer)
+SRID code (integer).
 }
 \description{
-This function takes `CRS`-class object and a PostgreSQL database connection (with PostGIS extension),
-and returns the matching SRID(s) for that CRS. If a match is not found,
-a new entry can be created in the PostgreSQL `spatial_ref_sys` table using the
-parameters specified by the CRS. New entries will be created with auth_name = 'rpostgis_custom'.
+This function takes \code{\link[sp]{CRS}}-class object and a
+PostgreSQL database connection (with PostGIS extension), and
+returns the matching SRID(s) for that CRS. If a match is not
+found, a new entry can be created in the PostgreSQL
+\code{spatial_ref_sys} table using the parameters specified by the
+CRS. New entries will be created with \code{auth_name =
+'rpostgis_custom'}, with the default value being the next open value
+between 880001-889999 (a different SRID value can be entered if desired.)
 }
 \examples{
-
 \dontrun{
-library(RPostgreSQL)
-drv<-dbDriver("PostgreSQL")
-conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
-               user='user',password='password')
-               
-crs<-CRS("+proj=longlat")
-pgSRID(crs,conn)
-
-crs2<-CRS(paste("+proj=stere +lat_0=52.15616055555555", 
-"+lon_0=5.38763888888889 +k=0.999908 +x_0=155000 +y_0=463000 +ellps=bessel", 
-"+towgs84=565.237,50.0087,465.658,-0.406857,0.350733,-1.87035,4.0812", 
-"+units=m"))
-pgSRID(crs2,conn,create=TRUE)
-
+drv <- dbDriver("PostgreSQL")
+conn <- dbConnect(drv, dbname = "dbname", host = "host", port = "5432",
+    user = "user", password = "password")
+(crs <- CRS("+proj=longlat"))
+pgSRID(conn, crs)
+(crs2 <- CRS(paste("+proj=stere", "+lat_0=52.15616055555555 +lon_0=5.38763888888889",
+    "+k=0.999908 +x_0=155000 +y_0=463000", "+ellps=bessel",
+    "+towgs84=565.237,50.0087,465.658,-0.406857,0.350733,-1.87035,4.0812",
+    "+units=m")))
+pgSRID(conn, crs2, create = TRUE)
 }
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com}
+David Bucklin \email{dbucklin@ufl.edu}
 }
 
