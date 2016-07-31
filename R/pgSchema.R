@@ -1,5 +1,5 @@
 ## pgSchema
-##
+
 ##' Checks the existence, and if necessary, creates a schema.
 ##'
 ##' @title Check and create schema.
@@ -21,6 +21,7 @@
 ##' \dontrun{
 ##'     pgSchema(name = "schema", exec = FALSE)
 ##' }
+
 pgSchema <- function(conn, name, display = TRUE, exec = TRUE) {
     ## Check the name of the schema
     if (length(name) != 1)

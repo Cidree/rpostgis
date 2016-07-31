@@ -1,5 +1,5 @@
-##' rpostgis
-##'
+## rpostgis
+
 ##' This package provides additional functions to the
 ##' \code{RPostgreSQL} package, mostly convenient wrappers to
 ##' PostgreSQL queries, with some PostGIS oriented functions. For a

@@ -22,6 +22,7 @@
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
+##' @return \code{TRUE} if the index was successfully created.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-createindex.html};
 ##'     the PostGIS documentation for GiST indexes:
@@ -50,17 +51,17 @@ pgIndex <- function(conn, name, colname, idxname, unique = FALSE,
     usemeth <- ifelse(method == "btree", "", paste(" USING",
         toupper(method)))
     ## Build the query
-    query <- paste0("CREATE ", unique, "INDEX ", idxname, " ON ",
-        table, usemeth, " (", colname, ");")
+    tmp.query <- paste0("CREATE ", unique, "INDEX ", idxname,
+        " ON ", table, usemeth, " (", colname, ");")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, query)
-    ## Return nothing
-    return(invisible())
+        dbSendQuery(conn, tmp.query)
+    ## Return TRUE
+    return(TRUE)
 }
