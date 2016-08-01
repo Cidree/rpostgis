@@ -438,11 +438,11 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
 ## print.pgi
 
 ##' @rdname pgInsertizeGeom
-##' @param pgi A list of class \code{pgi}, output from the
-##'     pgInsertize() or pgInsertizeGeom() functions from the rpostgis
-##'     package.
+##' @param x A list of class \code{pgi}, output from the pgInsertize()
+##'     or pgInsertizeGeom() functions from the rpostgis package.
+##' @param ... Further arguments not used.
 ##' @export
-print.pgi <- function(pgi) {
+print.pgi <- function(x, ...) {
     cat("pgi object: PostgreSQL insert object from pgInsertize* function in rpostgis. Use with pgInsert() to insert into database table.")
     cat("\n************************************\n")
     if (!is.null(pgi$in.tab)) {
