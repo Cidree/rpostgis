@@ -10,21 +10,6 @@
 ##' @return character vector of length 2. Each character element is in
 ##'     (escaped) double-quotes.
 ##' @keywords internal
-##' @examples
-##' name <- c("schema", "table")
-##' dbTableNameFix(name)
-##'
-##' name <- "schema.table"
-##' dbTableNameFix(name)
-##'
-##' ## Default schema (public) is added to tables
-##' name <- "table"
-##' dbTableNameFix(name)
-##'
-##' ## Schema or table names with '.' need to be given in two length
-##' ## vectors:
-##' name <- c("schema", "ta.ble")
-##' dbTableNameFix(name)
 
 dbTableNameFix <- function(t.nm) {
     ## Cases
