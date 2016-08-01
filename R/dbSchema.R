@@ -1,4 +1,4 @@
-## pgSchema
+## dbSchema
 
 ##' Checks the existence, and if necessary, creates a schema.
 ##'
@@ -10,7 +10,9 @@
 ##' @param display Logical. Whether to display the query (defaults to
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
-##'     \code{TRUE}).
+##'     \code{TRUE}). Note: if \code{exec = FALSE}, the function still
+##'     checks the existence of the schema, but does not create it if
+##'     it does not exists.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
 ##' @return \code{TRUE} if the schema exists (whether it was already
@@ -19,10 +21,10 @@
 ##' @export
 ##' @examples
 ##' \dontrun{
-##'     pgSchema(name = "schema", exec = FALSE)
+##'     dbSchema(name = "schema", exec = FALSE)
 ##' }
 
-pgSchema <- function(conn, name, display = TRUE, exec = TRUE) {
+dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
     ## Check the name of the schema
     if (length(name) != 1)
         stop("The schema name should be of length 1.")

@@ -1,4 +1,4 @@
-## pgDrop
+## dbDrop
 
 ##' Drop a table, a view or a schema.
 ##'
@@ -25,10 +25,10 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' pgDrop(name = c("fla", "bli"), type = "view", exec = FALSE)
-##' pgDrop(name = "fla", type = "schema", cascade = "TRUE", exec = FALSE)
+##' dbDrop(name = c("fla", "bli"), type = "view", exec = FALSE)
+##' dbDrop(name = "fla", type = "schema", cascade = "TRUE", exec = FALSE)
 
-pgDrop <- function(conn, name, type = c("table", "view", "schema"),
+dbDrop <- function(conn, name, type = c("table", "view", "schema"),
     ifexists = FALSE, cascade = FALSE, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
     if (length(name) %in% 1:2) {

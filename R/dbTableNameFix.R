@@ -1,4 +1,4 @@
-## pgtablenamefix
+## dbTableNameFix
 
 ##' Internal rpostgis function to return common (length = 2) schema
 ##' and table name vector from various table and schema + table name
@@ -11,21 +11,21 @@
 ##' @export
 ##' @examples
 ##' name <- c("schema", "table")
-##' pgtablenamefix(name)
+##' dbTableNameFix(name)
 ##'
 ##' name <- "schema.table"
-##' pgtablenamefix(name)
+##' dbTableNameFix(name)
 ##'
 ##' ## Default schema (public) is added to tables
 ##' name <- "table"
-##' pgtablenamefix(name)
+##' dbTableNameFix(name)
 ##'
 ##' ## Schema or table names with '.' need to be given in two length
 ##' ## vectors:
 ##' name <- c("schema", "ta.ble")
-##' pgtablenamefix(name)
+##' dbTableNameFix(name)
 
-pgtablenamefix <- function(t.nm) {
+dbTableNameFix <- function(t.nm) {
     ## Cases
     if (length(t.nm) == 1 & length(strsplit(t.nm, ".", fixed = T)[[1]]) ==
         2) {

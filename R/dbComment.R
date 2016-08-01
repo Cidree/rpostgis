@@ -1,4 +1,4 @@
-## pgComment
+## dbComment
 
 ##' Comment on a table, a view or a schema.
 ##'
@@ -19,12 +19,12 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' pgComment(name = c("fla", "bli"), comment = "Comment on a view.",
+##' dbComment(name = c("fla", "bli"), comment = "Comment on a view.",
 ##'     type = "view", exec = FALSE)
-##' pgComment(name = "fla", comment = "Comment on a schema.", type = "schema",
+##' dbComment(name = "fla", comment = "Comment on a schema.", type = "schema",
 ##'     exec = FALSE)
 
-pgComment <- function(conn, name, comment, type = c("table",
+dbComment <- function(conn, name, comment, type = c("table",
     "view", "schema"), display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
     if (length(name) %in% 1:2) {
