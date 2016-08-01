@@ -8,7 +8,6 @@
 ##' @param t.nm Table name string, length 1-2.
 ##' @return character vector of length 2. Each character element is in
 ##'     (escaped) double-quotes.
-##' @export
 ##' @examples
 ##' name <- c("schema", "table")
 ##' dbTableNameFix(name)
