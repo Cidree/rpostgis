@@ -2,7 +2,7 @@
 % Please edit documentation in R/dbIndex.R
 \name{dbIndex}
 \alias{dbIndex}
-\title{CREATE INDEX}
+\title{Create an index.}
 \usage{
 dbIndex(conn, name, colname, idxname, unique = FALSE, method = c("btree",
   "hash", "rtree", "gist"), display = TRUE, exec = TRUE)
@@ -42,7 +42,7 @@ raster).}
 \code{TRUE} if the index was successfully created.
 }
 \description{
-Defines a new index.
+Defines a new index on a PostgreSQL table.
 }
 \examples{
 dbIndex(name = c("fla", "bli"), colname = "geom", method = "gist",

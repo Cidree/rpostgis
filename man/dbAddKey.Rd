@@ -2,7 +2,7 @@
 % Please edit documentation in R/dbAddKey.R
 \name{dbAddKey}
 \alias{dbAddKey}
-\title{Add key}
+\title{Add key.}
 \usage{
 dbAddKey(conn, name, colname, type = c("primary", "foreign"), reference,
   colref, display = TRUE, exec = TRUE)

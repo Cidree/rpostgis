@@ -2,7 +2,7 @@
 % Please edit documentation in R/dbVacuum.R
 \name{dbVacuum}
 \alias{dbVacuum}
-\title{VACUUM}
+\title{Vacuum.}
 \usage{
 dbVacuum(conn, name, full = FALSE, verbose = FALSE, analyze = TRUE,
   display = TRUE, exec = TRUE)

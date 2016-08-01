@@ -2,8 +2,7 @@
 % Please edit documentation in R/pgInsert.R
 \name{pgInsert}
 \alias{pgInsert}
-\title{Inserts data from spatial objects or data frames into a
-    PostgreSQL table}
+\title{Inserts spatial data into a PostgreSQL table.}
 \usage{
 pgInsert(conn, data.obj, create.table = NULL, force.match = NULL,
   geom = "geom", new.id = NULL, alter.names = TRUE, encoding = NULL)

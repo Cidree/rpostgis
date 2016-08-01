@@ -2,7 +2,7 @@
 % Please edit documentation in R/dbAsDate.R
 \name{dbAsDate}
 \alias{dbAsDate}
-\title{Converts to timestamp}
+\title{Converts to timestamp.}
 \usage{
 dbAsDate(conn, name, date = "date", tz = NULL, display = TRUE,
   exec = TRUE)

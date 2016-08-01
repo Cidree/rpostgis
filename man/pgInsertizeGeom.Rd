@@ -4,9 +4,7 @@
 \alias{pgInsertize}
 \alias{pgInsertizeGeom}
 \alias{print.pgi}
-\title{Format R data objects (data frames, spatial data frames, or
-    spatial-only objects) for insert into a PostgreSQL table (for
-    use with pgInsert).}
+\title{Format R data objects for insert into a PostgreSQL table.}
 \usage{
 pgInsertizeGeom(data.obj, geom = "geom", create.table = NULL,
   force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE)

@@ -2,8 +2,7 @@
 % Please edit documentation in R/pgGetBoundary.R
 \name{pgGetBoundary}
 \alias{pgGetBoundary}
-\title{Returns bounding envelope of all combined geometries or
-    rasters stored in a table in a PostgreSQL database.}
+\title{Retrieve bounding envelope of geometries.}
 \usage{
 pgGetBoundary(conn, name, geom = "geom")
 }
@@ -22,7 +21,7 @@ SpatialPolygon
 }
 \description{
 Retrieve bounding envelope (rectangle) of all geometries or
-rasters in a table in Postgresql.
+rasters in a Postgresql table.
 }
 \examples{
 \dontrun{

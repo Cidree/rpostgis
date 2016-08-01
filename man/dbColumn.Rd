@@ -2,7 +2,7 @@
 % Please edit documentation in R/dbColumn.R
 \name{dbColumn}
 \alias{dbColumn}
-\title{Add or remove a column}
+\title{Add or remove a column.}
 \usage{
 dbColumn(conn, name, colname, action = c("add", "drop"),
   coltype = "integer", cascade = FALSE, display = TRUE, exec = TRUE)

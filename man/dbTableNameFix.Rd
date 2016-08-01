@@ -2,7 +2,7 @@
 % Please edit documentation in R/dbTableNameFix.R
 \name{dbTableNameFix}
 \alias{dbTableNameFix}
-\title{Format input for database schema/table names}
+\title{Format input for database schema/table names.}
 \usage{
 dbTableNameFix(t.nm)
 }
@@ -18,20 +18,5 @@ Internal rpostgis function to return common (length = 2) schema
 and table name vector from various table and schema + table name
 inputs.
 }
-\examples{
-name <- c("schema", "table")
-dbTableNameFix(name)
-
-name <- "schema.table"
-dbTableNameFix(name)
-
-## Default schema (public) is added to tables
-name <- "table"
-dbTableNameFix(name)
-
-## Schema or table names with '.' need to be given in two length
-## vectors:
-name <- c("schema", "ta.ble")
-dbTableNameFix(name)
-}
+\keyword{internal}
 

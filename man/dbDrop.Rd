@@ -2,7 +2,7 @@
 % Please edit documentation in R/dbDrop.R
 \name{dbDrop}
 \alias{dbDrop}
-\title{Drop table/view/schema}
+\title{Drop table/view/schema.}
 \usage{
 dbDrop(conn, name, type = c("table", "view", "schema"), ifexists = FALSE,
   cascade = FALSE, display = TRUE, exec = TRUE)

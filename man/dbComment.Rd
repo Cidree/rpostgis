@@ -2,7 +2,7 @@
 % Please edit documentation in R/dbComment.R
 \name{dbComment}
 \alias{dbComment}
-\title{Comment table/view/schema}
+\title{Comment table/view/schema.}
 \usage{
 dbComment(conn, name, comment, type = c("table", "view", "schema"),
   display = TRUE, exec = TRUE)

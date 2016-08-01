@@ -2,7 +2,7 @@
 % Please edit documentation in R/pgGetRast.R
 \name{pgGetRast}
 \alias{pgGetRast}
-\title{Load a raster stored in a PostgreSQL database into R.}
+\title{Load raster from DB.}
 \usage{
 pgGetRast(conn, name, rast = "rast", digits = 9, boundary = NULL)
 }
@@ -30,7 +30,7 @@ projection-specific limits with which to clip the raster. NULL
 RasterLayer
 }
 \description{
-Retrieve rasters from a PostGIS table
+Retrieve rasters from a PostGIS table.
 }
 \examples{
 \dontrun{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/pgListGeomTables.R
 \name{pgListGeomTables}
 \alias{pgListGeomTables}
-\title{List tables with geometry columns in the database.}
+\title{List geometries.}
 \usage{
 pgListGeomTables(conn)
 }
