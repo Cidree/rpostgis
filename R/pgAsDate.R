@@ -7,14 +7,15 @@
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param date A character string specifying the date field.
 ##' @param tz A character string specifying the time zone, in
-##' \code{"EST"}, \code{"America/New_York"}, \code{"EST5EDT"},
-##' \code{"-5"}.
+##'     \code{"EST"}, \code{"America/New_York"}, \code{"EST5EDT"},
+##'     \code{"-5"}.
 ##' @param display Logical. Whether to display the query (defaults to
-##' \code{TRUE}).
+##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
-##' \code{TRUE}).
+##'     \code{TRUE}).
+##' @return \code{TRUE} if the conversion was successful.
 ##' @seealso The PostgreSQL documentation:
-##' \url{http://www.postgresql.org/docs/current/static/datatype-datetime.html}
+##'     \url{http://www.postgresql.org/docs/current/static/datatype-datetime.html}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
@@ -32,18 +33,18 @@ pgAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
     tz <- ifelse(is.null(tz), "", paste0(" AT TIME ZONE '", tz,
         "'"))
     ## Build the query
-    query <- paste0("ALTER TABLE ", name, " ALTER COLUMN ", date,
-        " TYPE ", timestamp, " USING ", date, "::timestamp",
+    tmp.query <- paste0("ALTER TABLE ", name, " ALTER COLUMN ",
+        date, " TYPE ", timestamp, " USING ", date, "::timestamp",
         tz, ";")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, query)
-    ## Return nothing
-    return(invisible())
+        dbSendQuery(conn, tmp.query)
+    ## Return TRUE
+    return(TRUE)
 }

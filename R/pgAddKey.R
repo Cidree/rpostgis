@@ -6,20 +6,21 @@
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param colname A character string specifying the name of the
-##' column to which the key will be assign.
+##'     column to which the key will be assign.
 ##' @param type The type of the key, either \code{primary} or
-##' \code{foreign}
+##'     \code{foreign}
 ##' @param reference A character string specifying a foreign table
-##' name to which the foreign key will be associated.
+##'     name to which the foreign key will be associated.
 ##' @param colref A character string specifying the name of the
-##' primary key in the foreign table to which the foreign key will be
-##' associated.
+##'     primary key in the foreign table to which the foreign key will
+##'     be associated.
 ##' @param display Logical. Whether to display the query (defaults to
-##' \code{TRUE}).
+##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
-##' \code{TRUE}).
+##'     \code{TRUE}).
+##' @return \code{TRUE} if the key was successfully added.
 ##' @seealso The PostgreSQL documentation:
-##' \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
+##'     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
@@ -28,34 +29,36 @@
 
 pgAddKey <- function(conn, name, colname, type = c("primary",
     "foreign"), reference, colref, display = TRUE, exec = TRUE) {
-    type <- toupper(match.arg(type))
     ## Check and prepare the schema.name
     if (length(name) %in% 1:2) {
         table <- paste(name, collapse = ".")
     } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    ## 'type' in upper case
+    type <- toupper(match.arg(type))
     ## If no reference, empty string
     if (missing(reference)) {
         references <- ""
     } else {
         ## Else, check and prepare the schema.name of the reference
         ## table
-        if (length(name) %in% 1:2)
-            reftable <- paste(reference, collapse = ".") else stop("The reference table name should be \"table\" or c(\"schema\", \"table\").")
+        if (length(name) %in% 1:2) {
+            reftable <- paste(reference, collapse = ".")
+        } else stop("The reference table name should be \"table\" or c(\"schema\", \"table\").")
         references <- paste0(" REFERENCES ", reftable, " (",
             colref, ")")
     }
     ## Build the query
-    query <- paste0("ALTER TABLE ", table, " ADD ", type, " KEY (",
-        colname, ")", references, ";")
+    tmp.query <- paste0("ALTER TABLE ", table, " ADD ", type,
+        " KEY (", colname, ")", references, ";")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, query)
-    ## Return nothing
-    return(invisible())
+        dbSendQuery(conn, tmp.query)
+    ## Return TRUE
+    return(TRUE)
 }

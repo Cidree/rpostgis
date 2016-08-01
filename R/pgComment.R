@@ -5,16 +5,17 @@
 ##' @title Comment table/view/schema
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table, view
-##' or schema name.
+##'     or schema name.
 ##' @param comment A character string specifying the comment.
 ##' @param type The type of the object to comment, either \code{table}
-##' or \code{view}
+##'     or \code{view}
 ##' @param display Logical. Whether to display the query (defaults to
-##' \code{TRUE}).
+##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
-##' \code{TRUE}).
+##'     \code{TRUE}).
+##' @return \code{TRUE} if the comment was successfully applied.
 ##' @seealso The PostgreSQL documentation:
-##' \url{http://www.postgresql.org/docs/current/static/sql-comment.html}
+##'     \url{http://www.postgresql.org/docs/current/static/sql-comment.html}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
@@ -32,17 +33,17 @@ pgComment <- function(conn, name, comment, type = c("table",
     ## Check and prepare the type
     type <- toupper(match.arg(type))
     ## Build the query
-    query <- paste0("COMMENT ON ", type, " ", name, " IS '",
+    tmp.query <- paste0("COMMENT ON ", type, " ", name, " IS '",
         comment, "';")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, query)
+        dbSendQuery(conn, tmp.query)
     ## Return nothing
-    return(invisible())
+    return(TRUE)
 }
