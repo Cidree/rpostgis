@@ -1,8 +1,9 @@
 ## dbColumn
 
+##' Add or remove a column.
+##'
 ##' Add or remove a column to/from a table.
 ##'
-##' @title Add or remove a column
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param colname A character string specifying the name of the

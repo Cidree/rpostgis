@@ -1,10 +1,11 @@
 ## dbTableNameFix
 
+##' Format input for database schema/table names.
+##'
 ##' Internal rpostgis function to return common (length = 2) schema
 ##' and table name vector from various table and schema + table name
 ##' inputs.
 ##'
-##' @title Format input for database schema/table names
 ##' @param t.nm Table name string, length 1-2.
 ##' @return character vector of length 2. Each character element is in
 ##'     (escaped) double-quotes.

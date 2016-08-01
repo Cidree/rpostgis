@@ -1,9 +1,10 @@
 ## dbVacuum
 
+##' Vacuum.
+##'
 ##' Performs a VACUUM (garbage-collect and optionally analyze) on a
 ##' table.
 ##'
-##' @title VACUUM
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param full Logical. Whether to perform a "full" vacuum, which can

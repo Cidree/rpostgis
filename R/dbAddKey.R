@@ -1,8 +1,9 @@
 ## dbAddKey
 
+##' Add key.
+##'
 ##' Add a primary or foreign key to a table column.
 ##'
-##' @title Add key
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param colname A character string specifying the name of the

@@ -1,11 +1,12 @@
 ## pgGetPts
 
+##' Load a PostGIS geometry in a PostgreSQL table/view into R.
+##'
 ##' Retrieve point, linestring, or polygon geometries from a PostGIS
 ##' table/view, and convert it to an R `sp` object (Spatial* or
 ##' Spatial*DataFrame).
 ##'
-##' @aliases pgGet...
-##' @title Load a PostGIS geometry in a PostgreSQL table/view into R.
+##' @aliases pgGet
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
 ##'     table/view name holding the geometry (e.g., `name =

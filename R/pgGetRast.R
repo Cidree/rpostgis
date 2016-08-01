@@ -1,8 +1,8 @@
 ## pgGetRast
 
-##' Retrieve rasters from a PostGIS table
+##' Load raster from DB.
 ##'
-##' @title Load a raster stored in a PostgreSQL database into R.
+##' Retrieve rasters from a PostGIS table.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema (if

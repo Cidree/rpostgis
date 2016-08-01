@@ -1,8 +1,9 @@
 ## dbSchema
 
+##' Check and create schema.
+##'
 ##' Checks the existence, and if necessary, creates a schema.
 ##'
-##' @title Check and create schema.
 ##' @param conn A connection object (required, even if \code{exec =
 ##'     FALSE}).
 ##' @param name A character string specifying a PostgreSQL schema

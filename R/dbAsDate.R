@@ -1,8 +1,9 @@
 ## dbAsDate
 
+##' Converts to timestamp.
+##'
 ##' Convert a date field to a timestamp with or without time zone.
 ##'
-##' @title Converts to timestamp
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param date A character string specifying the date field.

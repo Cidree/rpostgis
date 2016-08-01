@@ -1,5 +1,7 @@
 ## pgInsertizeGeom
 
+##' Format R data objects for insert into a PostgreSQL table.
+##'
 ##' These functions take an R \code{sp} object (Spatial* or
 ##' Spatial*DataFrame; for \code{pgInsertizeGeom}) or data frame (for
 ##' \code{pgInsertize}) and return a \code{pgi} list object, which can
@@ -26,9 +28,6 @@
 ##' (faster with large datasets), otherwise the \code{rgeos} function
 ##' \code{writeWKT} is used.
 ##'
-##' @title Format R data objects (data frames, spatial data frames, or
-##'     spatial-only objects) for insert into a PostgreSQL table (for
-##'     use with pgInsert).
 ##' @param data.obj A Spatial* or Spatial*DataFrame, or data frame for
 ##'     \code{pgInsertize}.
 ##' @param geom character string, the name of geometry column in the

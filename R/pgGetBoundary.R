@@ -1,10 +1,10 @@
 ## pgGetBoundary
 
-##' Retrieve bounding envelope (rectangle) of all geometries or
-##' rasters in a table in Postgresql.
+##' Retrieve bounding envelope of geometries.
 ##'
-##' @title Returns bounding envelope of all combined geometries or
-##'     rasters stored in a table in a PostgreSQL database.
+##' Retrieve bounding envelope (rectangle) of all geometries or
+##' rasters in a Postgresql table.
+##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema (if
 ##'     necessary), and table or view name for the table holding the

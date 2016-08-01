@@ -1,5 +1,7 @@
 ## pgSRID
 
+##' Find (or create) PostGIS SRID based on CRS object.
+##'
 ##' This function takes \code{\link[sp]{CRS}}-class object and a
 ##' PostgreSQL database connection (with PostGIS extension), and
 ##' returns the matching SRID(s) for that CRS. If a match is not
@@ -9,7 +11,6 @@
 ##' 'rpostgis_custom'}, with the default value being the next open value
 ##' between 880001-889999 (a different SRID value can be entered if desired.)
 ##'
-##' @title Find (or create) PostGIS SRID based on CRS object.
 ##' @param conn A connection object to a PostgreSQL database.
 ##' @param crs CRS object, created through a call to
 ##'     \code{\link[sp]{CRS}}.
@@ -71,7 +72,7 @@ pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
         p4s, "'\n OR\n regexp_replace(proj4text,'[[:space:]]+$','') = '",
         p4s, "');")
     srid <- dbGetQuery(conn, temp.query)$srid
-    
+
     if (length(srid) > 0) {
         return(srid)
     }

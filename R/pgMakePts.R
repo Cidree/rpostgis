@@ -1,8 +1,9 @@
 ## pgMakePts
 
+##' Add a POINT or LINESTRING geometry field.
+##'
 ##' Add a new POINT or LINESTRING geometry field.
 ##'
-##' @title Add a POINT or LINESTRING geometry field.
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param colname A character string specifying the name of the new

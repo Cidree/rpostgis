@@ -1,8 +1,9 @@
 ## dbDrop
 
+##' Drop table/view/schema.
+##'
 ##' Drop a table, a view or a schema.
 ##'
-##' @title Drop table/view/schema
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table, view
 ##'     or schema name.

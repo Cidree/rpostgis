@@ -1,5 +1,7 @@
 ## pgInsert
 
+##' Inserts spatial data into a PostgreSQL table.
+##'
 ##' This function takes a take an R \code{sp} object (Spatial* or
 ##' Spatial*DataFrame), or a regular data frame, and performs the
 ##' database insert (and table creation, if specified) on the
@@ -22,8 +24,6 @@
 ##' \code{create.table} is dropped from the database (a message will
 ##' be given).
 ##'
-##' @title Inserts data from spatial objects or data frames into a
-##'     PostgreSQL table
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param data.obj A Spatial* or Spatial*DataFrame, or data frame
 ##' @param geom character string. For Spatial* datasets, the name of

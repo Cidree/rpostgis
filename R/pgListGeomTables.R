@@ -1,5 +1,7 @@
 ## pgListGeomTables
 
+##' List geometries.
+##'
 ##' List tables with geometry columns in the database.
 ##'
 ##' @param conn A PostgreSQL database connection

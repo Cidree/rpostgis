@@ -1,11 +1,12 @@
 ## pgPostGIS
 
+##' Check and create PostGIS extension.
+##'
 ##' The function checks for the availability of the PostGIS extension,
 ##' and if it is available, but not installed, install
 ##' it. Additionnaly, can also install Topology, Tiger Geocoder and
 ##' SFCGAL extensions.
 ##'
-##' @title Check and create PostGIS extension.
 ##' @param conn A connection object (required, even if \code{exec =
 ##'     FALSE}).
 ##' @param topology Logical. Whether to check/install the Topology

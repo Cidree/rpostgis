@@ -1,8 +1,9 @@
 ## dbColumnInfo
 
+##' Get information about columns.
+##'
 ##' Get information about columns in a PostgreSQL table.
 ##'
-##' @title Get information about columns.
 ##' @param conn A connection object to a PostgreSQL database.
 ##' @param name A character string specifying a PostgreSQL schema (if
 ##'     necessary), and table or view name geometry (e.g., \code{name

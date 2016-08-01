@@ -1,8 +1,9 @@
 ## dbIndex
 
-##' Defines a new index.
+##' Create an index.
 ##'
-##' @title CREATE INDEX
+##' Defines a new index on a PostgreSQL table.
+##'
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param colname A character string specifying the name of the
