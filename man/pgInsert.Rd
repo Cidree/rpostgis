@@ -81,11 +81,6 @@ data(meuse)
 coords <- SpatialPoints(meuse[, c("x", "y")])
 spdf <- SpatialPointsDataFrame(coords, meuse)
 
-library(RPostgreSQL)
-drv <- dbDriver("PostgreSQL")
-conn <- dbConnect(drv, dbname = "dbname", host = "host", port = "5432",
-    user = "user", password = "password")
-
 ## Insert data in new database table
 pgInsert(conn, data.obj = spdf, create.table = c("public", "meuse_data"))
 

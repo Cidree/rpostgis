@@ -17,13 +17,12 @@ A typical session starts by establishing the connection to a
 working PostgreSQL database:
 
 library(rpostgis)
-    drv <- dbDriver("PostgreSQL")
-    con <- dbConnect(drv, dbname = <dbname>, host = <host>,
-        user = <user>, password = <password>)
+    con <- dbConnect("PostgreSQL", dbname = <dbname>, host = <host>,
+            user = <user>, password = <password>)
 
 For example, this could be:
 
-con <- dbConnect(drv, dbname = "rpostgis", host = "localhost",
+con <- dbConnect("PostgreSQL", dbname = "rpostgis", host = "localhost",
         user = "postgres", password = "postgres")
 
 The next step typically involves checking if PostGIS was installed
@@ -33,6 +32,11 @@ pgPostGIS(con)
 
 The function should return \code{TRUE} for all \code{pg-}
 functions to work.
+
+Finally, at the end of an interactive session, the connection to
+the database should be closed:
+
+dbDisconnect(con)
 }
 \author{
 Mathieu Basille (\email{basille@ufl.edu}) and David
