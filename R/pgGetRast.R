@@ -25,11 +25,6 @@
 ##' @return RasterLayer
 ##' @examples
 ##' \dontrun{
-##' library(RPostgreSQL)
-##' drv <- dbDriver("PostgreSQL")
-##' conn <- dbConnect(drv, dbname = "dbname", host = "host", port = "5432",
-##'     user = "user", password = "password")
-##'
 ##' pgGetRast(conn, c("schema", "tablename"))
 ##' pgGetRast(conn, c("schema", "DEM"), digits = 9, boundary = c(55,
 ##'     50, 17, 12))

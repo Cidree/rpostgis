@@ -157,11 +157,6 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 ##' @return SpatialLinesDataFrame or SpatialLines
 ##' @examples
 ##' \dontrun{
-##' library(RPostgreSQL)
-##' drv <- dbDriver("PostgreSQL")
-##' conn <- dbConnect(drv, dbname = "dbname", host = "host", port = "5432",
-##'     user = "user", password = "password")
-##'
 ##' pgGetLines(conn, c("schema", "tablename"))
 ##' pgGetLines(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
 ##'     other.cols = NULL, query = "AND field = 'highway'")
@@ -254,11 +249,6 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
 ##' @return SpatialPolygonsDataFrame or SpatialPolygons
 ##' @examples
 ##' \dontrun{
-##' library(RPostgreSQL)
-##' drv <- dbDriver("PostgreSQL")
-##' conn <- dbConnect(drv, dbname = "dbname", host = "host", port = "5432",
-##'     user = "user", password = "password")
-##'
 ##' pgGetPolys(conn, c("schema", "tablename"))
 ##' pgGetPolys(conn, c("schema", "states"), geom = "statesgeom",
 ##'     gid = "state_ID", other.cols = "area,population",

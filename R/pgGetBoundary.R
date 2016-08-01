@@ -19,11 +19,6 @@
 ##' @return SpatialPolygon
 ##' @examples
 ##' \dontrun{
-##' library(RPostgreSQL)
-##' drv <- dbDriver("PostgreSQL")
-##' conn <- dbConnect(drv, dbname = "dbname", host = "host", port = "5432",
-##'     user = "user", password = "password")
-##'
 ##' pgGetBoundary(conn, c("schema", "polys"), geom = "polygon")
 ##' pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 ##' }

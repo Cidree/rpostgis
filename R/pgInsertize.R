@@ -99,7 +99,7 @@
 
 pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE) {
-    ## Load wkb library if available
+    ## Load wkb package if available
     wkb.t <- suppressWarnings(require("wkb", quietly = TRUE))
     ## wkb.t <- FALSE Check multi
     mx <- 1
