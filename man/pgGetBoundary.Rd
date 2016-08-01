@@ -3,39 +3,39 @@
 \name{pgGetBoundary}
 \alias{pgGetBoundary}
 \title{Returns bounding envelope of all combined geometries or
-rasters stored in a table in a PostgreSQL database.}
+    rasters stored in a table in a PostgreSQL database.}
 \usage{
 pgGetBoundary(conn, name, geom = "geom")
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{name}{A character string specifying a PostgreSQL schema (if necessary), 
-and table or view name for the table holding the geometries/raster(s) 
-(e.g., name = c("schema","table"))}
+\item{name}{A character string specifying a PostgreSQL schema (if
+necessary), and table or view name for the table holding the
+geometries/raster(s) (e.g., name = c("schema","table"))}
 
-\item{geom}{character, Name of the column in 'name' holding the 
+\item{geom}{character, Name of the column in 'name' holding the
 geometry or raster object (Default = 'geom')}
 }
 \value{
 SpatialPolygon
 }
 \description{
-Retrieve bounding envelope (rectangle) of all geometries or rasters in a 
-table in Postgresql.
+Retrieve bounding envelope (rectangle) of all geometries or
+rasters in a table in Postgresql.
 }
 \examples{
 \dontrun{
 library(RPostgreSQL)
-drv<-dbDriver("PostgreSQL")
-conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
-               user='user',password='password')
+drv <- dbDriver("PostgreSQL")
+conn <- dbConnect(drv, dbname = "dbname", host = "host", port = "5432",
+    user = "user", password = "password")
 
-pgGetBoundary(conn,c('schema','polys'),geom = 'polygon')
-pgGetBoundary(conn,c('schema','rasters'),geom='rast')
+pgGetBoundary(conn, c("schema", "polys"), geom = "polygon")
+pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 }
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com}
+David Bucklin \email{dbucklin@ufl.edu}
 }
 

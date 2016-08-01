@@ -10,18 +10,14 @@ pgListGeomTables(conn)
 \item{conn}{A PostgreSQL database connection}
 }
 \value{
-A data frame with schema, table, geometry column, and geometry type.
+A data frame with schema, table, geometry column, and
+    geometry type.
 }
 \description{
 List tables with geometry columns in the database.
 }
 \examples{
 \dontrun{
-library(RPostgreSQL)
-drv<-dbDriver("PostgreSQL")
-conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
-               user='user',password='password')
-               
 pgListGeomTables(conn)
 }
 }
