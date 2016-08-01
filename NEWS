@@ -1,4 +1,17 @@
-rpostgis 0.8.2
+rpostgis 0.10
+=============
+
+OVERALL CHANGE
+
+* Big package cleaning.
+
+* Changed all non-PostGIS related functions to `db-` instead of `pg-`.
+
+* All functions not returning an actual object now returns `TRUE` if
+  successful.
+
+
+rpostgis 0.8.3
 ==============
 
 OVERALL CHANGE
