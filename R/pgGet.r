@@ -47,7 +47,7 @@
 
 pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     query = NULL) {
-    name <- pgtablenamefix(name)
+    name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
     namechar <- gsub("\"", "", name)
     ## Check table exists
@@ -169,7 +169,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 
 pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     other.cols = "*", query = NULL) {
-    name <- pgtablenamefix(name)
+    name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
     namechar <- gsub("\"", "", name)
     ## Check table exists
@@ -267,7 +267,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
 
 pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     other.cols = "*", query = NULL) {
-    name <- pgtablenamefix(name)
+    name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
     namechar <- gsub("\"", "", name)
     ## Check table exists

@@ -134,7 +134,7 @@ pgInsert <- function(conn, data.obj, create.table = NULL, force.match = NULL,
     }
     cols <- pgi$db.cols.insert
     values <- pgi$insert.data
-    db.cols <- pgColumnInfo(conn, name = gsub("\"", "", name))$column_name
+    db.cols <- dbColumnInfo(conn, name = gsub("\"", "", name))$column_name
     if (is.null(db.cols)) {
         stop(paste0("Database table ", gsub("\"", "", paste(name,
             collapse = ".")), " not found."))

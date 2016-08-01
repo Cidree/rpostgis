@@ -1,4 +1,4 @@
-## pgColumnInfo
+## dbColumnInfo
 
 ##' Get information about columns in a PostgreSQL table.
 ##'
@@ -15,23 +15,18 @@
 ##' @return data frame
 ##' @examples
 ##' \dontrun{
-##'
-##' library(RPostgreSQL)
-##' drv<-dbDriver("PostgreSQL")
-##' conn<-dbConnect(drv,dbname='dbname',host='host',port='5432',
-##'                user='user',password='password')
-##' pgColumnInfo(conn,c("schema","table"))
+##' dbColumnInfo(conn, c("schema", "table"))
 ##' }
 
-pgColumnInfo<- function(conn,name,allinfo=FALSE) {
-
-  name<-rpostgis::pgtablenamefix(name)
-  name<-gsub('"','',name)
-
-  if (allinfo) {cols<-"*"} else {cols<-"column_name,data_type,is_nullable,character_maximum_length"}
-
-  df<-dbGetQuery(conn,paste0("SELECT ",cols," FROM information_schema.columns
-                            WHERE table_schema = '",name[1],"' AND table_name = '",name[2],"';"))
-  return(df)
-
+dbColumnInfo <- function(conn, name, allinfo = FALSE) {
+    name <- rpostgis::dbTableNameFix(name)
+    name <- gsub("\"", "", name)
+    if (allinfo) {
+        cols <- "*"
+    } else {
+        cols <- "column_name,data_type,is_nullable,character_maximum_length"
+    }
+    df <- dbGetQuery(conn, paste0("SELECT ", cols, " FROM information_schema.columns\nWHERE table_schema = '",
+        name[1], "' AND table_name = '", name[2], "';"))
+    return(df)
 }

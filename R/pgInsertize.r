@@ -174,7 +174,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         stop("Either create.table or force.match must be null.")
     }
     if (!is.null(create.table)) {
-        nt <- pgtablenamefix(create.table)
+        nt <- dbTableNameFix(create.table)
         drv <- dbDriver("PostgreSQL")
         ## Make create table statement
         new.table <- postgresqlBuildTableDefinition(drv, name = gsub("\"",
@@ -203,9 +203,9 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
             stop("Database connection must be specified when using force.match.")
         }
         ## Name fixing
-        nt <- pgtablenamefix(force.match)
+        nt <- dbTableNameFix(force.match)
         in.tab <- nt
-        db.cols <- pgColumnInfo(conn, name = gsub("\"", "", nt))$column_name
+        db.cols <- dbColumnInfo(conn, name = gsub("\"", "", nt))$column_name
         if (is.null(db.cols)) {
             stop(paste0("Database table ", paste(nt, collapse = "."),
                 " not found."))
@@ -385,7 +385,7 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
     }
     ## Create new table statement if set
     if (!is.null(create.table)) {
-        nt <- pgtablenamefix(create.table)
+        nt <- dbTableNameFix(create.table)
         drv <- dbDriver("PostgreSQL")
         ## Make create table statement
         new.table <- postgresqlBuildTableDefinition(drv, name = gsub("\"",
@@ -398,9 +398,9 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
             stop("Database connection must be specified when using force.match.")
         }
         ## Name fixing
-        nt <- pgtablenamefix(force.match)
+        nt <- dbTableNameFix(force.match)
         in.tab <- nt
-        db.cols <- pgColumnInfo(conn, name = gsub("\"", "", nt))$column_name
+        db.cols <- dbColumnInfo(conn, name = gsub("\"", "", nt))$column_name
         if (is.null(db.cols)) {
             stop(paste0("Database table ", paste(nt, collapse = "."),
                 " not found."))

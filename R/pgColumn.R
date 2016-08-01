@@ -1,4 +1,4 @@
-## pgColumn
+## dbColumn
 
 ##' Add or remove a column to/from a table.
 ##'
@@ -25,12 +25,12 @@
 ##' @export
 ##' @examples
 ##' ## Add an integer column
-##' pgColumn(name = c("fla", "bli"), colname = "field", exec = FALSE)
+##' dbColumn(name = c("fla", "bli"), colname = "field", exec = FALSE)
 ##' ## Drop a column (with CASCADE)
-##' pgColumn(name = c("fla", "bli"), colname = "field", action = "drop",
+##' dbColumn(name = c("fla", "bli"), colname = "field", action = "drop",
 ##'     cascade = TRUE, exec = FALSE)
 
-pgColumn <- function(conn, name, colname, action = c("add", "drop"),
+dbColumn <- function(conn, name, colname, action = c("add", "drop"),
     coltype = "integer", cascade = FALSE, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
     if (length(name) %in% 1:2) {

@@ -1,4 +1,4 @@
-## pgVacuum
+## dbVacuum
 
 ##' Performs a VACUUM (garbage-collect and optionally analyze) on a
 ##' table.
@@ -23,9 +23,9 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' pgVacuum(name = c("fla", "bli"), full = TRUE, exec = FALSE)
+##' dbVacuum(name = c("fla", "bli"), full = TRUE, exec = FALSE)
 
-pgVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
+dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
     analyze = TRUE, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
     if (length(name) %in% 1:2) {

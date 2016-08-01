@@ -1,4 +1,4 @@
-## pgAsDate
+## dbAsDate
 
 ##' Convert a date field to a timestamp with or without time zone.
 ##'
@@ -19,9 +19,9 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' pgAsDate(name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
+##' dbAsDate(name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
 
-pgAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
+dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
     exec = TRUE) {
     ## Check and prepare the schema.name
     if (length(name) %in% 1:2) {

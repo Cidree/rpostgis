@@ -1,4 +1,4 @@
-## pgIndex
+## dbIndex
 
 ##' Defines a new index.
 ##'
@@ -16,8 +16,11 @@
 ##'     update data which would result in duplicate entries will
 ##'     generate an error.
 ##' @param method The name of the method to be used for the
-##'     index. Choices are "btree", "hash", "rtree", and "gist". The
-##'     default method is btree.
+##'     index. Choices are \code{"btree"}, \code{"hash"},
+##'     \code{"rtree"}, and \code{"gist"}. The default method is
+##'     \code{"btree"}, although \code{"gist"} should be the index of
+##'     choice for Post GIS spatial types (geometry, geography,
+##'     raster).
 ##' @param display Logical. Whether to display the query (defaults to
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
@@ -30,16 +33,19 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' pgIndex(name = c("fla", "bli"), colname = "wkb_geometry", method = "gist",
+##' dbIndex(name = c("fla", "bli"), colname = "geom", method = "gist",
 ##'     exec = FALSE)
 
-pgIndex <- function(conn, name, colname, idxname, unique = FALSE,
+dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
     method = c("btree", "hash", "rtree", "gist"), display = TRUE,
     exec = TRUE) {
     ## Check and prepare the schema.name
     if (length(name) %in% 1:2) {
         table <- paste(name, collapse = ".")
     } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    ## Check the name of the column
+    if (missing(colname))
+        stop("'colname' not provided.")
     ## Check and prepare the name of the index
     if (missing(idxname))
         idxname <- paste(name[length(name)], colname, "idx",

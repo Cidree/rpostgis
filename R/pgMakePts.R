@@ -60,7 +60,7 @@ pgMakePts <- function(conn, name, colname = "pts_geom", x = "x",
         dbSendQuery(conn, query)
     ## Create an index
     if (index)
-        pgIndex(conn = conn, name = name, colname = colname,
+        dbIndex(conn = conn, name = name, colname = colname,
             idxname = idxname, method = "gist", display = display,
             exec = exec)
     ## Build the query to populate the POINT geometry field
@@ -111,7 +111,7 @@ pgMakeStp <- function(conn, name, colname = "stp_geom", x = "x",
         dbSendQuery(conn, query)
     ## Create an index
     if (index)
-        pgIndex(conn = conn, name = name, colname = colname,
+        dbIndex(conn = conn, name = name, colname = colname,
             idxname = idxname, method = "gist", display = display,
             exec = exec)
     ## Build the query to populate the LINESTRING geometry field

@@ -1,4 +1,4 @@
-## pgAddKey
+## dbAddKey
 
 ##' Add a primary or foreign key to a table column.
 ##'
@@ -24,10 +24,10 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' pgAddKey(name = c("fla", "bli"), colname = "id", type = "foreign",
+##' dbAddKey(name = c("fla", "bli"), colname = "id", type = "foreign",
 ##'     reference = c("flu", "bla"), colref = "id", exec = FALSE)
 
-pgAddKey <- function(conn, name, colname, type = c("primary",
+dbAddKey <- function(conn, name, colname, type = c("primary",
     "foreign"), reference, colref, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
     if (length(name) %in% 1:2) {
