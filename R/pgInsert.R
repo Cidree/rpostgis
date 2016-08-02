@@ -88,7 +88,7 @@ pgInsert <- function(conn, data.obj, create.table = NULL, force.match = NULL,
     cls <- class(data.obj)[1]
     pgi <- NULL
     if (cls %in% geo.classes) {
-        try(pgSRID(data.obj@proj4string, conn, create = TRUE,
+        try(pgSRID(conn,data.obj@proj4string, create = TRUE,
             new.srid = NULL))
         try(pgi <- pgInsertizeGeom(data.obj, geom, create.table,
             force.match, conn, new.id, alter.names))

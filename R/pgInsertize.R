@@ -156,7 +156,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     ## writing for user on spatial_ref_sys, will fail quietly)
     proj <- NULL
     if (!is.null(conn)) {
-        try(proj <- pgSRID(data.obj@proj4string, conn = conn,
+        try(proj <- pgSRID(conn,data.obj@proj4string, 
             create = TRUE), silent = TRUE)
     }
     ## If (user didn't specify conn, or pgSRID failed) AND rgdal is
