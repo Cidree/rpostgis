@@ -20,7 +20,7 @@
 ##' }
 
 dbColumnInfo <- function(conn, name, allinfo = FALSE) {
-    name <- rpostgis::dbTableNameFix(name)
+    name <- dbTableNameFix(name)
     name <- gsub("\"", "", name)
     if (allinfo) {
         cols <- "*"
