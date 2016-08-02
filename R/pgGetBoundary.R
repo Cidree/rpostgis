@@ -43,7 +43,7 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     }
     ## Check data type
     tmp.query <- paste0("SELECT DISTINCT pg_typeof(", geom, ") AS type FROM ",
-        name, "\n  WHERE ", geom, " IS NOT NULL;")
+        nameque, "\n  WHERE ", geom, " IS NOT NULL;")
     type <- suppressWarnings(dbGetQuery(conn, tmp.query))
     if (type$type == "raster") {
         func <- "ST_Union"
@@ -54,7 +54,7 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     }
     ## Retrieve the SRID
     tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ",
-        name, " WHERE ", geom, " IS NOT NULL;")
+        nameque, " WHERE ", geom, " IS NOT NULL;")
     srid <- dbGetQuery(conn, tmp.query)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
