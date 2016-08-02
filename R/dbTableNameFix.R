@@ -10,23 +10,35 @@
 ##' @return character vector of length 2. Each character element is in
 ##'     (escaped) double-quotes.
 ##' @keywords internal
+##' @importFrom DBI ANSI
+##' @importFrom DBI dbQuoteIdentifier
+##' @examples
+##' \dontrun{
+##' name<-c("schema","table")
+##' dbTableNameFix(name)
+##' 
+##' #default schema (public) is added to single-length characters (only table is given)
+##' name<-"table"
+##' dbTableNameFix(name)
+##' 
+##' #schema or table names with double quotes should be given exactly as they are 
+##' (make sure to wrap in single quotes in R):
+##' name<-c('sch"ema','"table"')
+##' dbTableNameFix(name)
+##' }
+
 
 dbTableNameFix <- function(t.nm) {
     ## Cases
-    if (length(t.nm) == 1 & length(strsplit(t.nm, ".", fixed = T)[[1]]) ==
-        2) {
-        t.nm <- strsplit(t.nm, ".", fixed = T)[[1]]
-    } else if (length(t.nm) == 1 & length(strsplit(t.nm, ".", fixed = T)[[1]]) ==
-        1) {
+      if (length(t.nm) == 1) {
         t.nm <- c("public", t.nm)
-    } else if (length(t.nm) > 2 | length(strsplit(t.nm, ".", fixed = T)[[1]]) >
-        2) {
-        stop("Invalid PostgreSQL table name. Schema/table names with non-standard characters in a two-length vector, as ('schem.a','tabl.e').")
-    }
-    ## Remove existing begin/end double quotes
-    t.nm <- gsub("^\"|\"$", "", t.nm)
-    ## Add double quotes
-    t.nm <- c(paste0("\"", t.nm[1], "\""), paste0("\"", t.nm[2],
-        "\""))
+      }
+  
+      if (length(t.nm) > 2)
+      {
+        stop("Invalid PostgreSQL table name. Must be provided as one ('table') or two-length c('schema','table') character vector.")
+      }
+  
+    t.nm<-DBI::dbQuoteIdentifier(DBI::ANSI(), DBI::dbQuoteIdentifier(DBI::ANSI(), t.nm))
     return(t.nm)
 }

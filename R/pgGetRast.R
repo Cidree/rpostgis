@@ -32,26 +32,24 @@
 
 pgGetRast <- function(conn, name, rast = "rast", digits = 9,
     boundary = NULL) {
-    ## Format table name
-    if (length(name) %in% 1:2) {
-        name <- paste(name, collapse = ".")
-    } else {
-        stop("The table name should be \"table\" or c(\"schema\", \"table\").")
-    }
+    ## Check and prepare the schema.name
+    name <- dbTableNameFix(name)
+    nameque <- paste(name, collapse = ".")
+    namechar <- paste(gsub('^"|"$', '', name),collapse=".")
     ## Check table exists
     tmp.query <- paste0("SELECT r_raster_column AS geo FROM public.raster_columns\n  WHERE (r_table_schema||'.'||r_table_name) = '",
-        name, "';")
+                        namechar, "';")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     if (is.null(tab.list)) {
-        stop(paste0("Table '", name, "' is not listed in public.raster_columns."))
+        stop(paste0("Table '", namechar, "' is not listed in public.raster_columns."))
     } else if (!rast %in% tab.list) {
-        stop(paste0("Table '", name, "' raster column '", rast,
+        stop(paste0("Table '", namechar, "' raster column '", rast,
             "' not found. Available raster columns: ", paste(tab.list,
                 collapse = ", ")))
     }
     ## Retrieve the SRID
     tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", rast, ")) FROM ",
-        name, " WHERE ", rast, " IS NOT NULL;")
+        nameque, " WHERE ", rast, " IS NOT NULL;")
     srid <- dbGetQuery(conn, tmp.query)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
@@ -61,7 +59,7 @@ pgGetRast <- function(conn, name, rast = "rast", digits = 9,
     }
     if (is.null(boundary)) {
         trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) AS x, ST_Y(ST_Centroid((gv).geom)) AS y,\n  (gv).val FROM (SELECT ST_PixelAsPolygons(",
-            rast, ") AS gv FROM ", name, ") a;")))
+            rast, ") AS gv FROM ", nameque, ") a;")))
     } else {
         if (typeof(boundary) != "double") {
             boundary <- c(boundary@bbox[2, 2], boundary@bbox[2,
@@ -72,7 +70,7 @@ pgGetRast <- function(conn, name, rast = "rast", digits = 9,
             " ", boundary[1], ",", boundary[4], " ", boundary[2],
             ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
             " ", boundary[1], ",", boundary[4], " ", boundary[1],
-            "))'),", srid, "))) AS gv FROM ", name, "\n  WHERE ST_Intersects(",
+            "))'),", srid, "))) AS gv FROM ", nameque, "\n  WHERE ST_Intersects(",
             rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
             " ", boundary[1], ",", boundary[4], " ", boundary[2],
             ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],

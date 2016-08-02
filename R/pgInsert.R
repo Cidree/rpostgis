@@ -98,7 +98,7 @@ pgInsert <- function(conn, data.obj, create.table = NULL, force.match = NULL,
     } else if (cls == "pgi") {
         pgi <- data.obj
         message("Using previously create pgi object. All arguments except for \"conn\" and \"encoding\" will be ignored.")
-        if (is.null(pgi$in.tab)) {
+        if (is.null(pgi$in.table)) {
             stop("Table to insert into not specified (in pgi$in.table). Set this and re-run.")
         }
         ## Continue
@@ -123,16 +123,17 @@ pgInsert <- function(conn, data.obj, create.table = NULL, force.match = NULL,
             stop("Table creation failed. No changes made to database.")
         }
     }
+    
     ## Set name of table
-    if (!is.null(pgi$in.table)) {
-        name <- pgi$in.table
-    }
+    name <- pgi$in.table
+    namechar<-dbTableNameFix(name)
+
     cols <- pgi$db.cols.insert
     values <- pgi$insert.data
-    db.cols <- dbColumnInfo(conn, name = gsub("\"", "", name))$column_name
+    db.cols <- dbTableInfo(conn, name = name)$column_name
     if (is.null(db.cols)) {
-        stop(paste0("Database table ", gsub("\"", "", paste(name,
-            collapse = ".")), " not found."))
+        stop(paste0("Database table ", paste(name,
+            collapse = "."), " not found."))
     }
     test <- match(cols, db.cols)
     unmatched <- cols[is.na(test)]
@@ -143,12 +144,12 @@ pgInsert <- function(conn, data.obj, create.table = NULL, force.match = NULL,
     cols2 <- paste0("(\"", paste(cols, collapse = "\",\""), "\")")
     quei <- NULL
     ## Send insert query
-    try(quei <- dbSendQuery(conn, paste0("INSERT INTO ", name[1],
-        ".", name[2], cols2, " VALUES ", values, ";")))
+    try(quei <- dbSendQuery(conn, paste0("INSERT INTO ", namechar[1],
+        ".", namechar[2], cols2, " VALUES ", values, ";")))
     if (!is.null(quei)) {
         dbSendQuery(conn, "COMMIT;")
-        print(paste0("Data inserted into table '", gsub("\"",
-            "", paste(name, collapse = ".")), "'"))
+        print(paste0("Data inserted into table '",
+           paste(name, collapse = "."), "'"))
     } else {
         dbSendQuery(conn, "ROLLBACK;")
         stop("Insert failed. No changes made to database.")

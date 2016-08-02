@@ -18,5 +18,20 @@ Internal rpostgis function to return common (length = 2) schema
 and table name vector from various table and schema + table name
 inputs.
 }
+\examples{
+\dontrun{
+name<-c("schema","table")
+dbTableNameFix(name)
+
+#default schema (public) is added to single-length characters (only table is given)
+name<-"table"
+dbTableNameFix(name)
+
+#schema or table names with double quotes should be given exactly as they are 
+(make sure to wrap in single quotes in R):
+name<-c('sch"ema','"table"')
+dbTableNameFix(name)
+}
+}
 \keyword{internal}
 

@@ -50,15 +50,15 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     query = NULL) {
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- gsub("\"", "", name)
+    namechar <- paste(gsub('^"|"$', '', name),collapse=".")
     ## Check table exists
-    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE f_table_schema = '",
-        namechar[1], "' AND f_table_name = '", namechar[2], "';")
+    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
+        (f_table_schema||'.'||f_table_name) = '",namechar,"';")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     if (is.null(tab.list)) {
-        stop(paste0("Table/view '", nameque, "' is not listed in public.geometry_columns."))
+        stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns."))
     } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", nameque, "' geometry column not found. Available geometry columns: ",
+        stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
             paste(tab.list, collapse = ", ")))
     }
     ## If ID not specified, set it to generate row numbers
@@ -145,7 +145,6 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 }
 
 
-
 ## pgGetLines
 
 ##' @rdname pgGetPts
@@ -167,15 +166,15 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     other.cols = "*", query = NULL) {
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- gsub("\"", "", name)
+    namechar <- paste(gsub('^"|"$', '', name),collapse=".")
     ## Check table exists
-    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE f_table_schema = '",
-        namechar[1], "' AND f_table_name = '", namechar[2], "';")
+    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
+        (f_table_schema||'.'||f_table_name) = '",namechar,"';")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     if (is.null(tab.list)) {
-        stop(paste0("Table/view '", nameque, "' is not listed in public.geometry_columns."))
+        stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns."))
     } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", nameque, "' geometry column not found. Available geometry columns: ",
+        stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
             paste(tab.list, collapse = ", ")))
     }
     ## Retrieve the SRID
@@ -260,15 +259,15 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     other.cols = "*", query = NULL) {
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- gsub("\"", "", name)
+    namechar <- paste(gsub('^"|"$', '', name),collapse=".")
     ## Check table exists
-    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE f_table_schema = '",
-        namechar[1], "' AND f_table_name = '", namechar[2], "';")
+    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
+                        (f_table_schema||'.'||f_table_name) = '",namechar,"';")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     if (is.null(tab.list)) {
-        stop(paste0("Table/view '", nameque, "' is not listed in public.geometry_columns."))
+        stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns."))
     } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", nameque, "' geometry column not found. Available geometry columns: ",
+        stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
             paste(tab.list, collapse = ", ")))
     }
     ## Retrieve the SRID

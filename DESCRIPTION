@@ -13,7 +13,8 @@ Authors@R: c(
            c("aut", "cre")) )
 Depends:
     R (>= 3.3.0),
-    RPostgreSQL
+    RPostgreSQL,
+    DBI
 Imports:
     methods,
     raster,

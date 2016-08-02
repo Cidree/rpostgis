@@ -1,6 +1,6 @@
-## dbColumnInfo
+## dbTableInfo
 
-##' Get information about columns.
+##' Get information about table columns.
 ##'
 ##' Get information about columns in a PostgreSQL table.
 ##'
@@ -16,12 +16,12 @@
 ##' @return data frame
 ##' @examples
 ##' \dontrun{
-##' dbColumnInfo(conn, c("schema", "table"))
+##' dbTableInfo(conn, c("schema", "table"))
 ##' }
 
-dbColumnInfo <- function(conn, name, allinfo = FALSE) {
+dbTableInfo <- function(conn, name, allinfo = FALSE) {
     name <- dbTableNameFix(name)
-    name <- gsub("\"", "", name)
+    name <- gsub('^"|"$', '', name)
     if (allinfo) {
         cols <- "*"
     } else {

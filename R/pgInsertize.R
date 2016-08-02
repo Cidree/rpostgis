@@ -58,6 +58,7 @@
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @importFrom stats na.omit
 ##' @importFrom rgeos writeWKT
+##' @importFrom DBI dbDriver
 ##' @export
 ##' @return pgi A list containing four character strings: (1)
 ##'     in.table, the table name which will be created or inserted
@@ -174,11 +175,11 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     }
     if (!is.null(create.table)) {
         nt <- dbTableNameFix(create.table)
-        drv <- dbDriver("PostgreSQL")
+        in.tab <- create.table
+        drv <- DBI::dbDriver("PostgreSQL")
         ## Make create table statement
-        new.table <- postgresqlBuildTableDefinition(drv, name = gsub("\"",
-            "", nt), obj = dat, row.names = FALSE)
-        in.tab <- nt
+        new.table <- postgresqlBuildTableDefinition(drv, name = in.tab,
+                                                    obj = dat, row.names = FALSE)
         ## Create and append add geometry field statement. Create
         ## match table
         typematch <- data.frame(sp = c("SpatialPoints", "SpatialLines",
@@ -193,7 +194,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         if (!is.na(proj)) {
             pgtype <- paste0(pgtype, ",", proj)
         }
-        add.geom <- paste0("ALTER TABLE ", in.tab[1], ".", in.tab[2],
+        add.geom <- paste0("ALTER TABLE ", nt[1], ".", nt[2],
             " ADD COLUMN ", geom, " geometry(", pgtype, ");")
         new.table <- paste0(new.table, "; ", add.geom)
     }
@@ -203,8 +204,8 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         }
         ## Name fixing
         nt <- dbTableNameFix(force.match)
-        in.tab <- nt
-        db.cols <- dbColumnInfo(conn, name = gsub("\"", "", nt))$column_name
+        in.tab <- force.match
+        db.cols <- dbTableInfo(conn, name = in.tab)$column_name
         if (is.null(db.cols)) {
             stop(paste0("Database table ", paste(nt, collapse = "."),
                 " not found."))
@@ -385,11 +386,11 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
     ## Create new table statement if set
     if (!is.null(create.table)) {
         nt <- dbTableNameFix(create.table)
-        drv <- dbDriver("PostgreSQL")
+        in.tab <- create.table
+        drv <- DBI::dbDriver("PostgreSQL")
         ## Make create table statement
-        new.table <- postgresqlBuildTableDefinition(drv, name = gsub("\"",
-            "", nt), obj = data.obj, row.names = FALSE)
-        in.tab <- nt
+        new.table <- postgresqlBuildTableDefinition(drv, name = in.tab,
+                                                    obj = data.obj, row.names = FALSE)
     }
     ## Match columns to DB table if set
     if (!is.null(force.match)) {
@@ -398,8 +399,8 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         }
         ## Name fixing
         nt <- dbTableNameFix(force.match)
-        in.tab <- nt
-        db.cols <- dbColumnInfo(conn, name = gsub("\"", "", nt))$column_name
+        in.tab <- force.match
+        db.cols <- dbTableInfo(conn, name = in.tab)$column_name
         if (is.null(db.cols)) {
             stop(paste0("Database table ", paste(nt, collapse = "."),
                 " not found."))
