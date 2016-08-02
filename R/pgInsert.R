@@ -132,8 +132,9 @@ pgInsert <- function(conn, data.obj, create.table = NULL, force.match = NULL,
     values <- pgi$insert.data
     db.cols <- dbTableInfo(conn, name = name)$column_name
     if (is.null(db.cols)) {
+        dbSendQuery(conn, "ROLLBACK;")
         stop(paste0("Database table ", paste(name,
-            collapse = "."), " not found."))
+            collapse = "."), " not found. No changes made to database."))
     }
     test <- match(cols, db.cols)
     unmatched <- cols[is.na(test)]

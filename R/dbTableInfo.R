@@ -20,8 +20,10 @@
 ##' }
 
 dbTableInfo <- function(conn, name, allinfo = FALSE) {
-    name <- dbTableNameFix(name)
-    name <- gsub('^"|"$', '', name)
+    #only check if valid (error if not)
+    name.fix <- dbTableNameFix(name)
+    #add public if length == 1
+    if (length(name) == 1) {name<-c("public",name)}
     if (allinfo) {
         cols <- "*"
     } else {

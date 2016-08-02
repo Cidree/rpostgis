@@ -445,20 +445,20 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
 print.pgi <- function(x, ...) {
     cat("pgi object: PostgreSQL insert object from pgInsertize* function in rpostgis. Use with pgInsert() to insert into database table.")
     cat("\n************************************\n")
-    if (!is.null(pgi$in.tab)) {
-        cat(paste0("Insert table: ", paste(pgi$in.tab, collapse = ".")))
+    if (!is.null(x$in.tab)) {
+        cat(paste0("Insert table: ", paste(x$in.tab, collapse = ".")))
         cat("\n************************************\n")
     }
-    if (!is.null(pgi$db.new.table)) {
-        cat(paste0("SQL to create new table: ", pgi$db.new.table))
+    if (!is.null(x$db.new.table)) {
+        cat(paste0("SQL to create new table: ", x$db.new.table))
         cat("\n************************************\n")
     }
-    cat(paste0("Columns to insert into: ", paste(pgi$db.cols.insert,
+    cat(paste0("Columns to insert into: ", paste(x$db.cols.insert,
         collapse = ",")))
     cat("\n************************************\n")
-    cat(paste0("Formatted insert data: ", substr(pgi$insert.data,
+    cat(paste0("Formatted insert data: ", substr(x$insert.data,
         0, 1000)))
-    if (nchar(pgi$insert.data) > 1000) {
+    if (nchar(x$insert.data) > 1000) {
         cat("........Only the first 1000 characters shown")
     }
 }
