@@ -38,7 +38,7 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
     if (!("postgis" %in% ext$name))
         stop("PostGIS extension not available.")
     ## Extract it and check if installed; if not, install it:
-    post <- subset(ext, name == "postgis")
+    post <- subset(ext, ext$name == "postgis")
     if (is.na(post$installed_version)) {
         ## Print message:
         message(paste0("Installing PostGIS extension version ",
@@ -58,7 +58,7 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
     }
     ## Should now be installed; stop if not:
     ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
-    post <- subset(ext, name == "postgis")
+    post <- subset(ext, ext$name == "postgis")
     if (is.na(post$installed_version))
         stop("PostGIS extension not installed.") else message(paste0("PostGIS extension version ", post$installed_version,
         " installed."))
@@ -68,7 +68,7 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
         if (!("postgis_topology" %in% ext$name))
             message("PostGIS Topology extension not available.") else {
             ## Extract it and check if installed; if not, install it:
-            topo <- subset(ext, name == "postgis_topology")
+            topo <- subset(ext, ext$name == "postgis_topology")
             if (is.na(topo$installed_version)) {
                 ## Print message:
                 message(paste0("Installing PostGIS Topology extension version ",
@@ -88,7 +88,7 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
             }
             ## Should now be installed; print a message if not:
             ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
-            topo <- subset(ext, name == "postgis_topology")
+            topo <- subset(ext, ext$name == "postgis_topology")
             if (is.na(topo$installed_version))
                 message("PostGIS Topology extension not installed.") else message(paste0("PostGIS Topology extension version ",
                 topo$installed_version, " installed."))
@@ -100,7 +100,7 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
         if (!("postgis_tiger_geocoder" %in% ext$name))
             message("PostGIS Tiger Geocoder extension not available.") else {
             ## Extract it and check if installed; if not, install it:
-            tiger <- subset(ext, name == "postgis_tiger_geocoder")
+            tiger <- subset(ext, ext$name == "postgis_tiger_geocoder")
             if (is.na(tiger$installed_version)) {
                 ## Print message:
                 message(paste0("Installing PostGIS Tiger Geocoder extension version ",
@@ -120,7 +120,7 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
             }
             ## Should now be installed; print a message if not:
             ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
-            tiger <- subset(ext, name == "postgis_tiger_geocoder")
+            tiger <- subset(ext, ext$name == "postgis_tiger_geocoder")
             if (is.na(tiger$installed_version))
                 message("PostGIS Tiger Geocoder extension not installed.") else message(paste0("PostGIS Tiger Geocoder extension version ",
                 tiger$installed_version, " installed."))
@@ -132,7 +132,7 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
         if (!("postgis_sfcgal" %in% ext$name))
             message("PostGIS SFCGAL extension not available.") else {
             ## Extract it and check if installed; if not, install it:
-            sfc <- subset(ext, name == "postgis_sfcgal")
+            sfc <- subset(ext, ext$name == "postgis_sfcgal")
             if (is.na(sfc$installed_version)) {
                 ## Print message:
                 message(paste0("Installing PostGIS SFCGAL extension version ",
@@ -152,7 +152,7 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
             }
             ## Should now be installed; print a message if not:
             ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
-            sfc <- subset(ext, name == "postgis_sfcgal")
+            sfc <- subset(ext, ext$name == "postgis_sfcgal")
             if (is.na(sfc$installed_version))
                 message("PostGIS SFCGAL extension not installed.") else message(paste0("PostGIS SFCGAL extension version ",
                 sfc$installed_version, " installed."))
