@@ -100,7 +100,7 @@
 pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE) {
     ## Load wkb package if available
-    wkb.t <- suppressWarnings(require("wkb", quietly = TRUE))
+    wkb.t <- suppressPackageStartupMessages(requireNamespace("wkb",quietly=TRUE))
     ## wkb.t <- FALSE Check multi
     mx <- 1
     ## If points
@@ -161,7 +161,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     }
     ## If (user didn't specify conn, or pgSRID failed) AND rgdal is
     ## installed, then try to get EPSG
-    if (is.null(proj) & suppressWarnings(require("rgdal", quietly = TRUE))) {
+    if (is.null(proj) & suppressPackageStartupMessages(requireNamespace("rgdal",quietly=TRUE))) {
         ## Extract proj
         proj <- "OGRERR_UNSUPPORTED_SRS"
         try(proj <- rgdal::showEPSG(as.character(data.obj@proj4string)),

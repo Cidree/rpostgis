@@ -1,4 +1,3 @@
-## pgSRID
 
 ##' Find (or create) PostGIS SRID based on CRS object.
 ##'
@@ -77,7 +76,7 @@ pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
         return(srid)
     }
     ## check for matching EPSG with showEPSG (rgdal dependency)
-    if (suppressWarnings(suppressPackageStartupMessages(require("rgdal")))) {
+    if (suppressPackageStartupMessages(requireNamespace("rgdal",quietly=TRUE))) {
       message("Using function 'rgdal::showEPSG' to look for a match.")
         epsg <- "OGRERR_UNSUPPORTED_SRS"
         try(epsg <- rgdal::showEPSG(p4s))
@@ -115,7 +114,7 @@ pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
         }
     }
     proj.wkt <- "NA"
-    if (suppressWarnings(suppressPackageStartupMessages(require("rgdal")))) {
+    if (suppressPackageStartupMessages(requireNamespace("rgdal",quietly=TRUE))) {
         try(proj.wkt <- rgdal::showWKT(p4s))
     } else {
         message("Package 'rgdal' is not installed.\nNew SRID will be created, but 'srtext' column (WKT representation of projection) will be 'NA'.")
