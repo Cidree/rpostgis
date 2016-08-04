@@ -27,7 +27,6 @@
 ##' dbTableNameFix(name)
 ##' }
 
-
 dbTableNameFix <- function(t.nm) {
     ## Cases
       if (length(t.nm) == 1) {

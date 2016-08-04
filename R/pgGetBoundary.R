@@ -58,11 +58,20 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     srid <- dbGetQuery(conn, tmp.query)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
-        stop("Multiple SRIDs in the geometry/raster")
+      stop("Multiple SRIDs in geometry/raster")
     } else if (nrow(srid) < 1) {
-        stop("Database table is empty.")
+      stop("Database table is empty.")
     }
-    p4s <- sp::CRS(paste0("+init=epsg:", srid$st_srid))@projargs
+    p4s <- sp::CRS(as.character(NA))@projargs
+    tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
+                        srid$st_srid, ";")
+    db.proj4 <- dbGetQuery(conn, tmp.query)$p4s
+    if (!is.null(db.proj4)) {
+      try(p4s <- sp::CRS(db.proj4)@projargs, silent = TRUE)
+    }
+    if (is.na(p4s)) {
+      warning("Table SRID not found. Projection will be undefined (NA)")
+    }
     ## Retrieve envelope
     tmp.query <- paste0("SELECT ST_Astext(ST_Envelope(", func,
         "(", geom, "))) FROM ", nameque, " WHERE ", geom, " IS NOT NULL;")

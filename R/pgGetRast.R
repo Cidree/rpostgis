@@ -57,6 +57,16 @@ pgGetRast <- function(conn, name, rast = "rast", digits = 9,
     } else if (nrow(srid) < 1) {
         stop("Database table is empty.")
     }
+    p4s <- sp::CRS(as.character(NA))@projargs
+    tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
+                        srid$st_srid, ";")
+    db.proj4 <- dbGetQuery(conn, tmp.query)$p4s
+    if (!is.null(db.proj4)) {
+      try(p4s <- sp::CRS(db.proj4)@projargs, silent = TRUE)
+    }
+    if (is.na(p4s)) {
+      warning("Table SRID not found. Projection will be undefined (NA)")
+    }
     if (is.null(boundary)) {
         trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) AS x, ST_Y(ST_Centroid((gv).geom)) AS y,\n  (gv).val FROM (SELECT ST_PixelAsPolygons(",
             rast, ") AS gv FROM ", nameque, ") a;")))
@@ -77,6 +87,5 @@ pgGetRast <- function(conn, name, rast = "rast", digits = 9,
             " ", boundary[1], ",", boundary[4], " ", boundary[1],
             "))'),", srid, "))) a;")))
     }
-    p4s <- sp::CRS(paste0("+init=epsg:", srid))@projargs
     return(raster::rasterFromXYZ(trast, crs = sp::CRS(p4s), digits = digits))
 }
