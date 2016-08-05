@@ -26,9 +26,11 @@ for overwriting the existing database table.}
 geometry column in the database table.  (existing or to be
 created; defaults to \code{geom}).}
 
-\item{partial.match}{Logical; if true, columns in R data frame will
-be compared with an the existing database table \code{name}.
-Only columns in the data frame that exactly match the database
+\item{partial.match}{Logical; allow insert on partial column
+matches between data frame and database table. If true, 
+columns in R data frame will be compared with an the 
+existing database table \code{name}.
+Columns in the data frame that exactly match the database
 table will be inserted into the database table.}
 
 \item{overwrite}{Logical; if true, a new table \code{name}
@@ -43,8 +45,7 @@ and otherwise it will be discarded.}
 \item{alter.names}{Logical, whether to make database column names
 DB-compliant (remove special characters). Default is
 \code{TRUE}.  (This should to be set to \code{FALSE} to match
-to non-standard names in an existing database table using the
-\code{match} setting.)}
+to non-standard names in an existing database table.}
 
 \item{encoding}{Character vector of length 2, containing the
 from/to encodings for the data (as in the function
@@ -60,15 +61,13 @@ DBIResult
 This function takes a take an R \code{sp} object (Spatial* or
 Spatial*DataFrame), or a regular data frame, and performs the
 database insert (and table creation, when the table doesn't exist) on the
-database. The entire data frame is prepared, but if using
-\code{match} = TRUE to insert into an existing database table,
-the R column names are compared to the \code{name} column names, and only
-exact matches are formatted to be inserted. If \code{new.id} is 
-specified, a new sequential integer field is added to the data frame 
-for insert. For \code{Spatial*}-only objects (no data frame),
-a new.id is created by default with name "gid".
+database.
 }
 \details{
+If \code{new.id} is specified, a new sequential integer field 
+is added to the data frame for insert. For \code{Spatial*}-only 
+objects (no data frame), a new.id is created by default with name "gid".
+
 If the R package \code{wkb} is installed, this function will use
 \code{writeWKB} for certain datasets (non-Multi types,
 non-Linestring), which is faster for large datasets.  In all other
@@ -87,8 +86,13 @@ spdf <- SpatialPointsDataFrame(coords, meuse)
 ## Insert data in new database table
 pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
 
-## Insert into already created table
-pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf, match = TRUE)
+## The same command will insert into already created table (if all R columns match)
+pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
+
+## if not all database columns match, need to use partial.match = TRUE
+colnames(spdf@data)[4]<-"cu"
+pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf, partial.match = TRUE)
+
 }
 }
 \author{
