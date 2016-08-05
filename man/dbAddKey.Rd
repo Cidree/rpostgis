@@ -38,7 +38,9 @@ be associated.}
 Add a primary or foreign key to a table column.
 }
 \examples{
-dbAddKey(name = c("fla", "bli"), colname = "id", type = "foreign",
+## examples use a dummy connection from DBI package
+conn<-DBI::ANSI()
+dbAddKey(conn, name = c("fla", "bli"), colname = "id", type = "foreign",
     reference = c("flu", "bla"), colref = "id", exec = FALSE)
 }
 \author{

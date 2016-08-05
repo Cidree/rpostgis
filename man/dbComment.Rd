@@ -31,9 +31,11 @@ or \code{view}}
 Comment on a table, a view or a schema.
 }
 \examples{
-dbComment(name = c("fla", "bli"), comment = "Comment on a view.",
+## examples use a dummy connection from DBI package
+conn<-DBI::ANSI()
+dbComment(conn, name = c("fla", "bli"), comment = "Comment on a view.",
     type = "view", exec = FALSE)
-dbComment(name = "fla", comment = "Comment on a schema.", type = "schema",
+dbComment(conn, name = "fla", comment = "Comment on a schema.", type = "schema",
     exec = FALSE)
 }
 \author{

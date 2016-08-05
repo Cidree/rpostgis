@@ -4,40 +4,46 @@
 \alias{pgInsert}
 \title{Inserts spatial data into a PostgreSQL table.}
 \usage{
-pgInsert(conn, data.obj, create.table = NULL, force.match = NULL,
-  geom = "geom", new.id = NULL, alter.names = TRUE, encoding = NULL)
+pgInsert(conn, name, data.obj, geom = "geom", match = FALSE,
+  overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
+\item{name}{Character, schema and table of the PostgreSQL
+table to insert into. If not already existing, the 
+table will be created. If the table already exists, 
+use arguments \code{match} or \code{overwrite} to 
+specify which action to take. Column names 
+will be converted to PostgreSQL-compliant names, unless
+\code{alter.names} is set to FALSE.}
+
 \item{data.obj}{A Spatial* or Spatial*DataFrame, or data frame}
-
-\item{create.table}{Character, schema and table of the PostgreSQL
-table to create.  Column names will be converted to
-PostgreSQL-compliant names. Default is \code{NULL} (no new
-table created).}
-
-\item{force.match}{Character, schema and table of the PostgreSQL
-table to compare columns of data frame with.  If specified,
-only columns in the data frame that exactly match the database
-table will be kept, and reordered to match the database table.}
 
 \item{geom}{character string. For Spatial* datasets, the name of
 geometry column in the database table.  (existing or to be
 created; defaults to \code{geom}).}
+
+\item{match}{Logical; if true, columns in R data frame will
+be compared with an the existing database table \code{name}.
+Only columns in the data frame that exactly match the database
+table will be inserted into the database table.}
+
+\item{overwrite}{Logical; if true, a new table \code{name}
+will overwrite the existing table \code{name} in the database.}
 
 \item{new.id}{Character, name of a new sequential integer ID
 column to be added to the table.  (for spatial objects without
 data frames, this column is created even if left \code{NULL}
 and defaults to the name \code{gid}).  Must match an existing
 column name (and numeric type) when used with
-\code{force.match}, otherwise it will be discarded.}
+\code{match}, otherwise it will be discarded.}
 
 \item{alter.names}{Logical, whether to make database column names
 DB-compliant (remove special characters). Default is
 \code{TRUE}.  (This should to be set to \code{FALSE} to match
 to non-standard names in an existing database table using the
-\code{force.match} setting.)}
+\code{match} setting.)}
 
 \item{encoding}{Character vector of length 2, containing the
 from/to encodings for the data (as in the function
@@ -52,16 +58,14 @@ DBIResult
 \description{
 This function takes a take an R \code{sp} object (Spatial* or
 Spatial*DataFrame), or a regular data frame, and performs the
-database insert (and table creation, if specified) on the
-database. The entire data frame is prepared, but if
-\code{force.match} specifies a database table, the R column names
-are compared to the \code{force.match} column names, and only
-exact matches are formatted to be inserted. A new database table
-can also be created using the \code{create.table} argument. If
-\code{new.id} is specified, a new sequential integer field is
-added to the data frame for insert. For \code{Spatial*}-only
-objects (no data frame), a new.id is created by default with name
-"gid".
+database insert (and table creation, when the table doesn't exist) on the
+database. The entire data frame is prepared, but if using
+\code{match} = TRUE to insert into an existing database table,
+the R column names are compared to the \code{name} column names, and only
+exact matches are formatted to be inserted. If \code{new.id} is 
+specified, a new sequential integer field is added to the data frame 
+for insert. For \code{Spatial*}-only objects (no data frame),
+a new.id is created by default with name "gid".
 }
 \details{
 If the R package \code{wkb} is installed, this function will use
@@ -69,9 +73,8 @@ If the R package \code{wkb} is installed, this function will use
 non-Linestring), which is faster for large datasets.  In all other
 cases the \code{rgeos} function \code{writeWKT} is used.
 
-If the table is created but the data insert statement fails,
-\code{create.table} is dropped from the database (a message will
-be given).
+In the event of function or database error, the database
+uses ROLLBACK to revert to the previous state.
 }
 \examples{
 \dontrun{
@@ -81,10 +84,10 @@ coords <- SpatialPoints(meuse[, c("x", "y")])
 spdf <- SpatialPointsDataFrame(coords, meuse)
 
 ## Insert data in new database table
-pgInsert(conn, data.obj = spdf, create.table = c("public", "meuse_data"))
+pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
 
 ## Insert into already created table
-pgInsert(conn, data.obj = spdf, force.match = c("public", "meuse_data"))
+pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf, match = TRUE)
 }
 }
 \author{

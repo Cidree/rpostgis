@@ -34,23 +34,26 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' dbIndex(name = c("fla", "bli"), colname = "geom", method = "gist",
+##' ## examples use a dummy connection from DBI package
+##' conn<-DBI::ANSI()
+##' dbIndex(conn,name = c("fla", "bli"), colname = "geom", method = "gist",
 ##'     exec = FALSE)
 
 dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
     method = c("btree", "hash", "rtree", "gist"), display = TRUE,
     exec = TRUE) {
-    ## Check and prepare the schema.name
-    if (length(name) %in% 1:2) {
-        table <- paste(name, collapse = ".")
-    } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
-    ## Check the name of the column
-    if (missing(colname))
-        stop("'colname' not provided.")
+    ## Check and prepare the schema.name and column name
+    name <- dbTableNameFix(name)
+    nameque <- paste(name, collapse = ".")
+    colname<-DBI::dbQuoteIdentifier(conn,colname)
     ## Check and prepare the name of the index
-    if (missing(idxname))
-        idxname <- paste(name[length(name)], colname, "idx",
-            sep = "_")
+    if (missing(idxname)) {
+        idxname <- DBI::dbQuoteIdentifier(conn,
+            paste(gsub('"','',name[length(name)]), gsub('"','',colname), "idx",
+            sep = "_"))
+        } else {
+        idxname<-DBI::dbQuoteIdentifier(conn,idxname)      
+            }
     ## Argument UNIQUE
     unique <- ifelse(unique, "UNIQUE ", "")
     ## Check and prepare the method for the index
@@ -59,7 +62,7 @@ dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
         toupper(method)))
     ## Build the query
     tmp.query <- paste0("CREATE ", unique, "INDEX ", idxname,
-        " ON ", table, usemeth, " (", colname, ");")
+        " ON ", nameque, usemeth, " (", colname, ");")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))

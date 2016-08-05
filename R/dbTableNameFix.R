@@ -35,7 +35,7 @@ dbTableNameFix <- function(t.nm) {
   
       if (length(t.nm) > 2)
       {
-        stop("Invalid PostgreSQL table name. Must be provided as one ('table') or two-length c('schema','table') character vector.")
+        stop("Invalid PostgreSQL table/view name. Must be provided as one ('table') or two-length c('schema','table') character vector.")
       }
   
     t.nm<-DBI::dbQuoteIdentifier(DBI::ANSI(), DBI::dbQuoteIdentifier(DBI::ANSI(), t.nm))

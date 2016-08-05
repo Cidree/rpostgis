@@ -20,21 +20,23 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' dbAsDate(name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
+##' ## examples use a dummy connection from DBI package
+##' conn<-DBI::ANSI()
+##' dbAsDate(conn, name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
 
 dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
     exec = TRUE) {
-    ## Check and prepare the schema.name
-    if (length(name) %in% 1:2) {
-        name <- paste(name, collapse = ".")
-    } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    ## Check and prepare the schema.name and date column
+    name <- dbTableNameFix(name)
+    nameque <- paste(name, collapse = ".")
+    date<-DBI::dbQuoteIdentifier(conn,date)
     ## With or without time zones?
     timestamp <- ifelse(is.null(tz), "timestamp", "timestamptz")
     ## What time zone?
     tz <- ifelse(is.null(tz), "", paste0(" AT TIME ZONE '", tz,
         "'"))
     ## Build the query
-    tmp.query <- paste0("ALTER TABLE ", name, " ALTER COLUMN ",
+    tmp.query <- paste0("ALTER TABLE ", nameque, " ALTER COLUMN ",
         date, " TYPE ", timestamp, " USING ", date, "::timestamp",
         tz, ";")
     ## Display the query

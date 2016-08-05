@@ -44,12 +44,15 @@ direction).}
 Add a new POINT or LINESTRING geometry field.
 }
 \examples{
+## examples use a dummy connection from DBI package
+conn<-DBI::ANSI()
+
 ## Create a new POINT field called "pts_geom"
-pgMakePts(name = c("fla", "bli"), x = "longitude", y = "latitude",
+pgMakePts(conn, name = c("fla", "bli"), x = "longitude", y = "latitude",
     srid = 4326, exec = FALSE)
 
 ## Create a new LINESTRING field called "stp_geom"
-pgMakeStp(name = c("fla", "bli"), x = "longitude", y = "latitude",
+pgMakeStp(conn, name = c("fla", "bli"), x = "longitude", y = "latitude",
     dx = "xdiff", dy = "ydiff", srid = 4326, exec = FALSE)
 }
 \author{

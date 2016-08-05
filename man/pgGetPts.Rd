@@ -8,13 +8,13 @@
 \title{Load a PostGIS geometry in a PostgreSQL table/view into R.}
 \usage{
 pgGetPts(conn, name, geom = "geom", gid = NULL, other.cols = "*",
-  query = NULL)
+  clauses = NULL)
 
 pgGetLines(conn, name, geom = "geom", gid = NULL, other.cols = "*",
-  query = NULL)
+  clauses = NULL)
 
 pgGetPolys(conn, name, geom = "geom", gid = NULL, other.cols = "*",
-  query = NULL)
+  clauses = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -37,9 +37,9 @@ all columns in a Spatial*DataFrame. Setting
 \code{other.cols=NULL} will return a Spatial-only object (no
 data).}
 
-\item{query}{character, additional SQL to append to modify select
-query from table. Must begin with "AND ..."; see below for
-examples.}
+\item{clauses}{character, additional SQL to append to modify select
+query from table. Must begin with and SQL clause (e.g., "WHERE ...",
+"ORDER BY ...", "LIMIT ..."); see below for examples.}
 }
 \value{
 Spatial(Multi)PointsDataFrame or Spatial(Multi)Points
@@ -66,13 +66,13 @@ pgGetPts(conn, c("schema", "tablename"), gid = "table_id", other.cols = FALSE)
 \dontrun{
 pgGetLines(conn, c("schema", "tablename"))
 pgGetLines(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
-    other.cols = NULL, query = "AND field = 'highway'")
+    other.cols = NULL, clauses  = "WHERE field = 'highway'")
 }
 \dontrun{
 pgGetPolys(conn, c("schema", "tablename"))
 pgGetPolys(conn, c("schema", "states"), geom = "statesgeom",
     gid = "state_ID", other.cols = "area,population",
-    query = "AND area > 1000000 ORDER BY population LIMIT 10")
+    clauses  = "WHERE area > 1000000 ORDER BY population LIMIT 10")
 }
 }
 \author{

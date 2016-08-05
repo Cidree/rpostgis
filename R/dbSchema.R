@@ -29,25 +29,28 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
     ## Check the name of the schema
     if (length(name) != 1)
         stop("The schema name should be of length 1.")
+    ## make schema name
+    namechar<-gsub("'","''",name)
+    nameque<-DBI::dbQuoteIdentifier(conn,name)
     ## Check existence of the schema
-    str <- paste0("SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = '",
-        name, "');")
-    schema <- dbGetQuery(conn, str)[1, 1]
+    tmp.query <- paste0("SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = '",
+        namechar, "');")
+    schema <- dbGetQuery(conn, tmp.query)[1, 1]
     ## If exists, return TRUE, otherwise create the schema
     if (isTRUE(schema))
         return(TRUE) else {
         ## Build the query
-        str <- paste0("CREATE SCHEMA ", name, ";")
+        tmp.query <- paste0("CREATE SCHEMA ", nameque[1], ";")
         ## Display the query
         if (display) {
             message(paste0("Query ", ifelse(exec, "", "not "),
                 "executed:"))
-            message(str)
+            message(tmp.query)
             message("--")
         }
         ## Execute the query
         if (exec)
-            dbSendQuery(conn, str)
+            dbSendQuery(conn, tmp.query)
         ## Return nothing
         return(TRUE)
     }

@@ -26,23 +26,28 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' dbDrop(name = c("fla", "bli"), type = "view", exec = FALSE)
-##' dbDrop(name = "fla", type = "schema", cascade = "TRUE", exec = FALSE)
+##' ## examples use a dummy connection from DBI package
+##' conn<-DBI::ANSI()
+##' dbDrop(conn, name = c("fla", "bli"), type = "view", exec = FALSE)
+##' dbDrop(conn, name = "fla", type = "schema", cascade = "TRUE", exec = FALSE)
 
 dbDrop <- function(conn, name, type = c("table", "view", "schema"),
     ifexists = FALSE, cascade = FALSE, display = TRUE, exec = TRUE) {
-    ## Check and prepare the schema.name
-    if (length(name) %in% 1:2) {
-        name <- paste(name, collapse = ".")
-    } else stop("The name should be \"table\", \"schema\" or c(\"schema\", \"table\").")
-    ## Check and prepare the type
     type <- toupper(match.arg(type))
+    ## Check and prepare name
+    if (type %in% c("TABLE","VIEW")) {
+      name <- dbTableNameFix(name)
+      nameque <- paste(name, collapse = ".")
+    } else {
+      if (length(name) > 1) {stop("Schemas should be a character of length = 1.")}
+      nameque<-DBI::dbQuoteIdentifier(conn,name)
+    }
     ## Argument IF EXISTS
     ifexists <- ifelse(ifexists, " IF EXISTS ", " ")
     ## Argument CASCADE
     cascade <- ifelse(cascade, " CASCADE", "")
     ## Build the query
-    tmp.query <- paste0("DROP ", type, ifexists, name, cascade,
+    tmp.query <- paste0("DROP ", type, ifexists, nameque, cascade,
         ";")
     ## Display the query
     if (display) {

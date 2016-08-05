@@ -25,25 +25,27 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
+##' ## examples use a dummy connection from DBI package
+##' conn<-DBI::ANSI()
 ##' ## Add an integer column
-##' dbColumn(name = c("fla", "bli"), colname = "field", exec = FALSE)
+##' dbColumn(conn, name = c("fla", "bli"), colname = "field", exec = FALSE)
 ##' ## Drop a column (with CASCADE)
-##' dbColumn(name = c("fla", "bli"), colname = "field", action = "drop",
+##' dbColumn(conn, name = c("fla", "bli"), colname = "field", action = "drop",
 ##'     cascade = TRUE, exec = FALSE)
 
 dbColumn <- function(conn, name, colname, action = c("add", "drop"),
     coltype = "integer", cascade = FALSE, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2) {
-        table <- paste(name, collapse = ".")
-    } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    name <- dbTableNameFix(name)
+    nameque <- paste(name, collapse = ".")
+    colname<-DBI::dbQuoteIdentifier(conn,colname)
     ## Check and translate to upper case the action
     action <- toupper(match.arg(action))
     ## 'args' for the coltype or cascade
     args <- ifelse(action == "ADD", coltype, ifelse(cascade,
         "CASCADE", ""))
     ## Build the query
-    tmp.query <- paste0("ALTER TABLE ", table, " ", action, " COLUMN ",
+    tmp.query <- paste0("ALTER TABLE ", nameque, " ", action, " COLUMN ",
         colname, " ", args, ";")
     ## Display the query
     if (display) {

@@ -34,7 +34,9 @@ Performs a VACUUM (garbage-collect and optionally analyze) on a
 table.
 }
 \examples{
-dbVacuum(name = c("fla", "bli"), full = TRUE, exec = FALSE)
+## examples use a dummy connection from DBI package
+conn<-DBI::ANSI()
+dbVacuum(conn, name = c("fla", "bli"), full = TRUE, exec = FALSE)
 }
 \author{
 Mathieu Basille \email{basille@ufl.edu}

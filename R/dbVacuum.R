@@ -24,14 +24,15 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' dbVacuum(name = c("fla", "bli"), full = TRUE, exec = FALSE)
+##' ## examples use a dummy connection from DBI package
+##' conn<-DBI::ANSI()
+##' dbVacuum(conn, name = c("fla", "bli"), full = TRUE, exec = FALSE)
 
 dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
     analyze = TRUE, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2) {
-        table <- paste(name, collapse = ".")
-    } else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    name <- dbTableNameFix(name)
+    nameque <- paste(name, collapse = ".")
     ## Full VACUUM?
     full <- ifelse(full, "FULL ", "")
     ## Argument VERBOSE
@@ -39,7 +40,7 @@ dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
     ## Argument ANALYZE
     analyze <- ifelse(analyze, "ANALYZE ", "")
     ## Build the query
-    query <- paste0("VACUUM ", full, verbose, analyze, table,
+    query <- paste0("VACUUM ", full, verbose, analyze, nameque,
         ";")
     ## Display the query
     if (display) {

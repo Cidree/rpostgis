@@ -27,7 +27,7 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- paste(gsub('^"|"$', '', name),collapse=".")
+    namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
     ## Check table exists
     tmp.query <- paste0("SELECT geo FROM\n  (SELECT (gc.f_table_schema||'.'||gc.f_table_name) AS tab,
                         gc.f_geometry_column AS geo\n   FROM public.geometry_columns AS gc\n   UNION\n   

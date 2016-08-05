@@ -31,7 +31,9 @@ dbAsDate(conn, name, date = "date", tz = NULL, display = TRUE,
 Convert a date field to a timestamp with or without time zone.
 }
 \examples{
-dbAsDate(name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
+## examples use a dummy connection from DBI package
+conn<-DBI::ANSI()
+dbAsDate(conn, name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
 }
 \author{
 Mathieu Basille \email{basille@ufl.edu}

@@ -35,7 +35,7 @@ pgGetRast <- function(conn, name, rast = "rast", digits = 9,
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- paste(gsub('^"|"$', '', name),collapse=".")
+    namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
     ## Check table exists
     tmp.query <- paste0("SELECT r_raster_column AS geo FROM public.raster_columns\n  WHERE (r_table_schema||'.'||r_table_name) = '",
                         namechar, "';")

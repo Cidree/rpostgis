@@ -38,10 +38,12 @@ other tables, if \code{action = "drop"}.}
 Add or remove a column to/from a table.
 }
 \examples{
+## examples use a dummy connection from DBI package
+conn<-DBI::ANSI()
 ## Add an integer column
-dbColumn(name = c("fla", "bli"), colname = "field", exec = FALSE)
+dbColumn(conn, name = c("fla", "bli"), colname = "field", exec = FALSE)
 ## Drop a column (with CASCADE)
-dbColumn(name = c("fla", "bli"), colname = "field", action = "drop",
+dbColumn(conn, name = c("fla", "bli"), colname = "field", action = "drop",
     cascade = TRUE, exec = FALSE)
 }
 \author{

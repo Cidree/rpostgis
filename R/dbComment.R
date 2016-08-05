@@ -20,21 +20,29 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' dbComment(name = c("fla", "bli"), comment = "Comment on a view.",
+##' ## examples use a dummy connection from DBI package
+##' conn<-DBI::ANSI()
+##' dbComment(conn, name = c("fla", "bli"), comment = "Comment on a view.",
 ##'     type = "view", exec = FALSE)
-##' dbComment(name = "fla", comment = "Comment on a schema.", type = "schema",
+##' dbComment(conn, name = "fla", comment = "Comment on a schema.", type = "schema",
 ##'     exec = FALSE)
 
 dbComment <- function(conn, name, comment, type = c("table",
     "view", "schema"), display = TRUE, exec = TRUE) {
-    ## Check and prepare the schema.name
-    if (length(name) %in% 1:2) {
-        name <- paste(name, collapse = ".")
-    } else stop("The name should be \"table\", \"schema\" or c(\"schema\", \"table\").")
     ## Check and prepare the type
     type <- toupper(match.arg(type))
+    ## Check and prepare name
+    if (type %in% c("TABLE","VIEW")) {
+      name <- dbTableNameFix(name)
+      nameque <- paste(name, collapse = ".")
+    } else {
+      if (length(name) > 1) {stop("Schemas should be a character of length = 1.")}
+      nameque<-DBI::dbQuoteIdentifier(conn,name)
+    }
+    ## Escape single "'"
+    comment<-gsub("'","''",comment)
     ## Build the query
-    tmp.query <- paste0("COMMENT ON ", type, " ", name, " IS '",
+    tmp.query <- paste0("COMMENT ON ", type, " ", nameque, " IS '",
         comment, "';")
     ## Display the query
     if (display) {

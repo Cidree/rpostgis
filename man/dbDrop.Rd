@@ -36,8 +36,10 @@ exist. A notice is issued in this case.}
 Drop a table, a view or a schema.
 }
 \examples{
-dbDrop(name = c("fla", "bli"), type = "view", exec = FALSE)
-dbDrop(name = "fla", type = "schema", cascade = "TRUE", exec = FALSE)
+## examples use a dummy connection from DBI package
+conn<-DBI::ANSI()
+dbDrop(conn, name = c("fla", "bli"), type = "view", exec = FALSE)
+dbDrop(conn, name = "fla", type = "schema", cascade = "TRUE", exec = FALSE)
 }
 \author{
 Mathieu Basille \email{basille@ufl.edu}

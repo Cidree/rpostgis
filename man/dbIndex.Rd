@@ -45,7 +45,9 @@ raster).}
 Defines a new index on a PostgreSQL table.
 }
 \examples{
-dbIndex(name = c("fla", "bli"), colname = "geom", method = "gist",
+## examples use a dummy connection from DBI package
+conn<-DBI::ANSI()
+dbIndex(conn,name = c("fla", "bli"), colname = "geom", method = "gist",
     exec = FALSE)
 }
 \author{

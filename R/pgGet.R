@@ -22,9 +22,9 @@
 ##'     all columns in a Spatial*DataFrame. Setting
 ##'     \code{other.cols=NULL} will return a Spatial-only object (no
 ##'     data).
-##' @param query character, additional SQL to append to modify select
-##'     query from table. Must begin with "AND ..."; see below for
-##'     examples.
+##' @param clauses character, additional SQL to append to modify select
+##'     query from table. Must begin with and SQL clause (e.g., "WHERE ...",
+##'     "ORDER BY ...", "LIMIT ..."); see below for examples.
 ##' @return Spatial(Multi)PointsDataFrame or Spatial(Multi)Points
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
@@ -47,10 +47,13 @@
 ##' }
 
 pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
-    query = NULL) {
+    clauses = NULL) {
+    ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- paste(gsub('^"|"$', '', name),collapse=".")
+    namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
+    ## prepare additional clauses
+    clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## Check table exists
     tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
         (f_table_schema||'.'||f_table_name) = '",namechar,"';")
@@ -61,18 +64,20 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
             paste(tab.list, collapse = ", ")))
     }
+    ## prepare geom column
+    geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
         gid <- "row_number() over()"
     }
     ## Check if MULTI or single geom
-    tmp.query <- paste0("SELECT DISTINCT ST_GeometryType(", geom,
-        ") AS type FROM ", nameque, " WHERE ", geom, " IS NOT NULL ",
-        query, ";")
+    tmp.query <- paste0("SELECT DISTINCT ST_GeometryType(", geomque,
+        ") AS type FROM ", nameque, " WHERE ", geomque, " IS NOT NULL ",
+        clauses , ";")
     typ <- dbGetQuery(conn, tmp.query)
     ## Retrieve the SRID
-    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ",
-        nameque, " WHERE ", geom, " IS NOT NULL ", query, ";")
+    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geomque, ")) FROM ",
+        nameque, " WHERE ", geomque, " IS NOT NULL ", clauses , ";")
     srid <- dbGetQuery(conn, tmp.query)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
@@ -95,14 +100,14 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         ## Get data
         if (is.null(other.cols)) {
             tmp.query <- paste0("SELECT ", gid, " AS tgid,ST_X(",
-                geom, ") AS x, ST_Y(", geom, ") AS y FROM ",
-                nameque, " WHERE ", geom, " IS NOT NULL ", query,
+                geomque, ") AS x, ST_Y(", geomque, ") AS y FROM ",
+                nameque, " WHERE ", geomque, " IS NOT NULL ", clauses ,
                 ";")
         } else {
             tmp.query <- paste0("SELECT ", gid, " AS tgid,ST_X(",
-                geom, ") AS x, ST_Y(", geom, ") AS y,", other.cols,
-                " FROM ", nameque, " WHERE ", geom, " IS NOT NULL ",
-                query, ";")
+                geomque, ") AS x, ST_Y(", geomque, ") AS y,", other.cols,
+                " FROM ", nameque, " WHERE ", geomque, " IS NOT NULL ",
+                clauses , ";")
         }
         dbData <- suppressWarnings(dbGetQuery(conn, tmp.query))
         row.names(dbData) <- dbData$tgid
@@ -120,12 +125,12 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         ## Make SpatialMultiPoints(Dataframe) for multi-point types
         if (is.null(other.cols)) {
             tmp.query <- paste0("SELECT ", gid, " AS tgid,st_astext(",
-                geom, ") AS wkt FROM ", nameque, " WHERE ", geom,
-                " IS NOT NULL ", query, ";")
+                geomque, ") AS wkt FROM ", nameque, " WHERE ", geomque,
+                " IS NOT NULL ", clauses , ";")
         } else {
             tmp.query <- paste0("SELECT ", gid, " AS tgid,st_astext(",
-                geom, ") AS wkt,", other.cols, " FROM ", nameque,
-                " WHERE ", geom, " IS NOT NULL ", query, ";")
+                geomque, ") AS wkt,", other.cols, " FROM ", nameque,
+                " WHERE ", geomque, " IS NOT NULL ", clauses , ";")
         }
         dbData <- suppressWarnings(dbGetQuery(conn, tmp.query))
         row.names(dbData) <- dbData$tgid
@@ -159,14 +164,17 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 ##' \dontrun{
 ##' pgGetLines(conn, c("schema", "tablename"))
 ##' pgGetLines(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
-##'     other.cols = NULL, query = "AND field = 'highway'")
+##'     other.cols = NULL, clauses  = "WHERE field = 'highway'")
 ##' }
 
 pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
-    other.cols = "*", query = NULL) {
+    other.cols = "*", clauses  = NULL) {
+    ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- paste(gsub('^"|"$', '', name),collapse=".")
+    namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
+    ## prepare additional clauses
+    clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## Check table exists
     tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
         (f_table_schema||'.'||f_table_name) = '",namechar,"';")
@@ -177,9 +185,11 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
         stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
             paste(tab.list, collapse = ", ")))
     }
+    ## prepare geom column
+    geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Retrieve the SRID
-    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ",
-        nameque, " WHERE ", geom, " IS NOT NULL ", query, ";")
+    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geomque, ")) FROM ",
+        nameque, " WHERE ", geomque, " IS NOT NULL ", clauses , ";")
     srid <- dbGetQuery(conn, tmp.query)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
@@ -204,14 +214,14 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     ## Check other.cols
     if (is.null(other.cols)) {
         tmp.query <- paste0("SELECT ", gid, " AS tgid,st_astext(",
-            geom, ") AS wkt FROM ", nameque, " WHERE ", geom,
-            " IS NOT NULL ", query, ";")
+            geomque, ") AS wkt FROM ", nameque, " WHERE ", geomque,
+            " IS NOT NULL ", clauses , ";")
         dfTemp <- suppressWarnings(dbGetQuery(conn, tmp.query))
         row.names(dfTemp) <- dfTemp$tgid
     } else {
         tmp.query <- paste0("SELECT ", gid, " AS tgid,st_astext(",
-            geom, ") AS wkt,", other.cols, " FROM ", nameque,
-            " WHERE ", geom, " IS NOT NULL ", query, ";")
+            geomque, ") AS wkt,", other.cols, " FROM ", nameque,
+            " WHERE ", geomque, " IS NOT NULL ", clauses , ";")
         dfTemp <- suppressWarnings(dbGetQuery(conn, tmp.query))
         row.names(dfTemp) <- dfTemp$tgid
     }
@@ -252,14 +262,17 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
 ##' pgGetPolys(conn, c("schema", "tablename"))
 ##' pgGetPolys(conn, c("schema", "states"), geom = "statesgeom",
 ##'     gid = "state_ID", other.cols = "area,population",
-##'     query = "AND area > 1000000 ORDER BY population LIMIT 10")
+##'     clauses  = "WHERE area > 1000000 ORDER BY population LIMIT 10")
 ##' }
 
 pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
-    other.cols = "*", query = NULL) {
+    other.cols = "*", clauses  = NULL) {
+    ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- paste(gsub('^"|"$', '', name),collapse=".")
+    namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
+    ## prepare additional clauses
+    clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## Check table exists
     tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
                         (f_table_schema||'.'||f_table_name) = '",namechar,"';")
@@ -270,9 +283,11 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
         stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
             paste(tab.list, collapse = ", ")))
     }
+    ## prepare geom column
+    geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Retrieve the SRID
-    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ",
-        nameque, " WHERE ", geom, " IS NOT NULL ", query, ";")
+    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geomque, ")) FROM ",
+        nameque, " WHERE ", geomque, " IS NOT NULL ", clauses , ";")
     srid <- dbGetQuery(conn, tmp.query)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
@@ -297,14 +312,14 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     ## Check other columns
     if (is.null(other.cols)) {
         tmp.query <- paste0("SELECT ", gid, " AS tgid,st_astext(",
-            geom, ") AS wkt FROM ", nameque, " WHERE ", geom,
-            " IS NOT NULL ", query, ";")
+            geomque, ") AS wkt FROM ", nameque, " WHERE ", geomque,
+            " IS NOT NULL ", clauses , ";")
         dfTemp <- suppressWarnings(dbGetQuery(conn, tmp.query))
         row.names(dfTemp) <- dfTemp$tgid
     } else {
         tmp.query <- paste0("SELECT ", gid, " AS tgid,st_astext(",
-            geom, ") AS wkt,", other.cols, " FROM ", nameque,
-            " WHERE ", geom, " IS NOT NULL ", query, ";")
+            geomque, ") AS wkt,", other.cols, " FROM ", nameque,
+            " WHERE ", geomque, " IS NOT NULL ", clauses , ";")
         dfTemp <- suppressWarnings(dbGetQuery(conn, tmp.query))
         row.names(dfTemp) <- dfTemp$tgid
     }

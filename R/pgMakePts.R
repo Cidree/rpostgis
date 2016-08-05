@@ -29,26 +29,32 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
+##' ## examples use a dummy connection from DBI package
+##' conn<-DBI::ANSI()
+##' 
 ##' ## Create a new POINT field called "pts_geom"
-##' pgMakePts(name = c("fla", "bli"), x = "longitude", y = "latitude",
+##' pgMakePts(conn, name = c("fla", "bli"), x = "longitude", y = "latitude",
 ##'     srid = 4326, exec = FALSE)
 ##'
 ##' ## Create a new LINESTRING field called "stp_geom"
-##' pgMakeStp(name = c("fla", "bli"), x = "longitude", y = "latitude",
+##' pgMakeStp(conn, name = c("fla", "bli"), x = "longitude", y = "latitude",
 ##'     dx = "xdiff", dy = "ydiff", srid = 4326, exec = FALSE)
 
 pgMakePts <- function(conn, name, colname = "pts_geom", x = "x",
     y = "y", srid, index = TRUE, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2)
-        table <- paste(name, collapse = ".") else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    nameque <- paste(dbTableNameFix(name), collapse = ".")
+    ## prepare column names
+    colname<-DBI::dbQuoteIdentifier(conn,colname)
+    x<-DBI::dbQuoteIdentifier(conn,x)
+    y<-DBI::dbQuoteIdentifier(conn,y)
     ## Stop if no SRID
     if (missing(srid))
         stop("A valid SRID should be provided.")
     ## The name of the index is enforced
     idxname <- paste(name[length(name)], colname, "idx", sep = "_")
     ## Build the query to add the POINT geometry column
-    query <- paste0("ALTER TABLE ", table, " ADD COLUMN ", colname,
+    query <- paste0("ALTER TABLE ", nameque, " ADD COLUMN ", colname,
         " geometry(POINT, ", srid, ");")
     ## Display the query
     if (display) {
@@ -65,7 +71,7 @@ pgMakePts <- function(conn, name, colname = "pts_geom", x = "x",
             idxname = idxname, method = "gist", display = display,
             exec = exec)
     ## Build the query to populate the POINT geometry field
-    query <- paste0("UPDATE ", table, " SET ", colname, "=ST_SetSRID(ST_MakePoint(",
+    query <- paste0("UPDATE ", nameque, " SET ", colname, "=ST_SetSRID(ST_MakePoint(",
         x, ", ", y, "), ", srid, ")\nWHERE ", x, " IS NOT NULL AND ",
         y, " IS NOT NULL;")
     ## Display the query
@@ -85,21 +91,27 @@ pgMakePts <- function(conn, name, colname = "pts_geom", x = "x",
 ## pgMakeStp
 
 ##' @rdname pgMakePts
+##' @importFrom DBI dbQuoteIdentifier
 ##' @export
 
 pgMakeStp <- function(conn, name, colname = "stp_geom", x = "x",
     y = "y", dx = "dx", dy = "dy", srid, index = TRUE, display = TRUE,
     exec = TRUE) {
     ## Check and prepare the schema.name
-    if (length(name) %in% 1:2)
-        table <- paste(name, collapse = ".") else stop("The table name should be \"table\" or c(\"schema\", \"table\").")
+    nameque <- paste(dbTableNameFix(name), collapse = ".")
+    ## prepare column names
+    colname<-DBI::dbQuoteIdentifier(conn,colname)
+    x<-DBI::dbQuoteIdentifier(conn,x)
+    y<-DBI::dbQuoteIdentifier(conn,y)
+    dx<-DBI::dbQuoteIdentifier(conn,dx)
+    dy<-DBI::dbQuoteIdentifier(conn,dy)
     ## Stop if no SRID
     if (missing(srid))
         stop("A valid SRID should be provided.")
     ## The name of the index is enforced
     idxname <- paste(name[length(name)], colname, "idx", sep = "_")
     ## Build the query to add the LINESTRING geometry column
-    query <- paste0("ALTER TABLE ", table, " ADD COLUMN ", colname,
+    query <- paste0("ALTER TABLE ", nameque, " ADD COLUMN ", colname,
         " geometry(LINESTRING, ", srid, ");")
     ## Display the query
     if (display) {
@@ -116,7 +128,7 @@ pgMakeStp <- function(conn, name, colname = "stp_geom", x = "x",
             idxname = idxname, method = "gist", display = display,
             exec = exec)
     ## Build the query to populate the LINESTRING geometry field
-    query <- paste0("UPDATE ", table, " SET ", colname, "=ST_SetSRID(ST_MakeLine(ARRAY[ST_MakePoint(",
+    query <- paste0("UPDATE ", nameque, " SET ", colname, "=ST_SetSRID(ST_MakeLine(ARRAY[ST_MakePoint(",
         x, ", ", y, "), ", "ST_MakePoint(", x, " + ", dx, ", ",
         y, " + ", dy, ")]), ", srid, ")\nWHERE ", dx, " IS NOT NULL AND ",
         dy, " IS NOT NULL;")
