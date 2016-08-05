@@ -42,6 +42,11 @@
 
 pgMakePts <- function(conn, name, colname = "pts_geom", x = "x",
     y = "y", srid, index = TRUE, display = TRUE, exec = TRUE) {
+    if (exec) {
+      if (!suppressMessages(pgPostGIS(conn))) {
+        stop("PostGIS is not enabled on this database.")
+      }
+    }
     ## Check and prepare the schema.name
     nameque <- paste(dbTableNameFix(name), collapse = ".")
     ## prepare column names
@@ -97,6 +102,11 @@ pgMakePts <- function(conn, name, colname = "pts_geom", x = "x",
 pgMakeStp <- function(conn, name, colname = "stp_geom", x = "x",
     y = "y", dx = "dx", dy = "dy", srid, index = TRUE, display = TRUE,
     exec = TRUE) {
+    if (exec) {
+      if (!suppressMessages(pgPostGIS(conn))) {
+      stop("PostGIS is not enabled on this database.")
+      }
+      }
     ## Check and prepare the schema.name
     nameque <- paste(dbTableNameFix(name), collapse = ".")
     ## prepare column names

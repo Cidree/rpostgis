@@ -5,13 +5,11 @@
 ##' This function takes a take an R \code{sp} object (Spatial* or
 ##' Spatial*DataFrame), or a regular data frame, and performs the
 ##' database insert (and table creation, when the table doesn't exist) on the
-##' database. The entire data frame is prepared, but if using
-##' \code{match} = TRUE to insert into an existing database table,
-##' the R column names are compared to the \code{name} column names, and only
-##' exact matches are formatted to be inserted. If \code{new.id} is 
-##' specified, a new sequential integer field is added to the data frame 
-##' for insert. For \code{Spatial*}-only objects (no data frame),
-##' a new.id is created by default with name "gid".
+##' database.
+##'
+##' If \code{new.id} is specified, a new sequential integer field 
+##' is added to the data frame for insert. For \code{Spatial*}-only 
+##' objects (no data frame), a new.id is created by default with name "gid".
 ##'
 ##' If the R package \code{wkb} is installed, this function will use
 ##' \code{writeWKB} for certain datasets (non-Multi types,
@@ -25,31 +23,33 @@
 ##' @param name Character, schema and table of the PostgreSQL
 ##'     table to insert into. If not already existing, the 
 ##'     table will be created. If the table already exists, 
-##'     use arguments \code{match} or \code{overwrite} to 
-##'     specify which action to take. Column names 
-##'     will be converted to PostgreSQL-compliant names, unless
-##'     \code{alter.names} is set to FALSE. 
+##'     the function will check if all R data frame columns
+##'     match database columns, and if so, do the insert. If not, 
+##'     the insert will be aborted. The argument \code{partial.match}
+##'     allows for inserts with only partial matches of data frame 
+##'     and database column names, and \code{overwrite} allows 
+##'     for overwriting the existing database table.
 ##' @param data.obj A Spatial* or Spatial*DataFrame, or data frame
 ##' @param geom character string. For Spatial* datasets, the name of
 ##'     geometry column in the database table.  (existing or to be
 ##'     created; defaults to \code{geom}).
-##' @param match Logical; if true, columns in R data frame will
-##'     be compared with an the existing database table \code{name}.
-##'     Only columns in the data frame that exactly match the database
+##' @param partial.match Logical; allow insert on partial column
+##'     matches between data frame and database table. If true, 
+##'     columns in R data frame will be compared with an the 
+##'     existing database table \code{name}.
+##'     Columns in the data frame that exactly match the database
 ##'     table will be inserted into the database table.
 ##' @param overwrite Logical; if true, a new table \code{name}
 ##'     will overwrite the existing table \code{name} in the database.
 ##' @param new.id Character, name of a new sequential integer ID
 ##'     column to be added to the table.  (for spatial objects without
 ##'     data frames, this column is created even if left \code{NULL}
-##'     and defaults to the name \code{gid}).  Must match an existing
-##'     column name (and numeric type) when used with
-##'     \code{match}, otherwise it will be discarded.
+##'     and defaults to the name \code{gid}). If \code{partial.match = TRUE}
+##'     and otherwise it will be discarded.
 ##' @param alter.names Logical, whether to make database column names
 ##'     DB-compliant (remove special characters). Default is
 ##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
-##'     to non-standard names in an existing database table using the
-##'     \code{match} setting.)
+##'     to non-standard names in an existing database table.
 ##' @param encoding Character vector of length 2, containing the
 ##'     from/to encodings for the data (as in the function
 ##'     \code{iconv}). For example, if the dataset contain certain
@@ -68,12 +68,17 @@
 ##'
 ##' ## Insert data in new database table
 ##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
-##'
-##' ## Insert into already created table
-##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf, match = TRUE)
+##' 
+##' ## The same command will insert into already created table (if all R columns match)
+##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
+##' 
+##' ## if not all database columns match, need to use partial.match = TRUE
+##' colnames(spdf@data)[4]<-"cu"
+##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf, partial.match = TRUE)
+##' 
 ##' }
 
-pgInsert <- function(conn, name, data.obj, geom = "geom", match = FALSE, overwrite = FALSE,
+pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE, overwrite = FALSE,
     new.id = NULL, alter.names = TRUE, encoding = NULL) {
     # check for exisiting table
     exists.t<-dbExistsTable(conn,name)
@@ -81,15 +86,11 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", match = FALSE, overwri
         message("Creating new table...")
         create.table<-name
         force.match<-NULL
-        } else if (exists.t & overwrite & !match) {
+        } else if (exists.t & overwrite & !partial.match) {
         message ("Overwriting existing table...")
         create.table<-name
         force.match<-NULL
         } else {
-          if (!match) {
-          stop("Table already exists. Set match = TRUE to insert to matching table columns,
-               or overwrite = TRUE to drop existing table and then re-make it.")
-          }
         force.match<-name
         create.table<-NULL
         }
@@ -101,16 +102,19 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", match = FALSE, overwri
     cls <- class(data.obj)[1]
     pgi <- NULL
     if (cls %in% geo.classes) {
+        if (!suppressMessages(pgPostGIS(conn))) {
+          stop("PostGIS is not enabled on this database.")
+        }
         try(pgSRID(conn,data.obj@proj4string, create = TRUE,
             new.srid = NULL))
         try(pgi <- pgInsertizeGeom(data.obj, geom, create.table,
-            force.match, conn, new.id, alter.names))
+            force.match, conn, new.id, alter.names, partial.match))
     } else if (cls == "data.frame") {
         try(pgi <- pgInsertize(data.obj, create.table, force.match,
-            conn, new.id, alter.names))
+            conn, new.id, alter.names, partial.match))
     } else if (cls == "pgi") {
         pgi <- data.obj
-        message("Using previously create pgi object. All arguments except for \"conn\" and \"encoding\" will be ignored.")
+        message("Using previously create pgi object. All arguments except for \"conn\", \"overwrite\", and \"encoding\" will be ignored.")
         if (is.null(pgi$in.table)) {
             stop("Table to insert into not specified (in pgi$in.table). Set this and re-run.")
         }

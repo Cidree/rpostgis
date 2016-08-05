@@ -7,10 +7,11 @@
 \title{Format R data objects for insert into a PostgreSQL table.}
 \usage{
 pgInsertizeGeom(data.obj, geom = "geom", create.table = NULL,
-  force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE)
+  force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE,
+  partial.match = FALSE)
 
 pgInsertize(data.obj, create.table = NULL, force.match = NULL,
-  conn = NULL, new.id = NULL, alter.names = TRUE)
+  conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE)
 
 \method{print}{pgi}(x, ...)
 }
@@ -29,7 +30,8 @@ PostgreSQL-compliant names. Default is \code{NULL} (no new
 table created).}
 
 \item{force.match}{character, schema and table of the PostgreSQL
-table to compare columns of data frame with.  If specified,
+table to compare columns of data frame with.  If specified with
+\code{partial.match = TRUE}
 only columns in the data frame that exactly match the database
 table will be kept, and reordered to match the database
 table. If \code{NULL}, all columns will be kept in the same
@@ -48,6 +50,12 @@ DB-compliant (remove special characters). Defualt is
 \code{TRUE}.  (This should to be set to \code{FALSE} to match
 to non-standard names in an existing database table using the
 \code{force.match} setting.)}
+
+\item{partial.match}{Logical; if force.match is set and  true, 
+columns in R data frame will be compared with an the 
+existing database table \code{name}. Only columns in the 
+data frame that exactly match the database
+table will be inserted into the database table.}
 
 \item{x}{A list of class \code{pgi}, output from the pgInsertize()
 or pgInsertizeGeom() functions from the rpostgis package.}

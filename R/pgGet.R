@@ -48,6 +48,9 @@
 
 pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     clauses = NULL) {
+    if (!suppressMessages(pgPostGIS(conn))) {
+      stop("PostGIS is not enabled on this database.")
+    }
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
@@ -169,6 +172,9 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 
 pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     other.cols = "*", clauses  = NULL) {
+    if (!suppressMessages(pgPostGIS(conn))) {
+      stop("PostGIS is not enabled on this database.")
+    }
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
@@ -267,6 +273,9 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
 
 pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     other.cols = "*", clauses  = NULL) {
+    if (!suppressMessages(pgPostGIS(conn))) {
+      stop("PostGIS is not enabled on this database.")
+    }
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")

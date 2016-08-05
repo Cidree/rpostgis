@@ -4,7 +4,7 @@
 \alias{pgInsert}
 \title{Inserts spatial data into a PostgreSQL table.}
 \usage{
-pgInsert(conn, name, data.obj, geom = "geom", match = FALSE,
+pgInsert(conn, name, data.obj, geom = "geom", partial.match = FALSE,
   overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL)
 }
 \arguments{
@@ -13,10 +13,12 @@ pgInsert(conn, name, data.obj, geom = "geom", match = FALSE,
 \item{name}{Character, schema and table of the PostgreSQL
 table to insert into. If not already existing, the 
 table will be created. If the table already exists, 
-use arguments \code{match} or \code{overwrite} to 
-specify which action to take. Column names 
-will be converted to PostgreSQL-compliant names, unless
-\code{alter.names} is set to FALSE.}
+the function will check if all R data frame columns
+match database columns, and if so, do the insert. If not, 
+the insert will be aborted. The argument \code{partial.match}
+allows for inserts with only partial matches of data frame 
+and database column names, and \code{overwrite} allows 
+for overwriting the existing database table.}
 
 \item{data.obj}{A Spatial* or Spatial*DataFrame, or data frame}
 
@@ -24,7 +26,7 @@ will be converted to PostgreSQL-compliant names, unless
 geometry column in the database table.  (existing or to be
 created; defaults to \code{geom}).}
 
-\item{match}{Logical; if true, columns in R data frame will
+\item{partial.match}{Logical; if true, columns in R data frame will
 be compared with an the existing database table \code{name}.
 Only columns in the data frame that exactly match the database
 table will be inserted into the database table.}
@@ -35,9 +37,8 @@ will overwrite the existing table \code{name} in the database.}
 \item{new.id}{Character, name of a new sequential integer ID
 column to be added to the table.  (for spatial objects without
 data frames, this column is created even if left \code{NULL}
-and defaults to the name \code{gid}).  Must match an existing
-column name (and numeric type) when used with
-\code{match}, otherwise it will be discarded.}
+and defaults to the name \code{gid}). If \code{partial.match = TRUE}
+and otherwise it will be discarded.}
 
 \item{alter.names}{Logical, whether to make database column names
 DB-compliant (remove special characters). Default is

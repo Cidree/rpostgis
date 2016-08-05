@@ -24,6 +24,9 @@
 ##' }
 
 pgGetBoundary <- function(conn, name, geom = "geom") {
+    if (!suppressMessages(pgPostGIS(conn))) {
+      stop("PostGIS is not enabled on this database.")
+    }
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")

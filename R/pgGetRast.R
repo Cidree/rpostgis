@@ -32,6 +32,9 @@
 
 pgGetRast <- function(conn, name, rast = "rast", digits = 9,
     boundary = NULL) {
+    if (!suppressMessages(pgPostGIS(conn))) {
+      stop("PostGIS is not enabled on this database.")
+    }
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")

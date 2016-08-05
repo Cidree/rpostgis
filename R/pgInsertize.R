@@ -39,7 +39,8 @@
 ##'     PostgreSQL-compliant names. Default is \code{NULL} (no new
 ##'     table created).
 ##' @param force.match character, schema and table of the PostgreSQL
-##'     table to compare columns of data frame with.  If specified,
+##'     table to compare columns of data frame with.  If specified with
+##'     \code{partial.match = TRUE}
 ##'     only columns in the data frame that exactly match the database
 ##'     table will be kept, and reordered to match the database
 ##'     table. If \code{NULL}, all columns will be kept in the same
@@ -55,6 +56,11 @@
 ##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
 ##'     to non-standard names in an existing database table using the
 ##'     \code{force.match} setting.)
+##' @param partial.match Logical; if force.match is set and  true, 
+##'     columns in R data frame will be compared with an the 
+##'     existing database table \code{name}. Only columns in the 
+##'     data frame that exactly match the database
+##'     table will be inserted into the database table.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @importFrom stats na.omit
 ##' @importFrom rgeos writeWKT
@@ -98,7 +104,7 @@
 ##' }
 
 pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
-    force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE) {
+    force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE) {
     ## Load wkb package if available
     wkb.t <- suppressPackageStartupMessages(requireNamespace("wkb",quietly=TRUE))
     ## wkb.t <- FALSE Check multi
@@ -216,8 +222,18 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         rcols <- colnames(dat)
         db.cols.match <- db.cols[!is.na(match(db.cols, rcols))]
         db.cols.insert <- c(db.cols.match, geom)
+        
         ## Reorder data frame columns
         dat <- dat[db.cols.match]
+        
+        ## stop if colnames do not all match and partial.match = FALSE
+        if (!(length(colnames(dat)) == length(rcols)) & !partial.match)  {
+          stop(paste0((length(rcols) - length(colnames(dat))),
+            " column(s) in data frame are missing in database table (",
+            paste(rcols[is.na(match(rcols,colnames(dat)))],collapse=", "),"). Rename data frame columns 
+            or set partial.match = TRUE to only insert to matching colunns."))
+        }
+        
         message(paste0(length(colnames(dat)), " out of ", length(rcols),
             " columns of the data frame match database table columns and will be formatted."))
     } else {
@@ -357,7 +373,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
 ##' }
 
 pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
-    conn = NULL, new.id = NULL, alter.names = TRUE) {
+    conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE) {
     if (!is.data.frame(data.obj)) {
         stop("data.obj must be a data frame.")
     }
@@ -413,6 +429,15 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         if (length(colnames(data.obj)) == 0) {
             stop("No column name matches found in database table.")
         }
+        
+        ## stop if colnames do not all match and partial.match = FALSE
+        if (!(length(colnames(data.obj)) == length(rcols)) & !partial.match)  {
+          stop(paste0((length(rcols) - length(colnames(data.obj))),
+                      " column(s) in data frame are missing in database table (",
+                      paste(rcols[is.na(match(rcols,colnames(data.obj)))],collapse=", "),"). Rename data frame columns 
+            or set partial.match = TRUE to only insert to matching colunns."))
+        }
+        
         message(paste0(length(colnames(data.obj)), " out of ",
             length(rcols), " columns of the data frame match database table columns and will be formatted for database insert."))
     } else {
