@@ -25,15 +25,17 @@ dbAsDate(conn, name, date = "date", tz = NULL, display = TRUE,
 \code{TRUE}).}
 }
 \value{
-\code{TRUE} if the conversion was successful.
+If \code{exec = TRUE}, returns \code{TRUE} if the
+    conversion was successful.
 }
 \description{
 Convert a date field to a timestamp with or without time zone.
 }
 \examples{
-## examples use a dummy connection from DBI package
-conn<-DBI::ANSI()
-dbAsDate(conn, name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
+## Example uses a dummy connection from DBI package
+conn <- DBI::ANSI()
+dbAsDate(conn, name = c("schema", "table"), date = "date", tz = "GMT",
+    exec = FALSE)
 }
 \author{
 Mathieu Basille \email{basille@ufl.edu}
