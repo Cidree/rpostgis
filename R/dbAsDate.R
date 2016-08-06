@@ -14,40 +14,48 @@
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return \code{TRUE} if the conversion was successful.
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the
+##'     conversion was successful.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/datatype-datetime.html}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' ## examples use a dummy connection from DBI package
-##' conn<-DBI::ANSI()
-##' dbAsDate(conn, name = c("fla", "bli"), date = "date", tz = "GMT", exec = FALSE)
+##' ## Example uses a dummy connection from DBI package
+##' conn <- DBI::ANSI()
+##' dbAsDate(conn, name = c("schema", "table"), date = "date", tz = "GMT",
+##'     exec = FALSE)
 
 dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
     exec = TRUE) {
     ## Check and prepare the schema.name and date column
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    date<-DBI::dbQuoteIdentifier(conn,date)
+    date <- DBI::dbQuoteIdentifier(conn, date)
     ## With or without time zones?
     timestamp <- ifelse(is.null(tz), "timestamp", "timestamptz")
     ## What time zone?
     tz <- ifelse(is.null(tz), "", paste0(" AT TIME ZONE '", tz,
         "'"))
-    ## Build the query
-    tmp.query <- paste0("ALTER TABLE ", nameque, " ALTER COLUMN ",
-        date, " TYPE ", timestamp, " USING ", date, "::timestamp",
-        tz, ";")
+    ##' SQL query
+    ##' --
+    ##' ALTER TABLE '<schema>'.'<table>'
+    ##'     ALTER COLUMN '<date>' TYPE timestamptz
+    ##'     USING
+    ##'         '<date>'::timestamp AT TIME ZONE '<tz>';
+    ##' --
+    tmp.query <- paste0("ALTER TABLE ", nameque, "\n    ALTER COLUMN ",
+        date, " TYPE ", timestamp, "\n    USING\n        ", date,
+        "::timestamp", tz, ";")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
         message("--")
     }
-    ## Execute the query
-    if (exec)
+    ## Execute the query and return TRUE
+    if (exec) {
         dbSendQuery(conn, tmp.query)
-    ## Return TRUE
-    return(TRUE)
+        return(TRUE)
+    }
 }

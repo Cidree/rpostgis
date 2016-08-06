@@ -42,7 +42,7 @@ pgListGeom <- function(conn, display = TRUE, exec = TRUE) {
         message(tmp.query)
         message("--")
     }
-    ## Execute the query
+    ## Execute the query and return it if successful
     if (exec) {
         tab <- dbGetQuery(conn, tmp.query)
         return(tab)
