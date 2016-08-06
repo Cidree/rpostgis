@@ -4,52 +4,55 @@
 ##'
 ##' This function takes a take an R \code{sp} object (Spatial* or
 ##' Spatial*DataFrame), or a regular data frame, and performs the
-##' database insert (and table creation, when the table doesn't exist) on the
-##' database.
+##' database insert (and table creation, when the table doesn't exist)
+##' on the database.
 ##'
-##' If \code{new.id} is specified, a new sequential integer field 
-##' is added to the data frame for insert. For \code{Spatial*}-only 
-##' objects (no data frame), a new.id is created by default with name "gid".
+##' If \code{new.id} is specified, a new sequential integer field is
+##' added to the data frame for insert. For \code{Spatial*}-only
+##' objects (no data frame), a new.id is created by default with name
+##' "gid".
 ##'
 ##' If the R package \code{wkb} is installed, this function will use
 ##' \code{writeWKB} for certain datasets (non-Multi types,
 ##' non-Linestring), which is faster for large datasets.  In all other
 ##' cases the \code{rgeos} function \code{writeWKT} is used.
 ##'
-##' In the event of function or database error, the database
-##' uses ROLLBACK to revert to the previous state.
+##' In the event of function or database error, the database uses
+##' ROLLBACK to revert to the previous state.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
-##' @param name Character, schema and table of the PostgreSQL
-##'     table to insert into. If not already existing, the 
-##'     table will be created. If the table already exists, 
-##'     the function will check if all R data frame columns
-##'     match database columns, and if so, do the insert. If not, 
-##'     the insert will be aborted. The argument \code{partial.match}
-##'     allows for inserts with only partial matches of data frame 
-##'     and database column names, and \code{overwrite} allows 
-##'     for overwriting the existing database table.
+##' @param name Character, schema and table of the PostgreSQL table to
+##'     insert into. If not already existing, the table will be
+##'     created. If the table already exists, the function will check
+##'     if all R data frame columns match database columns, and if so,
+##'     do the insert. If not, the insert will be aborted. The
+##'     argument \code{partial.match} allows for inserts with only
+##'     partial matches of data frame and database column names, and
+##'     \code{overwrite} allows for overwriting the existing database
+##'     table.
 ##' @param data.obj A Spatial* or Spatial*DataFrame, or data frame
 ##' @param geom character string. For Spatial* datasets, the name of
 ##'     geometry column in the database table.  (existing or to be
 ##'     created; defaults to \code{geom}).
+##' @param index Logical. Whether to create an index on the new
+##'     geometry.
 ##' @param partial.match Logical; allow insert on partial column
-##'     matches between data frame and database table. If true, 
-##'     columns in R data frame will be compared with an the 
-##'     existing database table \code{name}.
-##'     Columns in the data frame that exactly match the database
-##'     table will be inserted into the database table.
-##' @param overwrite Logical; if true, a new table \code{name}
-##'     will overwrite the existing table \code{name} in the database.
+##'     matches between data frame and database table. If true,
+##'     columns in R data frame will be compared with an the existing
+##'     database table \code{name}.  Columns in the data frame that
+##'     exactly match the database table will be inserted into the
+##'     database table.
+##' @param overwrite Logical; if true, a new table \code{name} will
+##'     overwrite the existing table \code{name} in the database.
 ##' @param new.id Character, name of a new sequential integer ID
 ##'     column to be added to the table.  (for spatial objects without
 ##'     data frames, this column is created even if left \code{NULL}
-##'     and defaults to the name \code{gid}). If \code{partial.match = TRUE}
-##'     and otherwise it will be discarded.
+##'     and defaults to the name \code{gid}). If \code{partial.match =
+##'     TRUE} and otherwise it will be discarded.
 ##' @param alter.names Logical, whether to make database column names
 ##'     DB-compliant (remove special characters). Default is
 ##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
-##'     to non-standard names in an existing database table.
+##'     to non-standard names in an existing database table.)
 ##' @param encoding Character vector of length 2, containing the
 ##'     from/to encodings for the data (as in the function
 ##'     \code{iconv}). For example, if the dataset contain certain
@@ -58,7 +61,7 @@
 ##'     \code{NULL}, no conversion will be done.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @export
-##' @return DBIResult
+##' @return Returns \code{TRUE} if the insertion was successful.
 ##' @examples
 ##' \dontrun{
 ##' library(sp)
@@ -68,33 +71,37 @@
 ##'
 ##' ## Insert data in new database table
 ##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
-##' 
-##' ## The same command will insert into already created table (if all R columns match)
+##'
+##' ## The same command will insert into already created table (if all R
+##' ## columns match)
 ##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
-##' 
-##' ## if not all database columns match, need to use partial.match = TRUE
-##' colnames(spdf@data)[4]<-"cu"
-##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf, partial.match = TRUE)
-##' 
+##'
+##' ## If not all database columns match, need to use partial.match = TRUE
+##' colnames(spdf@data)[4] <- "cu"
+##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf,
+##'     partial.match = TRUE)
 ##' }
 
-pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE, overwrite = FALSE,
-    new.id = NULL, alter.names = TRUE, encoding = NULL) {
-    # check for exisiting table
-    exists.t<-dbExistsTable(conn,name)
+pgInsert <- function(conn, name, data.obj, geom = "geom", index = TRUE, partial.match = FALSE,
+    overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL) {
+    ## Check if PostGIS installed
+    if (!suppressMessages(pgPostGIS(conn))) {
+        stop("PostGIS is not enabled on this database.")
+    }
+    ## Check for existing table
+    exists.t <- dbExistsTable(conn, name)
     if (!exists.t) {
         message("Creating new table...")
-        create.table<-name
-        force.match<-NULL
-        } else if (exists.t & overwrite & !partial.match) {
-        message ("Overwriting existing table...")
-        create.table<-name
-        force.match<-NULL
-        } else {
-        force.match<-name
-        create.table<-NULL
-        }
-
+        create.table <- name
+        force.match <- NULL
+    } else if (exists.t & overwrite & !partial.match) {
+        message("Overwriting existing table...")
+        create.table <- name
+        force.match <- NULL
+    } else {
+        force.match <- name
+        create.table <- NULL
+    }
     dbSendQuery(conn, "BEGIN TRANSACTION;")
     geo.classes <- c("SpatialPoints", "SpatialPointsDataFrame",
         "SpatialLines", "SpatialLinesDataFrame", "SpatialPolygons",
@@ -102,10 +109,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     cls <- class(data.obj)[1]
     pgi <- NULL
     if (cls %in% geo.classes) {
-        if (!suppressMessages(pgPostGIS(conn))) {
-          stop("PostGIS is not enabled on this database.")
-        }
-        try(pgSRID(conn,data.obj@proj4string, create = TRUE,
+        try(pgSRID(conn, data.obj@proj4string, create = TRUE,
             new.srid = NULL))
         try(pgi <- pgInsertizeGeom(data.obj, geom, create.table,
             force.match, conn, new.id, alter.names, partial.match))
@@ -134,12 +138,13 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     ## Create table if specified
     if (!is.null(pgi$db.new.table)) {
         if (overwrite) {
-          over.t<-dbDrop(conn, name = name, type= "table",ifexists = TRUE)
+            over.t <- dbDrop(conn, name = name, type = "table",
+                ifexists = TRUE)
             if (!over.t) {
-              dbSendQuery(conn, "ROLLBACK;")
-              stop("Could not drop existing table. No changes made to database.")
+                dbSendQuery(conn, "ROLLBACK;")
+                stop("Could not drop existing table. No changes made to database.")
             }
-          }
+        }
         quet <- NULL
         try(quet <- dbSendQuery(conn, pgi$db.new.table))
         if (is.null(quet)) {
@@ -147,18 +152,16 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
             stop("Table creation failed. No changes made to database.")
         }
     }
-    
     ## Set name of table
     name <- pgi$in.table
-    nameque<-dbTableNameFix(name)
-
+    nameque <- dbTableNameFix(name)
     cols <- pgi$db.cols.insert
     values <- pgi$insert.data
     db.cols <- dbTableInfo(conn, name = name)$column_name
     if (is.null(db.cols)) {
         dbSendQuery(conn, "ROLLBACK;")
-        stop(paste0("Database table ", paste(name,
-            collapse = "."), " not found. No changes made to database."))
+        stop(paste0("Database table ", paste(name, collapse = "."),
+            " not found. No changes made to database."))
     }
     test <- match(cols, db.cols)
     unmatched <- cols[is.na(test)]
@@ -173,10 +176,23 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
         ".", nameque[2], cols2, " VALUES ", values, ";")))
     if (!is.null(quei)) {
         dbSendQuery(conn, "COMMIT;")
-        print(paste0("Data inserted into table '",
-           paste(name, collapse = "."), "'"))
     } else {
         dbSendQuery(conn, "ROLLBACK;")
         stop("Insert failed. No changes made to database.")
     }
+
+    ## Create an index
+    if (index) {
+        ## The name of the index is enforced
+        idxname <- paste(name[length(name)], geom, "idx",
+            sep = "_")
+        ## SQL query to create the index
+        ## --
+        ## CREATE INDEX "<table>_<geom>_idx" ON "<schema>"."<table>" USING GIST ("<colname>");
+        ## --
+        dbIndex(conn = conn, name = name, colname = geom,
+            idxname = idxname, method = "gist")
+    }
+    ## Return TRUE
+    return(TRUE)
 }

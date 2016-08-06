@@ -17,6 +17,8 @@
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the geometry
+##'     field was successfully created.
 ##' @seealso The PostGIS documentation for \code{ST_MakePoint}:
 ##'     \url{http://postgis.net/docs/ST_MakePoint.html}, and for
 ##'     \code{ST_MakeLine}:
