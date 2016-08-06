@@ -5,10 +5,10 @@
 \alias{pgMakeStp}
 \title{Add a POINT or LINESTRING geometry field.}
 \usage{
-pgMakePts(conn, name, colname = "pts_geom", x = "x", y = "y", srid,
+pgMakePts(conn, name, colname = "geom", x = "x", y = "y", srid,
   index = TRUE, display = TRUE, exec = TRUE)
 
-pgMakeStp(conn, name, colname = "stp_geom", x = "x", y = "y", dx = "dx",
+pgMakeStp(conn, name, colname = "geom", x = "x", y = "y", dx = "dx",
   dy = "dy", srid, index = TRUE, display = TRUE, exec = TRUE)
 }
 \arguments{
@@ -44,16 +44,17 @@ direction).}
 Add a new POINT or LINESTRING geometry field.
 }
 \examples{
-## examples use a dummy connection from DBI package
-conn<-DBI::ANSI()
+## Examples use a dummy connection from DBI package
+conn <- DBI::ANSI()
 
-## Create a new POINT field called "pts_geom"
-pgMakePts(conn, name = c("fla", "bli"), x = "longitude", y = "latitude",
+## Create a new POINT field called 'pts_geom'
+pgMakePts(conn, name = c("schema", "table"), colname = "pts_geom",
+    x = "longitude", y = "latitude", srid = 4326, exec = FALSE)
+
+## Create a new LINESTRING field called 'stp_geom'
+pgMakeStp(conn, name = c("schema", "table"), colname = "stp_geom",
+    x = "longitude", y = "latitude", dx = "xdiff", dy = "ydiff",
     srid = 4326, exec = FALSE)
-
-## Create a new LINESTRING field called "stp_geom"
-pgMakeStp(conn, name = c("fla", "bli"), x = "longitude", y = "latitude",
-    dx = "xdiff", dy = "ydiff", srid = 4326, exec = FALSE)
 }
 \author{
 Mathieu Basille \email{basille@ufl.edu}
