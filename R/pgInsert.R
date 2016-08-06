@@ -34,8 +34,6 @@
 ##' @param geom character string. For Spatial* datasets, the name of
 ##'     geometry column in the database table.  (existing or to be
 ##'     created; defaults to \code{"geom"}).
-##' @param index Logical. Whether to create an index on the new
-##'     geometry.
 ##' @param partial.match Logical; allow insert on partial column
 ##'     matches between data frame and database table. If \code{TRUE},
 ##'     columns in R data frame will be compared with the existing
@@ -82,7 +80,7 @@
 ##'     partial.match = TRUE)
 ##' }
 
-pgInsert <- function(conn, name, data.obj, geom = "geom", index = TRUE, partial.match = FALSE,
+pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL) {
     ## Check if PostGIS installed
     if (!suppressMessages(pgPostGIS(conn))) {
@@ -176,23 +174,10 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", index = TRUE, partial.
         ".", nameque[2], cols2, " VALUES ", values, ";")))
     if (!is.null(quei)) {
         dbSendQuery(conn, "COMMIT;")
+        ## Return TRUE
+        return(TRUE)
     } else {
         dbSendQuery(conn, "ROLLBACK;")
         stop("Insert failed. No changes made to database.")
     }
-
-    ## Create an index
-    if (index) {
-        ## The name of the index is enforced
-        idxname <- paste(name[length(name)], geom, "idx",
-            sep = "_")
-        ## SQL query to create the index
-        ## --
-        ## CREATE INDEX "<table>_<geom>_idx" ON "<schema>"."<table>" USING GIST ("<colname>");
-        ## --
-        dbIndex(conn = conn, name = name, colname = geom,
-            idxname = idxname, method = "gist")
-    }
-    ## Return TRUE
-    return(TRUE)
 }

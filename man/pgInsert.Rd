@@ -4,9 +4,8 @@
 \alias{pgInsert}
 \title{Inserts spatial data into a PostgreSQL table.}
 \usage{
-pgInsert(conn, name, data.obj, geom = "geom", index = TRUE,
-  partial.match = FALSE, overwrite = FALSE, new.id = NULL,
-  alter.names = TRUE, encoding = NULL)
+pgInsert(conn, name, data.obj, geom = "geom", partial.match = FALSE,
+  overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -25,14 +24,11 @@ table.}
 
 \item{geom}{character string. For Spatial* datasets, the name of
 geometry column in the database table.  (existing or to be
-created; defaults to \code{geom}).}
-
-\item{index}{Logical. Whether to create an index on the new
-geometry.}
+created; defaults to \code{"geom"}).}
 
 \item{partial.match}{Logical; allow insert on partial column
-matches between data frame and database table. If true,
-columns in R data frame will be compared with an the existing
+matches between data frame and database table. If \code{TRUE},
+columns in R data frame will be compared with the existing
 database table \code{name}.  Columns in the data frame that
 exactly match the database table will be inserted into the
 database table.}
@@ -43,8 +39,8 @@ overwrite the existing table \code{name} in the database.}
 \item{new.id}{Character, name of a new sequential integer ID
 column to be added to the table.  (for spatial objects without
 data frames, this column is created even if left \code{NULL}
-and defaults to the name \code{gid}). If \code{partial.match =
-TRUE} and otherwise it will be discarded.}
+and defaults to the name \code{"gid"}). If \code{partial.match
+= TRUE} and otherwise it will be discarded.}
 
 \item{alter.names}{Logical, whether to make database column names
 DB-compliant (remove special characters). Default is
@@ -55,7 +51,7 @@ to non-standard names in an existing database table.)}
 from/to encodings for the data (as in the function
 \code{iconv}). For example, if the dataset contain certain
 latin characters (e.g., accent marks), and the database is in
-UTF-8, use \code{encoding = c("latin1","UTF-8")}. Left
+UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
 \code{NULL}, no conversion will be done.}
 }
 \value{
