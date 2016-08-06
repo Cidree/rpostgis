@@ -37,13 +37,13 @@ dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
     ## What time zone?
     tz <- ifelse(is.null(tz), "", paste0(" AT TIME ZONE '", tz,
         "'"))
-    ##' SQL query
-    ##' --
-    ##' ALTER TABLE '<schema>'.'<table>'
-    ##'     ALTER COLUMN '<date>' TYPE timestamptz
-    ##'     USING
-    ##'         '<date>'::timestamp AT TIME ZONE '<tz>';
-    ##' --
+    ## SQL query
+    ## --
+    ## ALTER TABLE '<schema>'.'<table>'
+    ##     ALTER COLUMN '<date>' TYPE timestamptz
+    ##     USING
+    ##         '<date>'::timestamp AT TIME ZONE '<tz>';
+    ## --
     tmp.query <- paste0("ALTER TABLE ", nameque, "\n    ALTER COLUMN ",
         date, " TYPE ", timestamp, "\n    USING\n        ", date,
         "::timestamp", tz, ";")

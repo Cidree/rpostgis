@@ -23,15 +23,15 @@ pgListGeom <- function(conn, display = TRUE, exec = TRUE) {
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
     }
-    ##' SQL Query:
-    ##' --
-    ##' SELECT
-    ##'     f_table_schema AS schema_name,
-    ##'     f_table_name AS table_name,
-    ##'     f_geometry_column AS geom_column,
-    ##'     type AS geometry_type
-    ##' FROM public.geometry_columns;
-    ##' --
+    ## SQL Query:
+    ## --
+    ## SELECT
+    ##     f_table_schema AS schema_name,
+    ##     f_table_name AS table_name,
+    ##     f_geometry_column AS geom_column,
+    ##     type AS geometry_type
+    ## FROM public.geometry_columns;
+    ## --
     tmp.query <- paste("SELECT", "    f_table_schema AS schema_name,",
         "    f_table_name AS table_name,", "    f_geometry_column AS geom_column,",
         "    type AS geometry_type", "FROM public.geometry_columns;",
