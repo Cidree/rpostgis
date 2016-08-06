@@ -33,12 +33,12 @@
 ##' @param data.obj A Spatial* or Spatial*DataFrame, or data frame
 ##' @param geom character string. For Spatial* datasets, the name of
 ##'     geometry column in the database table.  (existing or to be
-##'     created; defaults to \code{geom}).
+##'     created; defaults to \code{"geom"}).
 ##' @param index Logical. Whether to create an index on the new
 ##'     geometry.
 ##' @param partial.match Logical; allow insert on partial column
-##'     matches between data frame and database table. If true,
-##'     columns in R data frame will be compared with an the existing
+##'     matches between data frame and database table. If \code{TRUE},
+##'     columns in R data frame will be compared with the existing
 ##'     database table \code{name}.  Columns in the data frame that
 ##'     exactly match the database table will be inserted into the
 ##'     database table.
@@ -47,8 +47,8 @@
 ##' @param new.id Character, name of a new sequential integer ID
 ##'     column to be added to the table.  (for spatial objects without
 ##'     data frames, this column is created even if left \code{NULL}
-##'     and defaults to the name \code{gid}). If \code{partial.match =
-##'     TRUE} and otherwise it will be discarded.
+##'     and defaults to the name \code{"gid"}). If \code{partial.match
+##'     = TRUE} and otherwise it will be discarded.
 ##' @param alter.names Logical, whether to make database column names
 ##'     DB-compliant (remove special characters). Default is
 ##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
@@ -57,7 +57,7 @@
 ##'     from/to encodings for the data (as in the function
 ##'     \code{iconv}). For example, if the dataset contain certain
 ##'     latin characters (e.g., accent marks), and the database is in
-##'     UTF-8, use \code{encoding = c("latin1","UTF-8")}. Left
+##'     UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
 ##'     \code{NULL}, no conversion will be done.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @export

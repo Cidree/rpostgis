@@ -40,6 +40,10 @@ direction).}
 \item{dy}{The name of the dy field (i.e. increment in y
 direction).}
 }
+\value{
+If \code{exec = TRUE}, returns \code{TRUE} if the geometry
+    field was successfully created.
+}
 \description{
 Add a new POINT or LINESTRING geometry field.
 }

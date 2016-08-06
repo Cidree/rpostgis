@@ -4,21 +4,22 @@
 \alias{pgInsert}
 \title{Inserts spatial data into a PostgreSQL table.}
 \usage{
-pgInsert(conn, name, data.obj, geom = "geom", partial.match = FALSE,
-  overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL)
+pgInsert(conn, name, data.obj, geom = "geom", index = TRUE,
+  partial.match = FALSE, overwrite = FALSE, new.id = NULL,
+  alter.names = TRUE, encoding = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{name}{Character, schema and table of the PostgreSQL
-table to insert into. If not already existing, the 
-table will be created. If the table already exists, 
-the function will check if all R data frame columns
-match database columns, and if so, do the insert. If not, 
-the insert will be aborted. The argument \code{partial.match}
-allows for inserts with only partial matches of data frame 
-and database column names, and \code{overwrite} allows 
-for overwriting the existing database table.}
+\item{name}{Character, schema and table of the PostgreSQL table to
+insert into. If not already existing, the table will be
+created. If the table already exists, the function will check
+if all R data frame columns match database columns, and if so,
+do the insert. If not, the insert will be aborted. The
+argument \code{partial.match} allows for inserts with only
+partial matches of data frame and database column names, and
+\code{overwrite} allows for overwriting the existing database
+table.}
 
 \item{data.obj}{A Spatial* or Spatial*DataFrame, or data frame}
 
@@ -26,26 +27,29 @@ for overwriting the existing database table.}
 geometry column in the database table.  (existing or to be
 created; defaults to \code{geom}).}
 
-\item{partial.match}{Logical; allow insert on partial column
-matches between data frame and database table. If true, 
-columns in R data frame will be compared with an the 
-existing database table \code{name}.
-Columns in the data frame that exactly match the database
-table will be inserted into the database table.}
+\item{index}{Logical. Whether to create an index on the new
+geometry.}
 
-\item{overwrite}{Logical; if true, a new table \code{name}
-will overwrite the existing table \code{name} in the database.}
+\item{partial.match}{Logical; allow insert on partial column
+matches between data frame and database table. If true,
+columns in R data frame will be compared with an the existing
+database table \code{name}.  Columns in the data frame that
+exactly match the database table will be inserted into the
+database table.}
+
+\item{overwrite}{Logical; if true, a new table \code{name} will
+overwrite the existing table \code{name} in the database.}
 
 \item{new.id}{Character, name of a new sequential integer ID
 column to be added to the table.  (for spatial objects without
 data frames, this column is created even if left \code{NULL}
-and defaults to the name \code{gid}). If \code{partial.match = TRUE}
-and otherwise it will be discarded.}
+and defaults to the name \code{gid}). If \code{partial.match =
+TRUE} and otherwise it will be discarded.}
 
 \item{alter.names}{Logical, whether to make database column names
 DB-compliant (remove special characters). Default is
 \code{TRUE}.  (This should to be set to \code{FALSE} to match
-to non-standard names in an existing database table.}
+to non-standard names in an existing database table.)}
 
 \item{encoding}{Character vector of length 2, containing the
 from/to encodings for the data (as in the function
@@ -55,26 +59,27 @@ UTF-8, use \code{encoding = c("latin1","UTF-8")}. Left
 \code{NULL}, no conversion will be done.}
 }
 \value{
-DBIResult
+Returns \code{TRUE} if the insertion was successful.
 }
 \description{
 This function takes a take an R \code{sp} object (Spatial* or
 Spatial*DataFrame), or a regular data frame, and performs the
-database insert (and table creation, when the table doesn't exist) on the
-database.
+database insert (and table creation, when the table doesn't exist)
+on the database.
 }
 \details{
-If \code{new.id} is specified, a new sequential integer field 
-is added to the data frame for insert. For \code{Spatial*}-only 
-objects (no data frame), a new.id is created by default with name "gid".
+If \code{new.id} is specified, a new sequential integer field is
+added to the data frame for insert. For \code{Spatial*}-only
+objects (no data frame), a new.id is created by default with name
+"gid".
 
 If the R package \code{wkb} is installed, this function will use
 \code{writeWKB} for certain datasets (non-Multi types,
 non-Linestring), which is faster for large datasets.  In all other
 cases the \code{rgeos} function \code{writeWKT} is used.
 
-In the event of function or database error, the database
-uses ROLLBACK to revert to the previous state.
+In the event of function or database error, the database uses
+ROLLBACK to revert to the previous state.
 }
 \examples{
 \dontrun{
@@ -86,13 +91,14 @@ spdf <- SpatialPointsDataFrame(coords, meuse)
 ## Insert data in new database table
 pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
 
-## The same command will insert into already created table (if all R columns match)
+## The same command will insert into already created table (if all R
+## columns match)
 pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
 
-## if not all database columns match, need to use partial.match = TRUE
-colnames(spdf@data)[4]<-"cu"
-pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf, partial.match = TRUE)
-
+## If not all database columns match, need to use partial.match = TRUE
+colnames(spdf@data)[4] <- "cu"
+pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf,
+    partial.match = TRUE)
 }
 }
 \author{
