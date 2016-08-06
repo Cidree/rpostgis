@@ -29,128 +29,164 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' ## examples use a dummy connection from DBI package
-##' conn<-DBI::ANSI()
-##' 
-##' ## Create a new POINT field called "pts_geom"
-##' pgMakePts(conn, name = c("fla", "bli"), x = "longitude", y = "latitude",
-##'     srid = 4326, exec = FALSE)
+##' ## Examples use a dummy connection from DBI package
+##' conn <- DBI::ANSI()
 ##'
-##' ## Create a new LINESTRING field called "stp_geom"
-##' pgMakeStp(conn, name = c("fla", "bli"), x = "longitude", y = "latitude",
-##'     dx = "xdiff", dy = "ydiff", srid = 4326, exec = FALSE)
+##' ## Create a new POINT field called 'pts_geom'
+##' pgMakePts(conn, name = c("schema", "table"), colname = "pts_geom",
+##'     x = "longitude", y = "latitude", srid = 4326, exec = FALSE)
+##'
+##' ## Create a new LINESTRING field called 'stp_geom'
+##' pgMakeStp(conn, name = c("schema", "table"), colname = "stp_geom",
+##'     x = "longitude", y = "latitude", dx = "xdiff", dy = "ydiff",
+##'     srid = 4326, exec = FALSE)
 
-pgMakePts <- function(conn, name, colname = "pts_geom", x = "x",
+pgMakePts <- function(conn, name, colname = "geom", x = "x",
     y = "y", srid, index = TRUE, display = TRUE, exec = TRUE) {
+    ## Check if PostGIS installed (in case of 'exec = TRUE')
     if (exec) {
-      if (!suppressMessages(pgPostGIS(conn))) {
-        stop("PostGIS is not enabled on this database.")
-      }
+        if (!suppressMessages(pgPostGIS(conn))) {
+            stop("PostGIS is not enabled on this database.")
+        }
     }
-    ## Check and prepare the schema.name
+    ## Check and prepare the schema.table name
     nameque <- paste(dbTableNameFix(name), collapse = ".")
-    ## prepare column names
-    colname<-DBI::dbQuoteIdentifier(conn,colname)
-    x<-DBI::dbQuoteIdentifier(conn,x)
-    y<-DBI::dbQuoteIdentifier(conn,y)
+    ## Prepare column names
+    colnameque <- DBI::dbQuoteIdentifier(conn, colname)
+    x <- DBI::dbQuoteIdentifier(conn, x)
+    y <- DBI::dbQuoteIdentifier(conn, y)
     ## Stop if no SRID
     if (missing(srid))
         stop("A valid SRID should be provided.")
-    ## The name of the index is enforced
-    idxname <- paste(name[length(name)], colname, "idx", sep = "_")
-    ## Build the query to add the POINT geometry column
-    query <- paste0("ALTER TABLE ", nameque, " ADD COLUMN ", colname,
-        " geometry(POINT, ", srid, ");")
+    ## SQL query to add the POINT geometry column
+    ## --
+    ## ALTER TABLE "<schema>"."<table>" ADD COLUMN "<colname>" geometry(POINT, <srid>);
+    ## --
+    tmp.query <- paste0("ALTER TABLE ", nameque, " ADD COLUMN ",
+        colnameque, " geometry(POINT, ", srid, ");")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, query)
+        dbSendQuery(conn, tmp.query)
     ## Create an index
-    if (index)
-        dbIndex(conn = conn, name = name, colname = colname,
+    if (index) {
+        ## The name of the index is enforced
+        idxname <- paste(name[length(name)], colname, "idx",
+            sep = "_")
+        ## SQL query to create the index
+        ## --
+        ## CREATE INDEX "<table>_<colname>_idx" ON "<schema>"."<table>" USING GIST ("<colname>");
+        ## --
+        dbIndex(conn = conn, name = name, colname = colnameque,
             idxname = idxname, method = "gist", display = display,
             exec = exec)
-    ## Build the query to populate the POINT geometry field
-    query <- paste0("UPDATE ", nameque, " SET ", colname, "=ST_SetSRID(ST_MakePoint(",
-        x, ", ", y, "), ", srid, ")\nWHERE ", x, " IS NOT NULL AND ",
-        y, " IS NOT NULL;")
+    }
+    ## SQL query to populate the POINT geometry field
+    ## --
+    ## UPDATE "<schema>"."<table>"
+    ## SET "<colname>"=ST_SetSRID(ST_MakePoint("<x>", "<y>"), <srid>)
+    ## WHERE "<x>" IS NOT NULL AND "<y>" IS NOT NULL;
+    ## --
+    tmp.query <- paste0("UPDATE ", nameque, "\nSET ", colnameque,
+        "=ST_SetSRID(ST_MakePoint(", x, ", ", y, "), ", srid,
+        ")\nWHERE ", x, " IS NOT NULL AND ", y, " IS NOT NULL;")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
-    if (exec)
-        dbSendQuery(conn, query)
-    ## Return nothing
-    return(invisible())
+    if (exec) {
+        dbSendQuery(conn, tmp.query)
+        ## Return TRUE
+        return(TRUE)
+    }
 }
 
 
 ## pgMakeStp
 
-##' @rdname pgMakePts
-##' @importFrom DBI dbQuoteIdentifier
-##' @export
+## @rdname pgMakePts
+## @importFrom DBI dbQuoteIdentifier
+## @export
 
-pgMakeStp <- function(conn, name, colname = "stp_geom", x = "x",
+pgMakeStp <- function(conn, name, colname = "geom", x = "x",
     y = "y", dx = "dx", dy = "dy", srid, index = TRUE, display = TRUE,
     exec = TRUE) {
     if (exec) {
-      if (!suppressMessages(pgPostGIS(conn))) {
-      stop("PostGIS is not enabled on this database.")
-      }
-      }
-    ## Check and prepare the schema.name
+        if (!suppressMessages(pgPostGIS(conn))) {
+            stop("PostGIS is not enabled on this database.")
+        }
+    }
+    ## Check and prepare the schema.table name
     nameque <- paste(dbTableNameFix(name), collapse = ".")
-    ## prepare column names
-    colname<-DBI::dbQuoteIdentifier(conn,colname)
-    x<-DBI::dbQuoteIdentifier(conn,x)
-    y<-DBI::dbQuoteIdentifier(conn,y)
-    dx<-DBI::dbQuoteIdentifier(conn,dx)
-    dy<-DBI::dbQuoteIdentifier(conn,dy)
+    ## Prepare column names
+    colnameque <- DBI::dbQuoteIdentifier(conn, colname)
+    x <- DBI::dbQuoteIdentifier(conn, x)
+    y <- DBI::dbQuoteIdentifier(conn, y)
+    dx <- DBI::dbQuoteIdentifier(conn, dx)
+    dy <- DBI::dbQuoteIdentifier(conn, dy)
     ## Stop if no SRID
     if (missing(srid))
         stop("A valid SRID should be provided.")
-    ## The name of the index is enforced
-    idxname <- paste(name[length(name)], colname, "idx", sep = "_")
-    ## Build the query to add the LINESTRING geometry column
-    query <- paste0("ALTER TABLE ", nameque, " ADD COLUMN ", colname,
-        " geometry(LINESTRING, ", srid, ");")
+    ## SQL query to add the LINESTRING geometry column
+    ## --
+    ## ALTER TABLE "<schema>"."<table>" ADD COLUMN "<colname>" geometry(LINESTRING, <srid>);
+    ## --
+    tmp.query <- paste0("ALTER TABLE ", nameque, " ADD COLUMN ",
+        colnameque, " geometry(LINESTRING, ", srid, ");")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, query)
+        dbSendQuery(conn, tmp.query)
     ## Create an index
-    if (index)
-        dbIndex(conn = conn, name = name, colname = colname,
+    if (index) {
+        ## The name of the index is enforced
+        idxname <- paste(name[length(name)], colname, "idx",
+            sep = "_")
+        ## SQL query to create the index
+        ## --
+        ## CREATE INDEX "<table>_<colname>_idx" ON "<schema>"."<table>" USING GIST ("<colname>");
+        ## --
+        dbIndex(conn = conn, name = name, colname = colnameque,
             idxname = idxname, method = "gist", display = display,
             exec = exec)
-    ## Build the query to populate the LINESTRING geometry field
-    query <- paste0("UPDATE ", nameque, " SET ", colname, "=ST_SetSRID(ST_MakeLine(ARRAY[ST_MakePoint(",
-        x, ", ", y, "), ", "ST_MakePoint(", x, " + ", dx, ", ",
-        y, " + ", dy, ")]), ", srid, ")\nWHERE ", dx, " IS NOT NULL AND ",
-        dy, " IS NOT NULL;")
+    }
+    ## SQL query to populate the LINESTRING geometry field
+    ## --
+    ## UPDATE "<schema>"."<table>"
+    ## SET "<colname>"=ST_SetSRID(ST_MakeLine(
+    ##     ARRAY[ST_MakePoint("<x>", "<y>"),
+    ##           ST_MakePoint("<x>" + "<dx>", "<y>" + "<dy>")]
+    ##     ), <srid>)
+    ## WHERE "<x>" IS NOT NULL AND "<y>" IS NOT NULL;
+    ## --
+    tmp.query <- paste0("UPDATE ", nameque, "\nSET ", colnameque,
+        "=ST_SetSRID(ST_MakeLine(\n    ARRAY[ST_MakePoint(",
+        x, ", ", y, "), ", "\n          ST_MakePoint(", x, " + ",
+        dx, ", ", y, " + ", dy, ")]\n    ), ", srid, ")\nWHERE ",
+        dx, " IS NOT NULL AND ", dy, " IS NOT NULL;")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
-    if (exec)
-        dbSendQuery(conn, query)
-    ## Return nothing
-    return(invisible())
+    if (exec) {
+        dbSendQuery(conn, tmp.query)
+        ## Return TRUE
+        return(TRUE)
+    }
 }
