@@ -1,3 +1,4 @@
+## pgSRID
 
 ##' Find (or create) PostGIS SRID based on CRS object.
 ##'
@@ -13,7 +14,7 @@
 ##' @param conn A connection object to a PostgreSQL database.
 ##' @param crs CRS object, created through a call to
 ##'     \code{\link[sp]{CRS}}.
-##' @param create Logical. If no matching SRID is found, should a new
+##' @param create.srid Logical. If no matching SRID is found, should a new
 ##'     SRID be created? User must have write access on
 ##'     \code{spatial_ref_sys} table.
 ##' @param new.srid Integer. Optional SRID to give to a newly created
@@ -35,10 +36,10 @@
 ##'     "+k=0.999908 +x_0=155000 +y_0=463000", "+ellps=bessel",
 ##'     "+towgs84=565.237,50.0087,465.658,-0.406857,0.350733,-1.87035,4.0812",
 ##'     "+units=m")))
-##' pgSRID(conn, crs2, create = TRUE)
+##' pgSRID(conn, crs2, create.srid = TRUE)
 ##' }
 
-pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
+pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
     ## Check if PostGIS is enabled
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
@@ -52,6 +53,7 @@ pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
     ## if crs is undefined (NA), return 0
     if (is.na(p4s)) {
         srid <- 0
+        message("CRS undefined (NA).")
         return(srid)
     }
     ## check if can extract EPSG directly
@@ -89,8 +91,8 @@ pgSRID <- function(conn, crs, create = FALSE, new.srid = NULL) {
             }
         }
     }
-    if (!create) {
-        stop("No SRID matches found. Re-run with 'create = TRUE' to create new SRID entry in spatial_ref_sys.")
+    if (!create.srid) {
+        stop("No SRID matches found. Re-run with 'create.srid = TRUE' to create new SRID entry in spatial_ref_sys.")
     }
     ## if none of the above methods worked, create new SRID
     if (!is.null(new.srid)) {

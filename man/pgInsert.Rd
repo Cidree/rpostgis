@@ -2,10 +2,14 @@
 % Please edit documentation in R/pgInsert.R
 \name{pgInsert}
 \alias{pgInsert}
+\alias{print.pgi}
 \title{Inserts spatial data into a PostgreSQL table.}
 \usage{
 pgInsert(conn, name, data.obj, geom = "geom", partial.match = FALSE,
-  overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL)
+  overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL,
+  return.pgi = FALSE)
+
+\method{print}{pgi}(x, ...)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -53,9 +57,17 @@ from/to encodings for the data (as in the function
 latin characters (e.g., accent marks), and the database is in
 UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
 \code{NULL}, no conversion will be done.}
+
+\item{return.pgi}{Whether to return a formatted list of insert parameters
+(i.e., a \code{pgi} object; see function details.)}
+
+\item{x}{A list of class \code{pgi}}
+
+\item{...}{Further arguments not used.}
 }
 \value{
-Returns \code{TRUE} if the insertion was successful.
+Returns \code{TRUE} if the insertion was successful, or a
+\code{pgi} object if specified, or in the case of database error.
 }
 \description{
 This function takes a take an R \code{sp} object (Spatial* or
@@ -76,6 +88,20 @@ cases the \code{rgeos} function \code{writeWKT} is used.
 
 In the event of function or database error, the database uses
 ROLLBACK to revert to the previous state.
+
+On database errors, or if the user specifies \code{return.pgi = TRUE},
+the function will return a \code{pgi} object (see next paragraph). This
+object can be re-used as the \code{data.obj} in \code{pgInsert}; (e.g., when
+inserting the exact same data into tables in two separate databases). If
+\code{return.pgi = FALSE} (default), the function will return \code{TRUE},
+indicating successful insert.
+
+pgi objects are a list containing four character strings: (1)
+in.table, the table name which will be created or inserted
+into (2) db.new.table, the SQL statement to create the new
+table, (3) db.cols.insert, a character string of the database column
+names to insert into, and (4) insert.data, a character string
+of the data to insert.
 }
 \examples{
 \dontrun{

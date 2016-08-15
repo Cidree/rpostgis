@@ -4,7 +4,7 @@
 \alias{pgSRID}
 \title{Find (or create) PostGIS SRID based on CRS object.}
 \usage{
-pgSRID(conn, crs, create = FALSE, new.srid = NULL)
+pgSRID(conn, crs, create.srid = FALSE, new.srid = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database.}
@@ -12,7 +12,7 @@ pgSRID(conn, crs, create = FALSE, new.srid = NULL)
 \item{crs}{CRS object, created through a call to
 \code{\link[sp]{CRS}}.}
 
-\item{create}{Logical. If no matching SRID is found, should a new
+\item{create.srid}{Logical. If no matching SRID is found, should a new
 SRID be created? User must have write access on
 \code{spatial_ref_sys} table.}
 
@@ -45,7 +45,7 @@ pgSRID(conn, crs)
     "+k=0.999908 +x_0=155000 +y_0=463000", "+ellps=bessel",
     "+towgs84=565.237,50.0087,465.658,-0.406857,0.350733,-1.87035,4.0812",
     "+units=m")))
-pgSRID(conn, crs2, create = TRUE)
+pgSRID(conn, crs2, create.srid = TRUE)
 }
 }
 \author{

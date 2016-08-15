@@ -10,7 +10,7 @@
 ##' do any modification of the database, it only prepares the data for
 ##' insert.) The function \code{pgInsert} is a wrapper around these
 ##' functions, so \code{pgInsertize*} should only be used in
-##' situations where data preparation and insert need to be seperated.
+##' situations where data preparation and insert need to be separated.
 ##'
 ##' The entire data frame is prepared by default, unless
 ##' \code{force.match} specifies a database table (along with a
@@ -62,10 +62,10 @@
 ##'     data frame that exactly match the database
 ##'     table will be inserted into the database table.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @keywords internal
 ##' @importFrom stats na.omit
 ##' @importFrom rgeos writeWKT
 ##' @importFrom DBI dbDriver
-##' @export
 ##' @return pgi A list containing four character strings: (1)
 ##'     in.table, the table name which will be created or inserted
 ##'     into, if specifed by either create.table or force.match (else
@@ -107,7 +107,6 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE) {
     ## Load wkb package if available
     wkb.t <- suppressPackageStartupMessages(requireNamespace("wkb",quietly=TRUE))
-    ## wkb.t <- FALSE Check multi
     mx <- 1
     ## If points
     try(mx <- max(unlist(lapply(sapply(slot(data.obj, "polygons"),
@@ -140,7 +139,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         ## else if it exists, add seq. id if new.id is not null
         if (!is.null(new.id)) {
             if (new.id %in% colnames(dat)) {
-                stop(paste0("'", new.id, "' is already a column name in the data frame. Pick a unique name for new.id or leave it null (no new ID created)."))
+                stop(paste0("'", new.id, "' is already a column name in the data frame.\nPick a unique name for new.id or leave it null (no new ID created)."))
             }
             dat <- cbind(gid, dat)
             names(dat)[1] <- new.id
@@ -162,8 +161,8 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     ## writing for user on spatial_ref_sys, will fail quietly)
     proj <- NULL
     if (!is.null(conn)) {
-        try(proj <- pgSRID(conn,data.obj@proj4string, 
-            create = TRUE), silent = TRUE)
+        try(suppressMessages(proj <- pgSRID(conn,data.obj@proj4string, 
+            create.srid = TRUE)), silent = TRUE)
     }
     ## If (user didn't specify conn, or pgSRID failed) AND rgdal is
     ## installed, then try to get EPSG
@@ -350,7 +349,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
 ## pgInsertize
 
 ##' @rdname pgInsertizeGeom
-##' @export
+##' @keywords internal
 ##' @examples
 ##' \dontrun{
 ##' ## Format regular (non-spatial) data frame for insert using
@@ -387,7 +386,7 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
     if (!is.null(new.id)) {
         ## Check if new.id column name is already in data frame
         if (new.id %in% colnames(data.obj)) {
-            stop(paste0("'", new.id, "' is already a column name in the data frame. Pick a unique name for new.id or leave it null (no new ID created)."))
+            stop(paste0("'", new.id, "' is already a column name in the data frame.\nPick a unique name for new.id or leave it null (no new ID created)."))
         }
         id.num <- 1:length(data.obj[, 1])
         data.obj <- cbind(id.num, data.obj)
@@ -456,34 +455,4 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         db.cols.insert = db.cols.insert, insert.data = d1)
     class(lis) <- "pgi"
     return(lis)
-}
-
-
-
-## print.pgi
-
-##' @rdname pgInsertizeGeom
-##' @param x A list of class \code{pgi}, output from the pgInsertize()
-##'     or pgInsertizeGeom() functions from the rpostgis package.
-##' @param ... Further arguments not used.
-##' @export
-print.pgi <- function(x, ...) {
-    cat("pgi object: PostgreSQL insert object from pgInsertize* function in rpostgis. Use with pgInsert() to insert into database table.")
-    cat("\n************************************\n")
-    if (!is.null(x$in.tab)) {
-        cat(paste0("Insert table: ", paste(x$in.tab, collapse = ".")))
-        cat("\n************************************\n")
-    }
-    if (!is.null(x$db.new.table)) {
-        cat(paste0("SQL to create new table: ", x$db.new.table))
-        cat("\n************************************\n")
-    }
-    cat(paste0("Columns to insert into: ", paste(x$db.cols.insert,
-        collapse = ",")))
-    cat("\n************************************\n")
-    cat(paste0("Formatted insert data: ", substr(x$insert.data,
-        0, 1000)))
-    if (nchar(x$insert.data) > 1000) {
-        cat("........Only the first 1000 characters shown")
-    }
 }

@@ -18,8 +18,23 @@
 ##' cases the \code{rgeos} function \code{writeWKT} is used.
 ##'
 ##' In the event of function or database error, the database uses
-##' ROLLBACK to revert to the previous state.
-##'
+##' ROLLBACK to revert to the previous state. 
+##' 
+##' On database errors, or if the user specifies \code{return.pgi = TRUE},
+##' the function will return a \code{pgi} object (see next paragraph). This
+##' object can be re-used as the \code{data.obj} in \code{pgInsert}; (e.g., when
+##' inserting the exact same data into tables in two separate databases). If
+##' \code{return.pgi = FALSE} (default), the function will return \code{TRUE},
+##' indicating successful insert.
+##' 
+##' pgi objects are a list containing four character strings: (1)
+##' in.table, the table name which will be created or inserted
+##' into (2) db.new.table, the SQL statement to create the new
+##' table, (3) db.cols.insert, a character string of the database column
+##' names to insert into, and (4) insert.data, a character string
+##' of the data to insert.
+##' 
+##' 
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name Character, schema and table of the PostgreSQL table to
 ##'     insert into. If not already existing, the table will be
@@ -57,9 +72,12 @@
 ##'     latin characters (e.g., accent marks), and the database is in
 ##'     UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
 ##'     \code{NULL}, no conversion will be done.
+##' @param return.pgi Whether to return a formatted list of insert parameters
+##'     (i.e., a \code{pgi} object; see function details.)
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @export
-##' @return Returns \code{TRUE} if the insertion was successful.
+##' @return Returns \code{TRUE} if the insertion was successful, or a
+##' \code{pgi} object if specified, or in the case of database error.
 ##' @examples
 ##' \dontrun{
 ##' library(sp)
@@ -81,7 +99,7 @@
 ##' }
 
 pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
-    overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL) {
+    overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL, return.pgi = FALSE) {
     ## Check if PostGIS installed
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
@@ -107,8 +125,8 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     cls <- class(data.obj)[1]
     pgi <- NULL
     if (cls %in% geo.classes) {
-        try(pgSRID(conn, data.obj@proj4string, create = TRUE,
-            new.srid = NULL))
+        try(suppressMessages(pgSRID(conn, data.obj@proj4string, create.srid = TRUE,
+            new.srid = NULL)),silent=TRUE)
         try(pgi <- pgInsertizeGeom(data.obj, geom, create.table,
             force.match, conn, new.id, alter.names, partial.match))
     } else if (cls == "data.frame") {
@@ -140,14 +158,16 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
                 ifexists = TRUE)
             if (!over.t) {
                 dbSendQuery(conn, "ROLLBACK;")
-                stop("Could not drop existing table. No changes made to database.")
+                message("Could not drop existing table; pgi object returned. No changes made to database.")
+                return(pgi)
             }
         }
         quet <- NULL
         try(quet <- dbSendQuery(conn, pgi$db.new.table))
         if (is.null(quet)) {
             dbSendQuery(conn, "ROLLBACK;")
-            stop("Table creation failed. No changes made to database.")
+            message("Table creation failed; pgi object returned. No changes made to database.")
+            return(pgi)
         }
     }
     ## Set name of table
@@ -158,14 +178,17 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     db.cols <- dbTableInfo(conn, name = name)$column_name
     if (is.null(db.cols)) {
         dbSendQuery(conn, "ROLLBACK;")
-        stop(paste0("Database table ", paste(name, collapse = "."),
-            " not found. No changes made to database."))
+        message(paste0("Database table ", paste(name, collapse = "."),
+                  " not found; pgi object returned. No changes made to database."))
+        return(pgi)
     }
     test <- match(cols, db.cols)
     unmatched <- cols[is.na(test)]
     if (length(unmatched) > 0) {
-        stop(paste0("The column(s) (", paste(unmatched, collapse = ","),
-            ") are not in the database table."))
+        dbSendQuery(conn, "ROLLBACK;")
+        message(paste0("The column(s) (", paste(unmatched, collapse = ","),
+                  ") are not in the database table; pgi object returned. No changes made to database."))
+        return(pgi)
     }
     cols2 <- paste0("(\"", paste(cols, collapse = "\",\""), "\")")
     quei <- NULL
@@ -174,10 +197,41 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
         ".", nameque[2], cols2, " VALUES ", values, ";")))
     if (!is.null(quei)) {
         dbSendQuery(conn, "COMMIT;")
+        message("Data inserted into table.")
         ## Return TRUE
+        if(return.pgi) {return(pgi)} else {
         return(TRUE)
+        }
     } else {
         dbSendQuery(conn, "ROLLBACK;")
-        stop("Insert failed. No changes made to database.")
+        message("Insert failed; pgi object returned. No changes made to database.")
+        return(pgi)
     }
+}
+
+## print.pgi
+
+##' @rdname pgInsert
+##' @param x A list of class \code{pgi}
+##' @param ... Further arguments not used.
+##' @export
+print.pgi <- function(x, ...) {
+  cat("pgi object: PostgreSQL insert object from pgInsertize* function in rpostgis. Use with pgInsert() to insert into database table.")
+  cat("\n************************************\n")
+  if (!is.null(x$in.tab)) {
+    cat(paste0("Insert table: ", paste(x$in.tab, collapse = ".")))
+    cat("\n************************************\n")
+  }
+  if (!is.null(x$db.new.table)) {
+    cat(paste0("SQL to create new table: ", x$db.new.table))
+    cat("\n************************************\n")
+  }
+  cat(paste0("Columns to insert into: ", paste(x$db.cols.insert,
+                                               collapse = ",")))
+  cat("\n************************************\n")
+  cat(paste0("Formatted insert data: ", substr(x$insert.data,
+                                               0, 1000)))
+  if (nchar(x$insert.data) > 1000) {
+    cat("........Only the first 1000 characters shown")
+  }
 }

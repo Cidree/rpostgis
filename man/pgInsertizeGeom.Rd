@@ -3,7 +3,6 @@
 \name{pgInsertizeGeom}
 \alias{pgInsertize}
 \alias{pgInsertizeGeom}
-\alias{print.pgi}
 \title{Format R data objects for insert into a PostgreSQL table.}
 \usage{
 pgInsertizeGeom(data.obj, geom = "geom", create.table = NULL,
@@ -12,8 +11,6 @@ pgInsertizeGeom(data.obj, geom = "geom", create.table = NULL,
 
 pgInsertize(data.obj, create.table = NULL, force.match = NULL,
   conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE)
-
-\method{print}{pgi}(x, ...)
 }
 \arguments{
 \item{data.obj}{A Spatial* or Spatial*DataFrame, or data frame for
@@ -56,11 +53,6 @@ columns in R data frame will be compared with an the
 existing database table \code{name}. Only columns in the 
 data frame that exactly match the database
 table will be inserted into the database table.}
-
-\item{x}{A list of class \code{pgi}, output from the pgInsertize()
-or pgInsertizeGeom() functions from the rpostgis package.}
-
-\item{...}{Further arguments not used.}
 }
 \value{
 pgi A list containing four character strings: (1)
@@ -82,7 +74,7 @@ object into the database table. (Note that these functions do not
 do any modification of the database, it only prepares the data for
 insert.) The function \code{pgInsert} is a wrapper around these
 functions, so \code{pgInsertize*} should only be used in
-situations where data preparation and insert need to be seperated.
+situations where data preparation and insert need to be separated.
 }
 \details{
 The entire data frame is prepared by default, unless
@@ -151,4 +143,5 @@ pgInsert(conn, data.obj = values)
 \author{
 David Bucklin \email{dbucklin@ufl.edu}
 }
+\keyword{internal}
 

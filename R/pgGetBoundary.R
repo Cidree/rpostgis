@@ -41,7 +41,7 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     if (is.null(tab.list)) {
         stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns or public.raster_columns."))
     } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", namechar, "' geometry/raster column not found. Available geometry/raster columns: ",
+        stop(paste0("Table/view '", namechar, "' geometry/raster column not found.\nAvailable geometry/raster columns: ",
             paste(tab.list, collapse = ", ")))
     }
     ## Check data type
