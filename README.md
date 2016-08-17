@@ -2,8 +2,8 @@ rpostgis
 ========
 
 This is the development area for the package `rpostgis`, a set of
-additional functions to the RPostgreSQL package, mostly convenient
-wrappers, with some PostGIS oriented functions.
+additional functions to the `RPostgreSQL` package for general database
+management and handling of spatial data types for transfer between PostGIS-enabled databases and R.
 
 See [the home page for the released versions](http://ase-research.org/basille/rpostgis/).
 
