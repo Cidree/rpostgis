@@ -29,6 +29,9 @@ planner to determine the most efficient way to execute a query
 \item{exec}{Logical. Whether to execute the query (defaults to
 \code{TRUE}).}
 }
+\value{
+TRUE if query is successfully executed.
+}
 \description{
 Performs a VACUUM (garbage-collect and optionally analyze) on a
 table.

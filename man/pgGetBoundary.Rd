@@ -2,7 +2,7 @@
 % Please edit documentation in R/pgGetBoundary.R
 \name{pgGetBoundary}
 \alias{pgGetBoundary}
-\title{Retrieve bounding envelope of geometries.}
+\title{Retrieve bounding envelope of geometries or rasters.}
 \usage{
 pgGetBoundary(conn, name, geom = "geom")
 }

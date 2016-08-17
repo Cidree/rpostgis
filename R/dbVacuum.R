@@ -21,6 +21,7 @@
 ##'     \code{TRUE}).
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
+##' @return TRUE if query is successfully executed.
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
@@ -40,17 +41,17 @@ dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
     ## Argument ANALYZE
     analyze <- ifelse(analyze, "ANALYZE ", "")
     ## Build the query
-    query <- paste0("VACUUM ", full, verbose, analyze, nameque,
+    tmp.query <- paste0("VACUUM ", full, verbose, analyze, nameque,
         ";")
     ## Display the query
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(query)
+        message(tmp.query)
         message("--")
     }
     ## Execute the query
     if (exec)
-        dbSendQuery(conn, query)
-    ## Return nothing
-    return(invisible())
+        dbSendQuery(conn, tmp.query)
+    ## Return TRUE
+    return(TRUE)
 }

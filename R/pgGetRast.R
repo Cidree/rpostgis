@@ -1,6 +1,6 @@
 ## pgGetRast
 
-##' Load raster from DB.
+##' Load raster from PostGIS database.
 ##'
 ##' Retrieve rasters from a PostGIS table.
 ##'

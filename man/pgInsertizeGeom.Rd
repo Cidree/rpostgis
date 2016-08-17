@@ -66,7 +66,7 @@ pgi A list containing four character strings: (1)
     \code{pgInsert} function.
 }
 \description{
-These functions take an R \code{sp} object (Spatial* or
+These are internal rpostgis functions that take an R \code{sp} object (Spatial* or
 Spatial*DataFrame; for \code{pgInsertizeGeom}) or data frame (for
 \code{pgInsertize}) and return a \code{pgi} list object, which can
 be used in the function \code{pgInsert} to insert rows of the

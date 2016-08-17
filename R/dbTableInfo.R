@@ -11,16 +11,16 @@
 ##' @param allinfo Logical, Get all information on table? Default is
 ##'     column names, types, nullable, and maximum length of character
 ##'     columns.
+##' @return data frame
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @export
-##' @return data frame
 ##' @examples
 ##' \dontrun{
 ##' dbTableInfo(conn, c("schema", "table"))
 ##' }
 
 dbTableInfo <- function(conn, name, allinfo = FALSE) {
-    #only check if valid (error if not)
+    ## only check if valid (error if not)
     name.fix <- dbTableNameFix(name)
     #add public if length == 1
     if (length(name) == 1) {name<-c("public",name)}

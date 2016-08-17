@@ -1,6 +1,6 @@
 ## pgInsert
 
-##' Inserts spatial data into a PostgreSQL table.
+##' Inserts data into a PostgreSQL table.
 ##'
 ##' This function takes a take an R \code{sp} object (Spatial* or
 ##' Spatial*DataFrame), or a regular data frame, and performs the
@@ -23,8 +23,8 @@
 ##' On database errors, or if the user specifies \code{return.pgi = TRUE},
 ##' the function will return a \code{pgi} object (see next paragraph). This
 ##' object can be re-used as the \code{data.obj} in \code{pgInsert}; (e.g., when
-##' inserting the exact same data into tables in two separate databases). If
-##' \code{return.pgi = FALSE} (default), the function will return \code{TRUE},
+##' inserting the exact same data into tables in two separate tables or databases). 
+##' If \code{return.pgi = FALSE} (default), the function will return \code{TRUE},
 ##' indicating successful insert.
 ##' 
 ##' pgi objects are a list containing four character strings: (1)
@@ -55,13 +55,14 @@
 ##'     database table \code{name}.  Columns in the data frame that
 ##'     exactly match the database table will be inserted into the
 ##'     database table.
-##' @param overwrite Logical; if true, a new table \code{name} will
-##'     overwrite the existing table \code{name} in the database.
+##' @param overwrite Logical; if true, a new table (\code{name}) will
+##'     overwrite the existing table (\code{name}) in the database.
 ##' @param new.id Character, name of a new sequential integer ID
-##'     column to be added to the table.  (for spatial objects without
+##'     column to be added to the table for insert (for spatial objects without
 ##'     data frames, this column is created even if left \code{NULL}
 ##'     and defaults to the name \code{"gid"}). If \code{partial.match
-##'     = TRUE} and otherwise it will be discarded.
+##'     = TRUE} and the column does not exist in the databse table,
+##'     it will be discarded.
 ##' @param alter.names Logical, whether to make database column names
 ##'     DB-compliant (remove special characters). Default is
 ##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
@@ -98,11 +99,19 @@
 ##'     partial.match = TRUE)
 ##' }
 
-pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
-    overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL, return.pgi = FALSE) {
+pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE, 
+    overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL, 
+    return.pgi = FALSE) {
     ## Check if PostGIS installed
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
+    }
+    # data.obj class
+    cls <- class(data.obj)[1]
+    if (cls == "pgi") {
+      if (is.null(data.obj$in.table)) {
+            stop("Table to insert into not specified (in pgi$in.table). Set this and re-run.")
+        } else {name<-data.obj$in.table}
     }
     ## Check for existing table
     exists.t <- dbExistsTable(conn, name)
@@ -111,7 +120,6 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
         create.table <- name
         force.match <- NULL
     } else if (exists.t & overwrite & !partial.match) {
-        message("Overwriting existing table...")
         create.table <- name
         force.match <- NULL
     } else {
@@ -119,27 +127,23 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
         create.table <- NULL
     }
     dbSendQuery(conn, "BEGIN TRANSACTION;")
-    geo.classes <- c("SpatialPoints", "SpatialPointsDataFrame",
-        "SpatialLines", "SpatialLinesDataFrame", "SpatialPolygons",
+    geo.classes <- c("SpatialPoints", "SpatialPointsDataFrame", 
+        "SpatialLines", "SpatialLinesDataFrame", "SpatialPolygons", 
         "SpatialPolygonsDataFrame")
-    cls <- class(data.obj)[1]
     pgi <- NULL
     if (cls %in% geo.classes) {
-        try(suppressMessages(pgSRID(conn, data.obj@proj4string, create.srid = TRUE,
-            new.srid = NULL)),silent=TRUE)
-        try(pgi <- pgInsertizeGeom(data.obj, geom, create.table,
+        try(suppressMessages(pgSRID(conn, data.obj@proj4string, 
+            create.srid = TRUE, new.srid = NULL)), silent = TRUE)
+        try(pgi <- pgInsertizeGeom(data.obj, geom, create.table, 
             force.match, conn, new.id, alter.names, partial.match))
     } else if (cls == "data.frame") {
-        try(pgi <- pgInsertize(data.obj, create.table, force.match,
+        try(pgi <- pgInsertize(data.obj, create.table, force.match, 
             conn, new.id, alter.names, partial.match))
     } else if (cls == "pgi") {
         pgi <- data.obj
         message("Using previously create pgi object. All arguments except for \"conn\", \"overwrite\", and \"encoding\" will be ignored.")
-        if (is.null(pgi$in.table)) {
-            stop("Table to insert into not specified (in pgi$in.table). Set this and re-run.")
-        }
-        ## Continue
     } else {
+        dbSendQuery(conn, "ROLLBACK;")
         stop("Input data object not of correct class - must be a Spatial*, Spatial*DataFrame, or data frame.")
     }
     if (is.null(pgi)) {
@@ -148,13 +152,13 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     }
     ## Change encoding if specified
     if (!is.null(encoding)) {
-        pgi$insert.data <- iconv(pgi$insert.data, encoding[1],
+        pgi$insert.data <- iconv(pgi$insert.data, encoding[1], 
             encoding[2])
     }
     ## Create table if specified
     if (!is.null(pgi$db.new.table)) {
         if (overwrite) {
-            over.t <- dbDrop(conn, name = name, type = "table",
+            over.t <- dbDrop(conn, name = name, type = "table", 
                 ifexists = TRUE)
             if (!over.t) {
                 dbSendQuery(conn, "ROLLBACK;")
@@ -169,7 +173,11 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
             message("Table creation failed; pgi object returned. No changes made to database.")
             return(pgi)
         }
+    } else if (is.null(pgi$db.new.table) & overwrite) {
+      message("No create table definition in pgi object (pgi$db.new.table);
+              not dropping existing table...")
     }
+    
     ## Set name of table
     name <- pgi$in.table
     nameque <- dbTableNameFix(name)
@@ -178,29 +186,31 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     db.cols <- dbTableInfo(conn, name = name)$column_name
     if (is.null(db.cols)) {
         dbSendQuery(conn, "ROLLBACK;")
-        message(paste0("Database table ", paste(name, collapse = "."),
-                  " not found; pgi object returned. No changes made to database."))
+        message(paste0("Database table ", paste(name, collapse = "."), 
+            " not found; pgi object returned. No changes made to database."))
         return(pgi)
     }
     test <- match(cols, db.cols)
     unmatched <- cols[is.na(test)]
     if (length(unmatched) > 0) {
         dbSendQuery(conn, "ROLLBACK;")
-        message(paste0("The column(s) (", paste(unmatched, collapse = ","),
-                  ") are not in the database table; pgi object returned. No changes made to database."))
+        message(paste0("The column(s) (", paste(unmatched, collapse = ","), 
+            ") are not in the database table; pgi object returned. No changes made to database."))
         return(pgi)
     }
     cols2 <- paste0("(\"", paste(cols, collapse = "\",\""), "\")")
     quei <- NULL
     ## Send insert query
-    try(quei <- dbSendQuery(conn, paste0("INSERT INTO ", nameque[1],
+    try(quei <- dbSendQuery(conn, paste0("INSERT INTO ", nameque[1], 
         ".", nameque[2], cols2, " VALUES ", values, ";")))
     if (!is.null(quei)) {
         dbSendQuery(conn, "COMMIT;")
         message("Data inserted into table.")
         ## Return TRUE
-        if(return.pgi) {return(pgi)} else {
-        return(TRUE)
+        if (return.pgi) {
+            return(pgi)
+        } else {
+            return(TRUE)
         }
     } else {
         dbSendQuery(conn, "ROLLBACK;")
@@ -216,22 +226,22 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
 ##' @param ... Further arguments not used.
 ##' @export
 print.pgi <- function(x, ...) {
-  cat("pgi object: PostgreSQL insert object from pgInsertize* function in rpostgis. Use with pgInsert() to insert into database table.")
-  cat("\n************************************\n")
-  if (!is.null(x$in.tab)) {
-    cat(paste0("Insert table: ", paste(x$in.tab, collapse = ".")))
+    cat("pgi object: PostgreSQL insert object from pgInsertize* function in rpostgis. Use with pgInsert() to insert into database table.")
     cat("\n************************************\n")
-  }
-  if (!is.null(x$db.new.table)) {
-    cat(paste0("SQL to create new table: ", x$db.new.table))
+    if (!is.null(x$in.tab)) {
+        cat(paste0("Insert table: ", paste(x$in.tab, collapse = ".")))
+        cat("\n************************************\n")
+    }
+    if (!is.null(x$db.new.table)) {
+        cat(paste0("SQL to create new table: ", x$db.new.table))
+        cat("\n************************************\n")
+    }
+    cat(paste0("Columns to insert into: ", paste(x$db.cols.insert, 
+        collapse = ",")))
     cat("\n************************************\n")
-  }
-  cat(paste0("Columns to insert into: ", paste(x$db.cols.insert,
-                                               collapse = ",")))
-  cat("\n************************************\n")
-  cat(paste0("Formatted insert data: ", substr(x$insert.data,
-                                               0, 1000)))
-  if (nchar(x$insert.data) > 1000) {
-    cat("........Only the first 1000 characters shown")
-  }
+    cat(paste0("Formatted insert data: ", substr(x$insert.data, 
+        0, 1000)))
+    if (nchar(x$insert.data) > 1000) {
+        cat("........Only the first 1000 characters shown")
+    }
 }

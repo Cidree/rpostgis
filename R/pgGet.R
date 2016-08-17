@@ -1,12 +1,11 @@
-## pgGetPts
+# pgGetGeom
 
-##' Load a PostGIS geometry in a PostgreSQL table/view into R.
+##' Load a PostGIS geometry from a PostgreSQL table/view into R.
 ##'
 ##' Retrieve point, linestring, or polygon geometries from a PostGIS
 ##' table/view, and convert it to an R `sp` object (Spatial* or
 ##' Spatial*DataFrame).
 ##'
-##' @aliases pgGet
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
 ##'     table/view name holding the geometry (e.g., `name =
@@ -18,13 +17,91 @@
 ##'     new unique ID for each row in the `sp` object.
 ##' @param other.cols Names of specific columns in the table to
 ##'     retrieve, comma seperated in one character element
-##'     (e.g. \code{other.cols='col1,col2'}. The default is to attach
-##'     all columns in a Spatial*DataFrame. Setting
+##'     (e.g. \code{other.cols='col1,col2'}.) The default is to attach
+##'     all columns (except the geometry) in a Spatial*DataFrame. Setting
 ##'     \code{other.cols=NULL} will return a Spatial-only object (no
 ##'     data).
 ##' @param clauses character, additional SQL to append to modify select
-##'     query from table. Must begin with and SQL clause (e.g., "WHERE ...",
+##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); see below for examples.
+##' @return sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
+##' @export
+##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' 
+##' @examples
+##' \dontrun{
+##' ## Retrieve a Spatial*DataFrame with all data from table
+##' ## 'schema.tablename', with geometry in the column 'geom'
+##' pgGetGeom(conn, c("schema", "tablename"))
+##' ## Return a Spatial*DataFrame with columns c1 & c2 as data
+##' pgGetGeom(conn, c("schema", "tablename"), other.cols = "c1,c2")
+##' ## Return a Spatial*-only (no data frame), 
+##' ## retaining id from table as rownames
+##' pgGetGeom(conn, c("schema", "tablename"), gid = "table_id", other.cols = NULL)
+##' ## Return a Spatial*-only (no data frame), 
+##' ##retaining id from table as rownames and with a subset of the data
+##' pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
+##'     other.cols = NULL, clauses  = "WHERE field = 'highway'")
+##' }
+
+pgGetGeom<-function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
+    clauses = NULL) {
+  if (!suppressMessages(pgPostGIS(conn))) {
+      stop("PostGIS is not enabled on this database.")
+    }
+    ## Check and prepare the schema.name
+    nameque <- paste(dbTableNameFix(name), collapse = ".")
+    namechar <- gsub('""','"',gsub("'","''",
+                paste(gsub('^"|"$', '', dbTableNameFix(name)),collapse=".")))
+    ## Check table exists
+    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
+        (f_table_schema||'.'||f_table_name) = '",namechar,"';")
+    tab.list <- dbGetQuery(conn, tmp.query)$geo
+    if (is.null(tab.list)) {
+        stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns."))
+    } else if (!geom %in% tab.list) {
+        stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
+            paste(tab.list, collapse = ", ")))
+    }
+    ## prepare geom column
+    geomque<-DBI::dbQuoteIdentifier(conn,geom)
+    ## prepare clauses
+    clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
+    ## check type
+    tmp.query <- paste0("SELECT DISTINCT ST_GeometryType(", geomque,
+        ") AS type FROM ", nameque, " WHERE ", geomque, " IS NOT NULL ",
+        clauses , ";")
+    typ <- dbGetQuery(conn, tmp.query)$type
+    #assign to correct function
+    if (length(typ) == 0) { 
+      stop("No geometries found.") 
+    } else if (length(typ) == 1) {
+      if (typ %in% c("ST_Point","ST_MultiPoint")) {
+        ret<-pgGetPts(conn, name, geom, gid, other.cols, clauses)
+        message(paste0("Returning ",sub("...","",typ)," types in SpatialPoints*-class."))
+        return(ret)
+      } else if (typ %in% c("ST_LineString","ST_MultiLineString")) {
+        ret<-pgGetLines(conn, name, geom, gid, other.cols, clauses)
+        message(paste0("Returning ",sub("...","",typ)," types in SpatialLines*-class."))
+        return(ret)
+      } else if (typ %in% c("ST_Polygon","ST_MultiPolygon")) {
+        ret<-pgGetPolys(conn, name, geom, gid, other.cols, clauses)
+        message(paste0("Returning ",sub("...","",typ)," types in SpatialPolygons*-class."))
+        return(ret)
+      } else {
+        stop(paste0("Geometry type ",typ," not supported."))
+      }
+    } else {
+      stop(paste0("Multiple geometry types found: (",paste(typ,collapse = ", "),"). Use
+                  \"clauses\" to modify query to select only one geometry type."))
+    }
+}
+
+
+## pgGetPts
+
+##' Load a PostGIS point geometry from a PostgreSQL table/view into R.
 ##' @return Spatial(Multi)PointsDataFrame or Spatial(Multi)Points
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
@@ -34,7 +111,7 @@
 ##' @importFrom sp SpatialMultiPoints
 ##' @importFrom sp SpatialMultiPointsDataFrame
 ##' @importFrom rgeos readWKT
-##' @export
+##' @keywords internal
 ##' @examples
 ##' \dontrun{
 ##' ## Retrieve a SpatialPointsDataFrame with all data from table
@@ -54,24 +131,15 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
-    ## Check table exists
-    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
-        (f_table_schema||'.'||f_table_name) = '",namechar,"';")
-    tab.list <- dbGetQuery(conn, tmp.query)$geo
-    if (is.null(tab.list)) {
-        stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns."))
-    } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
-            paste(tab.list, collapse = ", ")))
-    }
     ## prepare geom column
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
         gid <- "row_number() over()"
+    } else {
+      gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
     ## Check if MULTI or single geom
     tmp.query <- paste0("SELECT DISTINCT ST_GeometryType(", geomque,
@@ -155,13 +223,15 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 
 ## pgGetLines
 
-##' @rdname pgGetPts
+##' Load a PostGIS linestring geometry from a PostgreSQL table/view into R.
+##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialLines
 ##' @importFrom sp SpatialLinesDataFrame
 ##' @importFrom rgeos readWKT
 ##' @importFrom methods slot
-##' @export
+##' @keywords internal
 ##' @return SpatialLinesDataFrame or SpatialLines
 ##' @examples
 ##' \dontrun{
@@ -178,21 +248,18 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
+
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
-    ## Check table exists
-    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
-        (f_table_schema||'.'||f_table_name) = '",namechar,"';")
-    tab.list <- dbGetQuery(conn, tmp.query)$geo
-    if (is.null(tab.list)) {
-        stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns."))
-    } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
-            paste(tab.list, collapse = ", ")))
-    }
+    
     ## prepare geom column
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
+    ## Check gid
+    if (is.null(gid)) {
+        gid <- "row_number() over()"
+    } else {
+      gid<-DBI::dbQuoteIdentifier(conn,gid)
+    }
     ## Retrieve the SRID
     tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geomque, ")) FROM ",
         nameque, " WHERE ", geomque, " IS NOT NULL ", clauses , ";")
@@ -212,10 +279,6 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     }
     if (is.na(p4s)) {
         warning("Table SRID not found. Projection will be undefined (NA)")
-    }
-    ## Check gid
-    if (is.null(gid)) {
-        gid <- "row_number() over()"
     }
     ## Check other.cols
     if (is.null(other.cols)) {
@@ -255,13 +318,15 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
 
 ## pgGetPolys
 
-##' @rdname pgGetPts
+##' Load a PostGIS polygon geometry from a PostgreSQL table/view into R.
+##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialPolygons
 ##' @importFrom sp SpatialPolygonsDataFrame
 ##' @importFrom rgeos readWKT
 ##' @importFrom methods slot
-##' @export
+##' @keywords internal
 ##' @return SpatialPolygonsDataFrame or SpatialPolygons
 ##' @examples
 ##' \dontrun{
@@ -279,21 +344,16 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     ## Check and prepare the schema.name
     name <- dbTableNameFix(name)
     nameque <- paste(name, collapse = ".")
-    namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
-    ## Check table exists
-    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
-                        (f_table_schema||'.'||f_table_name) = '",namechar,"';")
-    tab.list <- dbGetQuery(conn, tmp.query)$geo
-    if (is.null(tab.list)) {
-        stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns."))
-    } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ",
-            paste(tab.list, collapse = ", ")))
-    }
     ## prepare geom column
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
+    ## Check gid
+    if (is.null(gid)) {
+        gid <- "row_number() over()"
+    } else {
+      gid<-DBI::dbQuoteIdentifier(conn,gid)
+    }
     ## Retrieve the SRID
     tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geomque, ")) FROM ",
         nameque, " WHERE ", geomque, " IS NOT NULL ", clauses , ";")
@@ -313,10 +373,6 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     }
     if (is.na(p4s)) {
         warning("Table SRID not found. Projection will be undefined (NA)")
-    }
-    ## Check gid
-    if (is.null(gid)) {
-        gid <- "row_number() over()"
     }
     ## Check other columns
     if (is.null(other.cols)) {

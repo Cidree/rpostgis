@@ -2,7 +2,7 @@
 
 ##' Format R data objects for insert into a PostgreSQL table.
 ##'
-##' These functions take an R \code{sp} object (Spatial* or
+##' These are internal rpostgis functions that take an R \code{sp} object (Spatial* or
 ##' Spatial*DataFrame; for \code{pgInsertizeGeom}) or data frame (for
 ##' \code{pgInsertize}) and return a \code{pgi} list object, which can
 ##' be used in the function \code{pgInsert} to insert rows of the
@@ -306,7 +306,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         df[] <- lapply(df, as.character)
         ## Set all NA to NULL
         df[is.na(df)] <- "NULL"
-        ## Double all single ' to escape. Format rows of data frame.
+        ## Double all single quotes to escape. Format rows of data frame.
         if (!is.na(proj)) {
             if (multi == TRUE) {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
@@ -344,8 +344,6 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     return(lis)
 }
 
-
-
 ## pgInsertize
 
 ##' @rdname pgInsertizeGeom
@@ -371,7 +369,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
 ##' pgInsert(conn, data.obj = values)
 ##' }
 
-pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
+pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL, 
     conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE) {
     if (!is.data.frame(data.obj)) {
         stop("data.obj must be a data frame.")
@@ -404,8 +402,8 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         in.tab <- create.table
         drv <- DBI::dbDriver("PostgreSQL")
         ## Make create table statement
-        new.table <- postgresqlBuildTableDefinition(drv, name = in.tab,
-                                                    obj = data.obj, row.names = FALSE)
+        new.table <- postgresqlBuildTableDefinition(drv, name = in.tab, 
+            obj = data.obj, row.names = FALSE)
     }
     ## Match columns to DB table if set
     if (!is.null(force.match)) {
@@ -417,7 +415,7 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         in.tab <- force.match
         db.cols <- dbTableInfo(conn, name = in.tab)$column_name
         if (is.null(db.cols)) {
-            stop(paste0("Database table ", paste(nt, collapse = "."),
+            stop(paste0("Database table ", paste(nt, collapse = "."), 
                 " not found."))
         }
         rcols <- colnames(data.obj)
@@ -430,14 +428,16 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         }
         
         ## stop if colnames do not all match and partial.match = FALSE
-        if (!(length(colnames(data.obj)) == length(rcols)) & !partial.match)  {
-          stop(paste0((length(rcols) - length(colnames(data.obj))),
-                      " column(s) in data frame are missing in database table (",
-                      paste(rcols[is.na(match(rcols,colnames(data.obj)))],collapse=", "),"). Rename data frame columns 
-            or set partial.match = TRUE to only insert to matching colunns."))
+        if (!(length(colnames(data.obj)) == length(rcols)) & 
+            !partial.match) {
+            stop(paste0((length(rcols) - length(colnames(data.obj))), 
+                " column(s) in data frame are missing in database table (", 
+                paste(rcols[is.na(match(rcols, colnames(data.obj)))], 
+                  collapse = ", "), "). Rename data frame columns 
+                        or set partial.match = TRUE to only insert to matching colunns."))
         }
         
-        message(paste0(length(colnames(data.obj)), " out of ",
+        message(paste0(length(colnames(data.obj)), " out of ", 
             length(rcols), " columns of the data frame match database table columns and will be formatted for database insert."))
     } else {
         db.cols.insert <- colnames(data.obj)
@@ -446,12 +446,12 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
     data.obj[] <- lapply(data.obj, as.character)
     data.obj[is.na(data.obj)] <- "NULL"
     ## Format rows of data frame
-    d1 <- apply(data.obj, 1, function(x) paste0("('", toString(paste(gsub("'",
+    d1 <- apply(data.obj, 1, function(x) paste0("('", toString(paste(gsub("'", 
         "''", x, fixed = TRUE), collapse = "','")), "')"))
     d1 <- gsub("'NULL'", "NULL", d1)
     d1 <- paste(d1, collapse = ",")
     ## Create pgi object
-    lis <- list(in.table = in.tab, db.new.table = new.table,
+    lis <- list(in.table = in.tab, db.new.table = new.table, 
         db.cols.insert = db.cols.insert, insert.data = d1)
     class(lis) <- "pgi"
     return(lis)

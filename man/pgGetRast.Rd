@@ -2,7 +2,7 @@
 % Please edit documentation in R/pgGetRast.R
 \name{pgGetRast}
 \alias{pgGetRast}
-\title{Load raster from DB.}
+\title{Load raster from PostGIS database.}
 \usage{
 pgGetRast(conn, name, rast = "rast", digits = 9, boundary = NULL)
 }

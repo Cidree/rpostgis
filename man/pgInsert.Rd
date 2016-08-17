@@ -3,7 +3,7 @@
 \name{pgInsert}
 \alias{pgInsert}
 \alias{print.pgi}
-\title{Inserts spatial data into a PostgreSQL table.}
+\title{Inserts data into a PostgreSQL table.}
 \usage{
 pgInsert(conn, name, data.obj, geom = "geom", partial.match = FALSE,
   overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL,
@@ -37,14 +37,15 @@ database table \code{name}.  Columns in the data frame that
 exactly match the database table will be inserted into the
 database table.}
 
-\item{overwrite}{Logical; if true, a new table \code{name} will
-overwrite the existing table \code{name} in the database.}
+\item{overwrite}{Logical; if true, a new table (\code{name}) will
+overwrite the existing table (\code{name}) in the database.}
 
 \item{new.id}{Character, name of a new sequential integer ID
-column to be added to the table.  (for spatial objects without
+column to be added to the table for insert (for spatial objects without
 data frames, this column is created even if left \code{NULL}
 and defaults to the name \code{"gid"}). If \code{partial.match
-= TRUE} and otherwise it will be discarded.}
+= TRUE} and the column does not exist in the databse table,
+it will be discarded.}
 
 \item{alter.names}{Logical, whether to make database column names
 DB-compliant (remove special characters). Default is
@@ -92,8 +93,8 @@ ROLLBACK to revert to the previous state.
 On database errors, or if the user specifies \code{return.pgi = TRUE},
 the function will return a \code{pgi} object (see next paragraph). This
 object can be re-used as the \code{data.obj} in \code{pgInsert}; (e.g., when
-inserting the exact same data into tables in two separate databases). If
-\code{return.pgi = FALSE} (default), the function will return \code{TRUE},
+inserting the exact same data into tables in two separate tables or databases). 
+If \code{return.pgi = FALSE} (default), the function will return \code{TRUE},
 indicating successful insert.
 
 pgi objects are a list containing four character strings: (1)
