@@ -1,6 +1,6 @@
 ## Test environments
-* local Windows install, R 3.3.0
-* build-win, R-development version
+* local Windows 7 install, R 3.3.0
+* win-builder (devel and release)
 * Debian 8.5, R 3.3.1
 
 ## R CMD check results
