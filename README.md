@@ -11,7 +11,7 @@ See [the home page for the released versions](http://ase-research.org/basille/rp
 ## Installation of the development version
 
 You need to use the package
-[`devtools`](http://cran.r-project.org/web/packages/devtools/index.html)
+[`devtools`](http://cran.r-project.org/package=devtools)
 from Hadley Wickham:
 
 	library(devtools)
