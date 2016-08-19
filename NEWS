@@ -1,3 +1,11 @@
+rpostgis 1.0
+=============
+OVERALL CHANGE
+
+* Initial release to CRAN
+
+* pgGetGeom now handles all regular PostGIS Geometry data table imports
+
 rpostgis 0.10
 =============
 

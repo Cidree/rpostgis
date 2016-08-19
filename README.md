@@ -2,9 +2,9 @@ rpostgis
 ========
 
 This is the development area for the package `rpostgis`, which provides additional functions to the
-RPostgreSQL package to interface R with a PostGIS-enabled database, as well as convenient wrappers to common PostgreSQL queries.
+`RPostgreSQL` package to interface R with a PostGIS-enabled database, as well as convenient wrappers to common PostgreSQL queries.
 
-All functions require a database connection object (from the `DBI` package) to a PostgreSQL database, e.g.:
+All functions require a database connection object (from the `RPostgreSQL` package) to a PostgreSQL database, e.g.:
 
     drv<-dbDriver("PostgreSQL")
     conn<-dbConnect(drv,dbname='db_name',host='localhost',port='5432',user='postgres',password='PASSWORD')
@@ -28,33 +28,24 @@ General-purpose database functions such as `dbAddKey` and `dbIndex` provide Post
     
 Package functions which are primarily for general database procedures have the prefix (`db`), while PostGIS-enabled database specific fuctions have the prefix (`pg`).
 
-See [the home page for the released versions](http://ase-research.org/basille/rpostgis/).
+## Installation of the released versions
+
+You can install the latest released version (1.0) from CRAN:
+
+    install.packages("rpostgis")
+
+You can use `update.packages()` to update to the latest CRAN version.
 
 ## Installation of the development version
 
-You need to use the package
-[`devtools`](http://cran.r-project.org/package=devtools)
-from Hadley Wickham:
+A stable development version of the package will be available on the project's [Github page](https://github.com/mablab/rpostgis), which may be ahead the CRAN version. To install it, use the [`devtools`](http://cran.r-project.org/package=devtools) package from Hadley Wickham:
 
     library(devtools)
     install_github("mablab/rpostgis")
+    
+For the latest (possibly unstable) development version, use:
 
-
-## Installation of the released versions
-
-Binaries for Windows are (sometimes) maintained for the
-latest R release, and can be installed with the command:
-
-    install.packages("rpostgis", repos = "http://ase-research.org/R/")
-
-If it's not the case, and with other operating systems (such as GNU/Linux or OS X), you can compile the source package with the command:
-
-    install.packages("rpostgis", repos = "http://ase-research.org/R/", type = "source")
-
-The upgrade process (e.g. using `update.packages()`) is not operative on
-packages from this repository. Simply reinstall the package with one of the
-commands above to upgrade it when necessary.
-
+    install_github("mablab/rpostgis",ref="develop")
 
 ## Getting started
 
