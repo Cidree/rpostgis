@@ -13,5 +13,7 @@ This is a resubmission. In this version I have:
 ## R CMD check results
 There were no ERRORs, WARNINGS, or NOTEs.
 
+This is a new package submission.
+
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.
