@@ -1,10 +1,10 @@
 Package: rpostgis
 Version: 1.0.0
 Date: 2016-08-19
-Title: R Interface to a PostGIS Database
+Title: R Interface to a 'PostGIS' Database
 Description: Provides additional functions to the
-    RPostgreSQL package to interface R with a PostGIS-enabled
-    database, as well as convenient wrappers to common PostgreSQL
+    'RPostgreSQL' package to interface R with a 'PostGIS'-enabled
+    database, as well as convenient wrappers to common 'PostgreSQL'
     queries.
 Authors@R: c(
     person("Mathieu", "Basille", email = "basille@ufl.edu", role =
@@ -26,6 +26,6 @@ Suggests:
     wkb
 License: GPL (>= 3)
 LazyData: true
-URL: http://ase-research.org/basille/rpostgis
+URL: https://github.com/mablab/rpostgis
 BugReports: https://github.com/mablab/rpostgis/issues
 RoxygenNote: 5.0.1
