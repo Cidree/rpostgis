@@ -3,7 +3,7 @@ This is a resubmission. In this version I have:
 
 * Used single quotes in DESCRIPTION for 'PostGIS', 'RPostgreSQL', and 'PostgreSQL'
 
-* Updated the pacakge URL.
+* Updated the package URL.
 
 ## Test environments
 * local Windows 7 install, R 3.3.1
