@@ -12,7 +12,9 @@
 ##' @param topology Logical. Whether to check/install the Topology
 ##'     extension.
 ##' @param tiger Logical. Whether to check/install the Tiger Geocoder
-##'     extension.
+##'     extension. Will also install extensions "fuzzystrmatch",
+##'     "address_standardizer", and "address_standardizer_data_us" if
+##'     all are available.
 ##' @param sfcgal Logical. Whether to check/install the SFCGAL
 ##'     extension.
 ##' @param display Logical. Whether to display the query (defaults to
@@ -40,28 +42,59 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
     ## Extract it and check if installed; if not, install it:
     post <- subset(ext, ext$name == "postgis")
     if (is.na(post$installed_version)) {
-        ## Print message:
-        message(paste0("Installing PostGIS extension version ", 
-            post$default_version), ":")
-        ## Build the query
-        query <- paste0("CREATE EXTENSION postgis;")
-        ## Display the query
-        if (display) {
-            message(paste0("Query ", ifelse(exec, "", "not "), 
-                "executed:"))
-            message(query)
-            message("--")
+        # check if installed but not using CREATE EXTENSION
+        pgis_check2 <- dbGetQuery(conn, "SELECT table_name FROM information_schema.tables WHERE 
+                   table_name IN ('spatial_ref_sys','geometry_columns');")$table_name
+        
+        if (length(pgis_check2) >= 2) {
+            pgis_ver <- NULL
+            try(pgis_ver <- dbGetQuery(conn, "SELECT postgis_full_version();")$postgis_full_version, 
+                silent = TRUE)
+            if (!is.null(pgis_ver)) {
+                full_ver <- unlist(strsplit(pgis_ver, "\"", fixed = TRUE))[2]
+                full_ver <- unlist(strsplit(full_ver, " ", fixed = TRUE))[1]
+                maj_ver <- unlist(strsplit(full_ver, ".", fixed = TRUE))[1]
+                if (maj_ver < 2) {
+                  stop("Unsupported version of PostGIS already installed (supported versions: 2.0 and above).")
+                } else {
+                  message("PostGIS is installed, but not using the recommended \"CREATE EXTENSION postgis;\" method.")
+                  if (any(tiger, sfcgal, topology)) {
+                    message("Due to non-standard install of PostGIS, Other extensions cannot be checked/installed using this function.")
+                  }
+                  return(TRUE)
+                }
+            }
+        } else {
+            ## Print message:
+            message(paste0("Installing PostGIS extension version ", 
+                post$default_version), ":")
+            ## Build the query
+            query <- paste0("CREATE EXTENSION postgis;")
+            ## Display the query
+            if (display) {
+                message(paste0("Query ", ifelse(exec, "", "not "), 
+                  "executed:"))
+                message(query)
+                message("--")
+            }
+            ## Execute the query
+            if (exec) 
+                dbSendQuery(conn, query)
+            
+            ## Should now be installed; stop if not:
+            ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
+            post <- subset(ext, ext$name == "postgis")
+            full_ver <- post$installed_version
         }
-        ## Execute the query
-        if (exec) 
-            dbSendQuery(conn, query)
+        
+        if (is.na(full_ver)) 
+            stop("PostGIS extension not installed.") else message(paste0("PostGIS extension version ", full_ver, 
+            " installed."))
+    } else {
+        message(paste0("PostGIS extension version ", post$installed_version, 
+            " installed."))
     }
-    ## Should now be installed; stop if not:
-    ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
-    post <- subset(ext, ext$name == "postgis")
-    if (is.na(post$installed_version)) 
-        stop("PostGIS extension not installed.") else message(paste0("PostGIS extension version ", post$installed_version, 
-        " installed."))
+    
     ## Topology extension
     if (topology) {
         ## Check if Topology is available:
@@ -97,26 +130,32 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
     ## Tiger Geocoder extension
     if (tiger) {
         ## Check if Tiger Geocoder is available:
-        if (!("postgis_tiger_geocoder" %in% ext$name)) 
+        tiger_exts <- c("fuzzystrmatch", "postgis_tiger_geocoder", 
+            "address_standardizer", "address_standardizer_data_us")
+        if (!all(tiger_exts %in% ext$name)) 
             message("PostGIS Tiger Geocoder extension not available.") else {
             ## Extract it and check if installed; if not, install it:
-            tiger <- subset(ext, ext$name == "postgis_tiger_geocoder")
-            if (is.na(tiger$installed_version)) {
-                ## Print message:
-                message(paste0("Installing PostGIS Tiger Geocoder extension version ", 
-                  tiger$default_version), ":")
+            tiger <- subset(ext, ((ext$name %in% tiger_exts) & 
+                is.na(ext$installed_version)))
+            if (length(tiger$name) > 0) {
                 ## Build the query
-                query <- paste0("CREATE EXTENSION postgis_tiger_geocoder;")
-                ## Display the query
-                if (display) {
-                  message(paste0("Query ", ifelse(exec, "", "not "), 
-                    "executed:"))
-                  message(query)
-                  message("--")
+                for (i in order(tiger[1])) {
+                  message(paste0("Installing ", tiger$name[i], 
+                    " extension version ", tiger$default_version[i]), 
+                    ":")
+                  query <- paste0("CREATE EXTENSION ", tiger$name[i], 
+                    ";")
+                  ## Display the query
+                  if (display) {
+                    message(paste0("Query ", ifelse(exec, "", 
+                      "not "), "executed:"))
+                    message(query)
+                    message("--")
+                  }
+                  ## Execute the query
+                  if (exec) 
+                    dbSendQuery(conn, query)
                 }
-                ## Execute the query
-                if (exec) 
-                  dbSendQuery(conn, query)
             }
             ## Should now be installed; print a message if not:
             ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")

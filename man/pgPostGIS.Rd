@@ -15,7 +15,9 @@ FALSE}).}
 extension.}
 
 \item{tiger}{Logical. Whether to check/install the Tiger Geocoder
-extension.}
+extension. Will also install extensions "fuzzystrmatch",
+"address_standardizer", and "address_standardizer_data_us" if
+all are available.}
 
 \item{sfcgal}{Logical. Whether to check/install the SFCGAL
 extension.}
