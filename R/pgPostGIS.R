@@ -57,7 +57,7 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
                 if (maj_ver < 2) {
                   stop("Unsupported version of PostGIS already installed (supported versions: 2.0 and above).")
                 } else {
-                  message("PostGIS is installed, but not using the recommended \"CREATE EXTENSION postgis;\" method.")
+                  message("PostGIS is installed, but not registered in \"pg_available_extensions\". rpostgis should work, \nbut use the recommended \"CREATE EXTENSION postgis;\" (or this function) to enable PostGIS in the future.")
                   if (any(tiger, sfcgal, topology)) {
                     message("Due to non-standard install of PostGIS, Other extensions cannot be checked/installed using this function.")
                   }
