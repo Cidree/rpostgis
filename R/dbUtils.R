@@ -39,3 +39,19 @@ dbTableNameFix <- function(t.nm) {
     t.nm<-DBI::dbQuoteIdentifier(DBI::ANSI(), DBI::dbQuoteIdentifier(DBI::ANSI(), t.nm))
     return(t.nm)
 }
+
+## dbVersion
+
+##' Returns major.minor version of PostgreSQL (for version checking)
+##'
+##' @param conn A PostgreSQL connection
+##' @return character vector of length 2 of major,minor version.
+##' @keywords internal
+
+dbVersion<- function (conn) {
+      pv<-dbGetQuery(conn,"SELECT version();")$version
+      matches<-gregexpr("\\s\\K(\\d*).(\\d*)",pv,perl=TRUE)
+      nv<-unlist(regmatches(pv,matches))[1]
+      nv2<-unlist(strsplit(nv,".",fixed=TRUE))
+      return(nv2)
+}

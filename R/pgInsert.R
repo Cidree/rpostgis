@@ -20,12 +20,16 @@
 ##' In the event of function or database error, the database uses
 ##' ROLLBACK to revert to the previous state. 
 ##' 
-##' On database errors, or if the user specifies \code{return.pgi = TRUE},
-##' the function will return a \code{pgi} object (see next paragraph). This
-##' object can be re-used as the \code{data.obj} in \code{pgInsert}; (e.g., when
-##' inserting the exact same data into tables in two separate tables or databases). 
-##' If \code{return.pgi = FALSE} (default), the function will return \code{TRUE},
-##' indicating successful insert.
+##' If the user specifies \code{return.pgi = TRUE}, and data preparation is
+##' successful, the function will return 
+##' a \code{pgi} object (see next paragraph), regardless of whether the
+##' insert was successful or not. This object can be useful for debugging, 
+##' or re-used as the \code{data.obj} in \code{pgInsert}; 
+##' (e.g., when data preparation is slow, and the exact same data 
+##' needs to be inserted into tables in two separate
+##' tables or databases).If \code{return.pgi = FALSE}
+##' (default), the function will return \code{TRUE} for successful insert and
+##' \code{FALSE} for failed inserts.
 ##' 
 ##' pgi objects are a list containing four character strings: (1)
 ##' in.table, the table name which will be created or inserted
@@ -63,6 +67,11 @@
 ##'     and defaults to the name \code{"gid"}). If \code{partial.match
 ##'     = TRUE} and the column does not exist in the databse table,
 ##'     it will be discarded.
+##' @param upsert.using Character, name of the column(s) in the database table 
+##'     or constraint name used to identify already-existing rows in the table, which will
+##'     be updated rather than inserted. The column(s) must have a unique constraint
+##'     already created in the database table (e.g., a primary key). 
+##'     Requires PostgreSQL 9.5+.
 ##' @param alter.names Logical, whether to make database column names
 ##'     DB-compliant (remove special characters). Default is
 ##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
@@ -77,8 +86,8 @@
 ##'     (i.e., a \code{pgi} object; see function details.)
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @export
-##' @return Returns \code{TRUE} if the insertion was successful, or a
-##' \code{pgi} object if specified, or in the case of database error.
+##' @return Returns \code{TRUE} if the insertion was successful,
+##' \code{FALSE} if failed, or a \code{pgi} object if specified.
 ##' @examples
 ##' \dontrun{
 ##' library(sp)
@@ -100,7 +109,7 @@
 ##' }
 
 pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE, 
-    overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL, 
+    overwrite = FALSE, new.id = NULL, upsert.using = NULL, alter.names = TRUE, encoding = NULL, 
     return.pgi = FALSE) {
     ## Check if PostGIS installed
     if (!suppressMessages(pgPostGIS(conn))) {
@@ -109,9 +118,11 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     # data.obj class
     cls <- class(data.obj)[1]
     if (cls == "pgi") {
-      if (is.null(data.obj$in.table)) {
+        if (is.null(data.obj$in.table)) {
             stop("Table to insert into not specified (in pgi$in.table). Set this and re-run.")
-        } else {name<-data.obj$in.table}
+        } else {
+            name <- data.obj$in.table
+        }
     }
     ## Check for existing table
     exists.t <- dbExistsTable(conn, name)
@@ -162,19 +173,27 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
                 ifexists = TRUE)
             if (!over.t) {
                 dbSendQuery(conn, "ROLLBACK;")
-                message("Could not drop existing table; pgi object returned. No changes made to database.")
-                return(pgi)
+                message("Could not drop existing table. No changes made to database.")
+                if (return.pgi) {
+                  return(pgi)
+                } else {
+                  return(FALSE)
+                }
             }
         }
         quet <- NULL
         try(quet <- dbSendQuery(conn, pgi$db.new.table))
         if (is.null(quet)) {
             dbSendQuery(conn, "ROLLBACK;")
-            message("Table creation failed; pgi object returned. No changes made to database.")
-            return(pgi)
+            message("Table creation failed. No changes made to database.")
+            if (return.pgi) {
+                return(pgi)
+            } else {
+                return(FALSE)
+            }
         }
     } else if (is.null(pgi$db.new.table) & overwrite) {
-      message("No create table definition in pgi object (pgi$db.new.table);
+        message("No create table definition in pgi object (pgi$db.new.table);
               not dropping existing table...")
     }
     
@@ -187,22 +206,50 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     if (is.null(db.cols)) {
         dbSendQuery(conn, "ROLLBACK;")
         message(paste0("Database table ", paste(name, collapse = "."), 
-            " not found; pgi object returned. No changes made to database."))
-        return(pgi)
+            " not found; No changes made to database."))
+        if (return.pgi) {
+            return(pgi)
+        } else {
+            return(FALSE)
+        }
     }
     test <- match(cols, db.cols)
     unmatched <- cols[is.na(test)]
     if (length(unmatched) > 0) {
         dbSendQuery(conn, "ROLLBACK;")
         message(paste0("The column(s) (", paste(unmatched, collapse = ","), 
-            ") are not in the database table; pgi object returned. No changes made to database."))
-        return(pgi)
+            ") are not in the database table. No changes made to database."))
+        if (return.pgi) {
+            return(pgi)
+        } else {
+            return(FALSE)
+        }
     }
-    cols2 <- paste0("(\"", paste(cols, collapse = "\",\""), "\")")
+    #upsert
+    up.query<-NULL
+    if (is.null(pgi$db.new.table) && !is.null(upsert.using)) {
+      excl<-dbQuoteIdentifier(conn,pgi$db.cols.insert[!pgi$db.cols.insert %in% upsert.using])
+      excl2<-paste(excl, " = excluded.",excl,sep="")
+      excl.q<-paste(excl2,collapse = ", ")
+      up<-dbQuoteIdentifier(conn,upsert.using)
+      
+      if(length(excl) == length(pgi$db.cols.insert)) {
+        message("Upserting using constraint name...")
+        up.query<-paste0(" ON CONFLICT ON CONSTRAINT ",paste(up,collapse = ",")," DO UPDATE SET ",
+                       excl.q) 
+        } else {
+        message("Upserting using column name(s)...")
+        up.query<-paste0(" ON CONFLICT (",paste(up,collapse = ","),") DO UPDATE SET ",
+                       excl.q)
+        }
+    }
+    
+    cols2 <- paste0("(", paste(dbQuoteIdentifier(conn,cols), collapse = ","), ")")
     quei <- NULL
     ## Send insert query
-    try(quei <- dbSendQuery(conn, paste0("INSERT INTO ", nameque[1], 
-        ".", nameque[2], cols2, " VALUES ", values, ";")))
+    temp.query<-paste0("INSERT INTO ", nameque[1], 
+        ".", nameque[2], cols2, " VALUES ", values, up.query,";")
+    try(quei <- dbSendQuery(conn, temp.query))
     if (!is.null(quei)) {
         dbSendQuery(conn, "COMMIT;")
         message("Data inserted into table.")
@@ -214,8 +261,12 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
         }
     } else {
         dbSendQuery(conn, "ROLLBACK;")
-        message("Insert failed; pgi object returned. No changes made to database.")
-        return(pgi)
+        message("Insert failed. No changes made to database.")
+        if (return.pgi) {
+            return(pgi)
+        } else {
+            return(FALSE)
+        }
     }
 }
 

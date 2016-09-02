@@ -6,8 +6,8 @@
 \title{Inserts data into a PostgreSQL table.}
 \usage{
 pgInsert(conn, name, data.obj, geom = "geom", partial.match = FALSE,
-  overwrite = FALSE, new.id = NULL, alter.names = TRUE, encoding = NULL,
-  return.pgi = FALSE)
+  overwrite = FALSE, new.id = NULL, upsert.using = NULL,
+  alter.names = TRUE, encoding = NULL, return.pgi = FALSE)
 
 \method{print}{pgi}(x, ...)
 }
@@ -47,6 +47,12 @@ and defaults to the name \code{"gid"}). If \code{partial.match
 = TRUE} and the column does not exist in the databse table,
 it will be discarded.}
 
+\item{upsert.using}{Character, name of the column(s) in the database table 
+or constraint name used to identify already-existing rows in the table, which will
+be updated rather than inserted. The column(s) must have a unique constraint
+already created in the database table (e.g., a primary key). 
+Requires PostgreSQL 9.5+.}
+
 \item{alter.names}{Logical, whether to make database column names
 DB-compliant (remove special characters). Default is
 \code{TRUE}.  (This should to be set to \code{FALSE} to match
@@ -67,8 +73,8 @@ UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
 \item{...}{Further arguments not used.}
 }
 \value{
-Returns \code{TRUE} if the insertion was successful, or a
-\code{pgi} object if specified, or in the case of database error.
+Returns \code{TRUE} if the insertion was successful,
+\code{FALSE} if failed, or a \code{pgi} object if specified.
 }
 \description{
 This function takes a take an R \code{sp} object (Spatial* or
@@ -90,12 +96,16 @@ cases the \code{rgeos} function \code{writeWKT} is used.
 In the event of function or database error, the database uses
 ROLLBACK to revert to the previous state.
 
-On database errors, or if the user specifies \code{return.pgi = TRUE},
-the function will return a \code{pgi} object (see next paragraph). This
-object can be re-used as the \code{data.obj} in \code{pgInsert}; (e.g., when
-inserting the exact same data into tables in two separate tables or databases). 
-If \code{return.pgi = FALSE} (default), the function will return \code{TRUE},
-indicating successful insert.
+If the user specifies \code{return.pgi = TRUE}, and data preparation is
+successful, the function will return 
+a \code{pgi} object (see next paragraph), regardless of whether the
+insert was successful or not. This object can be useful for debugging, 
+or re-used as the \code{data.obj} in \code{pgInsert}; 
+(e.g., when data preparation is slow, and the exact same data 
+needs to be inserted into tables in two separate
+tables or databases).If \code{return.pgi = FALSE}
+(default), the function will return \code{TRUE} for successful insert and
+\code{FALSE} for failed inserts.
 
 pgi objects are a list containing four character strings: (1)
 in.table, the table name which will be created or inserted
