@@ -43,7 +43,7 @@ dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
     method = c("btree", "hash", "rtree", "gist"), display = TRUE,
     exec = TRUE) {
     ## Check and prepare the schema.name and column name
-    name <- dbTableNameFix(name)
+    name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
     colname<-DBI::dbQuoteIdentifier(conn,colname)
     ## Check and prepare the name of the index

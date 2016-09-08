@@ -28,18 +28,18 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(name)
+    name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
     namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
     ## Check table exists
     tmp.query <- paste0("SELECT geo FROM\n  (SELECT (gc.f_table_schema||'.'||gc.f_table_name) AS tab,
-                        gc.f_geometry_column AS geo\n   FROM public.geometry_columns AS gc\n   UNION\n   
+                        gc.f_geometry_column AS geo\n   FROM geometry_columns AS gc\n   UNION\n   
                         SELECT rc.r_table_schema||'.'||rc.r_table_name AS tab, rc.r_raster_column AS geo\n   
-                        FROM public.raster_columns as rc) a\n  WHERE tab  = '",
+                        FROM raster_columns as rc) a\n  WHERE tab  = '",
                         namechar, "';")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     if (is.null(tab.list)) {
-        stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns or public.raster_columns."))
+        stop(paste0("Table/view '", namechar, "' is not listed in geometry_columns or raster_columns."))
     } else if (!geom %in% tab.list) {
         stop(paste0("Table/view '", namechar, "' geometry/raster column not found.\nAvailable geometry/raster columns: ",
             paste(tab.list, collapse = ", ")))

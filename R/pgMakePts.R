@@ -43,7 +43,7 @@ pgMakePts <- function(conn, name, colname = "geom", x = "x",
         }
     }
     ## Check and prepare the schema.table name
-    nameque <- paste(dbTableNameFix(name), collapse = ".")
+    nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
     ## Prepare column names
     colnameque <- DBI::dbQuoteIdentifier(conn, colname)
     x <- DBI::dbQuoteIdentifier(conn, x)
@@ -128,7 +128,7 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
         }
     }
     ## Check and prepare the schema.table name
-    nameque <- paste(dbTableNameFix(name), collapse = ".")
+    nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
     ## Prepare column names
     colnameque <- DBI::dbQuoteIdentifier(conn, colname)
     x <- DBI::dbQuoteIdentifier(conn, x)

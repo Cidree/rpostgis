@@ -52,16 +52,16 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
         stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    nameque <- paste(dbTableNameFix(name), collapse = ".")
+    nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
     namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(name)), collapse = ".")))
+        "", dbTableNameFix(conn,name)), collapse = ".")))
     ## Check table exists
-    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM public.geometry_columns\nWHERE 
+    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM geometry_columns\nWHERE 
         (f_table_schema||'.'||f_table_name) = '", 
         namechar, "';")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     if (is.null(tab.list)) {
-        stop(paste0("Table/view '", namechar, "' is not listed in public.geometry_columns."))
+        stop(paste0("Table/view '", namechar, "' is not listed in geometry_columns."))
     } else if (!geom %in% tab.list) {
         stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ", 
             paste(tab.list, collapse = ", ")))
@@ -148,7 +148,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(name)
+    name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
@@ -265,7 +265,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(name)
+    name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
 
     ## prepare additional clauses
@@ -361,7 +361,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(name)
+    name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)

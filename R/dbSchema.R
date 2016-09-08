@@ -30,11 +30,11 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
     if (length(name) != 1)
         stop("The schema name should be of length 1.")
     ## make schema name
-    namechar<-gsub("'","''",name)
+    namechar<-DBI::dbQuoteString(conn,name)
     nameque<-DBI::dbQuoteIdentifier(conn,name)
     ## Check existence of the schema
-    tmp.query <- paste0("SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = '",
-        namechar, "');")
+    tmp.query <- paste0("SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = ",
+        namechar, ");")
     schema <- dbGetQuery(conn, tmp.query)[1, 1]
     ## If exists, return TRUE, otherwise create the schema
     if (isTRUE(schema))

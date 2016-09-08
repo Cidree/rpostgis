@@ -36,15 +36,15 @@ pgGetRast <- function(conn, name, rast = "rast", digits = 9,
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(name)
+    name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
     namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
     ## Check table exists
-    tmp.query <- paste0("SELECT r_raster_column AS geo FROM public.raster_columns\n  WHERE (r_table_schema||'.'||r_table_name) = '",
+    tmp.query <- paste0("SELECT r_raster_column AS geo FROM raster_columns\n  WHERE (r_table_schema||'.'||r_table_name) = '",
                         namechar, "';")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     if (is.null(tab.list)) {
-        stop(paste0("Table '", namechar, "' is not listed in public.raster_columns."))
+        stop(paste0("Table '", namechar, "' is not listed in raster_columns."))
     } else if (!rast %in% tab.list) {
         stop(paste0("Table '", namechar, "' raster column '", rast,
             "' not found. Available raster columns: ", paste(tab.list,

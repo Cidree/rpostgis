@@ -32,7 +32,7 @@
 dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
     analyze = TRUE, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(name)
+    name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
     ## Full VACUUM?
     full <- ifelse(full, "FULL ", "")

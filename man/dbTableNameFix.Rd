@@ -4,10 +4,16 @@
 \alias{dbTableNameFix}
 \title{Format input for database schema/table names.}
 \usage{
-dbTableNameFix(t.nm)
+dbTableNameFix(conn = NULL, t.nm, as.identifier = TRUE)
 }
 \arguments{
+\item{conn}{A connection object. Must be provided but can be set NULL,
+where a dummy connection will be used.}
+
 \item{t.nm}{Table name string, length 1-2.}
+
+\item{as.identifier}{Boolean where to return (schema,table) name as database
+sanitized identifers (TRUE) or as regular character (FALSE)}
 }
 \value{
 character vector of length 2. Each character element is in
@@ -21,16 +27,16 @@ inputs.
 \examples{
 \dontrun{
 name<-c("schema","table")
-dbTableNameFix(name)
+dbTableNameFix(conn,name)
 
-#default schema (public) is added to single-length characters (only table is given)
+#current search path schema is added to single-length character object (if only table is given)
 name<-"table"
-dbTableNameFix(name)
+dbTableNameFix(conn,name)
 
 #schema or table names with double quotes should be given exactly as they are 
 (make sure to wrap in single quotes in R):
 name<-c('sch"ema','"table"')
-dbTableNameFix(name)
+dbTableNameFix(conn,name)
 }
 }
 \keyword{internal}
