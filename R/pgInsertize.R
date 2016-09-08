@@ -179,7 +179,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         stop("Either create.table or force.match must be null.")
     }
     if (!is.null(create.table)) {
-        nt <- dbTableNameFix(create.table)
+        nt <- dbTableNameFix(conn,create.table)
         in.tab <- create.table
         drv <- DBI::dbDriver("PostgreSQL")
         ## Make create table statement
@@ -208,7 +208,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
             stop("Database connection must be specified when using force.match.")
         }
         ## Name fixing
-        nt <- dbTableNameFix(force.match)
+        nt <- dbTableNameFix(conn,force.match)
         in.tab <- force.match
         db.cols <- dbTableInfo(conn, name = in.tab)$column_name
         if (is.null(db.cols)) {
@@ -398,7 +398,7 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
     }
     ## Create new table statement if set
     if (!is.null(create.table)) {
-        nt <- dbTableNameFix(create.table)
+        nt <- dbTableNameFix(conn,create.table)
         in.tab <- create.table
         drv <- DBI::dbDriver("PostgreSQL")
         ## Make create table statement
@@ -411,7 +411,7 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
             stop("Database connection must be specified when using force.match.")
         }
         ## Name fixing
-        nt <- dbTableNameFix(force.match)
+        nt <- dbTableNameFix(conn,force.match)
         in.tab <- force.match
         db.cols <- dbTableInfo(conn, name = in.tab)$column_name
         if (is.null(db.cols)) {

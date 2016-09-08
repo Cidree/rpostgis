@@ -1,3 +1,9 @@
+rpostgis 1.0.2
+=============
+OVERALL CHANGE
+
+* updated to use current search path schema as default in all functions
+
 rpostgis 1.0.1
 =============
 OVERALL CHANGE

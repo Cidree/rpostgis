@@ -33,7 +33,7 @@
 dbAddKey <- function(conn, name, colname, type = c("primary",
     "foreign"), reference, colref, display = TRUE, exec = TRUE) {
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(name)
+    name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
     colname<-DBI::dbQuoteIdentifier(conn,colname)
     if (missing(colref)) {
@@ -50,7 +50,7 @@ dbAddKey <- function(conn, name, colname, type = c("primary",
     } else {
         ## Else, check and prepare the schema.name of the reference
         ## table
-        reference <- dbTableNameFix(reference)
+        reference <- dbTableNameFix(conn,reference)
         reftable <- paste(reference, collapse = ".")
         references <- paste0(" REFERENCES ", reftable, " (",
             colref, ")")

@@ -29,7 +29,7 @@
 dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
     exec = TRUE) {
     ## Check and prepare the schema.name and date column
-    name <- dbTableNameFix(name)
+    name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
     date <- DBI::dbQuoteIdentifier(conn, date)
     ## With or without time zones?

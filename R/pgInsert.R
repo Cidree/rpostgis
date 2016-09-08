@@ -180,7 +180,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     
     ## Set name of table
     name <- pgi$in.table
-    nameque <- dbTableNameFix(name)
+    nameque <- dbTableNameFix(conn,name)
     cols <- pgi$db.cols.insert
     values <- pgi$insert.data
     db.cols <- dbTableInfo(conn, name = name)$column_name

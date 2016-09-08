@@ -36,7 +36,7 @@ dbDrop <- function(conn, name, type = c("table", "view", "schema"),
     type <- toupper(match.arg(type))
     ## Check and prepare name
     if (type %in% c("TABLE","VIEW")) {
-      name <- dbTableNameFix(name)
+      name <- dbTableNameFix(conn,name)
       nameque <- paste(name, collapse = ".")
     } else {
       if (length(name) > 1) {stop("Schemas should be a character of length = 1.")}
