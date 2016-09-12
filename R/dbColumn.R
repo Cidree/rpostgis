@@ -7,7 +7,7 @@
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
 ##' @param colname A character string specifying the name of the
-##'     column to which the key will be associated.
+##'     column
 ##' @param action A character string specifying if the column is to be
 ##'     added (\code{"add"}, default) or removed (\code{"drop"}).
 ##' @param coltype A character string indicating the type of the
