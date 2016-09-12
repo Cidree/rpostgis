@@ -13,7 +13,7 @@ dbColumn(conn, name, colname, action = c("add", "drop"),
 \item{name}{A character string specifying a PostgreSQL table name.}
 
 \item{colname}{A character string specifying the name of the
-column to which the key will be associated.}
+column}
 
 \item{action}{A character string specifying if the column is to be
 added (\code{"add"}, default) or removed (\code{"drop"}).}
