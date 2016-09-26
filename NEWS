@@ -3,6 +3,12 @@ rpostgis 1.0.2
 OVERALL CHANGE
 
 * updated to use current search path schema as default in all functions
+  (in previous versions default schema was fixed to 'public')
+
+* added 'upsert' (INSERT ON CONFLICT UPDATE) functionality to pgInsert.
+  Requires PostgreSQL version 9.5+
+
+* added internal function dbVersion() for PostgreSQL version checking
 
 rpostgis 1.0.1
 =============

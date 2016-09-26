@@ -1,6 +1,6 @@
 Package: rpostgis
 Version: 1.0.2
-Date: 2016-09-08
+Date: 2016-09-26
 Title: R Interface to a 'PostGIS' Database
 Description: Provides additional functions to the
     'RPostgreSQL' package to interface R with a 'PostGIS'-enabled
@@ -11,6 +11,8 @@ Authors@R: c(
            c("aut")),
     person("David", "Bucklin", email = "dbucklin@ufl.edu", role =
            c("aut", "cre")) )
+SystemRequirements:
+    'PostgreSQL' with 'PostGIS' extension
 Depends:
     R (>= 3.3.0),
     RPostgreSQL,

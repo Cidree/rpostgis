@@ -6,8 +6,7 @@ This is the development area for the package `rpostgis`, which provides addition
 
 All functions require a database connection object (from the `RPostgreSQL` package) to a PostgreSQL database, e.g.:
 
-    drv<-dbDriver("PostgreSQL")
-    conn<-dbConnect(drv,dbname='db_name',host='localhost',port='5432',user='postgres',password='PASSWORD')
+    conn<-dbConnect("PostgreSQL",dbname='db_name',host='localhost',port='5432',user='postgres',password='PASSWORD')
 
 You can import a PostgreSQL data table with a PostGIS `GEOMETRY` data type as a `sp`-type `Spatial*` or `Spatial*DataFrame` (points, lines or polygons) object into R:
 
@@ -38,7 +37,7 @@ You can use `update.packages()` to update to the latest CRAN version.
 
 ## Installation of the development version
 
-A stable development version of the package will be available on the project's [Github page](https://github.com/mablab/rpostgis), which may be ahead the CRAN version. To install it, use the [`devtools`](http://cran.r-project.org/package=devtools) package from Hadley Wickham:
+A stable development version of the package will be available on the project's [Github page](https://github.com/mablab/rpostgis), which may be ahead the CRAN version. To install it, use the [`devtools`](http://CRAN.R-project.org/package=devtools) package from Hadley Wickham:
 
     library(devtools)
     install_github("mablab/rpostgis")
