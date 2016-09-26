@@ -128,7 +128,8 @@ pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
 ## columns match)
 pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
 
-## If not all database columns match, need to use partial.match = TRUE
+## If not all database columns match, need to use partial.match = TRUE,
+## where non-matching columns are not inserted
 colnames(spdf@data)[4] <- "cu"
 pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf,
     partial.match = TRUE)

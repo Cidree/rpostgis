@@ -10,7 +10,7 @@ dbVersion(conn)
 \item{conn}{A PostgreSQL connection}
 }
 \value{
-character vector of length 2 of major,minor version.
+numeric vector of length 3 of major,minor,bug version.
 }
 \description{
 Returns major.minor version of PostgreSQL (for version checking)

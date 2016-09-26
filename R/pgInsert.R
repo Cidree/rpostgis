@@ -102,7 +102,8 @@
 ##' ## columns match)
 ##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
 ##'
-##' ## If not all database columns match, need to use partial.match = TRUE
+##' ## If not all database columns match, need to use partial.match = TRUE,
+##' ## where non-matching columns are not inserted
 ##' colnames(spdf@data)[4] <- "cu"
 ##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf,
 ##'     partial.match = TRUE)
@@ -114,6 +115,14 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     ## Check if PostGIS installed
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
+    }
+    ## Check version for upserts
+    if (!is.null(upsert.using)) {
+      ver<-dbVersion(conn)
+      if (ver[1] < 9 | (ver[1] == 9 && ver[2] < 5)) {
+        stop("'Upsert' not supported in your PostgreSQL version (",paste(ver,collapse = "."),
+             "). Requires version 9.5 or above.")
+      }
     }
     # data.obj class
     cls <- class(data.obj)[1]
@@ -232,7 +241,6 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
       excl2<-paste(excl, " = excluded.",excl,sep="")
       excl.q<-paste(excl2,collapse = ", ")
       up<-dbQuoteIdentifier(conn,upsert.using)
-      
       if(length(excl) == length(pgi$db.cols.insert)) {
         message("Upserting using constraint name...")
         up.query<-paste0(" ON CONFLICT ON CONSTRAINT ",paste(up,collapse = ",")," DO UPDATE SET ",
@@ -243,7 +251,6 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
                        excl.q)
         }
     }
-    
     cols2 <- paste0("(", paste(dbQuoteIdentifier(conn,cols), collapse = ","), ")")
     quei <- NULL
     ## Send insert query
@@ -252,7 +259,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     try(quei <- dbSendQuery(conn, temp.query))
     if (!is.null(quei)) {
         dbSendQuery(conn, "COMMIT;")
-        message("Data inserted into table.")
+        message(paste0("Data inserted into table ",nameque[1],".",nameque[2]))
         ## Return TRUE
         if (return.pgi) {
             return(pgi)

@@ -61,13 +61,11 @@ dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
 ##' Returns major.minor version of PostgreSQL (for version checking)
 ##'
 ##' @param conn A PostgreSQL connection
-##' @return character vector of length 2 of major,minor version.
+##' @return numeric vector of length 3 of major,minor,bug version.
 ##' @keywords internal
 
 dbVersion<- function (conn) {
-      pv<-dbGetQuery(conn,"SELECT version();")$version
-      matches<-gregexpr("\\s\\K(\\d*).(\\d*)",pv,perl=TRUE)
-      nv<-unlist(regmatches(pv,matches))[1]
-      nv2<-unlist(strsplit(nv,".",fixed=TRUE))
-      return(nv2)
+      pv<-dbGetQuery(conn,"SHOW server_version;")$server_version
+      nv<-unlist(strsplit(pv,".",fixed=TRUE))
+      return(as.numeric(nv))
 }
