@@ -52,9 +52,9 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
         stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
+    nameque <- paste(dbTableNameFix(conn,name,FALSE), collapse = ".")
     namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
+        "", dbTableNameFix(conn,name,FALSE)), collapse = ".")))
     ## Check table exists
     tmp.query <- paste0("SELECT f_geometry_column AS geo FROM geometry_columns\nWHERE 
         (f_table_schema||'.'||f_table_name) = '", 
@@ -148,7 +148,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(conn,name)
+    name <- dbTableNameFix(conn,name,FALSE)
     nameque <- paste(name, collapse = ".")
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
@@ -156,7 +156,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
-        gid <- "row_number() over()"
+        gid <- DBI::SQL("row_number() over()"
     } else {
       gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
@@ -265,7 +265,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(conn,name)
+    name <- dbTableNameFix(conn,name,FALSE)
     nameque <- paste(name, collapse = ".")
 
     ## prepare additional clauses
@@ -275,7 +275,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Check gid
     if (is.null(gid)) {
-        gid <- "row_number() over()"
+        gid <- DBI::SQL("row_number() over()"
     } else {
       gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
@@ -361,7 +361,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(conn,name)
+    name <- dbTableNameFix(conn,name,FALSE)
     nameque <- paste(name, collapse = ".")
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
@@ -369,7 +369,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Check gid
     if (is.null(gid)) {
-        gid <- "row_number() over()"
+        gid <- DBI::SQL("row_number() over()"
     } else {
       gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
