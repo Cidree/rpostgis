@@ -156,7 +156,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
-        gid <- DBI::SQL("row_number() over()"
+        gid <- DBI::SQL("row_number() over()")
     } else {
       gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
@@ -275,7 +275,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Check gid
     if (is.null(gid)) {
-        gid <- DBI::SQL("row_number() over()"
+        gid <- DBI::SQL("row_number() over()")
     } else {
       gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
@@ -369,7 +369,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Check gid
     if (is.null(gid)) {
-        gid <- DBI::SQL("row_number() over()"
+        gid <- DBI::SQL("row_number() over()")
     } else {
       gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
