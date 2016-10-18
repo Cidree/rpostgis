@@ -177,7 +177,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     }
     ## Create table if specified
     if (!is.null(pgi$db.new.table)) {
-        if (overwrite) {
+        if (overwrite & exists.t) {
             over.t <- dbDrop(conn, name = name, type = "table", 
                 ifexists = TRUE)
             if (!over.t) {
