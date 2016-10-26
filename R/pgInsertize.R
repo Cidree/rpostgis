@@ -181,9 +181,8 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     if (!is.null(create.table)) {
         nt <- dbTableNameFix(conn,create.table)
         in.tab <- create.table
-        drv <- DBI::dbDriver("PostgreSQL")
         ## Make create table statement
-        new.table <- postgresqlBuildTableDefinition(drv, name = in.tab,
+        new.table <- dbBuildTableQuery(conn, name = in.tab,
                                                     obj = dat, row.names = FALSE)
         ## Create and append add geometry field statement. Create
         ## match table
@@ -400,9 +399,8 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
     if (!is.null(create.table)) {
         nt <- dbTableNameFix(conn,create.table)
         in.tab <- create.table
-        drv <- DBI::dbDriver("PostgreSQL")
         ## Make create table statement
-        new.table <- postgresqlBuildTableDefinition(drv, name = in.tab, 
+        new.table <- dbBuildTableQuery(conn, name = in.tab, 
             obj = data.obj, row.names = FALSE)
     }
     ## Match columns to DB table if set

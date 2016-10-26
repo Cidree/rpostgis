@@ -24,6 +24,7 @@
 ##' }
 
 pgGetBoundary <- function(conn, name, geom = "geom") {
+    dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
       stop("PostGIS is not enabled on this database.")
     }

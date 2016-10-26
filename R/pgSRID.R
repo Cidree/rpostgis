@@ -41,6 +41,7 @@
 
 pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
     ## Check if PostGIS is enabled
+    dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
     }

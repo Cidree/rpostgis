@@ -38,6 +38,7 @@ pgMakePts <- function(conn, name, colname = "geom", x = "x",
     y = "y", srid, index = TRUE, display = TRUE, exec = TRUE) {
     ## Check if PostGIS installed (in case of 'exec = TRUE')
     if (exec) {
+        dbConnCheck(conn)
         if (!suppressMessages(pgPostGIS(conn))) {
             stop("PostGIS is not enabled on this database.")
         }
@@ -123,6 +124,7 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
     y = "y", dx = "dx", dy = "dy", srid, index = TRUE, display = TRUE,
     exec = TRUE) {
     if (exec) {
+        dbConnCheck(conn)
         if (!suppressMessages(pgPostGIS(conn))) {
             stop("PostGIS is not enabled on this database.")
         }

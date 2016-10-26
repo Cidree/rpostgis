@@ -32,6 +32,7 @@
 
 pgGetRast <- function(conn, name, rast = "rast", digits = 9,
     boundary = NULL) {
+    dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
       stop("PostGIS is not enabled on this database.")
     }

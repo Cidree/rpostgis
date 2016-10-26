@@ -34,6 +34,7 @@
 
 pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE, 
     sfcgal = FALSE, display = TRUE, exec = TRUE) {
+    dbConnCheck(conn)
     ## Get the list of extensions from PostgreSQL
     ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
     ## Check if PostGIS is available:

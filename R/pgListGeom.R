@@ -19,6 +19,7 @@
 ##' }
 
 pgListGeom <- function(conn, display = TRUE, exec = TRUE) {
+    dbConnCheck(conn)
     ## Check if PostGIS is enabled
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")

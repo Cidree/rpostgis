@@ -1,3 +1,11 @@
+rpostgis 1.0.3
+=============
+OVERALL CHANGE
+
+* added internal functions dbCreateTableQuery, dbExistsTable, dbConnCheck
+
+* only allow <PostgreSQLConnection> for executed queries
+
 rpostgis 1.0.2
 =============
 OVERALL CHANGE

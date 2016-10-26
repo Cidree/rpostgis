@@ -65,8 +65,10 @@ dbAddKey <- function(conn, name, colname, type = c("primary",
         message("--")
     }
     ## Execute the query
-    if (exec)
+    if (exec) {
+        dbConnCheck(conn)
         dbSendQuery(conn, tmp.query)
+    }
     ## Return TRUE
     return(TRUE)
 }

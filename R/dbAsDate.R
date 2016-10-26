@@ -55,6 +55,7 @@ dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
     }
     ## Execute the query and return TRUE
     if (exec) {
+        dbConnCheck(conn)
         dbSendQuery(conn, tmp.query)
         return(TRUE)
     }

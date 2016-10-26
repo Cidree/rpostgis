@@ -26,6 +26,7 @@
 ##' }
 
 dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
+    dbConnCheck(conn)
     ## Check the name of the schema
     if (length(name) != 1)
         stop("The schema name should be of length 1.")

@@ -20,6 +20,7 @@
 ##' }
 
 dbTableInfo <- function(conn, name, allinfo = FALSE) {
+    dbConnCheck(conn)
     ## only check if valid (error if not)
     name <- dbTableNameFix(conn,name,as.identifier=FALSE)
     if (allinfo) {

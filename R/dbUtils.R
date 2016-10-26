@@ -15,6 +15,7 @@
 ##'     (escaped) double-quotes.
 ##' @keywords internal
 ##' @importFrom DBI dbQuoteIdentifier
+##' @importFrom DBI dbQuoteString
 ##' @examples
 ##' \dontrun{
 ##' name<-c("schema","table")
@@ -51,7 +52,7 @@ dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
       }
     if (is.null(conn)) {conn<-DBI::ANSI()}
     if (!as.identifier) {return(t.nm)} else {
-    t.nm<-DBI::dbQuoteIdentifier(conn, DBI::dbQuoteIdentifier(conn, t.nm))
+    t.nm<-DBI::dbQuoteIdentifier(conn, t.nm)
     return(t.nm)
     }
 }
@@ -68,4 +69,77 @@ dbVersion<- function (conn) {
       pv<-dbGetQuery(conn,"SHOW server_version;")$server_version
       nv<-unlist(strsplit(pv,".",fixed=TRUE))
       return(as.numeric(nv))
+}
+
+
+## dbBuildTableQuery
+##' Builds CREATE TABLE query for a data frame object.
+##' 
+##' @param conn A PostgreSQL connection
+##' @param name Table name string, length 1-2.
+##' @param obj A data frame object.
+##' @param field.types optional named list of the types for each field in \code{obj}
+##' @param row.names logical, should row.name of \code{obj} be exported as a row_names field? Default is FALSE
+##' 
+##' @note Adapted from RPostgreSQL::postgresqlBuildTableDefinition
+##' @keywords internal
+
+dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.names = FALSE) 
+{
+    if (is.null(conn)) {
+      conn <- DBI::ANSI()
+      nameque <- dbQuoteIdentifier(conn,name)
+    } else {
+      nameque<-paste(dbTableNameFix(conn, name),collapse = ".")
+    }
+  
+    if (!is.data.frame(obj)) 
+        obj <- as.data.frame(obj)
+    if (!is.null(row.names) && row.names) {
+        obj <- cbind(row.names(obj), obj)
+        names(obj)[1] <- "row_names"
+    }
+    if (is.null(field.types)) {
+        field.types <- sapply(obj, dbDataType, dbObj = conn)
+    }
+    i <- match("row_names", names(field.types), nomatch = 0)
+    if (i > 0) 
+        field.types[i] <- dbDataType(conn, row.names(obj))
+    flds <- paste(dbQuoteIdentifier(conn ,names(field.types)), field.types)
+    
+    paste("CREATE TABLE ", nameque , "\n(", paste(flds, 
+        collapse = ",\n\t"), "\n);")
+}
+
+## dbExistsTable
+##' Check if a PostgreSQL table exists
+##' 
+##' @param conn A PostgreSQL connection
+##' @param name Table name string, length 1-2.
+##' 
+##' @note Adapted from RPostgreSQL::dbExistsTable
+##' @keywords internal
+
+dbExistsTable <- function (conn, name) {
+    full.name<-dbTableNameFix(conn,name, as.identifier = FALSE)
+    chk<-dbGetQuery(conn, paste0("SELECT 1 FROM information_schema.tables 
+               WHERE table_schema = ",dbQuoteString(conn,full.name[1]),
+               " AND table_name = ",dbQuoteString(conn,full.name[2]),";"))[1,1]
+    if (is.null(chk) || is.na(chk)) {exists.t<-FALSE} else {exists.t<-TRUE}
+    return(exists.t)
+}
+
+## dbConnCheck
+##' Check if a supported PostgreSQL connection
+##' 
+##' @param conn A PostgreSQL connection
+##' 
+##' @keywords internal
+
+dbConnCheck <- function(conn) {
+  if (inherits(conn, c("PostgreSQLConnection"))) {
+          return(TRUE)
+      } else {
+        return(stop("'conn' must be a <PostgreSQLConnection> object."))
+      }
 }

@@ -51,8 +51,10 @@ dbComment <- function(conn, name, comment, type = c("table",
         message("--")
     }
     ## Execute the query
-    if (exec)
+    if (exec) {
+        dbConnCheck(conn)
         dbSendQuery(conn, tmp.query)
+    }
     ## Return nothing
     return(TRUE)
 }

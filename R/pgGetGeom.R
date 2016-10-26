@@ -48,6 +48,7 @@
 
 pgGetGeom <- function(conn, name, geom = "geom", gid = NULL, 
     other.cols = TRUE, clauses = NULL) {
+    dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
     }

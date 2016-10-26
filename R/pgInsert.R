@@ -112,6 +112,7 @@
 pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE, 
     overwrite = FALSE, new.id = NULL, upsert.using = NULL, alter.names = TRUE, encoding = NULL, 
     return.pgi = FALSE) {
+    dbConnCheck(conn)
     ## Check if PostGIS installed
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
