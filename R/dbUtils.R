@@ -9,10 +9,10 @@
 ##' @param conn A connection object. Must be provided but can be set NULL,
 ##' where a dummy connection will be used.
 ##' @param t.nm Table name string, length 1-2.
-##' @param as.identifier Boolean where to return (schema,table) name as database
+##' @param as.identifier Boolean whether to return (schema,table) name as database
 ##' sanitized identifers (TRUE) or as regular character (FALSE)
 ##' @return character vector of length 2. Each character element is in
-##'     (escaped) double-quotes.
+##'     (escaped) double-quotes when as.identifier = TRUE.
 ##' @keywords internal
 ##' @importFrom DBI dbQuoteIdentifier
 ##' @importFrom DBI dbQuoteString
@@ -117,7 +117,6 @@ dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.n
 ##' @param conn A PostgreSQL connection
 ##' @param name Table name string, length 1-2.
 ##' 
-##' @note Adapted from RPostgreSQL::dbExistsTable
 ##' @keywords internal
 
 dbExistsTable <- function (conn, name) {

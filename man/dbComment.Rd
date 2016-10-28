@@ -15,8 +15,8 @@ or schema name.}
 
 \item{comment}{A character string specifying the comment.}
 
-\item{type}{The type of the object to comment, either \code{table}
-or \code{view}}
+\item{type}{The type of the object to comment, either \code{table}, \code{view},
+or \code{schema}}
 
 \item{display}{Logical. Whether to display the query (defaults to
 \code{TRUE}).}

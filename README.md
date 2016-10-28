@@ -29,7 +29,7 @@ Package functions which are primarily for general database procedures have the p
 
 ## Installation of the released versions
 
-You can install the latest released version (1.0.2) from CRAN:
+You can install the latest released version (1.0.3) from CRAN:
 
     install.packages("rpostgis")
 

@@ -12,12 +12,12 @@ where a dummy connection will be used.}
 
 \item{t.nm}{Table name string, length 1-2.}
 
-\item{as.identifier}{Boolean where to return (schema,table) name as database
+\item{as.identifier}{Boolean whether to return (schema,table) name as database
 sanitized identifers (TRUE) or as regular character (FALSE)}
 }
 \value{
 character vector of length 2. Each character element is in
-    (escaped) double-quotes.
+    (escaped) double-quotes when as.identifier = TRUE.
 }
 \description{
 Internal rpostgis function to return common (length = 2) schema

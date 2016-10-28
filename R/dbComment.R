@@ -8,8 +8,8 @@
 ##' @param name A character string specifying a PostgreSQL table, view
 ##'     or schema name.
 ##' @param comment A character string specifying the comment.
-##' @param type The type of the object to comment, either \code{table}
-##'     or \code{view}
+##' @param type The type of the object to comment, either \code{table}, \code{view},
+##'     or \code{schema}
 ##' @param display Logical. Whether to display the query (defaults to
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to

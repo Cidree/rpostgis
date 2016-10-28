@@ -14,8 +14,5 @@ dbExistsTable(conn, name)
 \description{
 Check if a PostgreSQL table exists
 }
-\note{
-Adapted from RPostgreSQL::dbExistsTable
-}
 \keyword{internal}
 
