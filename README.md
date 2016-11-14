@@ -1,6 +1,11 @@
 rpostgis
 ========
 
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/rpostgis)](http://cran.r-project.org/package=rpostgis)
+[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+![](http://cranlogs.r-pkg.org/badges/rpostgis)
+
+
 This is the development area for the package `rpostgis`, which provides additional functions to the
 `RPostgreSQL` package to interface R with a PostGIS-enabled database, as well as convenient wrappers to common PostgreSQL queries.
 
