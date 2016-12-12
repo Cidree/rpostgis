@@ -1,3 +1,12 @@
+rpostgis 1.0.4
+=============
+OVERALL CHANGE
+
+* fix bug which was causing errors when using "ORDER BY ..." 
+  statements in the clauses argument for pgGetGeom.
+  
+* add package tests to repository
+
 rpostgis 1.0.3
 =============
 OVERALL CHANGE

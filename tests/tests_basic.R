@@ -1,6 +1,7 @@
 # rpostgis tests
 # These are most basic tests to ensure all functions are working
 
+tryCatch({
 library(rpostgis)
 library(RPostgreSQL)
 drv<-dbDriver("PostgreSQL")
@@ -103,3 +104,8 @@ rm(pts,pts.sponly,bnd,lin,poly,rast, conn, conn2, drv, alb, meuse, ex_table, new
 })
 )
 print("ALL GOOD!!!")
+},
+error = function(x) {
+  print("errors...")
+  print(x)
+})

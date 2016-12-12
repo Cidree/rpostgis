@@ -34,7 +34,7 @@ Package functions which are primarily for general database procedures have the p
 
 ## Installation of the released versions
 
-You can install the latest released version (1.0.3) from CRAN:
+You can install the latest released version from CRAN:
 
     install.packages("rpostgis")
 
@@ -42,7 +42,7 @@ You can use `update.packages()` to update to the latest CRAN version.
 
 ## Installation of the development version
 
-A stable development version of the package will be available on the project's [Github page](https://github.com/mablab/rpostgis), which may be ahead the CRAN version. To install it, use the [`devtools`](https://CRAN.R-project.org/package=devtools) package from Hadley Wickham:
+A stable development version of the package will be available on the project's [Github page](https://github.com/mablab/rpostgis), which may be ahead the CRAN version (check versions to verify). To install it, use the [`devtools`](https://CRAN.R-project.org/package=devtools) package from Hadley Wickham:
 
     library(devtools)
     install_github("mablab/rpostgis")
