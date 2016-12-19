@@ -49,7 +49,7 @@ A stable development version of the package will be available on the project's [
     
 For the latest (possibly unstable) development version, use:
 
-    install_github("mablab/rpostgis",ref="develop")
+    install_github("mablab/rpostgis",ref="dev")
 
 ## Getting started
 
