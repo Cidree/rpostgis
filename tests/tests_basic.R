@@ -4,6 +4,7 @@
 tryCatch({
 library(rpostgis)
 library(RPostgreSQL)
+library(raster)
 drv<-dbDriver("PostgreSQL")
 library(sp)
 data("meuse")
@@ -41,6 +42,9 @@ dbDrop(conn,new_table,type = "table", ifexists = TRUE)
 pgInsert(conn,new_table,pts)
 pgListGeom(conn)
 
+r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
+pgCreateRast(conn, c("rpostgis", "test_rast"), raster = r, bit_depth = "2BUI", overwrite = TRUE)
+pgCreateRast(conn, c("rpostgis", "clc"), raster = rast, overwrite = TRUE)
 # drop table
 dbDrop(conn, new_table)
 
@@ -100,7 +104,7 @@ dbDrop(conn, new_table[1], type = "schema", cascade = TRUE)
 
 dbDisconnect(conn)
 dbDisconnect(conn2)
-rm(pts,pts.sponly,bnd,lin,poly,rast, conn, conn2, drv, alb, meuse, ex_table, new_table, cred)
+rm(pts,pts.sponly,bnd,lin,poly,rast, conn, conn2, drv, alb, meuse, ex_table, new_table, cred, r)
 })
 )
 print("ALL GOOD!!!")
