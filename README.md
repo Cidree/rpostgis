@@ -1,7 +1,7 @@
 rpostgis
 ========
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/rpostgis)](http://cran.r-project.org/package=rpostgis)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/rpostgis)](https://CRAN.R-project.org/package=rpostgis)
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 ![](http://cranlogs.r-pkg.org/badges/rpostgis)
 

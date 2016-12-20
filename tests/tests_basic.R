@@ -43,8 +43,8 @@ pgInsert(conn,new_table,pts)
 pgListGeom(conn)
 
 r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
-pgCreateRast(conn, c("rpostgis", "test_rast"), raster = r, bit_depth = "2BUI", overwrite = TRUE)
-pgCreateRast(conn, c("rpostgis", "clc"), raster = rast, overwrite = TRUE)
+pgWriteRast(conn, c("rpostgis", "test_rast"), raster = r, bit_depth = "2BUI", overwrite = TRUE)
+pgWriteRast(conn, c("rpostgis", "clc"), raster = rast, overwrite = TRUE)
 # drop table
 dbDrop(conn, new_table)
 

@@ -1,4 +1,4 @@
-## pgCreateRast
+## pgWriteRast
 
 ##' Load raster into PostGIS database.
 ##'
@@ -28,14 +28,14 @@
 ##' \url{http://postgis.net/docs/using_raster_dataman.html#RT_Creating_Rasters}.
 ##' @examples
 ##' \dontrun{
-##' pgCreateRast(conn, c("schema", "tablename"), raster_name)
+##' pgWriteRast(conn, c("schema", "tablename"), raster_name)
 ##'
 ##' # basic test
 ##' r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
-##' pgCreateRast(conn, c("schema", "test"), raster = r, bit_depth = "2BUI", overwrite = TRUE)
+##' pgWriteRast(conn, c("schema", "test"), raster = r, bit_depth = "2BUI", overwrite = TRUE)
 ##' }
 
-pgCreateRast <- function(conn, name, raster, bit_depth = NULL, 
+pgWriteRast <- function(conn, name, raster, bit_depth = NULL, 
     constraints = TRUE, overwrite = FALSE) {
     
     dbConnCheck(conn)
