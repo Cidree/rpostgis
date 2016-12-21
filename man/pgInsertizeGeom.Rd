@@ -7,10 +7,11 @@
 \usage{
 pgInsertizeGeom(data.obj, geom = "geom", create.table = NULL,
   force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE,
-  partial.match = FALSE)
+  partial.match = FALSE, as_df = FALSE)
 
 pgInsertize(data.obj, create.table = NULL, force.match = NULL,
-  conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE)
+  conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE,
+  as_df = FALSE)
 }
 \arguments{
 \item{data.obj}{A Spatial* or Spatial*DataFrame, or data frame for

@@ -110,7 +110,7 @@
 ##' }
 
 pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE, 
-    overwrite = FALSE, new.id = NULL, upsert.using = NULL, alter.names = TRUE, encoding = NULL, 
+    overwrite = FALSE, new.id = NULL, row.names = FALSE, upsert.using = NULL, alter.names = TRUE, encoding = NULL, 
     return.pgi = FALSE) {
     dbConnCheck(conn)
     ## Check if PostGIS installed
@@ -140,14 +140,16 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
         message("Creating new table...")
         create.table <- name
         force.match <- NULL
+        as_df <- TRUE
     } else if (exists.t & overwrite & !partial.match) {
         create.table <- name
         force.match <- NULL
+        as_df <- TRUE
     } else {
         force.match <- name
         create.table <- NULL
+        as_df <- FALSE
     }
-    dbSendQuery(conn, "BEGIN TRANSACTION;")
     geo.classes <- c("SpatialPoints", "SpatialPointsDataFrame", 
         "SpatialLines", "SpatialLinesDataFrame", "SpatialPolygons", 
         "SpatialPolygonsDataFrame")
@@ -156,21 +158,23 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
         try(suppressMessages(pgSRID(conn, data.obj@proj4string, 
             create.srid = TRUE, new.srid = NULL)), silent = TRUE)
         try(pgi <- pgInsertizeGeom(data.obj, geom, create.table, 
-            force.match, conn, new.id, alter.names, partial.match))
+            force.match, conn, new.id, row.names, alter.names, partial.match, as_df))
     } else if (cls == "data.frame") {
         try(pgi <- pgInsertize(data.obj, create.table, force.match, 
-            conn, new.id, alter.names, partial.match))
+            conn, new.id, row.names, alter.names, partial.match, as_df))
     } else if (cls == "pgi") {
         pgi <- data.obj
         message("Using previously create pgi object. All arguments except for \"conn\", \"overwrite\", and \"encoding\" will be ignored.")
     } else {
-        dbSendQuery(conn, "ROLLBACK;")
+        #dbExecute(conn, "ROLLBACK;")
         stop("Input data object not of correct class - must be a Spatial*, Spatial*DataFrame, or data frame.")
     }
     if (is.null(pgi)) {
-        dbSendQuery(conn, "ROLLBACK;")
+        #dbExecute(conn, "ROLLBACK;")
         stop("Table preparation failed. No changes made to database.")
     }
+    
+    dbExecute(conn, "BEGIN TRANSACTION;")
     ## Change encoding if specified
     if (!is.null(encoding)) {
         pgi$insert.data <- iconv(pgi$insert.data, encoding[1], 
@@ -182,7 +186,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
             over.t <- dbDrop(conn, name = name, type = "table", 
                 ifexists = TRUE)
             if (!over.t) {
-                dbSendQuery(conn, "ROLLBACK;")
+                dbExecute(conn, "ROLLBACK;")
                 message("Could not drop existing table. No changes made to database.")
                 if (return.pgi) {
                   return(pgi)
@@ -192,9 +196,9 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
             }
         }
         quet <- NULL
-        try(quet <- dbSendQuery(conn, pgi$db.new.table))
+        try(quet <- dbExecute(conn, pgi$db.new.table))
         if (is.null(quet)) {
-            dbSendQuery(conn, "ROLLBACK;")
+            dbExecute(conn, "ROLLBACK;")
             message("Table creation failed. No changes made to database.")
             if (return.pgi) {
                 return(pgi)
@@ -214,7 +218,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     values <- pgi$insert.data
     db.cols <- dbTableInfo(conn, name = name)$column_name
     if (is.null(db.cols)) {
-        dbSendQuery(conn, "ROLLBACK;")
+        dbExecute(conn, "ROLLBACK;")
         message(paste0("Database table ", paste(name, collapse = "."), 
             " not found; No changes made to database."))
         if (return.pgi) {
@@ -226,7 +230,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     test <- match(cols, db.cols)
     unmatched <- cols[is.na(test)]
     if (length(unmatched) > 0) {
-        dbSendQuery(conn, "ROLLBACK;")
+        dbExecute(conn, "ROLLBACK;")
         message(paste0("The column(s) (", paste(unmatched, collapse = ","), 
             ") are not in the database table. No changes made to database."))
         if (return.pgi) {
@@ -257,9 +261,9 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
     ## Send insert query
     temp.query<-paste0("INSERT INTO ", nameque[1], 
         ".", nameque[2], cols2, " VALUES ", values, up.query,";")
-    try(quei <- dbSendQuery(conn, temp.query))
+    try(quei <- dbExecute(conn, temp.query))
     if (!is.null(quei)) {
-        dbSendQuery(conn, "COMMIT;")
+        dbExecute(conn, "COMMIT;")
         message(paste0("Data inserted into table ",nameque[1],".",nameque[2]))
         ## Return TRUE
         if (return.pgi) {
@@ -268,7 +272,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", partial.match = FALSE,
             return(TRUE)
         }
     } else {
-        dbSendQuery(conn, "ROLLBACK;")
+        dbExecute(conn, "ROLLBACK;")
         message("Insert failed. No changes made to database.")
         if (return.pgi) {
             return(pgi)

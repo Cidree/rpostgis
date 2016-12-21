@@ -84,8 +84,7 @@ dbVersion<- function (conn) {
 ##' @note Adapted from RPostgreSQL::postgresqlBuildTableDefinition
 ##' @keywords internal
 
-dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.names = FALSE) 
-{
+dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.names = FALSE) {
     if (is.null(conn)) {
       conn <- DBI::ANSI()
       nameque <- dbQuoteIdentifier(conn,name)

@@ -104,7 +104,8 @@
 ##' }
 
 pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
-    force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE) {
+    force.match = NULL, conn = NULL, new.id = NULL, row.names = FALSE, alter.names = TRUE, partial.match = FALSE,
+    as_df = FALSE) {
     ## Load wkb package if available
     wkb.t <- suppressPackageStartupMessages(requireNamespace("wkb",quietly=TRUE))
     mx <- 1
@@ -156,6 +157,11 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         colnames(dat) <- t.names
         geom <- tolower(gsub(replace, "_", geom))
     }
+    
+    if (row.names) {
+      dat<-data.frame(.R_rownames=attr(dat, "row.names"), dat)
+    }
+    
     ## Handle projections - first check if connection given; if so,
     ## try to resolve SRID if it doesn't exist, try to create (if no
     ## writing for user on spatial_ref_sys, will fail quietly)
@@ -201,6 +207,10 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         add.geom <- paste0("ALTER TABLE ", nt[1], ".", nt[2],
             " ADD COLUMN ", geom, " geometry(", pgtype, ");")
         new.table <- paste0(new.table, "; ", add.geom)
+        
+        ###
+        if(as_df) {dbWriteDataFrame(conn, in.tab, dat , only_defs = TRUE)}
+        ###
     }
     if (!is.null(force.match)) {
         if (is.null(conn)) {
@@ -369,7 +379,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
 ##' }
 
 pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL, 
-    conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE) {
+    conn = NULL, new.id = NULL, row.names = FALSE, alter.names = TRUE, partial.match = FALSE, as_df = FALSE) {
     if (!is.data.frame(data.obj)) {
         stop("data.obj must be a data frame.")
     }
@@ -395,6 +405,11 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         t.names <- tolower(gsub(replace, "_", colnames(data.obj)))
         colnames(data.obj) <- t.names
     }
+    
+    if (row.names) {
+      data.obj<-data.frame(.R_rownames=attr(data.obj, "row.names"), data.obj)
+    }
+    
     ## Create new table statement if set
     if (!is.null(create.table)) {
         nt <- dbTableNameFix(conn,create.table)
@@ -402,6 +417,11 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         ## Make create table statement
         new.table <- dbBuildTableQuery(conn, name = in.tab, 
             obj = data.obj, row.names = FALSE)
+        
+        ###
+        if(as_df) {dbWriteDataFrame(conn, in.tab, data.obj, only_defs = TRUE)}
+        ###
+        
     }
     ## Match columns to DB table if set
     if (!is.null(force.match)) {
