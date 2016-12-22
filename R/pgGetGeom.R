@@ -70,7 +70,13 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     ## prepare geom column
     geomque <- DBI::dbQuoteIdentifier(conn, geom)
     ## prepare clauses
-    clauses <- sub("^where", "AND", clauses, ignore.case = TRUE)
+    if (!is.null(clauses)) {
+      clauses <- sub("^where", "AND", clauses, ignore.case = TRUE) 
+      } else {
+        if (".db_pkid" %in% dbListFields(conn, name)) {
+          clauses <- "ORDER BY \".db_pkid\""
+        }
+      }
     ## prepare other.cols
     if (!is.logical(other.cols)) {
         other.cols <- paste(DBI::dbQuoteIdentifier(conn, other.cols), 
@@ -150,15 +156,19 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(conn,name)
-    nameque <- paste(name, collapse = ".")
+    name1 <- dbTableNameFix(conn,name)
+    nameque <- paste(name1, collapse = ".")
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## prepare geom column
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
-        gid <- "row_number() over()"
+        if (".R_rownames" %in% dbListFields(conn,name)) {
+          gid <- DBI::dbQuoteIdentifier(conn,".R_rownames")
+        } else {
+          gid <- "row_number() over()"
+        }
     } else {
       gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
@@ -210,9 +220,14 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
             row.names = dbData$tgid), proj4string = proj4)
         ## Append data to spdf if requested
         if (!is.null(other.cols)) {
-            cols <- colnames(dbData)
-            cols <- cols[!(cols %in% c("tgid", "x", "y", geom))]
-            sp <- sp::SpatialPointsDataFrame(sp, dbData[cols],
+            cols <- colnames(dbData)[4:length(colnames(dbData))]
+            cols <- cols[!(cols %in% c(geom))]
+            
+            #
+            dfr<-dbReadDataFrame(conn, name, df = dbData[cols])
+            #
+            
+            sp <- sp::SpatialPointsDataFrame(sp, dfr,
                 match.ID = TRUE)
         }
     } else {
@@ -234,9 +249,14 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         sp <- sp::SpatialMultiPoints(tt, proj4string = proj4)
         ## Append data to spdf if requested
         if (!is.null(other.cols)) {
-            cols <- colnames(dbData)
-            cols <- cols[!(cols %in% c("tgid", "wkt", geom))]
-            sp <- sp::SpatialMultiPointsDataFrame(tt, dbData[cols],
+            cols <- colnames(dbData)[3:length(colnames(dbData))]
+            cols <- cols[!(cols %in% c(geom))]
+             
+            #
+            dfr<-dbReadDataFrame(conn, name, df = dbData[cols])
+            #
+            
+            sp <- sp::SpatialMultiPointsDataFrame(tt, dfr,
                 proj4string = proj4)
         }
     }
@@ -269,8 +289,8 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(conn,name)
-    nameque <- paste(name, collapse = ".")
+    name1 <- dbTableNameFix(conn,name)
+    nameque <- paste(name1, collapse = ".")
 
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
@@ -279,7 +299,11 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Check gid
     if (is.null(gid)) {
-        gid <- "row_number() over()"
+        if (".R_rownames" %in% dbListFields(conn,name)) {
+          gid <- DBI::dbQuoteIdentifier(conn,".R_rownames")
+        } else {
+          gid <- "row_number() over()"
+        }
     } else {
       gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
@@ -333,9 +357,12 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
         return(Sline)
     } else {
         try(dfTemp[geom] <- NULL)
-        try(dfTemp["wkt"] <- NULL)
-        spdf <- sp::SpatialLinesDataFrame(Sline, dfTemp)
-        spdf@data["tgid"] <- NULL
+        dfTemp<-dfTemp[,3:length(colnames(dfTemp))]
+        #
+        dfr<-dbReadDataFrame(conn, name, df = dfTemp)
+        #
+        spdf <- sp::SpatialLinesDataFrame(Sline, dfr)
+        #spdf@data["tgid"] <- NULL
         return(spdf)
     }
 }
@@ -366,15 +393,19 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(conn,name)
-    nameque <- paste(name, collapse = ".")
+    name1 <- dbTableNameFix(conn,name)
+    nameque <- paste(name1, collapse = ".")
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## prepare geom column
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Check gid
     if (is.null(gid)) {
-        gid <- "row_number() over()"
+        if (".R_rownames" %in% dbListFields(conn,name)) {
+          gid <- DBI::dbQuoteIdentifier(conn,".R_rownames")
+        } else {
+          gid <- "row_number() over()"
+        }
     } else {
       gid<-DBI::dbQuoteIdentifier(conn,gid)
     }
@@ -427,9 +458,12 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
         return(Spol)
     } else {
         try(dfTemp[geom] <- NULL)
-        try(dfTemp["wkt"] <- NULL)
-        spdf <- sp::SpatialPolygonsDataFrame(Spol, dfTemp)
-        spdf@data["tgid"] <- NULL
+        dfTemp<-dfTemp[,3:length(colnames(dfTemp))]
+        #
+        dfr<-dbReadDataFrame(conn, name, df = dfTemp)
+        #
+        spdf <- sp::SpatialPolygonsDataFrame(Spol, dfr)
+        #spdf@data["tgid"] <- NULL
         return(spdf)
     }
 }

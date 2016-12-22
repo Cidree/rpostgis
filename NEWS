@@ -1,14 +1,40 @@
 rpostgis 1.0.4
 =============
-OVERALL CHANGE
 
-* add pgCreateRast function to upload R rasters to 
-  PostGIS database tables
+***  NEW FUNCTIONS ***
+
+* pgWriteRast function to upload R rasters to PostGIS database tables
+  
+* dbWriteDataFrame for writing data.frames to PostgreSQL 
+  in "data.frame mode" (see below)
+  
+* dbReadDataFrame for re-reading data frames written to the 
+  database in data.frame mode
+
+*** OTHER CHANGES ***
+
+* pgInsert can write in data.frame mode when as.df = TRUE
+
+* pgInsert 'alter.names' argument now defaults to FALSE
 
 * fix bug which was causing errors when using "ORDER BY ..." 
   statements in the clauses argument for pgGetGeom.
   
 * add package tests to repository
+
+*** about data.frame mode ***
+
+Writing in data.frame mode is only for new database tables (or for
+overwriting an existing one). It will save all column names as they
+appear in R, along with column data types and attributes. 
+This is done by adding metadata to a lookup table in the table's
+schema named ".R_df_defs" (will be created if not present). 
+It also adds two fixed names to the database table: ".R_rownames" (storing
+the row.names of the data frame), and ".db_pkid", which is a new
+integer primary key. Existing columns in the data.frame matching these
+names will be automatically changed. For more flexible writing of
+Spatial*DataFrames and data.frames to the database, users should 
+run pgInsert with df.mode = FALSE.
 
 rpostgis 1.0.3
 =============

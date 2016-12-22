@@ -1,13 +1,59 @@
-#dbWriteDataFrame
-#' @keywords internal
+# dbWriteDataFrame
+
+#' Write/read in data.frame mode to/from database tables
+#' 
+#' Write data.frame to database table, with column definitions, row.names,
+#' and a new integer primary key column. Read back into R with
+#' dbReadDataFrame, which recreates original data frame.
+#' 
+#' Writing in data.frame mode is only for new database tables (or for
+#' overwriting an existing one). It will save all column names as they
+#' appear in R, along with column data types and attributes. 
+#' This is done by adding metadata to a lookup table in the table's
+#' schema named ".R_df_defs" (will be created if not present). 
+#' It also adds two fixed names to the database table: ".R_rownames" (storing
+#' the row.names of the data frame), and ".db_pkid", which is a new
+#' integer primary key. Existing columns in the data.frame matching these
+#' names will be automatically changed. For more flexible writing of
+#' data.frames to the database, users should 
+#' use \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
+#' 
+#' \code{dbReadDataFrame} and \code{pgGetGeom} will use this metadata to
+#' recreate a data.frame in R, if it is available. Otherwise, 
+#' it will be imported using default \code{RPostgreSQL} methods.
+#' 
+#' @param conn A connection object to a PostgreSQL database
+#' @param name Character, schema and table of the PostgreSQL table
+#' @param df The data frame to write (for dbReadDataFrame, this should
+#' be left NULL)
+#' @param overwrite Logical; if TRUE, a new table (\code{name}) will
+#'    overwrite the existing table (\code{name}) in the database.
+#' @param only_defs Logical; if TRUE, only the table definitions will be
+#'    written.
+#' @author David Bucklin \email{dbucklin@@ufl.edu}
+#' @export
+#' @return TRUE for dbWriteDataFrame, data.frame for dbReadDataFrame
+#' @examples
+#' \dontrun{
+#' library(sp)
+#' data(meuse)
+#' 
+#' dbWriteDataFrame(conn, name = "meuse_data", df = meuse)
+#' 
+#' me2 <- dbReadDataFrame(conn, name = "meuse_data")
+#' 
+#' all.equal(meuse, me2)
+#' # Should return TRUE
+#' }
+
 
 dbWriteDataFrame<- function (conn, name, df, overwrite = FALSE, only_defs = FALSE) {
     
-    nameque <- rpostgis:::dbTableNameFix(conn,name)
-    name <- rpostgis:::dbTableNameFix(conn,name, as.identifier = FALSE)
+    nameque <- dbTableNameFix(conn,name)
+    name <- dbTableNameFix(conn,name, as.identifier = FALSE)
     
     if (!only_defs) {
-      d<-data.frame(.R_rownames=attr(df, "row.names"), df)
+      d<-data.frame(df, .R_rownames=attr(df, "row.names"), stringsAsFactors = FALSE)
     } else {
       d<-df
     }
@@ -67,11 +113,14 @@ dbWriteDataFrame<- function (conn, name, df, overwrite = FALSE, only_defs = FALS
     
     suppressMessages({
     # send column defs to .R_df_defs
-    pgInsert(conn, c(name[1],".R_df_defs"), defs2, upsert.using = "table_nm", row.names = FALSE)
+    pgInsert(conn, c(name[1],".R_df_defs"), defs2,
+             upsert.using = "table_nm", row.names = FALSE)
     
     # send data to main table (only_defs = TRUE is for when used in pgInsert)
     if (!only_defs) {
+      d<-data.frame(.db_pkid = 1:length(d[,1]),d) 
       dbWriteTable(conn, name, d, row.names = FALSE)
+      dbAddKey(conn, name, colname = ".db_pkid", type = "primary")
       message("Data frame written to table ",paste(nameque,collapse = "."),".")
     }
     })
@@ -79,15 +128,15 @@ dbWriteDataFrame<- function (conn, name, df, overwrite = FALSE, only_defs = FALS
     return(TRUE)
 }
 
-####
 # dbReadDataFrame
-#' @keywords internal
 
+#' @rdname dbWriteDataFrame
+#' @export
 
-dbReadDataFrame<- function(conn, name) {
+dbReadDataFrame<- function(conn, name, df = NULL) {
   
-    nameque <- rpostgis:::dbTableNameFix(conn,name)
-    name <- rpostgis:::dbTableNameFix(conn,name, as.identifier = FALSE)
+    nameque <- dbTableNameFix(conn,name)
+    name <- dbTableNameFix(conn,name, as.identifier = FALSE)
     
     if (!dbExistsTable(conn, name)) {
       stop("Table ",paste(name,collapse=".")," not found.")
@@ -95,7 +144,11 @@ dbReadDataFrame<- function(conn, name) {
     
     if (!dbExistsTable(conn,c(name[1],".R_df_defs"))) {
       message("R data frame definitions table not found. Using standard import...")
-      return(dbReadTable(conn, name))
+      if (is.null(df)) {
+        return(dbReadTable(conn, name))
+      } else {
+        return(df)
+      }
     } else {
        sql_query <- paste0("SELECT unnest(df_def[1:1]) as nms, 
                             unnest(df_def[2:2]) as defs,
@@ -106,11 +159,21 @@ dbReadDataFrame<- function(conn, name) {
        
        if (length(defs) == 0) {
          message("R data frame definitions not found. Using standard import...")
-         return(dbReadTable(conn, name))
+         if (is.null(df)) {
+            return(dbReadTable(conn, name))
+          } else {
+            return(df)
+          }
        }
        
-      d <- dbReadTable(conn, name)
-       
+      if (is.null(df)) {
+        sql_query<- paste0("SELECT * FROM ",paste(nameque, collapse = "."),
+                           " ORDER BY \".db_pkid\";")
+        d <- dbGetQuery(conn, sql_query)
+      } else {
+        d <- df
+      }
+      
       # assign types
       for (i in names(d)) {
           att <- defs[defs$nms == i, ]
@@ -140,6 +203,7 @@ dbReadDataFrame<- function(conn, name) {
       
       row.names(d)<-d$.R_rownames
       d$.R_rownames<-NULL
+      d$.db_pkid<-NULL
       
       return(d)
     }

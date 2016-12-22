@@ -51,6 +51,8 @@
 ##'     column to be added to the table.  (for spatial objects without
 ##'     data frames, this column is created even if left \code{NULL}
 ##'     and defaults to the name \code{"gid"}).
+##' @param row.names Whether to add the data frame row names to the 
+##'     database table. Column name will be '.R_rownames'.
 ##' @param alter.names Logical, whether to make database column names
 ##'     DB-compliant (remove special characters). Defualt is
 ##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
@@ -61,6 +63,11 @@
 ##'     existing database table \code{name}. Only columns in the 
 ##'     data frame that exactly match the database
 ##'     table will be inserted into the database table.
+##' @param df.mode Logical; Whether to write data in data frame mode 
+##'     (preserving data frame column attributes and row.names).
+##'     A new table must be created with this mode (or overwrite set to TRUE),
+##'     and the row.names, alter.names, and new.id arguments will
+##'     be ignored (see \code{dbWriteDataFrame} for more information.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @keywords internal
 ##' @importFrom stats na.omit
@@ -104,8 +111,8 @@
 ##' }
 
 pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
-    force.match = NULL, conn = NULL, new.id = NULL, row.names = FALSE, alter.names = TRUE, partial.match = FALSE,
-    as_df = FALSE) {
+    force.match = NULL, conn = NULL, new.id = NULL, row.names = FALSE,
+    alter.names = FALSE, partial.match = FALSE, df.mode = FALSE) {
     ## Load wkb package if available
     wkb.t <- suppressPackageStartupMessages(requireNamespace("wkb",quietly=TRUE))
     mx <- 1
@@ -159,7 +166,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     }
     
     if (row.names) {
-      dat<-data.frame(.R_rownames=attr(dat, "row.names"), dat)
+      dat<-data.frame(dat, .R_rownames=attr(dat, "row.names"), stringsAsFactors = FALSE)
     }
     
     ## Handle projections - first check if connection given; if so,
@@ -209,7 +216,16 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         new.table <- paste0(new.table, "; ", add.geom)
         
         ###
-        if(as_df) {dbWriteDataFrame(conn, in.tab, dat , only_defs = TRUE)}
+        if(df.mode) {
+            dbWriteDataFrame(conn, in.tab, dat , only_defs = TRUE)
+          } else {
+            # remove existing defs if table exists
+            if (dbExistsTable(conn, ".R_df_defs")) {
+              sql_query<-paste0("DELETE FROM \".R_df_defs\" WHERE table_nm = ",
+                dbQuoteString(conn, in.tab[length(in.tab)]),";")
+              dbExecute(conn, sql_query)
+            }
+          }
         ###
     }
     if (!is.null(force.match)) {
@@ -379,7 +395,8 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
 ##' }
 
 pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL, 
-    conn = NULL, new.id = NULL, row.names = FALSE, alter.names = TRUE, partial.match = FALSE, as_df = FALSE) {
+    conn = NULL, new.id = NULL, row.names = FALSE, alter.names = FALSE,
+    partial.match = FALSE, df.mode = FALSE) {
     if (!is.data.frame(data.obj)) {
         stop("data.obj must be a data frame.")
     }
@@ -407,7 +424,7 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
     }
     
     if (row.names) {
-      data.obj<-data.frame(.R_rownames=attr(data.obj, "row.names"), data.obj)
+      data.obj<-data.frame(data.obj, .R_rownames=attr(data.obj, "row.names"), stringsAsFactors = FALSE)
     }
     
     ## Create new table statement if set
@@ -419,7 +436,16 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
             obj = data.obj, row.names = FALSE)
         
         ###
-        if(as_df) {dbWriteDataFrame(conn, in.tab, data.obj, only_defs = TRUE)}
+        if(df.mode) {
+          dbWriteDataFrame(conn, in.tab, data.obj, only_defs = TRUE)
+        } else {
+          # remove existing defs if table exists
+          if (dbExistsTable(conn, ".R_df_defs")) {
+            sql_query<-paste0("DELETE FROM \".R_df_defs\" WHERE table_nm = ",
+              dbQuoteString(conn, in.tab[length(in.tab)]),";")
+            dbExecute(conn, sql_query)
+          }
+        }
         ###
         
     }
