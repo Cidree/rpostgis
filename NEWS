@@ -2,9 +2,6 @@ rpostgis 1.0.4
 =============
 OVERALL CHANGE
 
-* add pgCreateRast function to upload R rasters to 
-  PostGIS database tables
-
 * fix bug which was causing errors when using "ORDER BY ..." 
   statements in the clauses argument for pgGetGeom.
   
