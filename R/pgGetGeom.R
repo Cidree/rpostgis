@@ -222,11 +222,8 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         if (!is.null(other.cols)) {
             cols <- colnames(dbData)[4:length(colnames(dbData))]
             cols <- cols[!(cols %in% c(geom))]
-            
-            #
+            # column definitions
             dfr<-dbReadDataFrame(conn, name, df = dbData[cols])
-            #
-            
             sp <- sp::SpatialPointsDataFrame(sp, dfr,
                 match.ID = TRUE)
         }
@@ -251,11 +248,8 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         if (!is.null(other.cols)) {
             cols <- colnames(dbData)[3:length(colnames(dbData))]
             cols <- cols[!(cols %in% c(geom))]
-             
-            #
+            # column definitions
             dfr<-dbReadDataFrame(conn, name, df = dbData[cols])
-            #
-            
             sp <- sp::SpatialMultiPointsDataFrame(tt, dfr,
                 proj4string = proj4)
         }

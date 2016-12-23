@@ -1,6 +1,6 @@
 ## pgInsert
 
-##' Inserts data into a PostgreSQL table.
+##' Inserts data into a PostgreSQL table
 ##'
 ##' This function takes a take an R \code{sp} object (Spatial* or
 ##' Spatial*DataFrame), or a regular data frame, and performs the

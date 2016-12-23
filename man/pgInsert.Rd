@@ -3,7 +3,7 @@
 \name{pgInsert}
 \alias{pgInsert}
 \alias{print.pgi}
-\title{Inserts data into a PostgreSQL table.}
+\title{Inserts data into a PostgreSQL table}
 \usage{
 pgInsert(conn, name, data.obj, geom = "geom", df.mode = FALSE,
   partial.match = FALSE, overwrite = FALSE, new.id = NULL,

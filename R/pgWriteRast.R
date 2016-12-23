@@ -2,13 +2,17 @@
 
 ##' Load raster into PostGIS database.
 ##'
-##' Sends R raster to a new PostGIS database table.
+##' Sends R Raster* to a new PostGIS database table.
+##' 
+##' RasterLayer names will be stored in an array in the column
+##' "band_names", which will be restored when used with the function
+##' \code{\link[rpostgis]{pgGetRast}}.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema (if
 ##'     necessary) and table name to hold the
 ##'     raster (e.g., name = c("schema","table"))
-##' @param raster An R raster object
+##' @param raster An R RasterLayer, RasterBrick, or RasterStack
 ##' @param bit_depth The bit depth of the raster. Will be set to 32-bit
 ##'     (unsigned int, signed int, or float, depending on the data)
 ##'     if left null, but can be specified (as character) as one of the
@@ -51,18 +55,18 @@ pgWriteRast <- function(conn, name, raster, bit_depth = NULL,
     
     # 1. create raster table
     tmp.query <- paste0("CREATE TABLE ", paste(nameq, collapse = "."), 
-        " (rid serial primary key, rast raster);")
+        " (rid serial primary key, band_names text[], rast raster);")
     dbExecute(conn, tmp.query)
     
     r1 <- raster
     res <- round(raster::res(r1), 10)
     
     # figure out block size
-    tr <- raster::blockSize(r1, 10000, minblocks = 1, minrows = 80)
-    cr <- raster::blockSize(raster::t(r1), 10000, minblocks = 1, 
+    tr <- raster::blockSize(r1[[1]], 10000, minblocks = 1, minrows = 80)
+    cr <- raster::blockSize(raster::t(r1[[1]]), 10000, minblocks = 1, 
         minrows = 80)
     
-    message("Splitting into ", cr$n, " x ", tr$n, " blocks...")
+    message("Splitting ",length(names(r1))," band(s) into ", cr$n, " x ", tr$n, " blocks...")
     
     # figure out bit depth
     if (is.null(bit_depth)) {
@@ -79,52 +83,64 @@ pgWriteRast <- function(conn, name, raster, bit_depth = NULL,
     bit_depth <- dbQuoteString(conn, bit_depth)
     ndval<--99999
     
-    # rid counter
-    n <- 0
+    # band names
+    bnds<-dbQuoteString(conn, paste0("{{",paste(names(r1),collapse = "},{"),"}}"))
     
-    # loop over blocks
-    for (i in 1:tr$n) {
-        rr <- r1[tr$row[i]:(tr$row[i] + tr$nrows[i] - 1), , drop = FALSE]
-        
-        for (l in 1:cr$n) {
-            r <- rr[, cr$row[l]:(cr$row[l] + cr$nrows[l] - 1), 
-                drop = FALSE]
-            ex <- raster::extent(r)
-            d <- dim(r)
-            
-            # rid counter
-            n <- n + 1
-            
-            srid <- suppressMessages(pgSRID(conn, r@crs))
-            
-            # 2. make empty raster
-            tmp.query <- paste0("INSERT INTO ", paste(nameq, 
-                collapse = "."), " (rid, rast) VALUES (", n, 
-                ", ST_MakeEmptyRaster(", 
-                d[2], ",", d[1], ",", ex[1], ",", ex[3], ",", 
-                res[1], ",", res[2], ", 0, 0,", srid, ") );")
-            dbExecute(conn, tmp.query)
-            
-            # 3. new band
-            tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
-                " SET rast = ST_AddBand(rast,", bit_depth, "::text, 0,", ndval ,")
-                where rid = ", 
-                n, ";")
-            dbExecute(conn, tmp.query)
-            
-            mr <- raster::as.matrix(r)
-            mr[is.na(mr)] <- ndval
-            r2 <- paste(rev(apply(mr, 1, FUN = function(x) {
-                paste0("[", paste(x, collapse = ","), "]")
-            })), collapse = ",")
-            
-            tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
-                " SET rast = ST_SetValues(rast,1, 1, 1, ARRAY[", 
-                r2, "]::double precision[][])
-                             where rid = ", 
-                n, ";")
-            dbExecute(conn, tmp.query)
-        }
+    # loop over bands
+    for (b in 1:length(names(r1))) {
+      rb <- r1[[b]]
+      # rid counter
+      n<-0
+      
+      # loop over blocks
+      for (i in 1:tr$n) {
+          rr <- rb[tr$row[i]:(tr$row[i] + tr$nrows[i] - 1), , drop = FALSE]
+          
+          for (l in 1:cr$n) {
+              r <- rr[, cr$row[l]:(cr$row[l] + cr$nrows[l] - 1), 
+                  drop = FALSE]
+              ex <- raster::extent(r)
+              d <- dim(r)
+              
+              # rid counter
+              n <- n + 1
+              
+              srid <- suppressMessages(pgSRID(conn, r@crs))
+              
+              # only ST_MakeEmptyRaster/ST_AddBand during first band loop
+              if (b == 1) {
+                # 2. make empty raster
+                tmp.query <- paste0("INSERT INTO ", paste(nameq, 
+                    collapse = "."), " (rid, band_names, rast) VALUES (",n, 
+                    ",",bnds,", ST_MakeEmptyRaster(", 
+                    d[2], ",", d[1], ",", ex[1], ",", ex[3], ",", 
+                    res[1], ",", res[2], ", 0, 0,", srid, ") );")
+                dbExecute(conn, tmp.query)
+                
+                # 3. new band
+                bndargs<-paste0("ROW(",1:length(names(r1)),",",bit_depth,"::text,0,", ndval,")")
+                tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
+                    " SET rast = ST_AddBand(rast,ARRAY[",
+                    paste(bndargs,collapse = ","),"]::addbandarg[])
+                    where rid = ", 
+                    n, ";")
+                dbExecute(conn, tmp.query)
+              }
+              
+              mr <- raster::as.matrix(r)
+              mr[is.na(mr)] <- ndval
+              r2 <- paste(rev(apply(mr, 1, FUN = function(x) {
+                  paste0("[", paste(x, collapse = ","), "]")
+              })), collapse = ",")
+              
+              tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
+                  " SET rast = ST_SetValues(rast,",b,", 1, 1, ARRAY[", 
+                  r2, "]::double precision[][])
+                               where rid = ", 
+                  n, ";")
+              dbExecute(conn, tmp.query)
+          }
+      }
     }
     
     # 4. create index

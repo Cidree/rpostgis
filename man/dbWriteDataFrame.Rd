@@ -3,9 +3,9 @@
 \name{dbWriteDataFrame}
 \alias{dbReadDataFrame}
 \alias{dbWriteDataFrame}
-\title{Write/read in data.frame mode to/from database tables}
+\title{Write/read in data frame mode to/from database table}
 \usage{
-dbWriteDataFrame(conn, name, df, overwrite = FALSE, only_defs = FALSE)
+dbWriteDataFrame(conn, name, df, overwrite = FALSE, only.defs = FALSE)
 
 dbReadDataFrame(conn, name, df = NULL)
 }
@@ -14,13 +14,13 @@ dbReadDataFrame(conn, name, df = NULL)
 
 \item{name}{Character, schema and table of the PostgreSQL table}
 
-\item{df}{The data frame to write (for dbReadDataFrame, this should
-be left NULL)}
+\item{df}{The data frame to write (for dbReadDataFrame, this allows
+to update an existing data.frame with definitions stored in the database)}
 
 \item{overwrite}{Logical; if TRUE, a new table (\code{name}) will
 overwrite the existing table (\code{name}) in the database.}
 
-\item{only_defs}{Logical; if TRUE, only the table definitions will be
+\item{only.defs}{Logical; if TRUE, only the table definitions will be
 written.}
 }
 \value{
@@ -32,7 +32,7 @@ and a new integer primary key column. Read back into R with
 dbReadDataFrame, which recreates original data frame.
 }
 \details{
-Writing in data.frame mode is only for new database tables (or for
+Writing in data frame mode is only for new database tables (or for
 overwriting an existing one). It will save all column names as they
 appear in R, along with column data types and attributes. 
 This is done by adding metadata to a lookup table in the table's
@@ -41,10 +41,11 @@ It also adds two fixed names to the database table: ".R_rownames" (storing
 the row.names of the data frame), and ".db_pkid", which is a new
 integer primary key. Existing columns in the data.frame matching these
 names will be automatically changed. For more flexible writing of
-data.frames to the database, users should 
+data.frames to the database,
 use \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
 
-\code{dbReadDataFrame} and \code{pgGetGeom} will use this metadata to
+The \code{rpostgis} database read functions \code{dbReadDataFrame} and \code{pgGetGeom} 
+will use the metadata created in data frame mode to
 recreate a data.frame in R, if it is available. Otherwise, 
 it will be imported using default \code{RPostgreSQL} methods.
 }

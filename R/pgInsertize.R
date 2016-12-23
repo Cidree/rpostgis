@@ -217,7 +217,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         
         ###
         if(df.mode) {
-            dbWriteDataFrame(conn, in.tab, dat , only_defs = TRUE)
+            dbWriteDataFrame(conn, in.tab, dat , only.defs = TRUE)
           } else {
             # remove existing defs if table exists
             if (dbExistsTable(conn, ".R_df_defs")) {
@@ -437,7 +437,7 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         
         ###
         if(df.mode) {
-          dbWriteDataFrame(conn, in.tab, data.obj, only_defs = TRUE)
+          dbWriteDataFrame(conn, in.tab, data.obj, only.defs = TRUE)
         } else {
           # remove existing defs if table exists
           if (dbExistsTable(conn, ".R_df_defs")) {

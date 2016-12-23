@@ -4,7 +4,6 @@
 tryCatch({
 library(rpostgis)
 library(RPostgreSQL)
-library(rpostgisLT)
 library(raster)
 drv<-dbDriver("PostgreSQL")
 library(sp)
@@ -46,6 +45,20 @@ pgListGeom(conn)
 r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
 pgWriteRast(conn, c("rpostgis", "test_rast"), raster = r, bit_depth = "2BUI", overwrite = TRUE)
 pgWriteRast(conn, c("rpostgis", "clc"), raster = rast, overwrite = TRUE)
+
+# write rast stack/brick
+ls<-list.files("N:/Species_Distribution_Modelling/Source_File_Climate_data/Future_climate/for_LF_UW_comparison/UW/a2/ukmo/", full.names = TRUE)
+ls<-ls[!grepl(pattern = ".prj", ls)]
+
+rast<-stack(ls)
+system.time(
+pgWriteRast(conn, c("rpostgis","uw"), rast, overwrite = TRUE)
+)
+rast<-brick(rast)
+system.time(
+pgWriteRast(conn, c("rpostgis","uw"), rast, overwrite = TRUE)
+)
+
 # drop table
 dbDrop(conn, new_table)
 

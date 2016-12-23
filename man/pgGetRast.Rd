@@ -4,7 +4,8 @@
 \alias{pgGetRast}
 \title{Load raster from PostGIS database.}
 \usage{
-pgGetRast(conn, name, rast = "rast", digits = 9, boundary = NULL)
+pgGetRast(conn, name, rast = "rast", band = 1, digits = 9,
+  boundary = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -14,6 +15,8 @@ necessary), and table or view name for the table holding the
 raster (e.g., name = c("schema","table"))}
 
 \item{rast}{Name of the column in 'name' holding the raster object}
+
+\item{band}{Index number for the band to retrieve (defaults to 1)}
 
 \item{digits}{numeric, precision for detecting whether points are
 on a regular grid (a low number of digits is a low precision)

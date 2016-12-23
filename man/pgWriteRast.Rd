@@ -14,7 +14,7 @@ pgWriteRast(conn, name, raster, bit_depth = NULL, constraints = TRUE,
 necessary) and table name to hold the
 raster (e.g., name = c("schema","table"))}
 
-\item{raster}{An R raster object}
+\item{raster}{An R RasterLayer, RasterBrick, or RasterStack}
 
 \item{bit_depth}{The bit depth of the raster. Will be set to 32-bit
 (unsigned int, signed int, or float, depending on the data)
@@ -33,7 +33,12 @@ Note that constraint notices may print to the console,
 TRUE for successful import.
 }
 \description{
-Sends R raster to a new PostGIS database table.
+Sends R Raster* to a new PostGIS database table.
+}
+\details{
+RasterLayer names will be stored in an array in the column
+"band_names", which will be restored when used with the function
+\code{\link[rpostgis]{pgGetRast}}.
 }
 \examples{
 \dontrun{
