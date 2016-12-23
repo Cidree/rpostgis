@@ -41,6 +41,23 @@ dbDrop(conn,new_table,type = "table", ifexists = TRUE)
 pgInsert(conn,new_table,pts)
 pgListGeom(conn)
 
+r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
+pgWriteRast(conn, c("rpostgis", "test_rast"), raster = r, bit_depth = "2BUI", overwrite = TRUE)
+pgWriteRast(conn, c("rpostgis", "clc"), raster = rast, overwrite = TRUE)
+
+# write rast stack/brick
+ls<-list.files("N:/Species_Distribution_Modelling/Source_File_Climate_data/Future_climate/for_LF_UW_comparison/UW/a2/ukmo/", full.names = TRUE)
+ls<-ls[!grepl(pattern = ".prj", ls)]
+
+rast<-stack(ls)
+system.time(
+pgWriteRast(conn, c("rpostgis","uw"), rast, overwrite = TRUE)
+)
+rast<-brick(rast)
+system.time(
+pgWriteRast(conn, c("rpostgis","uw"), rast, overwrite = TRUE)
+)
+
 # drop table
 dbDrop(conn, new_table)
 
@@ -86,6 +103,9 @@ dbExecute(conn, "ALTER TABLE rpostgis.db_test DROP COLUMN gid_r;")
 pts.sponly<-SpatialPoints(pts,proj4string = pts@proj4string)
 pgInsert(conn, new_table, pts.sponly)
 
+# df mode only geom
+pgInsert(conn, new_table, pts.sponly, df.mode = TRUE, overwrite = TRUE)
+
 # pgMakePts
 pgInsert(conn, c("rpostgis","meuse"), meuse)
 pgMakePts(conn, c("rpostgis","meuse") , colname = "geom_make", srid = 26917, index = TRUE)
@@ -95,12 +115,42 @@ alb<-DBI::dbGetQuery(conn,"SELECT * FROM example_data.albatross;")
 pgInsert(conn,c("rpostgis","alba"), alb, new.id = "gid_R")
 pgMakeStp(conn, c("rpostgis","alba"), colname = "geom_stp", srid = 26917, index = TRUE)
 
+# data.frame mode write/read
+data("db_vector_geom")
+
+p1<-db_vector_geom$meteo_stations
+pgInsert(conn, c("rpostgis", "pts"), data.obj = p1, df.mode = TRUE, overwrite = TRUE)
+p2<-pgGetGeom(conn, c("rpostgis", "pts"))
+all.equal(p1@data, p2@data)
+
+p1<-db_vector_geom$roads
+pgInsert(conn, c("rpostgis", "lin"), data.obj = p1, df.mode = TRUE, overwrite = TRUE)
+p2<-pgGetGeom(conn, c("rpostgis", "lin"))
+all.equal(p1@data, p2@data)
+
+p1<-db_vector_geom$adm_boundaries
+pgInsert(conn, c("rpostgis", "poly"), data.obj = p1, df.mode = TRUE, overwrite = TRUE)
+p2<-pgGetGeom(conn, c("rpostgis", "poly"))  # ordering...
+all.equal(p1@data, p2@data)
+
+data("db_gps_data")
+d<-rbind(db_gps_data$GSM01511[,1:14],db_gps_data$GSM01508[,1:14])
+d$acquisition_time <- as.POSIXct(paste0(d$utc_date," ",d$utc_time), format = "%d/%m/%Y %H:%M:%S", tz = "UTC")
+d$posixlt<- as.POSIXlt(d$acquisition_time, tz = "America/New_York")
+d$nav <- as.ordered(d$nav)
+
+dbWriteDataFrame(conn, c("rpostgis","d"), d)
+d2<-dbReadDataFrame(conn, c("rpostgis","d"))
+all.equal(d, d2)
+# end data frame mode section
+
 # drop schema
 dbDrop(conn, new_table[1], type = "schema", cascade = TRUE)
 
 dbDisconnect(conn)
 dbDisconnect(conn2)
-rm(pts,pts.sponly,bnd,lin,poly,rast, conn, conn2, drv, alb, meuse, ex_table, new_table, cred)
+
+rm(list = ls())
 })
 )
 print("ALL GOOD!!!")

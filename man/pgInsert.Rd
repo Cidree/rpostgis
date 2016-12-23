@@ -3,11 +3,12 @@
 \name{pgInsert}
 \alias{pgInsert}
 \alias{print.pgi}
-\title{Inserts data into a PostgreSQL table.}
+\title{Inserts data into a PostgreSQL table}
 \usage{
-pgInsert(conn, name, data.obj, geom = "geom", partial.match = FALSE,
-  overwrite = FALSE, new.id = NULL, upsert.using = NULL,
-  alter.names = TRUE, encoding = NULL, return.pgi = FALSE)
+pgInsert(conn, name, data.obj, geom = "geom", df.mode = FALSE,
+  partial.match = FALSE, overwrite = FALSE, new.id = NULL,
+  row.names = FALSE, upsert.using = NULL, alter.names = FALSE,
+  encoding = NULL, return.pgi = FALSE)
 
 \method{print}{pgi}(x, ...)
 }
@@ -28,7 +29,13 @@ table.}
 
 \item{geom}{character string. For Spatial* datasets, the name of
 geometry column in the database table.  (existing or to be
-created; defaults to \code{"geom"}).}
+created; defaults to "geom").}
+
+\item{df.mode}{Logical; Whether to write the (Spatial) data frame in data frame mode 
+(preserving data frame column attributes and row.names).
+A new table must be created with this mode (or overwrite set to TRUE),
+and the row.names, alter.names, and new.id arguments will
+be ignored (see \code{\link[rpostgis]{dbWriteDataFrame}} for more information).}
 
 \item{partial.match}{Logical; allow insert on partial column
 matches between data frame and database table. If \code{TRUE},
@@ -46,6 +53,9 @@ data frames, this column is created even if left \code{NULL}
 and defaults to the name \code{"gid"}). If \code{partial.match
 = TRUE} and the column does not exist in the databse table,
 it will be discarded.}
+
+\item{row.names}{Whether to add the data frame row names to the 
+database table. Column name will be '.R_rownames'.}
 
 \item{upsert.using}{Character, name of the column(s) in the database table 
 or constraint name used to identify already-existing rows in the table, which will
