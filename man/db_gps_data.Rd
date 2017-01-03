@@ -6,7 +6,7 @@
 \alias{db_raster}
 \alias{db_sensors_animals_tables}
 \alias{db_vector_geom}
-\title{Example data for GPS tracking project}
+\title{Example data from a GPS tracking project}
 \format{\code{db_gps_data}: A list containing five \code{data.frame}s corresponding to five GPS
 sensors
  \describe{

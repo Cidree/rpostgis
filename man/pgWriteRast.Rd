@@ -2,9 +2,9 @@
 % Please edit documentation in R/pgWriteRast.R
 \name{pgWriteRast}
 \alias{pgWriteRast}
-\title{Load raster into PostGIS database.}
+\title{Write raster to PostGIS database table.}
 \usage{
-pgWriteRast(conn, name, raster, bit_depth = NULL, constraints = TRUE,
+pgWriteRast(conn, name, raster, bit.depth = NULL, constraints = TRUE,
   overwrite = FALSE)
 }
 \arguments{
@@ -12,17 +12,17 @@ pgWriteRast(conn, name, raster, bit_depth = NULL, constraints = TRUE,
 
 \item{name}{A character string specifying a PostgreSQL schema (if
 necessary) and table name to hold the
-raster (e.g., name = c("schema","table"))}
+raster (e.g., \code{name = c("schema","table")})}
 
-\item{raster}{An R RasterLayer, RasterBrick, or RasterStack}
+\item{raster}{An R \code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack}}
 
-\item{bit_depth}{The bit depth of the raster. Will be set to 32-bit
+\item{bit.depth}{The bit depth of the raster. Will be set to 32-bit
 (unsigned int, signed int, or float, depending on the data)
 if left null, but can be specified (as character) as one of the
 PostGIS pixel types (see \url{http://postgis.net/docs/RT_ST_BandPixelType.html})}
 
 \item{constraints}{Whether to create constraints from raster data. Recommened
-to leave TRUE unless applying constraints manually (see
+to leave \code{TRUE} unless applying constraints manually (see
 \url{http://postgis.net/docs/RT_AddRasterConstraints.html}).
 Note that constraint notices may print to the console,
  depending on the PostgreSQL server settings.}
@@ -33,11 +33,11 @@ Note that constraint notices may print to the console,
 TRUE for successful import.
 }
 \description{
-Sends R Raster* to a new PostGIS database table.
+Sends R \code{Raster*} to a new PostGIS database table.
 }
 \details{
 RasterLayer names will be stored in an array in the column
-"band_names", which will be restored when used with the function
+"band_names", which will be restored in R when imported with the function
 \code{\link[rpostgis]{pgGetRast}}.
 }
 \examples{
@@ -46,7 +46,7 @@ pgWriteRast(conn, c("schema", "tablename"), raster_name)
 
 # basic test
 r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
-pgWriteRast(conn, c("schema", "test"), raster = r, bit_depth = "2BUI", overwrite = TRUE)
+pgWriteRast(conn, c("schema", "test"), raster = r, bit.depth = "2BUI", overwrite = TRUE)
 }
 }
 \author{

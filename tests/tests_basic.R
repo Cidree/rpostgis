@@ -28,6 +28,8 @@ poly<-pgGetGeom(conn2, c("env_data","adm_boundaries"), clauses = "order by nome_
 lin<-pgGetGeom(conn2,c("env_data","roads"))
 bnd<-pgGetBoundary(conn, ex_table)
 rast<-pgGetRast(conn2,c("env_data","corine_land_cover"))
+rastclp<-pgGetRast(conn2,c("env_data","srtm_dem"), boundary = lin)
+
 
 # get SRIDs
 pgSRID(conn,crs = bnd@proj4string)
@@ -43,7 +45,7 @@ pgInsert(conn,new_table,pts)
 pgListGeom(conn)
 
 r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
-pgWriteRast(conn, c("rpostgis", "test_rast"), raster = r, bit_depth = "2BUI", overwrite = TRUE)
+pgWriteRast(conn, c("rpostgis", "test_rast"), raster = r, bit.depth = "2BUI", overwrite = TRUE)
 pgWriteRast(conn, c("rpostgis", "clc"), raster = rast, overwrite = TRUE)
 
 # write rast stack/brick

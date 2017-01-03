@@ -2,20 +2,20 @@
 
 #' Write/read in data frame mode to/from database table
 #' 
-#' Write data.frame to database table, with column definitions, row.names,
+#' Write \code{data.frame} to database table, with column definitions, row names,
 #' and a new integer primary key column. Read back into R with
-#' dbReadDataFrame, which recreates original data frame.
+#' \code{dbReadDataFrame}, which recreates original data frame.
 #' 
 #' Writing in data frame mode is only for new database tables (or for
 #' overwriting an existing one). It will save all column names as they
 #' appear in R, along with column data types and attributes. 
 #' This is done by adding metadata to a lookup table in the table's
 #' schema named ".R_df_defs" (will be created if not present). 
-#' It also adds two fixed names to the database table: ".R_rownames" (storing
+#' It also adds two fixed columns to the database table: ".R_rownames" (storing
 #' the row.names of the data frame), and ".db_pkid", which is a new
 #' integer primary key. Existing columns in the data.frame matching these
 #' names will be automatically changed. For more flexible writing of
-#' data.frames to the database,
+#' \code{data.frame}s to the database,
 #' use \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
 #' 
 #' The \code{rpostgis} database read functions \code{dbReadDataFrame} and \code{pgGetGeom} 
@@ -25,15 +25,15 @@
 #' 
 #' @param conn A connection object to a PostgreSQL database
 #' @param name Character, schema and table of the PostgreSQL table
-#' @param df The data frame to write (for dbReadDataFrame, this allows
-#' to update an existing data.frame with definitions stored in the database)
+#' @param df The data frame to write (for \code{dbReadDataFrame}, this allows
+#' to update an existing \code{data.frame} with definitions stored in the database)
 #' @param overwrite Logical; if TRUE, a new table (\code{name}) will
 #'    overwrite the existing table (\code{name}) in the database.
-#' @param only.defs Logical; if TRUE, only the table definitions will be
+#' @param only.defs Logical; if \code{TRUE}, only the table definitions will be
 #'    written.
 #' @author David Bucklin \email{dbucklin@@ufl.edu}
 #' @export
-#' @return TRUE for dbWriteDataFrame, data.frame for dbReadDataFrame
+#' @return \code{TRUE} for \code{dbWriteDataFrame}, \code{data.frame} for \code{dbReadDataFrame}
 #' @examples
 #' \dontrun{
 #' library(sp)

@@ -3,14 +3,14 @@
 ##' Retrieve bounding envelope of geometries or rasters.
 ##'
 ##' Retrieve bounding envelope (rectangle) of all geometries or
-##' rasters in a Postgresql table.
+##' rasters in a PostGIS table.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
-##' @param name A character string specifying a PostgreSQL schema (if
-##'     necessary), and table or view name for the table holding the
-##'     geometries/raster(s) (e.g., name = c("schema","table"))
-##' @param geom character, Name of the column in 'name' holding the
-##'     geometry or raster object (Default = 'geom')
+##' @param name A character string specifying a PostgreSQL schema and
+##'     table/view name holding the geometry (e.g., \code{name =
+##'     c("schema","table")})
+##' @param geom character, Name of the column in \code{name} holding the
+##'     geometry or raster object (Default = \code{"geom"})
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialPolygons

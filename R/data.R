@@ -1,4 +1,4 @@
-#' Example data for GPS tracking project
+#' Example data from a GPS tracking project
 #'
 #' Example datasets related to a GPS tracking project for roe deer
 #' in Trentino Region, Italy. Four datasets include raw data from GPS sensors (\code{db_gps_data}),

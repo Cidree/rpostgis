@@ -14,7 +14,8 @@ pgMakeStp(conn, name, colname = "geom", x = "x", y = "y", dx = "dx",
 \arguments{
 \item{conn}{A connection object.}
 
-\item{name}{A character string specifying a PostgreSQL table name.}
+\item{name}{A character string specifying a PostgreSQL schema and
+table name (e.g., \code{name = c("schema","table")})}
 
 \item{colname}{A character string specifying the name of the new
 geometry column.}

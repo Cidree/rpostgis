@@ -1,21 +1,21 @@
 ## pgInsert
 
-##' Inserts data into a PostgreSQL table
+##' Inserts data into a PostgreSQL table.
 ##'
-##' This function takes a take an R \code{sp} object (Spatial* or
-##' Spatial*DataFrame), or a regular data frame, and performs the
+##' This function takes a take an R \code{sp} object (\code{Spatial*} or
+##' \code{Spatial*DataFrame}), or a regular \code{data.frame}, and performs the
 ##' database insert (and table creation, when the table doesn't exist)
 ##' on the database.
 ##'
 ##' If \code{new.id} is specified, a new sequential integer field is
 ##' added to the data frame for insert. For \code{Spatial*}-only
-##' objects (no data frame), a new.id is created by default with name
-##' "gid".
+##' objects (no data frame), a new ID column is created by default with name
+##' \code{"gid"}.
 ##'
 ##' If the R package \code{wkb} is installed, this function will use
-##' \code{writeWKB} for certain datasets (non-Multi types,
+##' \code{\link[wkb]{writeWKB}} for certain datasets (non-Multi types,
 ##' non-Linestring), which is faster for large datasets.  In all other
-##' cases the \code{rgeos} function \code{writeWKT} is used.
+##' cases the \code{rgeos} function \code{\link[rgeos]{writeWKT}} is used.
 ##'
 ##' In the event of function or database error, the database uses
 ##' ROLLBACK to revert to the previous state. 
@@ -27,7 +27,7 @@
 ##' or re-used as the \code{data.obj} in \code{pgInsert}; 
 ##' (e.g., when data preparation is slow, and the exact same data 
 ##' needs to be inserted into tables in two separate
-##' tables or databases).If \code{return.pgi = FALSE}
+##' tables or databases). If \code{return.pgi = FALSE}
 ##' (default), the function will return \code{TRUE} for successful insert and
 ##' \code{FALSE} for failed inserts.
 ##' 
@@ -40,8 +40,9 @@
 ##' 
 ##' 
 ##' @param conn A connection object to a PostgreSQL database
-##' @param name Character, schema and table of the PostgreSQL table to
-##'     insert into. If not already existing, the table will be
+##' @param name A character string specifying a PostgreSQL schema and
+##'     table name (e.g., \code{name = c("schema","table")}). 
+##'     If not already existing, the table will be
 ##'     created. If the table already exists, the function will check
 ##'     if all R data frame columns match database columns, and if so,
 ##'     do the insert. If not, the insert will be aborted. The
@@ -49,14 +50,14 @@
 ##'     partial matches of data frame and database column names, and
 ##'     \code{overwrite} allows for overwriting the existing database
 ##'     table.
-##' @param data.obj A Spatial* or Spatial*DataFrame, or data frame
-##' @param geom character string. For Spatial* datasets, the name of
+##' @param data.obj A \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}
+##' @param geom character string. For \code{Spatial*} datasets, the name of
 ##'     geometry column in the database table.  (existing or to be
-##'     created; defaults to "geom").
+##'     created; defaults to \code{"geom"}).
 ##' @param df.mode Logical; Whether to write the (Spatial) data frame in data frame mode 
 ##'     (preserving data frame column attributes and row.names).
 ##'     A new table must be created with this mode (or overwrite set to TRUE),
-##'     and the row.names, alter.names, and new.id arguments will
+##'     and the \code{row.names}, \code{alter.names}, and \code{new.id} arguments will
 ##'     be ignored (see \code{\link[rpostgis]{dbWriteDataFrame}} for more information).
 ##' @param partial.match Logical; allow insert on partial column
 ##'     matches between data frame and database table. If \code{TRUE},
@@ -80,12 +81,12 @@
 ##'     already created in the database table (e.g., a primary key). 
 ##'     Requires PostgreSQL 9.5+.
 ##' @param alter.names Logical, whether to make database column names
-##'     DB-compliant (remove special characters). Default is
-##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
-##'     to non-standard names in an existing database table.)
+##'     DB-compliant (remove special characters/capitalization). Default is
+##'     \code{FALSE}.  (This must be set to \code{FALSE} to match
+##'     with non-standard names in an existing database table.)
 ##' @param encoding Character vector of length 2, containing the
 ##'     from/to encodings for the data (as in the function
-##'     \code{iconv}). For example, if the dataset contain certain
+##'     \code{\link[base]{iconv}}). For example, if the dataset contain certain
 ##'     latin characters (e.g., accent marks), and the database is in
 ##'     UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
 ##'     \code{NULL}, no conversion will be done.

@@ -22,8 +22,8 @@ rpostgis 1.1.0
 * pgGetGeom will try to read Spatial*DataFrames in data frame mode
   (will not affect import for non-data frame mode tables)
   
-* pgGetRast now has a "band" argument to select which band in the raster
-  to import
+* pgGetRast now has a "band" argument to select which band in the database 
+  raster to import
 
 *** about data frame mode ***
 

@@ -11,15 +11,15 @@ pgGetGeom(conn, name, geom = "geom", gid = NULL, other.cols = TRUE,
 \item{conn}{A connection object to a PostgreSQL database}
 
 \item{name}{A character string specifying a PostgreSQL schema and
-table/view name holding the geometry (e.g., `name =
-c("schema","table")`)}
+table/view name holding the geometry (e.g., \code{name =
+c("schema","table")})}
 
-\item{geom}{The name of the geometry column. (Default = "geom")}
+\item{geom}{The name of the geometry column. (Default = \code{"geom"})}
 
-\item{gid}{Name of the column in `name` holding the IDs. Should be
+\item{gid}{Name of the column in \code{name} holding the IDs. Should be
 unique if additional columns of unique data are being
 appended. \code{gid=NULL} (default) automatically creates a
-new unique ID for each row in the `sp` object.}
+new unique ID for each row in the \code{sp} object.}
 
 \item{other.cols}{Names of specific columns in the table to
 retrieve, in a character vector (e.g. \code{other.cols=c("col1","col2")}.)
@@ -37,8 +37,8 @@ sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons
 }
 \description{
 Retrieve point, linestring, or polygon geometries from a PostGIS
-table/view, and convert it to an R `sp` object (Spatial* or
-Spatial*DataFrame).
+table/view, and convert it to an R \code{sp} object (\code{Spatial*} or
+\code{Spatial*DataFrame}).
 }
 \examples{
 \dontrun{

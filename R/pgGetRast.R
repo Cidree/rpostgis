@@ -5,19 +5,19 @@
 ##' Retrieve rasters from a PostGIS table.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
-##' @param name A character string specifying a PostgreSQL schema (if
-##'     necessary), and table or view name for the table holding the
-##'     raster (e.g., name = c("schema","table"))
-##' @param rast Name of the column in 'name' holding the raster object
+##' @param name A character string specifying a PostgreSQL schema and
+##'     table/view name holding the geometry (e.g., \code{name =
+##'     c("schema","table")})
+##' @param rast Name of the column in \code{name} holding the raster object
 ##' @param band Index number for the band to retrieve (defaults to 1)
 ##' @param digits numeric, precision for detecting whether points are
 ##'     on a regular grid (a low number of digits is a low precision)
-##'     - From rasterFromXYZ function (\code{raster} package)
+##'     - From \code{\link[raster]{rasterFromXYZ}} function (\code{raster} package)
 ##' @param boundary \code{sp} object or numeric. A Spatial* object,
 ##'     whose bounding box will be used to select the part of the
 ##'     raster to import. Alternatively, four numbers
-##'     (e.g. \code{c(north, south, east, west)}) indicating the
-##'     projection-specific limits with which to clip the raster. NULL
+##'     (e.g. \code{c([top], [bottom], [right], [left])}) indicating the
+##'     projection-specific limits with which to clip the raster. \code{boundary = NULL}
 ##'     (default) will return the full raster.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @importFrom raster rasterFromXYZ

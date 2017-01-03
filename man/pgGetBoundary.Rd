@@ -9,19 +9,19 @@ pgGetBoundary(conn, name, geom = "geom")
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{name}{A character string specifying a PostgreSQL schema (if
-necessary), and table or view name for the table holding the
-geometries/raster(s) (e.g., name = c("schema","table"))}
+\item{name}{A character string specifying a PostgreSQL schema and
+table/view name holding the geometry (e.g., \code{name =
+c("schema","table")})}
 
-\item{geom}{character, Name of the column in 'name' holding the
-geometry or raster object (Default = 'geom')}
+\item{geom}{character, Name of the column in \code{name} holding the
+geometry or raster object (Default = \code{"geom"})}
 }
 \value{
 SpatialPolygon
 }
 \description{
 Retrieve bounding envelope (rectangle) of all geometries or
-rasters in a Postgresql table.
+rasters in a PostGIS table.
 }
 \examples{
 \dontrun{
