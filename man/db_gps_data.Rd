@@ -6,7 +6,7 @@
 \alias{db_raster}
 \alias{db_sensors_animals_tables}
 \alias{db_vector_geom}
-\title{GPS tracking core datasets}
+\title{Example data for GPS tracking project}
 \format{\code{db_gps_data}: A list containing five \code{data.frame}s corresponding to five GPS
 sensors
  \describe{
@@ -24,7 +24,7 @@ sensors
    \item{gps_sensors_animals}{data frame containing information on deployment of GPS sensors on animals}
  }
 
-\code{db_vector_geom}: A list containing four Spatial*DataFrames
+\code{db_vector_geom}: A list containing four \code{Spatial*DataFrame}s
  \describe{
    \item{study_area}{SpatialPolygonsDataFrame containing boundary of study area}
    \item{adm_boundaries}{SpatialPolygonsDataFrame containing administrative boundaries in study area}
@@ -32,7 +32,7 @@ sensors
    \item{roads}{SpatialLinesDataFrame containing representation of roads for study area}
  }
 
-\code{db_raster}: A list containing two RasterLayer datasets
+\code{db_raster}: A list containing two \code{RasterLayer} datasets
  \describe{
    \item{corine06}{RasterLayer depicting land cover classification in the study area}
    \item{srtm_dem}{RasterLayer digital elevation model in the study area}
@@ -55,7 +55,7 @@ db_raster
 Example datasets related to a GPS tracking project for roe deer
 in Trentino Region, Italy. Four datasets include raw data from GPS sensors (\code{db_gps_data}),
 information on animals, sensors, and  sensor deployments on animals (\code{db_sensors_animals_tables}),
-and ancilliary vector (\code{db_vector_geom}), and raster (\code{db_raster})
+and ancilliary vector (\code{db_vector_geom}) and raster (\code{db_raster})
 spatial datasets.
 }
 \examples{
