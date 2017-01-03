@@ -6,6 +6,7 @@ library(rpostgis)
 library(RPostgreSQL)
 drv<-dbDriver("PostgreSQL")
 library(sp)
+library(raster)
 data("meuse")
 cred<-scan(".pgpass_rpostgis", what = "character")
 conn <- dbConnect(drv, host = cred[1], dbname = cred[2], user = cred[3], password = cred[4])
@@ -57,6 +58,8 @@ rast<-brick(rast)
 system.time(
 pgWriteRast(conn, c("rpostgis","uw"), rast, overwrite = TRUE)
 )
+
+all.equal(rast[[5]],pgGetRast(conn, c("rpostgis","uw"), band = 5))
 
 # drop table
 dbDrop(conn, new_table)

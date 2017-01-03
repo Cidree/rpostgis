@@ -13,13 +13,17 @@ rpostgis 1.1.0
 
 *** OTHER CHANGES ***
 
+* added four example datasets (all have prefix "db_")
+
 * pgInsert can write in data frame mode when df.mode = TRUE
 
 * pgInsert 'alter.names' argument now defaults to FALSE
 
-* pgGetGeom will try to read Spatial*DataFrames as in
-  dbReadDataFrame (will not affect import for non-data frame mode
-  tables)
+* pgGetGeom will try to read Spatial*DataFrames in data frame mode
+  (will not affect import for non-data frame mode tables)
+  
+* pgGetRast now has a "band" argument to select which band in the raster
+  to import
 
 *** about data frame mode ***
 
