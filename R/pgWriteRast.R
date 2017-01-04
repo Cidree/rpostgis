@@ -24,7 +24,7 @@
 ##'      depending on the PostgreSQL server settings.
 ##' @param overwrite Whether to overwrite the existing table (\code{name}).
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
-##' @importFrom raster res blockSize extent t as.matrix
+##' @importFrom raster res blockSize extent t as.matrix values
 ##' @export
 ##' @return TRUE for successful import.
 ##' 

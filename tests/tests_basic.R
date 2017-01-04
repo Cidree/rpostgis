@@ -1,7 +1,9 @@
 # rpostgis tests
 # These are most basic tests to ensure all functions are working
+cwd<-getwd()
 
 tryCatch({
+setwd("~")
 library(rpostgis)
 library(RPostgreSQL)
 drv<-dbDriver("PostgreSQL")
@@ -42,6 +44,15 @@ pgSRID(conn2,crs = lin@proj4string, create.srid = TRUE)
 dbSchema(conn,new_table[1])
 dbDrop(conn,new_table,type = "table", ifexists = TRUE)
 pgInsert(conn,new_table,pts)
+
+# pgi mode
+pgInsert(conn, c("rpostgis","db_test2"), pts)
+pgi<-pgInsert(conn, new_table, pts, return.pgi = TRUE)
+print(pgi)
+pgi$in.table<-c("rpostgis","db_test2") # change insert table in object
+pgInsert(conn, data.obj = pgi)
+rm(pgi)
+
 pgListGeom(conn)
 
 r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
@@ -155,7 +166,8 @@ dbDrop(conn, new_table[1], type = "schema", cascade = TRUE)
 dbDisconnect(conn)
 dbDisconnect(conn2)
 
-rm(list = ls())
+rm(alb, d, d2, meuse, bnd, conn, conn2, cred, db_gps_data, db_vector_geom, drv, ex_table, 
+   lin, ls, new_table, p1, p2, poly, pts, pts.sponly, r, rast, rastclp)
 })
 )
 print("ALL GOOD!!!")
@@ -164,3 +176,5 @@ error = function(x) {
   print("errors...")
   print(x)
 })
+setwd(cwd)
+rm(cwd)

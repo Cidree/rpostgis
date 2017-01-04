@@ -1,6 +1,6 @@
 # dbWriteDataFrame
 
-#' Write/read in data frame mode to/from database table
+#' Write/read in data frame mode to/from database table.
 #' 
 #' Write \code{data.frame} to database table, with column definitions, row names,
 #' and a new integer primary key column. Read back into R with
@@ -90,7 +90,9 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
         class(x)[1]
     }))
     
-    # handle attribute (time zones)
+    # modular handling of different data type attributes (add new below)
+    
+    # 1. handle attribute (time zones)
     attr2 <- lapply(d[1, ], function(x) {
         attr(x, "tzone")[1]
     })
@@ -100,14 +102,28 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
     attr2[badtz] <- "NULL"
     attr2 <- unlist(attr2)
     
-    # handle attribute (factor levels)
+    ####
+    # convert non-matching tz time to db tz
+    pgtz<-dbGetQuery(conn, "SHOW timezone;")[1,1]
+    tzl<-names(attr2[attr2 != "NULL" & attr2 != pgtz])
+    for (t in tzl) {
+      eval(parse(
+        text = paste0("attributes(d$",t,")$tzone <- pgtz")
+      ))
+    }
+    ####
+    
+    # 2. handle attribute (factor levels)
     fact <- unlist(lapply(d[1, ], function(x) {
         paste0("/*/", paste(attr(x, "levels"), collapse = "/*/"), 
             "/*/")
     }))
     attr2[!fact == "/*//*/"] <- fact[!fact == "/*//*/"]
     
-    # make array of columns, types, and time zones
+    # 3. #####
+    # end modular handling of different data type attributes
+    
+    # make array of columns, types, and attributes
     defs <- paste0("{{", paste(names(d), collapse = ","), "},{", 
         paste(as.character(types), collapse = ","), "},{", paste(as.character(attr2), 
             collapse = ","), "}}")
@@ -129,7 +145,8 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
                 collapse = "."), ".")
         }
     })
-    return(TRUE)
+    
+    if(only.defs) return(d) else return(TRUE)
 }
 
 # dbReadDataFrame
@@ -179,6 +196,9 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
             d <- df
         }
         
+        # get db tz
+        pgtz<-dbGetQuery(conn, "SHOW timezone;")[1,1]
+        
         # assign types
         for (i in names(d)) {
             att <- defs[defs$nms == i, ]
@@ -186,6 +206,7 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
                 next
             }
             if (!is.na(att$atts)) {
+              # begin modular handling of different data type attributes (add new below)
                 # handle factors
                 if (att$defs %in% c("factor", "ordered")) {
                   levs <- unlist(strsplit(att$atts, "/*/", fixed = TRUE))
@@ -194,12 +215,18 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
                   d[, i] <- factor(as.character(d[, i]), levels = levs[levs != 
                     ""], ordered = ordered)
                 }
+                # handle POSIX time zones
                 if (att$defs %in% c("POSIXct", "POSIXlt", "POSIXt")) {
                   d[, i] <- list(eval(parse(text = paste0("as.", 
                     att$defs, "(as.character(d[,i]),
                                       tz='", 
-                    att$atts, "')"))))
+                    pgtz, "')"))))
+                  # assign R tz
+                  eval(parse(
+                      text = paste0("attributes(d$",i,")$tzone <- att$atts")
+                  ))
                 }
+              # end modular handling of different data types
             } else {
                 d[, i] <- do.call(paste0("as.", att$defs), list(d[, 
                   i]))

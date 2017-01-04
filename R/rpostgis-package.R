@@ -2,10 +2,10 @@
 
 ##' R interface to a PostGIS database.
 ##'
-##' This package provides additional functions to the
-##' \code{RPostgreSQL} package to interface R with a PostGIS-enabled
-##' database, as well as convenient wrappers to common PostgreSQL
-##' queries. For a list of documented functions, use
+##' Provides functions to transfer spatial data (vector and raster)
+##' between R and 'PostGIS'-enabled 'PostgreSQL' databases,
+##' as well as convenience functions to execute common procedures in 
+##' 'PostgreSQL/PostGIS'. For a list of documented functions, use
 ##' \code{library(help = "rpostgis")}.
 ##'
 ##' A typical session starts by establishing the connection to a

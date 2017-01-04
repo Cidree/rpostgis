@@ -3,7 +3,7 @@
 \name{dbWriteDataFrame}
 \alias{dbReadDataFrame}
 \alias{dbWriteDataFrame}
-\title{Write/read in data frame mode to/from database table}
+\title{Write/read in data frame mode to/from database table.}
 \usage{
 dbWriteDataFrame(conn, name, df, overwrite = FALSE, only.defs = FALSE)
 
