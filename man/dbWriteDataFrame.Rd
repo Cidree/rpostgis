@@ -24,7 +24,8 @@ overwrite the existing table (\code{name}) in the database.}
 written.}
 }
 \value{
-\code{TRUE} for \code{dbWriteDataFrame}, \code{data.frame} for \code{dbReadDataFrame}
+\code{TRUE} for successful write with \code{dbWriteDataFrame},
+   \code{data.frame} for \code{dbReadDataFrame}
 }
 \description{
 Write \code{data.frame} to database table, with column definitions, row names,
@@ -44,10 +45,10 @@ names will be automatically changed. For more flexible writing of
 \code{data.frame}s to the database,
 use \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
 
-The \code{rpostgis} database read functions \code{dbReadDataFrame} and \code{pgGetGeom} 
+The \code{rpostgis} database table read functions \code{dbReadDataFrame} and \code{pgGetGeom} 
 will use the metadata created in data frame mode to
 recreate a data.frame in R, if it is available. Otherwise, 
-it will be imported using default \code{RPostgreSQL} methods.
+it will be imported using default \code{RPostgreSQL::dbReadTable} methods.
 }
 \examples{
 \dontrun{

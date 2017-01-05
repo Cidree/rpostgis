@@ -18,22 +18,23 @@
 #' \code{data.frame}s to the database,
 #' use \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
 #' 
-#' The \code{rpostgis} database read functions \code{dbReadDataFrame} and \code{pgGetGeom} 
+#' The \code{rpostgis} database table read functions \code{dbReadDataFrame} and \code{pgGetGeom} 
 #' will use the metadata created in data frame mode to
 #' recreate a data.frame in R, if it is available. Otherwise, 
-#' it will be imported using default \code{RPostgreSQL} methods.
+#' it will be imported using default \code{RPostgreSQL::dbReadTable} methods.
 #' 
 #' @param conn A connection object to a PostgreSQL database
 #' @param name Character, schema and table of the PostgreSQL table
 #' @param df The data frame to write (for \code{dbReadDataFrame}, this allows
-#' to update an existing \code{data.frame} with definitions stored in the database)
+#'    to update an existing \code{data.frame} with definitions stored in the database)
 #' @param overwrite Logical; if TRUE, a new table (\code{name}) will
 #'    overwrite the existing table (\code{name}) in the database.
 #' @param only.defs Logical; if \code{TRUE}, only the table definitions will be
 #'    written.
 #' @author David Bucklin \email{dbucklin@@ufl.edu}
 #' @export
-#' @return \code{TRUE} for \code{dbWriteDataFrame}, \code{data.frame} for \code{dbReadDataFrame}
+#' @return \code{TRUE} for successful write with \code{dbWriteDataFrame},
+#'    \code{data.frame} for \code{dbReadDataFrame}
 #' @examples
 #' \dontrun{
 #' library(sp)
@@ -102,7 +103,6 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
     attr2[badtz] <- "NULL"
     attr2 <- unlist(attr2)
     
-    ####
     # convert non-matching tz time to db tz
     pgtz<-dbGetQuery(conn, "SHOW timezone;")[1,1]
     tzl<-names(attr2[attr2 != "NULL" & attr2 != pgtz])
@@ -111,7 +111,6 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
         text = paste0("attributes(d$",t,")$tzone <- pgtz")
       ))
     }
-    ####
     
     # 2. handle attribute (factor levels)
     fact <- unlist(lapply(d[1, ], function(x) {
