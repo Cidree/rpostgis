@@ -1,91 +1,121 @@
 rpostgis 1.1.0
-=============
+==============
 
-***  NEW FUNCTIONS ***
+OVERALL CHANGES
 
-* pgWriteRast to upload R Raster* datasets to PostGIS database tables
+* Added four example datasets (all have prefix `db_`).
+
+NEW FUNCTIONS
+
+* `pgWriteRast` to upload R Raster* datasets to PostGIS database
+  tables.
   
-* dbWriteDataFrame for writing data.frames to PostgreSQL 
-  in "data frame mode" (see below)
+* `dbWriteDataFrame`/`dbReadDataFrame`: Write/read in data frame mode
+  to/from database table (see below).
+
+NEW FEATURES
+
+* `pgInsert` can write in data frame mode when `df.mode = TRUE`
+  (default is `FALSE`).
+
+* `pgInsert` now defaults to 'alter.names = FALSE'.
+
+* `pgGetGeom` will try to read Spatial*DataFrames in data frame mode
+  (will not affect import for non-data frame mode tables).
   
-* dbReadDataFrame for re-reading data frames written to the 
-  database in data frame mode
+* `pgGetRast` now has a `band` argument to select which band in the
+  database raster to import.
 
-*** OTHER CHANGES ***
-
-* added four example datasets (all have prefix "db_")
-
-* pgInsert can write in data frame mode when df.mode = TRUE
-
-* pgInsert 'alter.names' argument now defaults to FALSE
-
-* pgGetGeom will try to read Spatial*DataFrames in data frame mode
-  (will not affect import for non-data frame mode tables)
-  
-* pgGetRast now has a "band" argument to select which band in the database 
-  raster to import
-
-*** about data frame mode ***
+ABOUT DATA FRAME MODE
 
 Writing in data frame mode is only for new database tables (or for
 overwriting an existing one). It will save all column names as they
-appear in R, along with column data types and attributes. 
-This is done by adding metadata to a lookup table in the table's
-schema named ".R_df_defs" (will be created if not present). 
-It also adds two fixed names to the database table: ".R_rownames" (storing
-the row.names of the data frame), and ".db_pkid", which is a new
-integer primary key. Existing columns in the data.frame matching these
-names will be automatically changed. For more flexible writing of
-Spatial*DataFrames and data.frames to the database, users should 
-run pgInsert with df.mode = FALSE.
+appear in R, along with column data types and attributes.  This is
+done by adding metadata to a lookup table in the table's schema named
+'.R_df_defs' (will be created if not present).  It also adds two fixed
+names to the database table: '.R_rownames' (storing the `row.names` of
+the data frame), and '.db_pkid', which is a new integer primary
+key. Existing columns in the `data.frame` matching these names will be
+automatically changed. For more flexible writing of Spatial*DataFrames
+and `data.frames` to the database, users should run `pgInsert` with
+`df.mode = FALSE`.
+
 
 rpostgis 1.0.4
-=============
+==============
+
 OVERALL CHANGE
 
-* fix bug which was causing errors when using "ORDER BY ..." 
-  statements in the clauses argument for pgGetGeom.
+* Add package tests to repository.
+
+BUG FIXES
+
+* `pgGetGeom`: Fix bug which was causing errors when using 'ORDER BY
+  ...'  statements in the `clauses` argument.
   
-* add package tests to repository
 
 rpostgis 1.0.3
-=============
+==============
+
 OVERALL CHANGE
 
-* added internal functions dbCreateTableQuery, dbExistsTable, dbConnCheck
+* Only allow <PostgreSQLConnection> for executed queries.
 
-* only allow <PostgreSQLConnection> for executed queries
+NEW FUNCTIONS
+
+* `dbBuildTableQuery` (internal): Builds CREATE TABLE query for a data
+  frame object.
+
+* `dbExistsTable` (internal): Check if a PostgreSQL table exists.
+
+* `dbConnCheck` (internal): Check if a supported PostgreSQL connection.
+
 
 rpostgis 1.0.2
-=============
-OVERALL CHANGE
+==============
 
-* updated to use current search path schema as default in all functions
-  (in previous versions default schema was fixed to 'public')
+OVERALL CHANGES
 
-* added 'upsert' (INSERT ON CONFLICT UPDATE) functionality to pgInsert
-  with the 'upsert.using' argument. Requires PostgreSQL version 9.5+
+* Updated to use current search path schema as default in all
+  functions (in previous versions default schema was fixed to
+  'public').
 
-* added internal function dbVersion() for PostgreSQL version checking
+NEW FUNCTIONS
+
+* `dbVersion` (internal): PostgreSQL version checking.
+
+NEW FEATURES
+
+* `pgInsert` now provides 'upsert' functionality (INSERT ON CONFLICT
+  UPDATE) with the 'upsert.using' argument. Requires PostgreSQL
+  version 9.5+.
+
 
 rpostgis 1.0.1
-=============
-OVERALL CHANGE
+==============
 
-* pgPostGIS now returns TRUE for non-standard installs
+NEW FEATURES
+
+* `pgPostGIS` now returns TRUE for non-standard installs.
+
 
 rpostgis 1.0.0
-=============
-OVERALL CHANGE
+==============
 
-* Initial release to CRAN
+OVERALL CHANGES
 
-* pgGetGeom now handles all regular PostGIS Geometry data table imports
+* Initial release to CRAN.
+
+NEW FEATURES
+
+* `pgGetGeom` now handles all regular PostGIS Geometry data table
+  imports.
+
 
 rpostgis 0.10
 =============
 
-OVERALL CHANGE
+OVERALL CHANGES
 
 * Big package cleaning.
 
@@ -100,13 +130,15 @@ rpostgis 0.8.3
 
 OVERALL CHANGE
 
-* Change 'str' to 'query' + messages instead of cat.
+* Change 'str' to 'query'
+
+* Now uses `messages` instead of `cat` to print SQL code.
 
 
 rpostgis 0.8.2
 ==============
 
-OVERALL CHANGE
+OVERALL CHANGES
 
 * Changed file extension to .R.
 
@@ -114,7 +146,7 @@ OVERALL CHANGE
 rpostgis 0.8.1
 ==============
 
-OVERALL CHANGE
+OVERALL CHANGES
 
 * Fixed dependencies (DESCRIPTION, namespace, ::).
 
@@ -126,25 +158,35 @@ NEW FUNCTIONS
 
 * `pgPostGIS`: Check and create PostGIS extension.
 
-ENHANCEMENTS
+NEW FEATURES
 
-* `pgSchema`: Now returns TRUE if the schema exists (whether it was already available or was just created).
+* `pgSchema`: Now returns TRUE if the schema exists (whether it was
+  already available or was just created).
 
 
 rpostgis 0.7
 ============
 
+OVERALL CHANGES
+
+* Initial merge with `pgis2r` package, incorporating support for
+  loading geometry/raster objects stored in PostgreSQL databases in R.
+
 NEW FUNCTIONS
 
-* Initial merge with pgis2r package, incorporating support for loading
-  geometry/raster objects stored in PostgreSQL databases in R, using
-  functions (`pgGetRast`,`pgGetLines`,`pgGetPolys`).
+* `pgGetRast`: Load raster from PostGIS database.
+
+* `pgGetLines`: Load a PostGIS linestring geometry from a PostgreSQL
+  table/view into R.
+
+* `pgGetPolys`: Load a PostGIS polygon geometry from a PostgreSQL
+  table/view into R.
 
 
 rpostgis 0.6.1
 ==============
 
-OVERALL CHANGE
+OVERALL CHANGES
 
 * Update for roxygen2 4.0.
 
@@ -154,19 +196,19 @@ rpostgis 0.6
 
 NEW FUNCTIONS
 
-* `pgGetPts`: Retrieve point geometries
+* `pgGetPts`: Retrieve point geometries.
 
 
 rpostgis 0.5
 ============
 
-NEW FUNCTIONS
-
-* `pgColumn`: Add or remove a column (replaces `pgDropColumn`)
-
 OVERALL CHANGES
 
-* Code completely commented and cleaned
+* Code completely commented and cleaned.
+
+NEW FUNCTIONS
+
+* `pgColumn`: Add or remove a column (replaces `pgDropColumn`).
 
 
 rpostgis 0.4
@@ -174,7 +216,8 @@ rpostgis 0.4
 
 NEW FUNCTIONS
 
-* `pgMakePts` and `pgMakeStp`: Add a POINT or LINESTRING geometry field
+* `pgMakePts` and `pgMakeStp`: Add a POINT or LINESTRING geometry
+  field.
 
 
 rpostgis 0.3.1
@@ -183,7 +226,7 @@ rpostgis 0.3.1
 OVERALL CHANGES
 
 * Global change for `display = TRUE` to print the executed or
-  non-executed query
+  non-executed query.
 
 
 rpostgis 0.3
@@ -191,21 +234,21 @@ rpostgis 0.3
 
 OVERALL CHANGES
 
-* Non executed examples added for each function
+* Non executed examples added for each function.
 
-* `display = TRUE` by defaults for all functions
+* `display = TRUE` by defaults for all functions.
 
 NEW FUNCTIONS
 
-* `pgAsDate`: Converts to timestamp
+* `pgAsDate`: Converts to timestamp.
 
-* `pgDrop`: Drop table/view/schema
+* `pgDrop`: Drop table/view/schema.
 
-* `pgSchema`: Create schema
+* `pgSchema`: Create schema.
 
-ENHANCEMENTS
+NEW FEATURES
 
-* `pgComment`: Allows comments on schemas
+* `pgComment`: Allows comments on schemas.
 
 
 rpostgis 0.2
@@ -213,10 +256,10 @@ rpostgis 0.2
 
 OVERALL CHANGES
 
-* Change the package name to `rtpostgis`
+* Change the package name to `rpostgis`.
 
 * Change every `db`- function to `pg`- function, in order to avoid
-  confusion with standard `DBI` or `RPostgreSQL` functions
+  confusion with standard `DBI` or `RPostgreSQL` functions.
 
 
 RPostgreSQLmod 0.1
@@ -224,12 +267,12 @@ RPostgreSQLmod 0.1
 
 NEW FUNCTIONS
 
-* `dbAddKey`: Add key
+* `dbAddKey`: Add key.
 
-* `dbComment`: Comment table/view
+* `dbComment`: Comment table/view.
 
-* `dbVacuum`: VACUUM
+* `dbVacuum`: VACUUM.
 
-* `dbDropColumn`: Removing a Column
+* `dbDropColumn`: Removing a Column.
 
-* `dbIndex`: CREATE INDEX
+* `dbIndex`: CREATE INDEX.
