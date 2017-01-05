@@ -32,13 +32,13 @@ Writing in data frame mode is only for new database tables (or for
 overwriting an existing one). It will save all column names as they
 appear in R, along with column data types and attributes.  This is
 done by adding metadata to a lookup table in the table's schema named
-'.R_df_defs' (will be created if not present).  It also adds two fixed
-names to the database table: '.R_rownames' (storing the `row.names` of
-the data frame), and '.db_pkid', which is a new integer primary
-key. Existing columns in the `data.frame` matching these names will be
-automatically changed. For more flexible writing of Spatial*DataFrames
-and `data.frames` to the database, users should run `pgInsert` with
-`df.mode = FALSE`.
+'.R_df_defs' (will be created if not present).  It also adds two field
+with fixed names to the database table: '.R_rownames' (storing the
+`row.names` of the data frame), and '.db_pkid', which is a new integer
+primary key. Existing columns in the `data.frame` matching these names
+will be automatically changed. For more flexible writing of
+Spatial*DataFrames and `data.frames` to the database, users should run
+`pgInsert` with `df.mode = FALSE`.
 
 
 rpostgis 1.0.4

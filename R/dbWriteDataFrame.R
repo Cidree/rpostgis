@@ -11,11 +11,11 @@
 #' appear in R, along with column data types and attributes.  This is
 #' done by adding metadata to a lookup table in the table's schema
 #' named ".R_df_defs" (will be created if not present).  It also adds
-#' two fixed columns to the database table: ".R_rownames" (storing the
-#' row.names of the data frame), and ".db_pkid", which is a new
-#' integer primary key. Existing columns in the data.frame matching
-#' these names will be automatically changed. For more flexible
-#' writing of \code{data.frame}s to the database, use
+#' two fields with fixed names to the database table: ".R_rownames"
+#' (storing the row.names of the data frame), and ".db_pkid", which is
+#' a new integer primary key. Existing columns in the data.frame
+#' matching these names will be automatically changed. For more
+#' flexible writing of \code{data.frame}s to the database, use
 #' \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
 #'
 #' The \code{rpostgis} database table read functions
