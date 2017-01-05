@@ -18,8 +18,6 @@
 
 * update pgGetRast.r to load rasters from PostGIS type
 
-* insert rasters into tables
-
 KNOWN ISSUES
 
 * writing with wkb does not support MULTIPOLYGONS, LINESTRINGS

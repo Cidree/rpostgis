@@ -2,12 +2,12 @@
 #'
 #' Example datasets related to a GPS tracking project for roe deer in
 #' Trentino Region, Italy. Four datasets include raw data from GPS
-#' sensors (\code{db_gps_data}), information on animals, sensors, and
-#' sensor deployments on animals (\code{db_sensors_animals_tables}),
-#' and ancillary vector (\code{db_vector_geom}) and raster
-#' (\code{db_raster}) spatial datasets.
+#' sensors (\code{roe_gps_data}), information on animals, sensors, and
+#' sensor deployments on animals (\code{roe_sensors_animals_tables}),
+#' and ancillary vector (\code{roe_vector_geom}) and raster
+#' (\code{roe_raster}) spatial datasets.
 #'
-#' @format \code{db_gps_data}: A list containing five
+#' @format \code{roe_gps_data}: A list containing five
 #'     \code{data.frame}s corresponding to five GPS sensors
 #'
 #' \describe{
@@ -17,7 +17,7 @@
 #'     \item{GSM01512}{data frame for sensor 01512}
 #'     \item{GSM02927}{data frame for sensor 02927} }
 #'
-#' \code{db_sensors_animals_tables}: A list containing three
+#' \code{roe_sensors_animals_tables}: A list containing three
 #' \code{data.frame}s
 #' \describe{
 #'     \item{animals}{data frame containing basic information on
@@ -28,7 +28,7 @@
 #'         on deployment of GPS sensors on animals}
 #'  }
 #'
-#' \code{db_vector_geom}: A list containing four
+#' \code{roe_vector_geom}: A list containing four
 #' \code{Spatial*DataFrame}s
 #' \describe{
 #'     \item{study_area}{SpatialPolygonsDataFrame containing
@@ -41,7 +41,7 @@
 #'         of roads for study area}
 #'  }
 #'
-#' \code{db_raster}: A list containing two \code{RasterLayer} datasets
+#' \code{roe_raster}: A list containing two \code{RasterLayer} datasets
 #' \describe{
 #'     \item{corine06}{RasterLayer depicting land cover
 #'         classification in the study area}
@@ -53,27 +53,27 @@
 #'     Data Management System with PostgreSQL/PostGIS and R. Springer,
 #'     257 pp. DOI: 10.1007/978-3-319-03743-1
 #' @examples
-#' data("db_gps_data")
-#' head(db_gps_data$GSM01438)
-"db_gps_data"
+#' data("roe_gps_data")
+#' head(roe_gps_data$GSM01438)
+"roe_gps_data"
 
-#' @rdname db_gps_data
+#' @rdname roe_gps_data
 #' @examples
-#' data("db_sensors_animals_tables")
-#' db_sensors_animals_tables$animals
-"db_sensors_animals_tables"
+#' data("roe_sensors_animals_tables")
+#' roe_sensors_animals_tables$animals
+"roe_sensors_animals_tables"
 
-#' @rdname db_gps_data
+#' @rdname roe_gps_data
 #' @examples
-#' data("db_vector_geom")
+#' data("roe_vector_geom")
 #' if (require(sp, quietly = TRUE)) {
-#'     plot(db_vector_geom$adm_boundaries)
-#'     plot(db_vector_geom$roads, col = 'red', add = TRUE)
+#'     plot(roe_vector_geom$adm_boundaries)
+#'     plot(roe_vector_geom$roads, col = 'red', add = TRUE)
 #' }
-"db_vector_geom"
+"roe_vector_geom"
 
-#' @rdname db_gps_data
+#' @rdname roe_gps_data
 #' @examples
-#' data("db_raster")
-#' if (require(raster, quietly = TRUE)) plot(db_raster$srtm_dem)
-"db_raster"
+#' data("roe_raster")
+#' if (require(raster, quietly = TRUE)) plot(roe_raster$srtm_dem)
+"roe_raster"

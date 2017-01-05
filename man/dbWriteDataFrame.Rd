@@ -14,53 +14,62 @@ dbReadDataFrame(conn, name, df = NULL)
 
 \item{name}{Character, schema and table of the PostgreSQL table}
 
-\item{df}{The data frame to write (for \code{dbReadDataFrame}, this allows
-to update an existing \code{data.frame} with definitions stored in the database)}
+\item{df}{The data frame to write (for \code{dbReadDataFrame}, this
+allows to update an existing \code{data.frame} with definitions
+stored in the database)}
 
 \item{overwrite}{Logical; if TRUE, a new table (\code{name}) will
 overwrite the existing table (\code{name}) in the database.}
 
-\item{only.defs}{Logical; if \code{TRUE}, only the table definitions will be
-written.}
+\item{only.defs}{Logical; if \code{TRUE}, only the table
+definitions will be written.}
 }
 \value{
-\code{TRUE} for successful write with \code{dbWriteDataFrame},
-   \code{data.frame} for \code{dbReadDataFrame}
+\code{TRUE} for successful write with
+    \code{dbWriteDataFrame}, \code{data.frame} for
+    \code{dbReadDataFrame}
 }
 \description{
-Write \code{data.frame} to database table, with column definitions, row names,
-and a new integer primary key column. Read back into R with
-\code{dbReadDataFrame}, which recreates original data frame.
+Write \code{data.frame} to database table, with column definitions,
+row names, and a new integer primary key column. Read back into R
+with \code{dbReadDataFrame}, which recreates original data frame.
 }
 \details{
 Writing in data frame mode is only for new database tables (or for
 overwriting an existing one). It will save all column names as they
-appear in R, along with column data types and attributes. 
-This is done by adding metadata to a lookup table in the table's
-schema named ".R_df_defs" (will be created if not present). 
-It also adds two fixed columns to the database table: ".R_rownames" (storing
-the row.names of the data frame), and ".db_pkid", which is a new
-integer primary key. Existing columns in the data.frame matching these
-names will be automatically changed. For more flexible writing of
-\code{data.frame}s to the database,
-use \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
+appear in R, along with column data types and attributes.  This is
+done by adding metadata to a lookup table in the table's schema
+named ".R_df_defs" (will be created if not present).  It also adds
+two fields with fixed names to the database table: ".R_rownames"
+(storing the row.names of the data frame), and ".db_pkid", which is
+a new integer primary key. Existing columns in the data.frame
+matching these names will be automatically changed.
 
-The \code{rpostgis} database table read functions \code{dbReadDataFrame} and \code{pgGetGeom} 
-will use the metadata created in data frame mode to
-recreate a data.frame in R, if it is available. Otherwise, 
-it will be imported using default \code{RPostgreSQL::dbReadTable} methods.
+The \code{rpostgis} database table read functions
+\code{dbReadDataFrame} and \code{pgGetGeom} will use the metadata
+created in data frame mode to recreate a data.frame in R, if it is
+available. Otherwise, it will be imported using default
+\code{RPostgreSQL::dbReadTable} methods.
+
+All \code{Spatial*DataFrame}s must be written with \code{\link[rpostgis]{pgInsert}}.
+For more flexible writing of \code{data.frame}s to the database
+(including all writing into existing database tables), use
+\code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
 }
 \examples{
 \dontrun{
 library(sp)
 data(meuse)
 
+## Write the data.frame to the database:
 dbWriteDataFrame(conn, name = "meuse_data", df = meuse)
 
+## Reads it back into a different object:
 me2 <- dbReadDataFrame(conn, name = "meuse_data")
 
+## Check equality:
 all.equal(meuse, me2)
-# Should return TRUE
+## Should return TRUE.
 }
 }
 \author{

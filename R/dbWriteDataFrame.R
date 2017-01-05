@@ -14,15 +14,18 @@
 #' two fields with fixed names to the database table: ".R_rownames"
 #' (storing the row.names of the data frame), and ".db_pkid", which is
 #' a new integer primary key. Existing columns in the data.frame
-#' matching these names will be automatically changed. For more
-#' flexible writing of \code{data.frame}s to the database, use
-#' \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
+#' matching these names will be automatically changed.
 #'
 #' The \code{rpostgis} database table read functions
 #' \code{dbReadDataFrame} and \code{pgGetGeom} will use the metadata
 #' created in data frame mode to recreate a data.frame in R, if it is
 #' available. Otherwise, it will be imported using default
 #' \code{RPostgreSQL::dbReadTable} methods.
+#' 
+#' All \code{Spatial*DataFrame}s must be written with \code{\link[rpostgis]{pgInsert}}.
+#' For more flexible writing of \code{data.frame}s to the database
+#' (including all writing into existing database tables), use
+#' \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
 #'
 #' @param conn A connection object to a PostgreSQL database
 #' @param name Character, schema and table of the PostgreSQL table

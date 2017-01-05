@@ -3,7 +3,7 @@ rpostgis 1.1.0
 
 OVERALL CHANGES
 
-* Added four example datasets (all have prefix `db_`).
+* Added four example datasets (all have prefix `roe_`).
 
 NEW FUNCTIONS
 

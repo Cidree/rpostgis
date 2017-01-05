@@ -6,11 +6,13 @@
 \alias{rpostgis-package}
 \title{R interface to a PostGIS database.}
 \description{
-Provides functions to transfer spatial data (vector and raster)
-between R and 'PostGIS'-enabled 'PostgreSQL' databases,
-as well as convenience functions to execute common procedures in 
-'PostgreSQL/PostGIS'. For a list of documented functions, use
-\code{library(help = "rpostgis")}.
+'rpostgis' provides an interface between R and
+'PostGIS'-enabled 'PostgreSQL' databases to transparently transfer
+ spatial data. Both vector (points, lines, polygons) and raster
+ data are supported in read and write modes. Also provides
+ convenience functions to execute common procedures in
+ 'PostgreSQL/PostGIS'. For a list of documented functions, use
+ \code{library(help = "rpostgis")}.
 }
 \details{
 A typical session starts by establishing the connection to a

@@ -36,7 +36,6 @@ tryCatch({
         rastclp <- pgGetRast(conn2, c("env_data", "srtm_dem"), 
             boundary = lin)
         
-        
         # get SRIDs
         pgSRID(conn, crs = bnd@proj4string)
         pgSRID(conn2, crs = rast@crs)
@@ -65,8 +64,8 @@ tryCatch({
         pgWriteRast(conn, c("rpostgis", "test_rast"), raster = r, 
             bit.depth = "2BUI", overwrite = TRUE)
         
-        data(db_raster)
-        rast <- db_raster$corine06
+        data(roe_raster)
+        rast <- roe_raster$corine06
         pgWriteRast(conn, c("rpostgis", "clc"), raster = rast, 
             overwrite = TRUE)
         
@@ -146,28 +145,28 @@ tryCatch({
             srid = 26917, index = TRUE)
         
         # data.frame mode write/read
-        data("db_vector_geom")
+        data("roe_vector_geom")
         
-        p1 <- db_vector_geom$meteo_stations
+        p1 <- roe_vector_geom$meteo_stations
         pgInsert(conn, c("rpostgis", "pts"), data.obj = p1, df.mode = TRUE, 
             overwrite = TRUE)
         p2 <- pgGetGeom(conn, c("rpostgis", "pts"))
         all.equal(p1@data, p2@data)
         
-        p1 <- db_vector_geom$roads
+        p1 <- roe_vector_geom$roads
         pgInsert(conn, c("rpostgis", "lin"), data.obj = p1, df.mode = TRUE, 
             overwrite = TRUE)
         p2 <- pgGetGeom(conn, c("rpostgis", "lin"))
         all.equal(p1@data, p2@data)
         
-        p1 <- db_vector_geom$adm_boundaries
+        p1 <- roe_vector_geom$adm_boundaries
         pgInsert(conn, c("rpostgis", "poly"), data.obj = p1, 
             df.mode = TRUE, overwrite = TRUE)
         p2 <- pgGetGeom(conn, c("rpostgis", "poly"))  # ordering...
         all.equal(p1@data, p2@data)
         
-        data("db_gps_data")
-        d <- rbind(db_gps_data$GSM01511[, 1:14], db_gps_data$GSM01508[, 
+        data("roe_gps_data")
+        d <- rbind(roe_gps_data$GSM01511[, 1:14], roe_gps_data$GSM01508[, 
             1:14])
         d$acquisition_time <- as.POSIXct(paste0(d$utc_date, " ", 
             d$utc_time), format = "%d/%m/%Y %H:%M:%S", tz = "UTC")
@@ -185,8 +184,8 @@ tryCatch({
         dbDisconnect(conn)
         dbDisconnect(conn2)
         
-        rm(alb, d, d2, meuse, bnd, conn, conn2, cred, crsf, db_gps_data, 
-            db_vector_geom, db_raster, drv, ex_table, lin, ls, 
+        rm(alb, d, d2, meuse, bnd, conn, conn2, cred, crsf, roe_gps_data, 
+            roe_vector_geom, roe_raster, drv, ex_table, lin, ls, 
             new_table, p1, p2, poly, pts, pts.sponly, r, rast, 
             rastclp)
     }))
