@@ -354,15 +354,14 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     if (is.null(other.cols)) {
         return(Sline)
     } else {
-        try(dfTemp[geom] <- NULL)
-        dfTemp<-dfTemp[,3:length(colnames(dfTemp))]
-        #
+        cols <- colnames(dfTemp)[3:length(colnames(dfTemp))]
+        cols <- cols[!(cols %in% c(geom))]
+        # column definitions
         suppressMessages(
-          dfr<-dbReadDataFrame(conn, name, df = dfTemp)
+            dfr<-dbReadDataFrame(conn, name, df = dfTemp[cols])
         )
-          #
+        
         spdf <- sp::SpatialLinesDataFrame(Sline, dfr)
-        #spdf@data["tgid"] <- NULL
         return(spdf)
     }
 }
@@ -457,15 +456,13 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     if (is.null(other.cols)) {
         return(Spol)
     } else {
-        try(dfTemp[geom] <- NULL)
-        dfTemp<-dfTemp[,3:length(colnames(dfTemp))]
-        #
+        cols <- colnames(dfTemp)[3:length(colnames(dfTemp))]
+        cols <- cols[!(cols %in% c(geom))]
+        # column definitions
         suppressMessages(
-          dfr<-dbReadDataFrame(conn, name, df = dfTemp)
+            dfr<-dbReadDataFrame(conn, name, df = dfTemp[cols])
         )
-          #
         spdf <- sp::SpatialPolygonsDataFrame(Spol, dfr)
-        #spdf@data["tgid"] <- NULL
         return(spdf)
     }
 }
