@@ -25,6 +25,11 @@ NEW FEATURES
   
 * `pgGetRast` now has a `band` argument to select which band in the
   database raster to import.
+  
+BUG FIXES
+
+* `pgGetGeom`: Fix bug affecting one-column selections with `other.cols`
+  argument for line and polygon imports.
 
 ABOUT DATA FRAME MODE
 
@@ -36,9 +41,13 @@ done by adding metadata to a lookup table in the table's schema named
 with fixed names to the database table: '.R_rownames' (storing the
 `row.names` of the data frame), and '.db_pkid', which is a new integer
 primary key. Existing columns in the `data.frame` matching these names
-will be automatically changed. For more flexible writing of
-Spatial*DataFrames and `data.frames` to the database, users should run
-`pgInsert` with `df.mode = FALSE`.
+will be automatically changed. 
+
+All `Spatial*DataFrame`s writing should continue to use `pgInsert`,
+which can write in data frame mode when `df.mode = TRUE`.
+For more flexible writing of `Spatial*DataFrame`s and `data.frame`s 
+to the database (including all inserts into existing database tables), use
+`pgInsert` with `df.mode = FALSE` (default).
 
 
 rpostgis 1.0.4

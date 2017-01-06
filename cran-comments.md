@@ -6,7 +6,7 @@
 ## R CMD check results
 There were no ERRORs, WARNINGS, or NOTEs.
 
-Due to the requirement of a PostgreSQL/PostGIS enabled database for function in this package, all package tests are run locally and excluded from the R build.
+Note that due to the requirement of a PostgreSQL/PostGIS enabled database for functions in this package, all package tests are run locally and excluded from the R build.
 
 ## Downstream dependencies
 Ran `R CMD check` on dependent packages with no issues.
