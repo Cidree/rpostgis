@@ -37,6 +37,7 @@
 #' @param only.defs Logical; if \code{TRUE}, only the table
 #'     definitions will be written.
 #' @author David Bucklin \email{dbucklin@@ufl.edu}
+#' @aliases dbWriteDF
 #' @export
 #' @return \code{TRUE} for successful write with
 #'     \code{dbWriteDataFrame}, \code{data.frame} for
@@ -125,6 +126,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
         paste0("/*/", paste(attr(x, "levels"), collapse = "/*/"),
             "/*/")
     }))
+    fact <- gsub(",", "\\,", fact, fixed = TRUE)
     attr2[!fact == "/*//*/"] <- fact[!fact == "/*//*/"]
 
     ## 3. #####
@@ -162,6 +164,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
 # dbReadDataFrame
 
 #' @rdname dbWriteDataFrame
+#' @aliases dbReadDF
 #' @export
 
 dbReadDataFrame <- function(conn, name, df = NULL) {
