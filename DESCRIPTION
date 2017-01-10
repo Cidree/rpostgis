@@ -1,5 +1,5 @@
 Package: rpostgis
-Version: 1.1.0
+Version: 1.1.0-1
 Date: 2017-1-6
 Title: R Interface to a 'PostGIS' Database
 Description: Provides an interface between R and

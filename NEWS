@@ -1,3 +1,7 @@
+rpostgis 1.1.0-1
+
+* bugfix for data frame mode writing where factor names included a comma
+
 rpostgis 1.1.0
 ==============
 
