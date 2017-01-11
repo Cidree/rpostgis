@@ -73,7 +73,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     if (!is.null(clauses)) {
       clauses <- sub("^where", "AND", clauses, ignore.case = TRUE) 
       } else {
-        if (".db_pkid" %in% dbListFields(conn, name)) {
+        if (".db_pkid" %in% dbTableInfo(conn,name)$column_name) {
           clauses <- "ORDER BY \".db_pkid\""
         }
       }
@@ -164,7 +164,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
-        if (".R_rownames" %in% dbListFields(conn,name)) {
+        if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
           gid <- DBI::dbQuoteIdentifier(conn,".R_rownames")
         } else {
           gid <- "row_number() over()"
@@ -297,7 +297,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Check gid
     if (is.null(gid)) {
-        if (".R_rownames" %in% dbListFields(conn,name)) {
+        if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
           gid <- DBI::dbQuoteIdentifier(conn,".R_rownames")
         } else {
           gid <- "row_number() over()"
@@ -400,7 +400,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     geomque<-DBI::dbQuoteIdentifier(conn,geom)
     ## Check gid
     if (is.null(gid)) {
-        if (".R_rownames" %in% dbListFields(conn,name)) {
+        if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
           gid <- DBI::dbQuoteIdentifier(conn,".R_rownames")
         } else {
           gid <- "row_number() over()"

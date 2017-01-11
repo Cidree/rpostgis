@@ -100,7 +100,7 @@ pgGetRast <- function(conn, name, rast = "rast", band = 1, digits = 9,
     rout[rout==ndval]<-NA
     
     # set layer name
-    if("band_names" %in% dbListFields(conn, name)) {
+    if("band_names" %in% dbTableInfo(conn,name)$column_name) {
       try({
       lnm<-dbGetQuery(conn, paste0("SELECT DISTINCT band_names[",band,
                                    "][1] as nm FROM ",nameque,";"))

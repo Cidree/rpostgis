@@ -27,7 +27,8 @@ tryCatch({
         
         # retrieval functions
         pts <- pgGetGeom(conn, ex_table, geom = "geom")
-        pts2 <- pgGetGeom(conn, ex_table, geom = "geom", clauses = "where id = 'continental' order by time limit 100")
+        pts2 <- pgGetGeom(conn, ex_table, geom = "geom", other.cols = c("gid","dummy","burst"),
+                          clauses = "where id = 'continental' order by time limit 100")
         poly <- pgGetGeom(conn2, c("env_data", "adm_boundaries"), 
             clauses = "order by nome_com")
         lin <- pgGetGeom(conn2, c("env_data", "roads"))
@@ -35,6 +36,8 @@ tryCatch({
         rast <- pgGetRast(conn2, c("env_data", "corine_land_cover"))
         rastclp <- pgGetRast(conn2, c("env_data", "srtm_dem"), 
             boundary = lin)
+        # view with pgGetGeom
+        poly <- pgGetGeom(conn2, c("analysis", "view_convex_hulls"), gid = "animals_id", other.cols = FALSE)
         
         # get SRIDs
         pgSRID(conn, crs = bnd@proj4string)
