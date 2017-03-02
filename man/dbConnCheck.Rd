@@ -13,4 +13,3 @@ dbConnCheck(conn)
 Check if a supported PostgreSQL connection
 }
 \keyword{internal}
-

@@ -30,4 +30,3 @@ pgListGeom(conn)
 \author{
 David Bucklin \email{dbucklin@ufl.edu}
 }
-

@@ -49,11 +49,10 @@ r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
 pgWriteRast(conn, c("schema", "test"), raster = r, bit.depth = "2BUI", overwrite = TRUE)
 }
 }
-\author{
-David Bucklin \email{dbucklin@ufl.edu}
-}
 \seealso{
 Function follows process from 
 \url{http://postgis.net/docs/using_raster_dataman.html#RT_Creating_Rasters}.
 }
-
+\author{
+David Bucklin \email{dbucklin@ufl.edu}
+}

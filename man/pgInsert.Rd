@@ -8,7 +8,7 @@
 pgInsert(conn, name, data.obj, geom = "geom", df.mode = FALSE,
   partial.match = FALSE, overwrite = FALSE, new.id = NULL,
   row.names = FALSE, upsert.using = NULL, alter.names = FALSE,
-  encoding = NULL, return.pgi = FALSE)
+  encoding = NULL, return.pgi = FALSE, df.geom = NULL)
 
 \method{print}{pgi}(x, ...)
 }
@@ -78,6 +78,14 @@ UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
 
 \item{return.pgi}{Whether to return a formatted list of insert parameters
 (i.e., a \code{pgi} object; see function details.)}
+
+\item{df.geom}{Character vector, used for inserting a geometry 
+stored as character type in a data.frame. If only the column name is
+used (e.g., \code{df.geom = "geom"}), the column type will be a generic (GEOMETRY);
+use a two-length vector (e.g., \code{df.geom = c("geom", "(POINT,4326)")} to
+also specify a specific PostGIS geometry type and SRID. Only recommended for
+for new tables/overwrites, since this method will change the 
+existing column type.}
 
 \item{x}{A list of class \code{pgi}}
 
@@ -149,4 +157,3 @@ pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf,
 \author{
 David Bucklin \email{dbucklin@ufl.edu}
 }
-

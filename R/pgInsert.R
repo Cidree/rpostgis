@@ -92,6 +92,13 @@
 ##'     \code{NULL}, no conversion will be done.
 ##' @param return.pgi Whether to return a formatted list of insert parameters
 ##'     (i.e., a \code{pgi} object; see function details.)
+##' @param df.geom Character vector, used for inserting a geometry 
+##'     stored as character type in a data.frame. If only the column name is
+##'     used (e.g., \code{df.geom = "geom"}), the column type will be a generic (GEOMETRY);
+##'     use a two-length vector (e.g., \code{df.geom = c("geom", "(POINT,4326)")} to
+##'     also specify a specific PostGIS geometry type and SRID. Only recommended for
+##'     for new tables/overwrites, since this method will change the 
+##'     existing column type.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @export
 ##' @return Returns \code{TRUE} if the insertion was successful,
@@ -119,7 +126,7 @@
 
 pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, partial.match = FALSE, 
     overwrite = FALSE, new.id = NULL, row.names = FALSE, upsert.using = NULL,
-    alter.names = FALSE, encoding = NULL, return.pgi = FALSE) {
+    alter.names = FALSE, encoding = NULL, return.pgi = FALSE, df.geom = NULL) {
   
     if (df.mode) {
       if (!dbExistsTable(conn,name) | overwrite) {
@@ -233,6 +240,15 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
     ## Set name of table
     name <- pgi$in.table
     nameque <- dbTableNameFix(conn,name)
+    # df with geom add column
+    if (!is.null(df.geom)) {
+      if (alter.names) df.geom[1]<-tolower(gsub("[+-.,!@$%^&*();/|<>]", "_", df.geom[1]))
+      if (length(df.geom) == 1) df.geom <- list(df.geom, NULL) else df.geom <- as.list(df.geom)
+      try(dbExecute(conn, paste0("ALTER TABLE ", nameque[1], 
+            ".", nameque[2], " ALTER COLUMN ",dbQuoteIdentifier(conn, df.geom[[1]]),
+            " TYPE GEOMETRY",df.geom[[2]],";")))
+    }
+    # end df.geom
     cols <- pgi$db.cols.insert
     values <- pgi$insert.data
     db.cols <- dbTableInfo(conn, name = name)$column_name

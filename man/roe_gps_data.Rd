@@ -3,9 +3,9 @@
 \docType{data}
 \name{roe_gps_data}
 \alias{roe_gps_data}
-\alias{roe_raster}
 \alias{roe_sensors_animals_tables}
 \alias{roe_vector_geom}
+\alias{roe_raster}
 \title{Example data from a GPS tracking project}
 \format{\code{roe_gps_data}: A list containing five
     \code{data.frame}s corresponding to five GPS sensors
@@ -85,4 +85,3 @@ data("roe_raster")
 if (require(raster, quietly = TRUE)) plot(roe_raster$srtm_dem)
 }
 \keyword{datasets}
-

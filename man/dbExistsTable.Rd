@@ -15,4 +15,3 @@ dbExistsTable(conn, name)
 Check if a PostgreSQL table exists
 }
 \keyword{internal}
-

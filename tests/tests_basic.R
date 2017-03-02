@@ -93,6 +93,11 @@ tryCatch({
         # send data to database, no geom
         pgInsert(conn, new_table, pts@data)
         
+        # df.geom test
+        suppressWarnings(df<-dbReadTable(conn, ex_table))
+        pgInsert(conn, new_table, data.obj = df, df.geom = c("geom","(POINT,4326)"), overwrite = TRUE)
+        pgInsert(conn, new_table, data.obj = df, df.geom = "geom", overwrite = TRUE)
+
         # send data to database with geom, overwrite, with new ID num
         pgInsert(conn, new_table, pts, overwrite = TRUE, new.id = "gid_r")
         

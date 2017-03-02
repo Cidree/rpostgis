@@ -46,11 +46,10 @@ dbColumn(conn, name = c("schema", "table"), colname = "field", exec = FALSE)
 dbColumn(conn, name = c("schema", "table"), colname = "field", action = "drop",
     cascade = TRUE, exec = FALSE)
 }
-\author{
-Mathieu Basille \email{basille@ufl.edu}
-}
 \seealso{
 The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 }
-
+\author{
+Mathieu Basille \email{basille@ufl.edu}
+}

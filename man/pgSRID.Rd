@@ -51,4 +51,3 @@ pgSRID(conn, crs2, create.srid = TRUE)
 \author{
 David Bucklin \email{dbucklin@ufl.edu}
 }
-

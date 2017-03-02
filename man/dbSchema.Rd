@@ -33,11 +33,10 @@ Checks the existence, and if necessary, creates a schema.
     dbSchema(name = "schema", exec = FALSE)
 }
 }
-\author{
-Mathieu Basille \email{basille@ufl.edu}
-}
 \seealso{
 The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
 }
-
+\author{
+Mathieu Basille \email{basille@ufl.edu}
+}

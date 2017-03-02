@@ -61,9 +61,6 @@ pgMakeStp(conn, name = c("schema", "table"), colname = "stp_geom",
     x = "longitude", y = "latitude", dx = "xdiff", dy = "ydiff",
     srid = 4326, exec = FALSE)
 }
-\author{
-Mathieu Basille \email{basille@ufl.edu}
-}
 \seealso{
 The PostGIS documentation for \code{ST_MakePoint}:
     \url{http://postgis.net/docs/ST_MakePoint.html}, and for
@@ -71,4 +68,6 @@ The PostGIS documentation for \code{ST_MakePoint}:
     \url{http://postgis.net/docs/ST_MakeLine.html}, which are the
     main functions of the call.
 }
-
+\author{
+Mathieu Basille \email{basille@ufl.edu}
+}
