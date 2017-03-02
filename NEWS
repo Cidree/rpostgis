@@ -1,3 +1,12 @@
+rpostgis 1.1.1-1
+==============
+
+NEW FEATURE
+
+* `pgInsert`: now can insert geometries stored as character in `data.frame`s
+  using `df.geom` argument.
+
+
 rpostgis 1.1.1
 ==============
 
