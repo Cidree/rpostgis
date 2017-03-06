@@ -1,4 +1,4 @@
-rpostgis 1.1.1-1
+rpostgis 1.1.2-1
 ==============
 
 NEW FEATURE
@@ -6,6 +6,10 @@ NEW FEATURE
 * `pgInsert`: now can insert geometries stored as character in `data.frame`s
   using `df.geom` argument.
 
+BUG FIXES
+
+* Add support for materialized views (read geometries with `pgGetGeom`,
+drop with `dbDrop`)
 
 rpostgis 1.1.1
 ==============

@@ -46,7 +46,8 @@ exactly match the database table will be inserted into the
 database table.}
 
 \item{overwrite}{Logical; if true, a new table (\code{name}) will
-overwrite the existing table (\code{name}) in the database.}
+overwrite the existing table (\code{name}) in the database. Note:
+overwriting a view must be done manually (e.g., with \code{\link[rpostgis]{dbDrop}}).}
 
 \item{new.id}{Character, name of a new sequential integer ID
 column to be added to the table for insert (for spatial objects without

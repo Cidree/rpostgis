@@ -4,22 +4,21 @@
 \alias{dbDrop}
 \title{Drop table/view/schema.}
 \usage{
-dbDrop(conn, name, type = c("table", "view", "schema"), ifexists = FALSE,
-  cascade = FALSE, display = TRUE, exec = TRUE)
+dbDrop(conn, name, type = c("table", "schema", "view", "materialized view"),
+  ifexists = FALSE, cascade = FALSE, display = TRUE, exec = TRUE)
 }
 \arguments{
 \item{conn}{A connection object.}
 
-\item{name}{A character string specifying a PostgreSQL table, view
-or schema name.}
+\item{name}{A character string specifying a PostgreSQL table, schema, or view name.}
 
-\item{type}{The type of the object to drop, either \code{"table"}, \code{"view"},
-or \code{"schema"}.}
+\item{type}{The type of the object to drop, either \code{"table"}, \code{"schema"},
+\code{"view"}, or \code{"materialized view"}.}
 
-\item{ifexists}{Do not throw an error if the table does not
+\item{ifexists}{Do not throw an error if the object does not
 exist. A notice is issued in this case.}
 
-\item{cascade}{Automatically drop objects that depend on the table
+\item{cascade}{Automatically drop objects that depend on the object
 (such as views).}
 
 \item{display}{Logical. Whether to display the query (defaults to
@@ -29,7 +28,7 @@ exist. A notice is issued in this case.}
 \code{TRUE}).}
 }
 \value{
-\code{TRUE} if the table/view/schema was successfully
+\code{TRUE} if the table/schema/view was successfully
     dropped.
 }
 \description{
@@ -38,7 +37,7 @@ Drop a table, a view or a schema.
 \examples{
 ## examples use a dummy connection from DBI package
 conn<-DBI::ANSI()
-dbDrop(conn, name = c("schema", "table"), type = "view", exec = FALSE)
+dbDrop(conn, name = c("schema", "view_name"), type = "view", exec = FALSE)
 dbDrop(conn, name = "test_schema", type = "schema", cascade = "TRUE", exec = FALSE)
 }
 \seealso{

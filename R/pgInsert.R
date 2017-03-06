@@ -66,7 +66,8 @@
 ##'     exactly match the database table will be inserted into the
 ##'     database table.
 ##' @param overwrite Logical; if true, a new table (\code{name}) will
-##'     overwrite the existing table (\code{name}) in the database.
+##'     overwrite the existing table (\code{name}) in the database. Note:
+##'     overwriting a view must be done manually (e.g., with \code{\link[rpostgis]{dbDrop}}).
 ##' @param new.id Character, name of a new sequential integer ID
 ##'     column to be added to the table for insert (for spatial objects without
 ##'     data frames, this column is created even if left \code{NULL}
@@ -129,14 +130,14 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
     alter.names = FALSE, encoding = NULL, return.pgi = FALSE, df.geom = NULL) {
   
     if (df.mode) {
-      if (!dbExistsTable(conn,name) | overwrite) {
+      if (!dbExistsTable(conn,name, table.only = TRUE) | overwrite) {
         # set necessary argument values
         partial.match <- FALSE
         new.id <- ".db_pkid"
         row.names <- TRUE
         upsert.using <- NULL
         alter.names <- FALSE
-      } else if (!overwrite & dbExistsTable(conn,name)) {
+      } else if (!overwrite & dbExistsTable(conn,name, table.only = TRUE)) {
         stop("df.mode = TRUE only allowed for new tables or with overwrite = TRUE.")
       }
     }
@@ -164,7 +165,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
         }
     }
     ## Check for existing table
-    exists.t <- dbExistsTable(conn, name)
+    exists.t <- dbExistsTable(conn, name, table.only = TRUE)
     if (!exists.t) {
         message("Creating new table...")
         create.table <- name

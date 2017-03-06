@@ -21,7 +21,8 @@ allows to update an existing \code{data.frame} with definitions
 stored in the database)}
 
 \item{overwrite}{Logical; if TRUE, a new table (\code{name}) will
-overwrite the existing table (\code{name}) in the database.}
+overwrite the existing table (\code{name}) in the database. Note:
+overwriting a view must be done manually (e.g., with \code{\link[rpostgis]{dbDrop}}).}
 
 \item{only.defs}{Logical; if \code{TRUE}, only the table
 definitions will be written.}

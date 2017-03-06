@@ -33,7 +33,8 @@
 #'     allows to update an existing \code{data.frame} with definitions
 #'     stored in the database)
 #' @param overwrite Logical; if TRUE, a new table (\code{name}) will
-#'     overwrite the existing table (\code{name}) in the database.
+#'     overwrite the existing table (\code{name}) in the database. Note:
+#'     overwriting a view must be done manually (e.g., with \code{\link[rpostgis]{dbDrop}}).
 #' @param only.defs Logical; if \code{TRUE}, only the table
 #'     definitions will be written.
 #' @author David Bucklin \email{dbucklin@@ufl.edu}
@@ -72,7 +73,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
     }
 
     if (!only.defs) {
-        if (dbExistsTable(conn, name)) {
+        if (dbExistsTable(conn, name, table.only = TRUE)) {
             if (!overwrite) {
                 stop("Table ", paste(nameque, collapse = "."),
                   " already exists. Use overwrite = TRUE to replace it.")
@@ -83,7 +84,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
     }
 
     ## create defs table
-    if (!dbExistsTable(conn, c(name[1], ".R_df_defs"))) {
+    if (!dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
         sql_query <- paste0("CREATE TABLE ", nameque[1], ".\".R_df_defs\" (table_nm character varying, df_def text[]);")
         dbExecute(conn, sql_query)
         suppressMessages({
@@ -176,7 +177,7 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
         stop("Table ", paste(name, collapse = "."), " not found.")
     }
 
-    if (!dbExistsTable(conn, c(name[1], ".R_df_defs"))) {
+    if (!dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
         message("R data frame definitions table not found. Using standard import...")
         if (is.null(df)) {
             return(dbReadTable(conn, name))
