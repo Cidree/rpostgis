@@ -2,17 +2,16 @@
 % Please edit documentation in R/dbUtils_notExported.R
 \name{dbExistsTable}
 \alias{dbExistsTable}
-\title{Check if a PostgreSQL table exists}
+\title{Check if a PostgreSQL table/view exists}
 \usage{
-dbExistsTable(conn, name)
+dbExistsTable(conn, name, table.only = FALSE)
 }
 \arguments{
 \item{conn}{A PostgreSQL connection}
 
-\item{name}{Table name string, length 1-2.}
+\item{name}{Table/view name string, length 1-2.}
 }
 \description{
-Check if a PostgreSQL table exists
+Check if a PostgreSQL table/view exists
 }
 \keyword{internal}
-

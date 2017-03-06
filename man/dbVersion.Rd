@@ -16,4 +16,3 @@ numeric vector of length 3 of major,minor,bug version.
 Returns major.minor version of PostgreSQL (for version checking)
 }
 \keyword{internal}
-

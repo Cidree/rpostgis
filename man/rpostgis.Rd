@@ -44,4 +44,3 @@ dbDisconnect(con)
 Mathieu Basille (\email{basille@ufl.edu}) and David
     Bucklin (\email{dbucklin@ufl.edu})
 }
-

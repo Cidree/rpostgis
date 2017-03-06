@@ -50,13 +50,12 @@ conn<-DBI::ANSI()
 dbIndex(conn,name = c("schema", "table"), colname = "geom", method = "gist",
     exec = FALSE)
 }
-\author{
-Mathieu Basille \email{basille@ufl.edu}
-}
 \seealso{
 The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-createindex.html};
     the PostGIS documentation for GiST indexes:
     \url{http://postgis.net/docs/using_postgis_dbmanagement.html#id541286}
 }
-
+\author{
+Mathieu Basille \email{basille@ufl.edu}
+}

@@ -38,11 +38,10 @@ dbComment(conn, name = c("schema", "table"), comment = "Comment on a view.",
 dbComment(conn, name = "test_schema", comment = "Comment on a schema.", type = "schema",
     exec = FALSE)
 }
-\author{
-Mathieu Basille \email{basille@ufl.edu}
-}
 \seealso{
 The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-comment.html}
 }
-
+\author{
+Mathieu Basille \email{basille@ufl.edu}
+}

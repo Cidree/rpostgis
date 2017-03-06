@@ -268,19 +268,18 @@ dbComment <- function(conn, name, comment, type = c("table",
 ##' Drop a table, a view or a schema.
 ##'
 ##' @param conn A connection object.
-##' @param name A character string specifying a PostgreSQL table, view
-##'     or schema name.
-##' @param type The type of the object to drop, either \code{"table"}, \code{"view"},
-##'     or \code{"schema"}.
-##' @param ifexists Do not throw an error if the table does not
+##' @param name A character string specifying a PostgreSQL table, schema, or view name.
+##' @param type The type of the object to drop, either \code{"table"}, \code{"schema"},
+##'     \code{"view"}, or \code{"materialized view"}.
+##' @param ifexists Do not throw an error if the object does not
 ##'     exist. A notice is issued in this case.
-##' @param cascade Automatically drop objects that depend on the table
+##' @param cascade Automatically drop objects that depend on the object
 ##'     (such as views).
 ##' @param display Logical. Whether to display the query (defaults to
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return \code{TRUE} if the table/view/schema was successfully
+##' @return \code{TRUE} if the table/schema/view was successfully
 ##'     dropped.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-droptable.html},
@@ -291,14 +290,14 @@ dbComment <- function(conn, name, comment, type = c("table",
 ##' @examples
 ##' ## examples use a dummy connection from DBI package
 ##' conn<-DBI::ANSI()
-##' dbDrop(conn, name = c("schema", "table"), type = "view", exec = FALSE)
+##' dbDrop(conn, name = c("schema", "view_name"), type = "view", exec = FALSE)
 ##' dbDrop(conn, name = "test_schema", type = "schema", cascade = "TRUE", exec = FALSE)
 
-dbDrop <- function(conn, name, type = c("table", "view", "schema"),
+dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized view"),
     ifexists = FALSE, cascade = FALSE, display = TRUE, exec = TRUE) {
     type <- toupper(match.arg(type))
     ## Check and prepare name
-    if (type %in% c("TABLE","VIEW")) {
+    if (type %in% c("TABLE","VIEW","MATERIALIZED VIEW")) {
       name <- dbTableNameFix(conn,name)
       nameque <- paste(name, collapse = ".")
     } else {

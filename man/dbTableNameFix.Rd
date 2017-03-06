@@ -40,4 +40,3 @@ dbTableNameFix(conn,name)
 }
 }
 \keyword{internal}
-

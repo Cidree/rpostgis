@@ -50,8 +50,14 @@ tryCatch({
         # send data to database
         dbSchema(conn, new_table[1])
         dbDrop(conn, new_table, type = "table", ifexists = TRUE)
-        pgInsert(conn, new_table, pts)
+        # matview with pgGetGeom
+        dbSendQuery(conn, paste0("CREATE MATERIALIZED VIEW ",paste(new_table, collapse="."),
+                                  " AS (SELECT * FROM example_data.relocations_plus LIMIT 100);"))
+        matview<- pgGetGeom(conn, new_table)
+        dbDrop(conn, new_table, type = "materialized view")
         
+        # basic insert
+        pgInsert(conn, new_table, pts)
         # pgi mode
         pgInsert(conn, c("rpostgis", "db_test2"), pts)
         pgi <- pgInsert(conn, new_table, pts, return.pgi = TRUE)

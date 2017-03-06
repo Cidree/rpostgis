@@ -41,11 +41,10 @@ table.
 conn<-DBI::ANSI()
 dbVacuum(conn, name = c("schema", "table"), full = TRUE, exec = FALSE)
 }
-\author{
-Mathieu Basille \email{basille@ufl.edu}
-}
 \seealso{
 The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
 }
-
+\author{
+Mathieu Basille \email{basille@ufl.edu}
+}

@@ -25,4 +25,3 @@ Builds CREATE TABLE query for a data frame object.
 Adapted from RPostgreSQL::postgresqlBuildTableDefinition
 }
 \keyword{internal}
-

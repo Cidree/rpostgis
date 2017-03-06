@@ -48,4 +48,3 @@ SFCGAL extensions.
 \author{
 Mathieu Basille \email{basille@ufl.edu}
 }
-

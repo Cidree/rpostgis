@@ -43,11 +43,10 @@ conn<-DBI::ANSI()
 dbAddKey(conn, name = c("schema", "table"), colname = "id", type = "foreign",
     reference = c("flu", "bla"), colref = "id", exec = FALSE)
 }
-\author{
-Mathieu Basille \email{basille@ufl.edu}
-}
 \seealso{
 The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 }
-
+\author{
+Mathieu Basille \email{basille@ufl.edu}
+}

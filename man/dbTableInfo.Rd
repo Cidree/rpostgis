@@ -31,4 +31,3 @@ dbTableInfo(conn, c("schema", "table"))
 \author{
 David Bucklin \email{dbucklin@ufl.edu}
 }
-

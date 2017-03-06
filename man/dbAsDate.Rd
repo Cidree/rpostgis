@@ -37,11 +37,10 @@ conn <- DBI::ANSI()
 dbAsDate(conn, name = c("schema", "table"), date = "date", tz = "GMT",
     exec = FALSE)
 }
-\author{
-Mathieu Basille \email{basille@ufl.edu}
-}
 \seealso{
 The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/datatype-datetime.html}
 }
-
+\author{
+Mathieu Basille \email{basille@ufl.edu}
+}

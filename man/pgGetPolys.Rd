@@ -27,4 +27,3 @@ David Bucklin \email{dbucklin@ufl.edu}
 Mathieu Basille \email{basille@ufl.edu}
 }
 \keyword{internal}
-

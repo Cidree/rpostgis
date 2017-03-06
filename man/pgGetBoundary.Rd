@@ -32,4 +32,3 @@ pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 \author{
 David Bucklin \email{dbucklin@ufl.edu}
 }
-
