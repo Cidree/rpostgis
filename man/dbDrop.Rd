@@ -37,7 +37,7 @@ Drop a table, a view or a schema.
 \examples{
 ## examples use a dummy connection from DBI package
 conn<-DBI::ANSI()
-dbDrop(conn, name = c("schema", "table"), type = "view", exec = FALSE)
+dbDrop(conn, name = c("schema", "view_name"), type = "view", exec = FALSE)
 dbDrop(conn, name = "test_schema", type = "schema", cascade = "TRUE", exec = FALSE)
 }
 \seealso{

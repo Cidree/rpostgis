@@ -1,3 +1,11 @@
+rpostgis 1.1.2
+==============
+
+BUG FIXES
+
+* Add support for materialized views (read geometries with `pgGetGeom`,
+drop with `dbDrop`)
+
 rpostgis 1.1.1
 ==============
 
