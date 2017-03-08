@@ -38,6 +38,21 @@ tryCatch({
             boundary = lin)
         # view with pgGetGeom
         poly <- pgGetGeom(conn2, c("analysis", "view_convex_hulls"), gid = "animals_id", other.cols = FALSE)
+        # query version pgGetGeomQ
+        poly <- pgGetGeomQ(conn2,"SELECT r.gid as id, ST_Buffer(r.geom, 0.001) as geom 
+                            FROM
+                              env_data.roads r,
+                              env_data.adm_boundaries b
+                            WHERE 
+                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento';")
+        poly <- pgGetGeomQ(conn2,"SELECT r.gid as id, ST_Buffer(r.geom, 0.001) as geom 
+                            FROM
+                              env_data.roads r,
+                              env_data.adm_boundaries b
+                            WHERE 
+                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento';",
+                            create.view = c("env_data","test"))
+        dbDrop(conn2, name = c("env_data","test"), type = "view", ifexists = TRUE)
         
         # get SRIDs
         pgSRID(conn, crs = bnd@proj4string)

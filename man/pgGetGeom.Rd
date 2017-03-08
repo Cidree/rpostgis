@@ -2,10 +2,13 @@
 % Please edit documentation in R/pgGetGeom.R
 \name{pgGetGeom}
 \alias{pgGetGeom}
+\alias{pgGetGeomQ}
 \title{Load a PostGIS geometry from a PostgreSQL table/view into R.}
 \usage{
 pgGetGeom(conn, name, geom = "geom", gid = NULL, other.cols = TRUE,
   clauses = NULL)
+
+pgGetGeomQ(conn, query, create.view = NULL, ...)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -31,6 +34,14 @@ data frame).}
 \item{clauses}{character, additional SQL to append to modify select
 query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 "ORDER BY ...", "LIMIT ..."); see below for examples.}
+
+\item{query}{For \code{pgGetGeomQ}, a full SQL query including a geometry column.}
+
+\item{create.view}{For \code{pgGetGeomQ}, optional character string specifying
+a PostgreSQL schema and view name (e.g., \code{name = c("schema","view")}) 
+to save the query as. If NULL, a temporary view ".rpostgis_TEMPview" is used.}
+
+\item{...}{For \code{pgGetGeomQ}, other arguments as in \code{pgGetGeom}}
 }
 \value{
 sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
@@ -39,6 +50,11 @@ sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons
 Retrieve point, linestring, or polygon geometries from a PostGIS
 table/view, and convert it to an R \code{sp} object (\code{Spatial*} or
 \code{Spatial*DataFrame}).
+}
+\details{
+The query version \code{pgGetGeomQ} allows the user to enter a
+full SQL query that returns a Geometry column, and save the query
+as a new view if desired.
 }
 \examples{
 \dontrun{
@@ -55,6 +71,14 @@ pgGetGeom(conn, c("schema", "tablename"), gid = "table_id",
 ## retaining id from table as rownames and with a subset of the data
 pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
     other.cols = FALSE, clauses  = "WHERE field = 'highway'")
+
+## Query version
+pgGetGeomQ(conn, "SELECT r.road_ID as id, ST_Buffer(r.roadgeom, 100) as geom 
+                  FROM
+                     schema.roads r,
+                     schema.boundary b
+                  WHERE 
+                     ST_Intersects(r.roadgeom, b.boundgeom);")
 }
 }
 \author{
