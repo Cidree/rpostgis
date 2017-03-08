@@ -1,9 +1,9 @@
 # pgGetGeom
 
-##' Load a PostGIS geometry from a PostgreSQL table/view into R.
+##' Load a PostGIS geometry from a PostgreSQL table/view/query into R.
 ##'
 ##' Retrieve point, linestring, or polygon geometries from a PostGIS
-##' table/view, and convert it to an R \code{sp} object (\code{Spatial*} or
+##' table/view/query, and convert it to an R \code{sp} object (\code{Spatial*} or
 ##' \code{Spatial*DataFrame}).
 ##' 
 ##' The query version \code{pgGetGeomQ} allows the user to enter a
@@ -505,7 +505,8 @@ pgGetGeomQ <- function(conn, query, create.view = NULL, ...) {
   geo<-NULL
   try({
   prequery <- paste0("CREATE OR REPLACE VIEW ",paste(dbQuoteIdentifier(conn, create.view), collapse = ".")," AS ")
-  q <- paste0(prequery, query)
+  if (sub('.*(?=.$)', '', sub("\\s+$", "", query), perl=T) == ";") {post <- NULL} else {post <- ";"}
+  q <- paste0(prequery, query, post)
   dbExecute(conn, q)
   geo <- pgGetGeom(conn, name = create.view, ...)
   })

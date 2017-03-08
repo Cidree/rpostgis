@@ -3,7 +3,7 @@
 \name{pgGetGeom}
 \alias{pgGetGeom}
 \alias{pgGetGeomQ}
-\title{Load a PostGIS geometry from a PostgreSQL table/view into R.}
+\title{Load a PostGIS geometry from a PostgreSQL table/view/query into R.}
 \usage{
 pgGetGeom(conn, name, geom = "geom", gid = NULL, other.cols = TRUE,
   clauses = NULL)
@@ -48,7 +48,7 @@ sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons
 }
 \description{
 Retrieve point, linestring, or polygon geometries from a PostGIS
-table/view, and convert it to an R \code{sp} object (\code{Spatial*} or
+table/view/query, and convert it to an R \code{sp} object (\code{Spatial*} or
 \code{Spatial*DataFrame}).
 }
 \details{

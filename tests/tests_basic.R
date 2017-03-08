@@ -50,8 +50,11 @@ tryCatch({
                               env_data.roads r,
                               env_data.adm_boundaries b
                             WHERE 
-                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento';",
+                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento'",
                             create.view = c("env_data","test"))
+        # test ROLLBACK (fail)
+        pts2 <- pgGetGeomQ(conn2,"SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
+                           other.cols = FALSE, geom = "geo")
         pts2 <- pgGetGeomQ(conn2,"SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
                            other.cols = FALSE)
         dbDrop(conn2, name = c("env_data","test"), type = "view", ifexists = TRUE)
