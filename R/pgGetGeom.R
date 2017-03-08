@@ -491,6 +491,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
 #' @rdname pgGetGeom
 
 pgGetGeomQ <- function(conn, query, create.view = NULL, ...) {
+  dbConnCheck(conn)
   # set view name
   if (is.null(create.view)) { 
     create.view <- ".rpostgis_TEMPview" 

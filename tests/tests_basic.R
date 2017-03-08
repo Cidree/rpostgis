@@ -52,6 +52,8 @@ tryCatch({
                             WHERE 
                               ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento';",
                             create.view = c("env_data","test"))
+        pts2 <- pgGetGeomQ(conn2,"SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
+                           other.cols = FALSE)
         dbDrop(conn2, name = c("env_data","test"), type = "view", ifexists = TRUE)
         
         # get SRIDs

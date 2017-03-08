@@ -127,11 +127,17 @@ dbExistsTable <- function (conn, name, table.only = FALSE) {
     if (is.null(chk)) {
       exists.t <- FALSE
       if (!table.only) {
-      # matview case - not in information_schema (fails only when table/view actually doesn't exist)
-      chk2<-NULL
-      suppressWarnings(try(chk2<-dbGetQuery(conn, paste0("SELECT * FROM ",dbQuoteIdentifier(conn,full.name[1]),".",
-                            dbQuoteIdentifier(conn,full.name[2])," LIMIT 1;"))))
-      if (length(names(chk2)) > 0) exists.t<-TRUE else exists.t<-FALSE
+        # matview case - not in information_schema
+        chk2<-dbGetQuery(conn, paste0("SELECT oid::regclass::text, relname
+                FROM pg_class
+                WHERE relkind = 'm'
+                AND relname = ",dbQuoteString(conn,full.name[2]),";"))
+        if (length(names(chk2)) > 0) {
+          sch<-gsub(paste0(".",chk2[1,2]),"",chk2[,1])
+          if (full.name[1] %in% sch) exists.t<-TRUE else exists.t<-FALSE
+        } else {
+          exists.t<-FALSE
+        }
       }
     } else {
     exists.t<-TRUE
