@@ -39,25 +39,26 @@ tryCatch({
         # view with pgGetGeom
         poly <- pgGetGeom(conn2, c("analysis", "view_convex_hulls"), gid = "animals_id", other.cols = FALSE)
         # query version pgGetGeomQ
-        poly <- pgGetGeomQ(conn2,"SELECT r.gid as id, ST_Buffer(r.geom, 0.001) as geom 
+        poly <- pgGetGeom(conn2, query = "SELECT r.gid as id, ST_Buffer(r.geom, 0.001) as geom 
                             FROM
                               env_data.roads r,
                               env_data.adm_boundaries b
                             WHERE 
                               ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento';")
-        poly <- pgGetGeomQ(conn2,"SELECT r.gid as id, ST_Buffer(r.geom, 0.001) as geom 
+        poly <- pgGetGeom(conn2, name = c("env_data","test"), 
+                          query = "SELECT r.gid as id, ST_Buffer(r.geom, 0.001) as geom 
                             FROM
                               env_data.roads r,
                               env_data.adm_boundaries b
                             WHERE 
-                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento'",
-                            create.view = c("env_data","test"))
+                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento'")
+        poly <- pgGetGeom(conn2, name = c("env_data","test"))
         # test ROLLBACK (fail)
-        pts2 <- pgGetGeomQ(conn2,"SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
+        pts2 <- pgGetGeom(conn2, query = "SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
                            other.cols = FALSE, geom = "geo")
-        pts2 <- pgGetGeomQ(conn2,"SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
-                           other.cols = FALSE)
-        dbDrop(conn2, name = c("env_data","test"), type = "view", ifexists = TRUE)
+        pts2 <- pgGetGeom(conn2, query = "SELECT 1 as id, st_collect(geom) as geom FROM env_data.meteo_stations;",
+                           other.cols = TRUE)
+        dbDrop(conn2, name = c("env_data","test"), type = "view")
         
         # get SRIDs
         pgSRID(conn, crs = bnd@proj4string)
