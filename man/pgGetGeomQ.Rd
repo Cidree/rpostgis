@@ -11,7 +11,8 @@ pgGetGeomQ(conn, query, name = NULL, ...)
 
 \item{name}{optional character string specifying
 a PostgreSQL schema and view name (e.g., \code{name = c("schema","view")}) 
-to save the query as. If NULL, a temporary view ".rpostgis_TEMPview" is used.}
+to save the query as. If NULL, a temporary view ".rpostgis_TEMPview" is used
+temporarily (only within the function scope).}
 
 \item{...}{For \code{pgGetGeomQ}, other arguments as in \code{pgGetGeom}}
 }

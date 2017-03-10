@@ -10,8 +10,8 @@
 ##' complete SQL query (\code{query}) that returns a Geometry column, and save the query
 ##' as a new view (\code{name}) if desired. If (\code{name}) is not specified,
 ##' a temporary view with name ".rpostgis_TEMPview" is used only
-##' within the function execution. The other arguments can be used normally
-##' to modify the Spatial* object to return from the query.
+##' within the function execution. In this mode, the other arguments can be used 
+##' normally to modify the Spatial* object returned from the query.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
@@ -32,7 +32,7 @@
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); see below for examples.
 ##' @param query character, a full SQL query including a geometry column. 
-##'     For use with query mode only. See details.
+##'     For use with query mode only (see details).
 ##' @return sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
 ##' @export
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
@@ -53,14 +53,13 @@
 ##' ## retaining id from table as rownames and with a subset of the data
 ##' pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
 ##'     other.cols = FALSE, clauses  = "WHERE field = 'highway'")
-##' 
 ##' ## Query mode
-##' pgGetGeom(conn, query = "SELECT r.road_ID as id, ST_Buffer(r.roadgeom, 100) as geom 
-##'                   FROM
-##'                      schema.roads r,
-##'                      schema.boundary b
-##'                   WHERE 
-##'                      ST_Intersects(r.roadgeom, b.boundgeom);")
+##' pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom 
+##'                            FROM
+##'                              schema.roads r,
+##'                              schema.adm_boundaries b
+##'                            WHERE 
+##'                              ST_Intersects(r.geom, b.geom);")
 ##' }
 
 pgGetGeom <- function(conn, name, geom = "geom", gid = NULL, 
@@ -498,7 +497,8 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
 #' @param query character, a full SQL query including a geometry column. 
 #' @param name optional character string specifying
 #'     a PostgreSQL schema and view name (e.g., \code{name = c("schema","view")}) 
-#'     to save the query as. If NULL, a temporary view ".rpostgis_TEMPview" is used.
+#'     to save the query as. If NULL, a temporary view ".rpostgis_TEMPview" is used
+#'     temporarily (only within the function scope).
 #' @param ... For \code{pgGetGeomQ}, other arguments as in \code{pgGetGeom}
 #' @keywords internal
 
