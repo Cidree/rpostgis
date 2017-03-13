@@ -503,29 +503,36 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
 #' @keywords internal
 
 pgGetGeomQ <- function(conn, query, name = NULL, ...) {
-  # set view name
-  if (is.null(name)) { 
-    name <- ".rpostgis_TEMPview" 
-    keep <- FALSE
-  } else {
-    keep <- TRUE
-  }
-  dbExecute(conn, "BEGIN;")
-  # try to create view and retrieve geometries
-  geo<-NULL
-  try({
-  prequery <- paste0("CREATE OR REPLACE VIEW ",paste(dbQuoteIdentifier(conn, name), collapse = ".")," AS ")
-  if (sub('.*(?=.$)', '', sub("\\s+$", "", query), perl=T) == ";") {post <- NULL} else {post <- ";"}
-  q <- paste0(prequery, query, post)
-  dbExecute(conn, q)
-  geo <- pgGetGeom(conn, name = name, ...)
-  })
-  # rollback on failed/not saving view, else commit
-  if (is.null(geo)) {
-    dbExecute(conn, "ROLLBACK;")
-    return(FALSE)
-  } else {
-    if (!keep) dbExecute(conn, "ROLLBACK;") else dbExecute(conn, "COMMIT;")
-  }
-  return(geo)
+    # set view name
+    if (is.null(name)) {
+        name <- ".rpostgis_TEMPview"
+        keep <- FALSE
+    } else {
+        keep <- TRUE
+    }
+    dbExecute(conn, "BEGIN;")
+    # try to create view and retrieve geometries
+    geo <- NULL
+    try({
+        prequery <- paste0("CREATE OR REPLACE VIEW ", paste(dbQuoteIdentifier(conn, 
+            name), collapse = "."), " AS ")
+        if (sub(".*(?=.$)", "", sub("\\s+$", "", query), perl = T) == 
+            ";") {
+            post <- NULL
+        } else {
+            post <- ";"
+        }
+        q <- paste0(prequery, query, post)
+        dbExecute(conn, q)
+        geo <- pgGetGeom(conn, name = name, ...)
+    })
+    # rollback on failed/not saving view, else commit
+    if (is.null(geo)) {
+        dbExecute(conn, "ROLLBACK;")
+        return(FALSE)
+    } else {
+        if (!keep) 
+            dbExecute(conn, "ROLLBACK;") else dbExecute(conn, "COMMIT;")
+    }
+    return(geo)
 }

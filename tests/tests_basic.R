@@ -222,7 +222,7 @@ tryCatch({
         rm(alb, d, d2, meuse, bnd, conn, conn2, cred, crsf, roe_gps_data, 
             roe_vector_geom, roe_raster, drv, ex_table, lin, ls, 
             new_table, p1, p2, poly, pts, pts.sponly, r, rast, 
-            rastclp)
+            rastclp, matview, df)
     }))
     print("ALL GOOD!!!")
 }, error = function(x) {
