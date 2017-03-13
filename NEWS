@@ -1,11 +1,12 @@
-rpostgis 1.1.2-1
+rpostgis 1.2.0
 ==============
 
 NEW FEATURES
 
 * `pgGetGeom`: new `query` argument allows `pgGetGeom` to specify a
-  full SQL query which returns a GEOMETRY. It is returned as a Spatial*[DataFrame] object,
-  and if desired can be saved as a new view with the `name` argument.
+  full SQL query which returns a GEOMETRY instead of an existing table/view. 
+  If desired, the query can be saved in the database as a new view using
+  the `name` argument.
 
 * `pgInsert`: now can insert geometries stored as character in `data.frame`s
   using `df.geom` argument.
