@@ -72,7 +72,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
       if (missing(name)) name <- NULL
       ret <- pgGetGeomQ(conn, query, name = name, geom = geom, gid = gid, 
                         other.cols = other.cols, clauses = clauses)
-      return(ret)
+      if (is.null(ret)) stop("Query retrieval failed.", call. = FALSE) else return(ret)
     }
     ## Check and prepare the schema.name
     nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
@@ -529,7 +529,6 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     # rollback on failed/not saving view, else commit
     if (is.null(geo)) {
         dbExecute(conn, "ROLLBACK;")
-        return(FALSE)
     } else {
         if (!keep) 
             dbExecute(conn, "ROLLBACK;") else dbExecute(conn, "COMMIT;")

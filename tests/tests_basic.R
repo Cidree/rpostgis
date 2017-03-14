@@ -54,8 +54,8 @@ tryCatch({
                               ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento'")
         poly <- pgGetGeom(conn2, name = c("env_data","test"))
         # test ROLLBACK (fail)
-        pts2 <- pgGetGeom(conn2, query = "SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
-                           other.cols = FALSE, geom = "geo")
+        try(pts2 <- pgGetGeom(conn2, query = "SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
+                           other.cols = FALSE, geom = "geo"))
         pts2 <- pgGetGeom(conn2, query = "SELECT 1 as id, st_collect(geom) as geom FROM env_data.meteo_stations;",
                            other.cols = TRUE)
         dbDrop(conn2, name = c("env_data","test"), type = "view")

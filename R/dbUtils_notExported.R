@@ -126,7 +126,9 @@ dbExistsTable <- function (conn, name, table.only = FALSE) {
                " AND table_name = ",dbQuoteString(conn,full.name[2]),to,";"))[1,1]
     if (is.null(chk)) {
       exists.t <- FALSE
-      if (!table.only) {
+      # check version (matviews >= 9.3)
+      ver<-dbVersion(conn)
+      if (!table.only & !(ver[1] < 9 | (ver[1] == 9 && ver[2] < 3))) {
         # matview case - not in information_schema
         chk2<-dbGetQuery(conn, paste0("SELECT oid::regclass::text, relname
                 FROM pg_class
