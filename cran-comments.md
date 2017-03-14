@@ -1,6 +1,6 @@
 ## Test environments
 * local Windows 7 install, R 3.3.3
-* win-builder, R Under development (unstable) (2017-01-17 r72004)
+* Windows Server 2008 R2 SP1, 32/64 bit (R-devel)
 * Debian 8.6, R 3.3.3
 
 ## R CMD check results
