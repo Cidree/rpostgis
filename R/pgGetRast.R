@@ -10,9 +10,6 @@
 ##'     c("schema","table")})
 ##' @param rast Name of the column in \code{name} holding the raster object
 ##' @param band Index number for the band to retrieve (defaults to 1)
-##' @param digits numeric, precision for detecting whether points are
-##'     on a regular grid (a low number of digits is a low precision)
-##'     - From \code{\link[raster]{rasterFromXYZ}} function (\code{raster} package)
 ##' @param boundary \code{sp} object or numeric. A Spatial* object,
 ##'     whose bounding box will be used to select the part of the
 ##'     raster to import. Alternatively, four numbers
@@ -31,7 +28,7 @@
 ##'     50, 17, 12))
 ##' }
 
-pgGetRast <- function(conn, name, rast = "rast", band = 1, digits = 9,
+pgGetRast <- function(conn, name, rast = "rast", band = 1,
     boundary = NULL) {
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
@@ -72,6 +69,21 @@ pgGetRast <- function(conn, name, rast = "rast", band = 1, digits = 9,
     if (is.na(p4s)) {
       warning("Table SRID not found. Projection will be undefined (NA)")
     }
+    ## digits calc
+    tmp.query <- paste0("SELECT DISTINCT st_scaleX(", rast, ") x, st_scaleY(", rast, ") y from ",
+                          nameque, " WHERE ", rast, " IS NOT NULL;")
+    dig <- dbGetQuery(conn, tmp.query)
+    if (length(dig$x) > 1) {
+      if (abs(1-max(dig$x)/min(dig$x)) > 0.00001 | abs(1-max(dig$y)/min(dig$y)) > 0.00001) { 
+        stop("X/Y cell sizes not regular. Cannot import.")
+      } else {
+        print("Regularizing x/y pixel width/heights...")
+        res <- c(mean(dig$x),mean(dig$y)) 
+      }
+    } else {
+      res <-c(abs(dig$x),abs(dig$y))
+    }
+    # get rast
     if (is.null(boundary)) {
         trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) AS x, ST_Y(ST_Centroid((gv).geom)) AS y,\n  (gv).val FROM (SELECT ST_PixelAsPolygons(",
             rast, ",",band,", FALSE) AS gv FROM ", nameque, ") a;")))
@@ -92,7 +104,7 @@ pgGetRast <- function(conn, name, rast = "rast", band = 1, digits = 9,
             " ", boundary[1], ",", boundary[4], " ", boundary[1],
             "))'),", srid, "))) a;")))
     }
-    rout<-raster::rasterFromXYZ(trast, crs = sp::CRS(p4s), digits = digits)
+    rout<-raster::rasterFromXYZ(trast, res = res, crs = sp::CRS(p4s))
     
     # set NA value
     ndval<-dbGetQuery(conn, paste0("SELECT st_bandnodatavalue(",

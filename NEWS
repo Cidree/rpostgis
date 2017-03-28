@@ -1,3 +1,13 @@
+rpostgis 1.2.0-1
+==============
+
+NEW FEATURES
+
+* `pgGetRast`: `digits` argument removed. Resolution of the raster is now
+determined using PostGIS functions and directly applied to the raster. Rasters
+with uneven x/y cell sizes beyond a certain limit will fail to import.
+
+
 rpostgis 1.2.0
 ==============
 
