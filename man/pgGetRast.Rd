@@ -4,7 +4,8 @@
 \alias{pgGetRast}
 \title{Load raster from PostGIS database.}
 \usage{
-pgGetRast(conn, name, rast = "rast", band = 1, boundary = NULL)
+pgGetRast(conn, name, rast = "rast", band = 1, digits = 5,
+  boundary = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -16,6 +17,12 @@ c("schema","table")})}
 \item{rast}{Name of the column in \code{name} holding the raster object}
 
 \item{band}{Index number for the band to retrieve (defaults to 1)}
+
+\item{digits}{numeric (default = 5), precision for detecting whether cells are
+on a regular grid (a low number of digits is a low precision).
+Unequal cell lengths (to this precision) in either X or Y dimensions will
+result in an error. From \code{\link[raster]{rasterFromXYZ}} 
+function (\code{raster} package).}
 
 \item{boundary}{\code{sp} object or numeric. A Spatial* object,
 whose bounding box will be used to select the part of the
