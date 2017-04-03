@@ -1,12 +1,12 @@
 rpostgis 1.2.0-1
 ==============
 
-OTHER CHANGES
+UPDATES
 
 * `pgGetRast`: `digits` argument default lowered to 5 (same as raster::rasterFromXYZ). 
 Resolution of the raster is now determined using PostGIS functions and directly 
 applied to the R raster. This allows (in some cases) for faster recognition of uneven cell
-sizes, resulting in an error.
+sizes, which result in an error.
 
 rpostgis 1.2.0
 ==============
