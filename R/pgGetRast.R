@@ -79,8 +79,8 @@ pgGetRast <- function(conn, name, rast = "rast", band = 1, digits = 5,
                           nameque, " WHERE ", rast, " IS NOT NULL;")
     dig <- dbGetQuery(conn, tmp.query)
     if (length(dig$x) > 1) {
-      if (!(round(max(dig$x),digits) == round(min(dig$x),digits)) | !(round(max(dig$y),digits) == round(min(dig$y),digits))) {
-        stop("X/Y cell sizes are irregular at specified precision (",digits,"). Cannot import raster.")
+      if (!(round(max(dig$x),digits) == round(min(dig$x),digits)) | !round(max(dig$y),digits) == round(min(dig$y),digits)) {
+        stop("X and/or Y cell sizes are irregular at specified precision (",digits,"). Cannot import raster (try a lower 'digits' value).")
       } else {
         res <- c(abs(max(dig$x)),abs(max(dig$y)))
       }
