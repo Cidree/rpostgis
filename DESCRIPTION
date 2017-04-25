@@ -18,7 +18,7 @@ SystemRequirements:
 Depends:
     R (>= 3.3.0),
     RPostgreSQL,
-    DBI
+    DBI (>= 0.5)
 Imports:
     methods,
     raster,
