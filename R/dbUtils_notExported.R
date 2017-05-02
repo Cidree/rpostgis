@@ -162,3 +162,46 @@ dbConnCheck <- function(conn) {
         return(stop("'conn' must be a <PostgreSQLConnection> object."))
       }
 }
+
+
+## pg* non-exported functions
+
+## pgCheckGeom
+##' Check if geometry or geography column exists in a table,
+##' and return the column name for use in a query. 
+##' 
+##' @param conn A PostgreSQL connection
+##' @param namechar A table name formatted for use in a query
+##' @param geom a geometry or geography column name
+##' 
+##' @keywords internal
+
+pgCheckGeom <- function(conn, namechar, geom) {
+    
+    ## Check table exists geom
+    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM geometry_columns\nWHERE 
+        (f_table_schema||'.'||f_table_name) = '", 
+        namechar, "';")
+    tab.list <- dbGetQuery(conn, tmp.query)$geo
+    ## Check table exists geog
+    tmp.query <- paste0("SELECT f_geography_column AS geo FROM geography_columns\nWHERE 
+        (f_table_schema||'.'||f_table_name) = '", 
+        namechar, "';")
+    tab.list.geog <- dbGetQuery(conn, tmp.query)$geo
+    tab.list <- c(tab.list, tab.list.geog)
+    
+    if (is.null(tab.list)) {
+        stop(paste0("Table/view '", namechar, "' is not listed in geometry_columns or geography_columns."))
+    } else if (!geom %in% tab.list) {
+        stop(paste0("Table/view '", namechar, "' geometry/geography column not found. Available columns: ", 
+            paste(tab.list, collapse = ", ")))
+    }
+    ## prepare geom column
+    if (geom %in% tab.list.geog) {
+          # geog version
+          geomque <- paste0(DBI::dbQuoteIdentifier(conn, geom),"::GEOMETRY")
+        } else { 
+          geomque <- DBI::dbQuoteIdentifier(conn, geom)
+        }
+    return(geomque)
+}

@@ -59,6 +59,11 @@ tryCatch({
         pts2 <- pgGetGeom(conn2, query = "SELECT 1 as id, st_collect(geom) as geom FROM env_data.meteo_stations;",
                            other.cols = TRUE)
         dbDrop(conn2, name = c("env_data","test"), type = "view")
+        # geography columns
+        pgListGeom(conn, geog = TRUE)
+        pgeog <- pgGetGeom(conn, c("example_data","steps"), geom = "step_geog")
+        pgeog2 <- pgGetBoundary(conn, c("example_data", "continental"), geom = "geog")
+        rm(pgeog, pgeog2)
         
         # get SRIDs
         pgSRID(conn, crs = bnd@proj4string)

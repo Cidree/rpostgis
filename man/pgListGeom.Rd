@@ -4,7 +4,7 @@
 \alias{pgListGeom}
 \title{List geometries.}
 \usage{
-pgListGeom(conn, display = TRUE, exec = TRUE)
+pgListGeom(conn, display = TRUE, exec = TRUE, geog = FALSE)
 }
 \arguments{
 \item{conn}{A PostgreSQL database connection.}
@@ -14,13 +14,16 @@ pgListGeom(conn, display = TRUE, exec = TRUE)
 
 \item{exec}{Logical. Whether to execute the query (defaults to
 \code{TRUE}).}
+
+\item{geog}{Logical. Whether to include PostGIS geography-type 
+columns stored in the database}
 }
 \value{
 If \code{exec = TRUE}, a data frame with schema, table,
-    geometry column, and geometry type.
+    geometry/(geography) column, and geometry/(geography) type.
 }
 \description{
-List all geometries in a PostGIS database.
+List all geometry/(geography) objects available in a PostGIS database.
 }
 \examples{
 \dontrun{

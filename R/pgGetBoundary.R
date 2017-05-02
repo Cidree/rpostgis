@@ -31,10 +31,13 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     ## Check and prepare the schema.name
     name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
-    namechar <- gsub("'","''",paste(gsub('^"|"$', '', name),collapse="."))
+    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
+        "", dbTableNameFix(conn,name)), collapse = ".")))
     ## Check table exists
     tmp.query <- paste0("SELECT geo FROM\n  (SELECT (gc.f_table_schema||'.'||gc.f_table_name) AS tab,
-                        gc.f_geometry_column AS geo\n   FROM geometry_columns AS gc\n   UNION\n   
+                        gc.f_geography_column AS geo\n  FROM geography_columns AS gc\n   UNION\n
+                        SELECT (gc.f_table_schema||'.'||gc.f_table_name) AS tab,
+                        gc.f_geometry_column AS geo\n  FROM geometry_columns AS gc\n   UNION\n   
                         SELECT rc.r_table_schema||'.'||rc.r_table_name AS tab, rc.r_raster_column AS geo\n   
                         FROM raster_columns as rc) a\n  WHERE tab  = '",
                         namechar, "';")
@@ -45,20 +48,24 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
         stop(paste0("Table/view '", namechar, "' geometry/raster column not found.\nAvailable geometry/raster columns: ",
             paste(tab.list, collapse = ", ")))
     }
+    geomque <- DBI::dbQuoteIdentifier(conn, geom)
     ## Check data type
-    tmp.query <- paste0("SELECT DISTINCT pg_typeof(", geom, ") AS type FROM ",
-        nameque, "\n  WHERE ", geom, " IS NOT NULL;")
+    tmp.query <- paste0("SELECT DISTINCT pg_typeof(", geomque , ") AS type FROM ",
+        nameque, "\n  WHERE ", geomque , " IS NOT NULL;")
     type <- suppressWarnings(dbGetQuery(conn, tmp.query))
     if (type$type == "raster") {
         func <- "ST_Union"
     } else if (type$type == "geometry") {
         func <- "ST_Collect"
+    } else if (type$type == "geography") {
+        func <- "ST_Collect"
+        geomque <- paste0(DBI::dbQuoteIdentifier(conn, geom),"::geometry")
     } else {
-        stop(paste0("Column", geom, " does not contain geometries or rasters"))
+        stop(paste0("Column", geom, " does not contain geometry/geography or rasters"))
     }
     ## Retrieve the SRID
-    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geom, ")) FROM ",
-        nameque, " WHERE ", geom, " IS NOT NULL;")
+    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geomque, ")) FROM ",
+        nameque, " WHERE ", geomque, " IS NOT NULL;")
     srid <- dbGetQuery(conn, tmp.query)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
@@ -78,7 +85,7 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     }
     ## Retrieve envelope
     tmp.query <- paste0("SELECT ST_Astext(ST_Envelope(", func,
-        "(", geom, "))) FROM ", nameque, " WHERE ", geom, " IS NOT NULL;")
+        "(", geomque , "))) FROM ", nameque, " WHERE ", geomque , " IS NOT NULL;")
     wkt <- suppressWarnings(dbGetQuery(conn, tmp.query))
     env <- rgeos::readWKT(wkt$st_astext, p4s = p4s)
     return(env)

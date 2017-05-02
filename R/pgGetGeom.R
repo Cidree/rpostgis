@@ -78,19 +78,9 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
     namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
         "", dbTableNameFix(conn,name)), collapse = ".")))
-    ## Check table exists
-    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM geometry_columns\nWHERE 
-        (f_table_schema||'.'||f_table_name) = '", 
-        namechar, "';")
-    tab.list <- dbGetQuery(conn, tmp.query)$geo
-    if (is.null(tab.list)) {
-        stop(paste0("Table/view '", namechar, "' is not listed in geometry_columns."))
-    } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", namechar, "' geometry column not found. Available geometry columns: ", 
-            paste(tab.list, collapse = ", ")))
-    }
-    ## prepare geom column
-    geomque <- DBI::dbQuoteIdentifier(conn, geom)
+    
+    geomque <- pgCheckGeom(conn, namechar, geom)
+    
     ## prepare clauses
     if (!is.null(clauses)) {
       clauses <- sub("^where", "AND", clauses, ignore.case = TRUE) 
@@ -183,7 +173,9 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## prepare geom column
-    geomque<-DBI::dbQuoteIdentifier(conn,geom)
+    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
+        "", dbTableNameFix(conn,name)), collapse = ".")))
+    geomque <- pgCheckGeom(conn, namechar, geom)
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
         if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
@@ -316,7 +308,9 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     
     ## prepare geom column
-    geomque<-DBI::dbQuoteIdentifier(conn,geom)
+    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
+        "", dbTableNameFix(conn,name)), collapse = ".")))
+    geomque <- pgCheckGeom(conn, namechar, geom)
     ## Check gid
     if (is.null(gid)) {
         if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
@@ -419,7 +413,9 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## prepare geom column
-    geomque<-DBI::dbQuoteIdentifier(conn,geom)
+    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
+        "", dbTableNameFix(conn,name)), collapse = ".")))
+    geomque <- pgCheckGeom(conn, namechar, geom)
     ## Check gid
     if (is.null(gid)) {
         if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
