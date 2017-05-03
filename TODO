@@ -2,8 +2,6 @@
 
 * pgIntersectStp (pgIntersectsSts in pg-functions.R) -> move to rpostgisLT(?)
 
-* sqlCopyCSV (pg-functions.R)
-
 * Change pgAddKey into pgKey (+ action = "drop"?)
 
 * pgIndex, pgComment --> action = "drop"?
@@ -14,9 +12,13 @@
 
 * add st_isvalid check to pgGet* functions(?)
 
-* add support for loading "geography" data type in pgGet* functions
-
 * update pgGetRast.r to load rasters from PostGIS type
+
+5/3/17
+
+* create internal function to handle data frame mode process (for use in dbWriteDataFrame, and rpostgisLT infolocs writing).
+
+* update pgGetRast() methods
 
 KNOWN ISSUES
 

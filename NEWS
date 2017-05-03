@@ -4,7 +4,7 @@ rpostgis 1.2.0-2
 NEW FEATURES
 
 * Support for PostGIS `GEOGRAPHY` types added, in `pgGetGeom`, `pgListGeom`,
-`pgGetBoundary`. Geography column names should be given to the `geom` argument,
+`pgGetBoundary`. Geography column names can be given to the `geom` argument,
 just like a regular `GEOMETRY` column.
 
 rpostgis 1.2.0-1
