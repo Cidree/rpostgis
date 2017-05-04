@@ -218,19 +218,19 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         ## Get data
         if (is.null(other.cols)) {
             tmp.query <- paste0("SELECT ", gid, " AS tgid,ST_X(",
-                geomque, ") AS x, ST_Y(", geomque, ") AS y FROM ",
+                geomque, ") AS x_z39mxd3, ST_Y(", geomque, ") AS y_z39mxd3 FROM ",
                 nameque, " WHERE ", geomque, " IS NOT NULL ", clauses ,
                 ";")
         } else {
             tmp.query <- paste0("SELECT ", gid, " AS tgid,ST_X(",
-                geomque, ") AS x, ST_Y(", geomque, ") AS y,", other.cols,
+                geomque, ") AS x_z39mxd3, ST_Y(", geomque, ") AS y_z39mxd3,", other.cols,
                 " FROM ", nameque, " WHERE ", geomque, " IS NOT NULL ",
                 clauses , ";")
         }
         dbData <- suppressWarnings(dbGetQuery(conn, tmp.query))
         row.names(dbData) <- dbData$tgid
         ## Generate a SpatialPoints object
-        sp <- sp::SpatialPoints(data.frame(x = dbData$x, y = dbData$y,
+        sp <- sp::SpatialPoints(data.frame(x = dbData$x_z39mxd3, y = dbData$y_z39mxd3,
             row.names = dbData$tgid), proj4string = proj4)
         ## Append data to spdf if requested
         if (!is.null(other.cols)) {
@@ -238,7 +238,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
             cols <- cols[!(cols %in% c(geom))]
             # column definitions
             suppressMessages(
-              dfr<-dbReadDataFrame(conn, name, df = dbData[cols])
+              dfr<-dbReadDataFrame(conn, name, df = dbData[,4:length(colnames(dbData))][cols])
             )
             sp <- sp::SpatialPointsDataFrame(sp, dfr,
                 match.ID = TRUE)
@@ -266,7 +266,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
             cols <- cols[!(cols %in% c(geom))]
             # column definitions
             suppressMessages(
-              dfr<-dbReadDataFrame(conn, name, df = dbData[cols])
+              dfr<-dbReadDataFrame(conn, name, df = dbData[,3:length(colnames(dbData))][cols])
             )
             sp <- sp::SpatialMultiPointsDataFrame(tt, dfr,
                 proj4string = proj4)
@@ -374,7 +374,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
         cols <- cols[!(cols %in% c(geom))]
         # column definitions
         suppressMessages(
-            dfr<-dbReadDataFrame(conn, name, df = dfTemp[cols])
+            dfr<-dbReadDataFrame(conn, name, df = dfTemp[,3:length(colnames(dfTemp))][cols])
         )
         
         spdf <- sp::SpatialLinesDataFrame(Sline, dfr)
@@ -478,7 +478,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
         cols <- cols[!(cols %in% c(geom))]
         # column definitions
         suppressMessages(
-            dfr<-dbReadDataFrame(conn, name, df = dfTemp[cols])
+            dfr<-dbReadDataFrame(conn, name, df = dfTemp[,3:length(colnames(dfTemp))][cols])
         )
         spdf <- sp::SpatialPolygonsDataFrame(Spol, dfr)
         return(spdf)

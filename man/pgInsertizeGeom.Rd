@@ -7,7 +7,8 @@
 \usage{
 pgInsertizeGeom(data.obj, geom = "geom", create.table = NULL,
   force.match = NULL, conn = NULL, new.id = NULL, row.names = FALSE,
-  alter.names = FALSE, partial.match = FALSE, df.mode = FALSE)
+  alter.names = FALSE, partial.match = FALSE, df.mode = FALSE,
+  geog = FALSE)
 
 pgInsertize(data.obj, create.table = NULL, force.match = NULL,
   conn = NULL, new.id = NULL, row.names = FALSE, alter.names = FALSE,
@@ -63,6 +64,9 @@ table will be inserted into the database table.}
 A new table must be created with this mode (or overwrite set to TRUE),
 and the row.names, alter.names, and new.id arguments will
 be ignored (see \code{dbWriteDataFrame} for more information.}
+
+\item{geog}{Logical; Whether to write the spatial data as a PostGIS 
+'GEOGRPAHY' type.}
 }
 \value{
 pgi A list containing four character strings: (1)

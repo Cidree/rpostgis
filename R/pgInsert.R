@@ -102,6 +102,8 @@
 ##'     specific PostGIS geometry type and SRID for the column. Only recommended for
 ##'     for new tables/overwrites, since this method will change the 
 ##'     existing column type.
+##' @param geog Logical; Whether to write the spatial data as a PostGIS 
+##'     'GEOGRPAHY' type.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @export
 ##' @return Returns \code{TRUE} if the insertion was successful,
@@ -129,7 +131,7 @@
 
 pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, partial.match = FALSE, 
     overwrite = FALSE, new.id = NULL, row.names = FALSE, upsert.using = NULL,
-    alter.names = FALSE, encoding = NULL, return.pgi = FALSE, df.geom = NULL) {
+    alter.names = FALSE, encoding = NULL, return.pgi = FALSE, df.geom = NULL, geog = FALSE) {
   
     if (df.mode) {
       if (!dbExistsTable(conn,name, table.only = TRUE) | overwrite) {
@@ -184,10 +186,11 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
         "SpatialPolygonsDataFrame")
     pgi <- NULL
     if (cls %in% geo.classes) {
+      if (geog) data.obj <- sp::spTransform(data.obj, CRS("+proj=longlat +datum=WGS84 +no_defs", doCheckCRSArgs = FALSE))
         try(suppressMessages(pgSRID(conn, data.obj@proj4string, 
             create.srid = TRUE, new.srid = NULL)), silent = TRUE)
         try(pgi <- pgInsertizeGeom(data.obj, geom, create.table, 
-            force.match, conn, new.id, row.names, alter.names, partial.match, df.mode))
+            force.match, conn, new.id, row.names, alter.names, partial.match, df.mode, geog))
     } else if (cls == "data.frame") {
         try(pgi <- pgInsertize(data.obj, create.table, force.match, 
             conn, new.id, row.names, alter.names, partial.match, df.mode))

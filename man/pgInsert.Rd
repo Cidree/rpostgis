@@ -8,7 +8,7 @@
 pgInsert(conn, name, data.obj, geom = "geom", df.mode = FALSE,
   partial.match = FALSE, overwrite = FALSE, new.id = NULL,
   row.names = FALSE, upsert.using = NULL, alter.names = FALSE,
-  encoding = NULL, return.pgi = FALSE, df.geom = NULL)
+  encoding = NULL, return.pgi = FALSE, df.geom = NULL, geog = FALSE)
 
 \method{print}{pgi}(x, ...)
 }
@@ -89,6 +89,9 @@ the column type will be a generic (GEOMETRY); use a two-length character vector
 specific PostGIS geometry type and SRID for the column. Only recommended for
 for new tables/overwrites, since this method will change the 
 existing column type.}
+
+\item{geog}{Logical; Whether to write the spatial data as a PostGIS 
+'GEOGRPAHY' type.}
 
 \item{x}{A list of class \code{pgi}}
 

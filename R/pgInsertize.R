@@ -68,6 +68,8 @@
 ##'     A new table must be created with this mode (or overwrite set to TRUE),
 ##'     and the row.names, alter.names, and new.id arguments will
 ##'     be ignored (see \code{dbWriteDataFrame} for more information.
+##' @param geog Logical; Whether to write the spatial data as a PostGIS 
+##' 'GEOGRPAHY' type.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @keywords internal
 ##' @importFrom stats na.omit
@@ -112,7 +114,7 @@
 
 pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     force.match = NULL, conn = NULL, new.id = NULL, row.names = FALSE,
-    alter.names = FALSE, partial.match = FALSE, df.mode = FALSE) {
+    alter.names = FALSE, partial.match = FALSE, df.mode = FALSE, geog = FALSE) {
     ## Load wkb package if available
     wkb.t <- suppressPackageStartupMessages(requireNamespace("wkb",quietly=TRUE))
     mx <- 1
@@ -208,11 +210,16 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         if (multi) {
             pgtype <- paste0("Multi", pgtype)
         }
-        if (!is.na(proj)) {
-            pgtype <- paste0(pgtype, ",", proj)
+        if (!is.na(proj[1])) {
+            pgtype <- paste0(pgtype, ",", proj[1])
         }
-        add.geom <- paste0("ALTER TABLE ", nt[1], ".", nt[2],
-            " ADD COLUMN ", geom, " geometry(", pgtype, ");")
+        if (!geog) {
+          add.geom <- paste0("ALTER TABLE ", nt[1], ".", nt[2],
+            " ADD COLUMN ", geom, " geometry(", pgtype, ");") 
+        } else {
+          add.geom <- paste0("ALTER TABLE ", nt[1], ".", nt[2],
+            " ADD COLUMN ", geom, " geography(", pgtype, ");") 
+        }
         new.table <- paste0(new.table, "\n", add.geom)
         
         ###
@@ -267,11 +274,12 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     ## geometry is inserted)
     open <- "'"
     close <- "',"
-    if (!wkb.t | multi | class(data.obj)[1] %in% c("SpatialLines",
+    if (!wkb.t | multi | geog | class(data.obj)[1] %in% c("SpatialLines",
         "SpatialLinesDataFrame")) {
         ## wkt conversion, multipolygons not handled correctly by wkb
         ## at this time, and wkb only outputs MULTILINESTRINGS (so all
         ## linestrings are sent using WKT)
+        if (geog) cast <- "::geography" else cast <- NULL
         message("Using writeWKT from rgeos package...")
         geom.1 <- rgeos::writeWKT(data.obj, byid = TRUE)
         if (length(colnames(dat)) == 0) {
@@ -285,19 +293,19 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         ## Set all NA to NULL
         df[is.na(df)] <- "NULL"
         ## Double all single ' to escape. Format rows of data frame
-        if (!is.na(proj)) {
+        if (!is.na(proj[1])) {
             if (multi == TRUE) {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_Multi(ST_GeomFromText('", x[length(colnames(df))],
-                  "',", proj, ")))"))
+                  "',", proj[1], "))", cast, ")"))
             } else {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_GeomFromText('", x[length(colnames(df))],
-                  "',", proj, "))"))
+                  "',", proj[1], ")", cast, ")"))
             }
         } else {
             warning("Spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0).")
@@ -306,13 +314,13 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_Multi(ST_GeomFromText('", x[length(colnames(df))],
-                  "')))"))
+                  "'))", cast, ")"))
             } else {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_GeomFromText('", x[length(colnames(df))],
-                  "'))"))
+                  "')", cast, ")"))
             }
         }
     } else {
@@ -332,19 +340,19 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         ## Set all NA to NULL
         df[is.na(df)] <- "NULL"
         ## Double all single quotes to escape. Format rows of data frame.
-        if (!is.na(proj)) {
+        if (!is.na(proj[1])) {
             if (multi == TRUE) {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_Multi(ST_SetSRID('", x[length(colnames(df))],
-                  "'::geometry,", proj, ")))"))
+                  "'::geometry,", proj[1], ")))"))
             } else {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_SetSRID('", x[length(colnames(df))], "'::geometry,",
-                  proj, "))"))
+                  proj[1], "))"))
             }
         } else {
             warning("Spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0).")
