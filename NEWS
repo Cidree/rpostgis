@@ -1,4 +1,4 @@
-rpostgis 1.2.0-2
+rpostgis 1.2.1
 ==============
 
 NEW FEATURES
@@ -15,9 +15,6 @@ SRIDs found for a spatial object, now uses the first one returned
 
 * `pgGetGeom`: fixed bug when loading columns with names 'x' or 'y' 
 for point geometries
-
-rpostgis 1.2.0-1
-==============
 
 UPDATES
 
