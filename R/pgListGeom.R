@@ -38,11 +38,12 @@ pgListGeom <- function(conn, display = TRUE, exec = TRUE, geog = FALSE) {
     if (!geog) end <- ";" else 
       end <- paste("UNION"," SELECT", "    f_table_schema AS schema_name,",
         "    f_table_name AS table_name,", "    f_geography_column AS geom_column,",
-        "    type AS geometry_type", "FROM geography_columns;",
+        "    type AS geometry_type,", "    'GEOGRAPHY'::character(9) AS type", "FROM geography_columns",
+        "    ORDER BY type desc;",
         sep = "\n")
     tmp.query <- paste("SELECT", "    f_table_schema AS schema_name,",
         "    f_table_name AS table_name,", "    f_geometry_column AS geom_column,",
-        "    type AS geometry_type", "FROM geometry_columns ", end , 
+        "    type AS geometry_type,", "    'GEOMETRY'::character(8) AS type", "FROM geometry_columns ", end , 
         sep = "\n")
     ## Display the query
     if (display) {

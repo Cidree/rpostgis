@@ -24,6 +24,7 @@ tryCatch({
         # general
         pgPostGIS(conn, topology = TRUE, tiger = TRUE, sfcgal = TRUE)
         pgListGeom(conn)
+        pgListGeom(conn,geog=TRUE)
         
         # retrieval functions
         pts <- pgGetGeom(conn, ex_table, geom = "geom")
