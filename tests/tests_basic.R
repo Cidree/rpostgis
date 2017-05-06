@@ -64,7 +64,7 @@ tryCatch({
         pgListGeom(conn, geog = TRUE)
         pgeog <- pgGetGeom(conn, c("example_data","steps"), geom = "step_geog")
         pgeog2 <- pgGetBoundary(conn, c("example_data", "continental"), geom = "geog")
-        rm(pgeog, pgeog2)
+        rm(pgeog2)
         
         # get SRIDs
         pgSRID(conn, crs = bnd@proj4string)
@@ -89,7 +89,10 @@ tryCatch({
         pts3035<-spTransform(pts, rast@crs)
         pgInsert(conn, c(new_table[1], "pts3035"), pts3035)
         pgInsert(conn, c(new_table[1], "ptsgeo"), pts3035, overwrite = TRUE, geog = TRUE)
-        rm(pts3035)
+        pgInsert(conn, c(new_table[1], "linegeog"), pgeog, geom = "geog", geog = TRUE)
+        pgeogline2<-pgGetGeom(conn, c(new_table[1], "linegeog"), geom = "geog")
+        all.equal(pgeog,pgeogline2)
+        rm(pts3035, pgeog, pgeogline2)
         # pgi mode
         pgInsert(conn, c("rpostgis", "db_test2"), pts)
         pgi <- pgInsert(conn, new_table, pts, return.pgi = TRUE)

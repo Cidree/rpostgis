@@ -52,7 +52,7 @@
 ##'     table.
 ##' @param data.obj A \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}
 ##' @param geom character string. For \code{Spatial*} datasets, the name of
-##'     geometry column in the database table.  (existing or to be
+##'     geometry/(geography) column in the database table.  (existing or to be
 ##'     created; defaults to \code{"geom"}).
 ##' @param df.mode Logical; Whether to write the (Spatial) data frame in data frame mode 
 ##'     (preserving data frame column attributes and row.names).

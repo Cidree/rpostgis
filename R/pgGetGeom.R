@@ -17,7 +17,7 @@
 ##' @param name A character string specifying a PostgreSQL schema and
 ##'     table/view name holding the geometry (e.g., \code{name =
 ##'     c("schema","table")})
-##' @param geom The name of the geometry column. (Default = \code{"geom"})
+##' @param geom The name of the geometry/(geography) column. (Default = \code{"geom"})
 ##' @param gid Name of the column in \code{name} holding the IDs. Should be
 ##'     unique if additional columns of unique data are being
 ##'     appended. \code{gid=NULL} (default) automatically creates a

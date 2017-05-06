@@ -14,7 +14,7 @@ table/view name holding the geometry (e.g., \code{name =
 c("schema","table")})}
 
 \item{geom}{character, Name of the column in \code{name} holding the
-geometry or raster object (Default = \code{"geom"})}
+geometry/(geography) or raster object (Default = \code{"geom"})}
 }
 \value{
 SpatialPolygon

@@ -29,7 +29,7 @@ table.}
 \item{data.obj}{A \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}}
 
 \item{geom}{character string. For \code{Spatial*} datasets, the name of
-geometry column in the database table.  (existing or to be
+geometry/(geography) column in the database table.  (existing or to be
 created; defaults to \code{"geom"}).}
 
 \item{df.mode}{Logical; Whether to write the (Spatial) data frame in data frame mode 

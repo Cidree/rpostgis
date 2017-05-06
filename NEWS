@@ -4,8 +4,8 @@ rpostgis 1.2.1
 NEW FEATURES
 
 * Support for PostGIS `GEOGRAPHY` types added, in `pgGetGeom`, `pgListGeom`,
-`pgGetBoundary`, `pgInsert`. Geography column names can be given to the `geom` argument.
-With `pgInsert`, a `Spatial*` object can be uploaded as a geography using `geog = TRUE`.
+`pgGetBoundary`, `pgInsert`. With `pgInsert`, a `Spatial*` object can be 
+uploaded to PostGIS as a geography using `geog = TRUE`.
 
 BUG FIXES
 
