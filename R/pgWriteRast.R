@@ -114,7 +114,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
                     collapse = "."), " (rid, band_names, rast) VALUES (",n, 
                     ",",bnds,", ST_MakeEmptyRaster(", 
                     d[2], ",", d[1], ",", ex[1], ",", ex[3], ",", 
-                    res[1], ",", res[2], ", 0, 0,", srid, ") );")
+                    res[1], ",", res[2], ", 0, 0,", srid[1], ") );")
                 dbExecute(conn, tmp.query)
                 
                 # 3. new band
