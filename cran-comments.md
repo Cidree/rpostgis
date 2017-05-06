@@ -10,3 +10,9 @@ Note that due to the requirement of a PostgreSQL/PostGIS enabled database for fu
 
 ## Downstream dependencies
 Ran `devtools::revdep_check()` with no ERRORs, WARNINGS, or NOTEs.
+
+## Note
+
+There is an error on the CRAN Package Check Results for the R version 3.4.0 Patched (2017-05-05 r72662) on platform x86_64-apple-darwin15.6.0 (64-bit).
+
+This is due to an error with the package `RPostgreSQL` on that build, preventing it from being installed.
