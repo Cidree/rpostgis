@@ -9,8 +9,8 @@ uploaded to PostGIS as a geography using `geog = TRUE`.
 
 BUG FIXES
 
-* `pgInsert`: fixed bug causing failed uploads when multiple PostGIS 
-SRIDs found for a spatial object, now uses the first one returned
+* `pgInsert` and `pgWriteRast`: fixed bug causing failed uploads when multiple PostGIS 
+SRIDs found with `pgSRID` for a spatial object, now uses the first one returned
 
 * `pgGetGeom`: fixed bug when loading non-spatial columns with names 'x' or 'y' 
 for point geometries
