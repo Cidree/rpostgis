@@ -33,7 +33,7 @@
 ##'     50, 17, 12))
 ##' }
 
-pgGetRast <- function(conn, name, rast = "rast", band = 1, digits = 5,
+pgGetRast <- function(conn, name, rast = "rast", bands = 1, digits = 5,
     boundary = NULL) {
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
@@ -53,6 +53,14 @@ pgGetRast <- function(conn, name, rast = "rast", band = 1, digits = 5,
         stop(paste0("Table '", namechar, "' raster column '", rast,
             "' not found. Available raster columns: ", paste(tab.list,
                 collapse = ", ")))
+    }
+    ## Check bands
+    tmp.query <- paste0("SELECT st_numbands(", rast, ") FROM ",
+        nameque, " WHERE ", rast, " IS NOT NULL LIMIT 1;")
+    nbs <- 1:dbGetQuery(conn, tmp.query)[1,1]
+    if (!all(bands %in% nbs)) {
+      stop(paste0("Selected band(s) do not exist in PostGIS raster: choose bands numbers between ",
+                  min(nbs) , " and " , max(nbs), "."))
     }
     ## Retrieve the SRID
     tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", rast, ")) FROM ",
@@ -74,53 +82,104 @@ pgGetRast <- function(conn, name, rast = "rast", band = 1, digits = 5,
     if (is.na(p4s)) {
       warning("Table SRID not found. Projection will be undefined (NA)")
     }
-    ## res calc
-    tmp.query <- paste0("SELECT DISTINCT st_scaleX(", rast, ") x, st_scaleY(", rast, ") y from ",
-                          nameque, " WHERE ", rast, " IS NOT NULL;")
-    dig <- dbGetQuery(conn, tmp.query)
-    if (length(dig$x) > 1) {
-      if (!(round(max(dig$x),digits) == round(min(dig$x),digits)) | !round(max(dig$y),digits) == round(min(dig$y),digits)) {
-        stop("X and/or Y cell sizes are irregular at specified precision (",digits,"). Cannot import raster (try a lower 'digits' value).")
-      } else {
-        res <- c(abs(max(dig$x)),abs(max(dig$y)))
-      }
-    } else {
-      res <-c(abs(dig$x),abs(dig$y))
-    }
+    
+    # get alignment
+    tmp.query <- paste0("select min(st_upperleftx(",rast,")) ux, max(st_upperlefty(",rast,")) uy FROM ",
+          nameque,";")
+    aligner <- dbGetQuery(conn, tmp.query)
+    
     # get rast
     if (is.null(boundary)) {
-        trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) AS x, ST_Y(ST_Centroid((gv).geom)) AS y,\n  (gv).val FROM (SELECT ST_PixelAsPolygons(",
-            rast, ",",band,", FALSE) AS gv FROM ", nameque, ") a;")))
+        
+        for (b in bands) {
+          info <- dbGetQuery(conn, paste0("select 
+              st_xmax(st_envelope(rast)) as xmx,
+              st_xmin(st_envelope(rast)) as xmn,
+              st_ymax(st_envelope(rast)) as ymx,
+              st_ymin(st_envelope(rast)) as ymn,
+              st_width(rast) as cols,
+              st_height(rast) as rows
+              from
+              (select st_union(st_snaptogrid(", rast,",",aligner[1,1],",",aligner[1,2],"),",b,") rast from ",nameque,") as a;"))
+  
+          vals <- dbGetQuery(conn,paste0("select
+            unnest(st_dumpvalues(rast, 1)) as vals 
+            from
+            (select st_union(st_snaptogrid(", rast,",",aligner[1,1],",",aligner[1,2],"),",b,") rast from ",nameque,") as a;"))$vals
+          
+          rout <- raster::raster(nrows = info$rows, ncols = info$cols, 
+            xmn = info$xmn, xmx = info$xmx, ymn = info$ymn, ymx = info$ymx,
+            crs = sp::CRS(p4s), val = vals)
+          
+          if(length(bands) > 1) {
+            if (b == bands[1]) {
+              rb <- raster::brick(rout)
+            } else {
+              rb[[raster::nlayers(rb)+1]] <- rout
+            }
+          }
+        }
+        
     } else {
         if (typeof(boundary) != "double") {
             boundary <- c(boundary@bbox[2, 2], boundary@bbox[2,
                 1], boundary@bbox[1, 2], boundary@bbox[1, 1])
         }
-        trast <- suppressWarnings(dbGetQuery(conn, paste0("SELECT ST_X(ST_Centroid((gv).geom)) AS x, ST_Y(ST_Centroid((gv).geom)) AS y,\n  (gv).val FROM (SELECT ST_PixelAsPolygons(ST_Clip(",
-            rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
-            " ", boundary[1], ",", boundary[4], " ", boundary[2],
-            ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
-            " ", boundary[1], ",", boundary[4], " ", boundary[1],
-            "))'),", srid, ")),",band,", FALSE) AS gv FROM ", nameque, "\n  WHERE ST_Intersects(",
-            rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
-            " ", boundary[1], ",", boundary[4], " ", boundary[2],
-            ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
-            " ", boundary[1], ",", boundary[4], " ", boundary[1],
-            "))'),", srid, "))) a;")))
+      
+        for (b in bands) {
+          info <- dbGetQuery(conn, paste0("select 
+              st_xmax(st_envelope(rast)) as xmx,
+              st_xmin(st_envelope(rast)) as xmn,
+              st_ymax(st_envelope(rast)) as ymx,
+              st_ymin(st_envelope(rast)) as ymn,
+              st_width(rast) as cols,
+              st_height(rast) as rows
+              from
+              (select st_union(st_snaptogrid(", rast,",",aligner[1,1],",",aligner[1,2],"),",b,") rast from ",nameque, "\n
+              WHERE ST_Intersects(",
+              rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+              " ", boundary[1], ",", boundary[4], " ", boundary[2],
+              ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
+              " ", boundary[1], ",", boundary[4], " ", boundary[1],
+              "))'),", srid, "))) as a;"))
+  
+          vals <- dbGetQuery(conn,paste0("select
+            unnest(st_dumpvalues(rast, 1)) as vals 
+            from
+            (select st_union(st_snaptogrid(", rast,",",aligner[1,1],",",aligner[1,2],"),",b,") rast from ",nameque, "\n
+              WHERE ST_Intersects(",
+              rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+              " ", boundary[1], ",", boundary[4], " ", boundary[2],
+              ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
+              " ", boundary[1], ",", boundary[4], " ", boundary[1],
+              "))'),", srid, "))) as a;"))$vals  
+          
+          rout <- raster::raster(nrows = info$rows, ncols = info$cols, 
+            xmn = info$xmn, xmx = info$xmx, ymn = info$ymn, ymx = info$ymx,
+            crs = sp::CRS(p4s), val = vals)
+          
+          if(length(bands) > 1) {
+              if (b == bands[1]) {
+                rb<-raster::brick(rout)
+              } else {
+                rb <- rb[[raster::nlayers(rb)+1]]
+              }
+          }
+        }
     }
-    rout<-raster::rasterFromXYZ(trast, res = res, crs = sp::CRS(p4s), digits = digits)
     
-    # set NA value
-    ndval<-dbGetQuery(conn, paste0("SELECT st_bandnodatavalue(",
-                                   rast,",",band,") as nd from ",nameque,";"))$nd[1]
-    rout[rout==ndval]<-NA
+    if(length(bands) > 1) {rout <- rb}
     
-    # set layer name
+    # set layer names
     if("band_names" %in% dbTableInfo(conn,name)$column_name) {
       try({
-      lnm<-dbGetQuery(conn, paste0("SELECT DISTINCT band_names[",band,
-                                   "][1] as nm FROM ",nameque,";"))
-      names(rout)<-lnm$nm
+        ct<-1
+        for (b in bands) {
+          lnm<-dbGetQuery(conn, paste0("SELECT DISTINCT band_names[",b,
+                                       "][1] as nm FROM ",nameque,";"))
+          names(rout)[ct]<-lnm$nm
+          ct<-ct+1
+        }
       })
     }
     return(rout)

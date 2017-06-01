@@ -113,6 +113,9 @@ tryCatch({
         pgWriteRast(conn, c("rpostgis", "clc"), raster = rast, 
             overwrite = TRUE)
         
+        rast2 <- pgGetRast(conn, c("rpostgis", "clc"), bands = c(1))
+        all.equal(rast,rast2)
+        
         # write rast stack/brick
         ls <- list.files("N:/Species_Distribution_Modelling/Source_File_Climate_data/Future_climate/for_LF_UW_comparison/UW/a2/ukmo/", 
             full.names = TRUE)
@@ -125,8 +128,9 @@ tryCatch({
         system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, 
             overwrite = TRUE))
         
-        all.equal(rast[[5]], pgGetRast(conn, c("rpostgis", "uw"), 
-            band = 5))
+        rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(1:24))
+
+        all.equal(rast,rast2)
         
         # drop table
         dbDrop(conn, new_table)
@@ -236,7 +240,7 @@ tryCatch({
         rm(alb, d, d2, meuse, bnd, conn, conn2, cred, crsf, roe_gps_data, 
             roe_vector_geom, roe_raster, drv, ex_table, lin, ls, 
             new_table, p1, p2, poly, pts, pts.sponly, r, rast, 
-            rastclp, matview, df)
+            rastclp, matview, df, rast2)
     }))
     print("ALL GOOD!!!")
 }, error = function(x) {

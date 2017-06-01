@@ -113,8 +113,8 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
                 tmp.query <- paste0("INSERT INTO ", paste(nameq, 
                     collapse = "."), " (rid, band_names, rast) VALUES (",n, 
                     ",",bnds,", ST_MakeEmptyRaster(", 
-                    d[2], ",", d[1], ",", ex[1], ",", ex[3], ",", 
-                    res[1], ",", res[2], ", 0, 0,", srid[1], ") );")
+                    d[2], ",", d[1], ",", ex[1], ",", ex[4], ",", 
+                    res[1], ",", -res[2], ", 0, 0,", srid[1], ") );")
                 dbExecute(conn, tmp.query)
                 
                 # 3. new band
@@ -129,9 +129,9 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
               
               mr <- raster::as.matrix(r)
               mr[is.na(mr)] <- ndval
-              r2 <- paste(rev(apply(mr, 1, FUN = function(x) {
+              r2 <- paste(apply(mr, 1, FUN = function(x) {
                   paste0("[", paste(x, collapse = ","), "]")
-              })), collapse = ",")
+              }), collapse = ",")
               
               tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
                   " SET rast = ST_SetValues(rast,",b,", 1, 1, ARRAY[", 
