@@ -64,6 +64,8 @@ pgListGeom <- function(conn, display = TRUE, exec = TRUE, geog = FALSE) {
 # pgListRast
 
 ##' @rdname pgListGeom
+##' @export
+
 pgListRast <- function(conn, display = TRUE, exec = TRUE) {
     dbConnCheck(conn)
     ## Check if PostGIS is enabled
