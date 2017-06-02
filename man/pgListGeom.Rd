@@ -2,9 +2,12 @@
 % Please edit documentation in R/pgListGeom.R
 \name{pgListGeom}
 \alias{pgListGeom}
-\title{List geometries.}
+\alias{pgListRast}
+\title{List geometries/rasters}
 \usage{
 pgListGeom(conn, display = TRUE, exec = TRUE, geog = FALSE)
+
+pgListRast(conn, display = TRUE, exec = TRUE)
 }
 \arguments{
 \item{conn}{A PostgreSQL database connection.}
@@ -15,19 +18,21 @@ pgListGeom(conn, display = TRUE, exec = TRUE, geog = FALSE)
 \item{exec}{Logical. Whether to execute the query (defaults to
 \code{TRUE}).}
 
-\item{geog}{Logical. Whether to include PostGIS geography-type 
+\item{geog}{Logical. For pgListGeom, whether to include PostGIS geography-type 
 columns stored in the database}
 }
 \value{
 If \code{exec = TRUE}, a data frame with schema, table,
-    geometry/(geography) column, and geometry/(geography) type.
+    geometry/(geography) or raster (for pgListRast) column, and geometry/(geography) type.
 }
 \description{
-List all geometry/(geography) objects available in a PostGIS database.
+List all geometry/(geography) or raster columns available in a PostGIS database.
 }
 \examples{
 \dontrun{
 pgListGeom(conn)
+
+pgListRast(conn)
 }
 }
 \author{

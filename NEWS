@@ -1,3 +1,29 @@
+rpostgis 1.2.1-1
+==============
+
+NEW FUNCTIONS
+
+* `pgListRast` to list all raster columns in a PostGIS database
+
+UPDATES
+
+* `pgGetRast`: re-written for faster reading of rasters from the database. Multi-band
+raster import is now supported (`band` argument changed to `bands`, and can be given a vector of integers).
+Default is still to import the first band (1) of the raster. Multi-band rasters 
+imported as `RasterBrick`-class objects. When raster blocks have imperfect alignment,
+`ST_SnapToGrid` is applied to register the raster according to the upper left pixel
+of the full raster dataset.
+
+BUG FIXES
+
+* `pgWriteRast`: fixed bug affecting imported raster's metadata regarding the
+upper left pixel location (returned by PostGIS function `ST_UpperLeftX`/`ST_UpperLeftY(rast)`).
+Previously, `pgWriteRast` was erroneously applying the lower left pixel location
+for this value. This did not affect the actual data of the raster, or their usage within PostGIS,
+however it could have affected export of this raster to external files,
+or viewing in a GIS.
+
+
 rpostgis 1.2.1
 ==============
 

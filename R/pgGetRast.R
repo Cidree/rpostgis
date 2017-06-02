@@ -9,12 +9,8 @@
 ##'     table/view name holding the geometry (e.g., \code{name =
 ##'     c("schema","table")})
 ##' @param rast Name of the column in \code{name} holding the raster object
-##' @param band Index number for the band to retrieve (defaults to 1)
-##' @param digits numeric (default = 5), precision for detecting whether cells are
-##'     on a regular grid (a low number of digits is a low precision).
-##'     Unequal cell lengths (to this precision) in either X or Y dimensions will
-##'     result in an error. From \code{\link[raster]{rasterFromXYZ}} 
-##'     function (\code{raster} package).
+##' @param bands Index number(s) for the band(s) to retrieve (defaults to 1).
+##' The special case (\code{bands = TRUE}) returns all bands in the raster.
 ##' @param boundary \code{sp} object or numeric. A Spatial* object,
 ##'     whose bounding box will be used to select the part of the
 ##'     raster to import. Alternatively, four numbers
@@ -22,7 +18,7 @@
 ##'     projection-specific limits with which to clip the raster. \code{boundary = NULL}
 ##'     (default) will return the full raster.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
-##' @importFrom raster rasterFromXYZ
+##' @importFrom raster raster brick nlayers extent crop
 ##' @importFrom sp CRS
 ##' @export
 ##' @return RasterLayer
@@ -33,7 +29,7 @@
 ##'     50, 17, 12))
 ##' }
 
-pgGetRast <- function(conn, name, rast = "rast", bands = 1, digits = 5,
+pgGetRast <- function(conn, name, rast = "rast", bands = 1,
     boundary = NULL) {
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
@@ -58,7 +54,9 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1, digits = 5,
     tmp.query <- paste0("SELECT st_numbands(", rast, ") FROM ",
         nameque, " WHERE ", rast, " IS NOT NULL LIMIT 1;")
     nbs <- 1:dbGetQuery(conn, tmp.query)[1,1]
-    if (!all(bands %in% nbs)) {
+    if (is.logical(bands) && bands) {
+      bands <- nbs
+    } else if (!all(bands %in% nbs)) {
       stop(paste0("Selected band(s) do not exist in PostGIS raster: choose bands numbers between ",
                   min(nbs) , " and " , max(nbs), "."))
     }
@@ -83,10 +81,20 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1, digits = 5,
       warning("Table SRID not found. Projection will be undefined (NA)")
     }
     
-    # get alignment
-    tmp.query <- paste0("select min(st_upperleftx(",rast,")) ux, max(st_upperlefty(",rast,")) uy FROM ",
-          nameque,";")
-    aligner <- dbGetQuery(conn, tmp.query)
+    # check alignment of raster
+    tmp.query <- paste0("select st_samealignment(",rast,") from ",nameque,";")
+    # needs postgis version 2.1+, so just try
+    al <- FALSE
+    try(al <- dbGetQuery(conn, tmp.query)[1,1])
+    if (!al) {
+      # get alignment from upper left pixel of all raster tiles
+      tmp.query <- paste0("select min(st_upperleftx(",rast,")) ux, max(st_upperlefty(",rast,")) uy FROM ",
+            nameque,";")
+      aligner <- dbGetQuery(conn, tmp.query)
+      aq <- c("ST_SnapToGrid(", paste0(aligner[1,1],","), paste0(aligner[1,2],"),"))
+    } else {
+      aq <- NULL
+    }
     
     # get rast
     if (is.null(boundary)) {
@@ -100,12 +108,12 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1, digits = 5,
               st_width(rast) as cols,
               st_height(rast) as rows
               from
-              (select st_union(st_snaptogrid(", rast,",",aligner[1,1],",",aligner[1,2],"),",b,") rast from ",nameque,") as a;"))
+              (select st_union(",aq[1],rast,",",aq[2],aq[3],b,") rast from ",nameque,") as a;"))
   
           vals <- dbGetQuery(conn,paste0("select
             unnest(st_dumpvalues(rast, 1)) as vals 
             from
-            (select st_union(st_snaptogrid(", rast,",",aligner[1,1],",",aligner[1,2],"),",b,") rast from ",nameque,") as a;"))$vals
+            (select st_union(",aq[1],rast,",",aq[2],aq[3],b,") rast from ",nameque,") as a;"))$vals
           
           rout <- raster::raster(nrows = info$rows, ncols = info$cols, 
             xmn = info$xmn, xmx = info$xmx, ymn = info$ymn, ymx = info$ymx,
@@ -125,6 +133,9 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1, digits = 5,
             boundary <- c(boundary@bbox[2, 2], boundary@bbox[2,
                 1], boundary@bbox[1, 2], boundary@bbox[1, 1])
         }
+        
+        extclip <- raster::extent(boundary[4],boundary[3],
+                                       boundary[2],boundary[1])
       
         for (b in bands) {
           info <- dbGetQuery(conn, paste0("select 
@@ -135,18 +146,21 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1, digits = 5,
               st_width(rast) as cols,
               st_height(rast) as rows
               from
-              (select st_union(st_snaptogrid(", rast,",",aligner[1,1],",",aligner[1,2],"),",b,") rast from ",nameque, "\n
+              (select st_union(",aq[1],rast,",",aq[2],aq[3],b,") rast from ",nameque, "\n
               WHERE ST_Intersects(",
               rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
               " ", boundary[1], ",", boundary[4], " ", boundary[2],
               ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
               " ", boundary[1], ",", boundary[4], " ", boundary[1],
               "))'),", srid, "))) as a;"))
+          if (is.na(info$cols) & is.na(info$rows)) {
+            stop("No data found within geographic subset defined by 'boundary'.")
+          }
   
           vals <- dbGetQuery(conn,paste0("select
             unnest(st_dumpvalues(rast, 1)) as vals 
             from
-            (select st_union(st_snaptogrid(", rast,",",aligner[1,1],",",aligner[1,2],"),",b,") rast from ",nameque, "\n
+            (select st_union(",aq[1],rast,",",aq[2],aq[3],b,") rast from ",nameque, "\n
               WHERE ST_Intersects(",
               rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
               " ", boundary[1], ",", boundary[4], " ", boundary[2],
@@ -162,7 +176,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1, digits = 5,
               if (b == bands[1]) {
                 rb<-raster::brick(rout)
               } else {
-                rb <- rb[[raster::nlayers(rb)+1]]
+                rb[[raster::nlayers(rb)+1]] <- rout
               }
           }
         }
@@ -182,5 +196,11 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1, digits = 5,
         }
       })
     }
+    
+    # precise cropping
+    if (!is.null(boundary)) {
+      rout <- raster::crop(rout,extclip)
+    }
+    
     return(rout)
 }

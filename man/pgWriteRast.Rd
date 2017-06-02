@@ -25,7 +25,7 @@ PostGIS pixel types (see \url{http://postgis.net/docs/RT_ST_BandPixelType.html})
 to leave \code{TRUE} unless applying constraints manually (see
 \url{http://postgis.net/docs/RT_AddRasterConstraints.html}).
 Note that constraint notices may print to the console,
- depending on the PostgreSQL server settings.}
+depending on the PostgreSQL server settings.}
 
 \item{overwrite}{Whether to overwrite the existing table (\code{name}).}
 }

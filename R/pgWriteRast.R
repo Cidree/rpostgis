@@ -21,7 +21,7 @@
 ##'     to leave \code{TRUE} unless applying constraints manually (see
 ##'     \url{http://postgis.net/docs/RT_AddRasterConstraints.html}).
 ##'     Note that constraint notices may print to the console,
-##'      depending on the PostgreSQL server settings.
+##'     depending on the PostgreSQL server settings.
 ##' @param overwrite Whether to overwrite the existing table (\code{name}).
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @importFrom raster res blockSize extent t as.matrix values

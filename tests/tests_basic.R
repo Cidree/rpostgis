@@ -103,10 +103,13 @@ tryCatch({
         
         pgListGeom(conn)
         
-        r <- raster(nrows = 180, ncols = 360, xmn = -180, xmx = 180, 
+        r <- raster(nrows = 18, ncols = 36, xmn = -180, xmx = 180, 
             ymn = -90, ymx = 90, vals = 1)
         pgWriteRast(conn, c("rpostgis", "test_rast"), raster = r, 
             bit.depth = "2BUI", overwrite = TRUE)
+        rast2 <- pgGetRast(conn,  c("rpostgis", "test_rast"))
+        
+        all.equal(r, rast2)
         
         data(roe_raster)
         rast <- roe_raster$corine06
@@ -114,6 +117,13 @@ tryCatch({
             overwrite = TRUE)
         
         rast2 <- pgGetRast(conn, c("rpostgis", "clc"), bands = c(1))
+        all.equal(rast,rast2)
+        
+        rast <- roe_raster$srtm_dem
+        pgWriteRast(conn, c("rpostgis", "srtm"), raster = rast, 
+            overwrite = TRUE)
+        
+        rast2 <- pgGetRast(conn, c("rpostgis", "srtm"), bands = c(1))
         all.equal(rast,rast2)
         
         # write rast stack/brick
@@ -128,10 +138,14 @@ tryCatch({
         system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, 
             overwrite = TRUE))
         
-        rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(1:24))
-
+        rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(12:15), boundary = c(30, -5, -80, -95))
+        rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = TRUE)
+        
         all.equal(rast,rast2)
         
+        # List rasters
+        pgListRast(conn)
+
         # drop table
         dbDrop(conn, new_table)
         
