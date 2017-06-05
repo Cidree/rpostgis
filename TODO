@@ -20,13 +20,11 @@
 
 * create internal function to handle data frame mode process (for use in dbWriteDataFrame, and rpostgisLT infolocs writing).
 
-* update pgGetRast() methods
-
 6/2/2017
 
-* claues for pgGetBoundary
+* clauses for pgGetBoundary
 
-* 'proj' argument in getting functions to return data in different projection
+* 'proj' argument in GET functions to return data in different projection
 
 KNOWN ISSUES
 

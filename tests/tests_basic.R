@@ -149,8 +149,12 @@ tryCatch({
         # drop table
         dbDrop(conn, new_table)
         
-        # send data to database, no geom
-        pgInsert(conn, new_table, pts@data)
+        # send data to database, no geom, with row.names
+        dum.dat <- pts@data
+        row.names(dum.dat) <- sample(row.names(dum.dat), size = length(row.names(dum.dat)), replace = FALSE)
+        pgInsert(conn, new_table, dum.dat, row.names = TRUE, overwrite = TRUE)
+        all.equal(dum.dat, dbReadDataFrame(conn, new_table))
+        rm(dum.dat)
         
         # df.geom test
         suppressWarnings(df<-dbReadTable(conn, ex_table))

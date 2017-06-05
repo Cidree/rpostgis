@@ -180,7 +180,14 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
     if (!dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
         message("R data frame definitions table not found. Using standard import...")
         if (is.null(df)) {
-            return(dbReadTable(conn, name))
+            df <- dbReadTable(conn, name)
+            if (".R_rownames" %in% colnames(df)) {
+             try({
+               row.names(df) <- df$.R_rownames
+               df$.R_rownames <- NULL
+              })
+            }
+            return(df)
         } else {
             return(df)
         }
