@@ -19,8 +19,7 @@
 ##'     c("schema","table")})
 ##' @param geom The name of the geometry/(geography) column. (Default = \code{"geom"})
 ##' @param gid Name of the column in \code{name} holding the IDs. Should be
-##'     unique if additional columns of unique data are being
-##'     appended. \code{gid=NULL} (default) automatically creates a
+##'     unique for each record to return. \code{gid=NULL} (default) automatically creates a
 ##'     new unique ID for each row in the \code{sp} object.
 ##' @param other.cols Names of specific columns in the table to
 ##'     retrieve, in a character vector (e.g. \code{other.cols=c("col1","col2")}.)
@@ -236,9 +235,11 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         if (!is.null(other.cols)) {
             cols <- colnames(dbData)[4:length(colnames(dbData))]
             cols <- cols[!(cols %in% c(geom))]
+            
+            dfr <- dbData[,4:length(colnames(dbData))][cols]
             # column definitions
-            suppressMessages(
-              dfr<-dbReadDataFrame(conn, name, df = dbData[,4:length(colnames(dbData))][cols])
+            if (gid == "\".R_rownames\"") suppressMessages(
+              dfr<-dbReadDataFrame(conn, name, df = dfr)
             )
             sp <- sp::SpatialPointsDataFrame(sp, dfr,
                 match.ID = TRUE)
@@ -264,9 +265,10 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         if (!is.null(other.cols)) {
             cols <- colnames(dbData)[3:length(colnames(dbData))]
             cols <- cols[!(cols %in% c(geom))]
+            dfr <- dbData[,3:length(colnames(dbData))][cols]
             # column definitions
-            suppressMessages(
-              dfr<-dbReadDataFrame(conn, name, df = dbData[,3:length(colnames(dbData))][cols])
+            if (gid == "\".R_rownames\"") suppressMessages(
+              dfr<-dbReadDataFrame(conn, name, df = dfr)
             )
             sp <- sp::SpatialMultiPointsDataFrame(tt, dfr,
                 proj4string = proj4)
@@ -373,8 +375,9 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
         cols <- colnames(dfTemp)[3:length(colnames(dfTemp))]
         cols <- cols[!(cols %in% c(geom))]
         # column definitions
-        suppressMessages(
-            dfr<-dbReadDataFrame(conn, name, df = dfTemp[,3:length(colnames(dfTemp))][cols])
+        dfr <- dfTemp[,3:length(colnames(dfTemp))][cols]
+        if (gid == "\".R_rownames\"") suppressMessages(
+            dfr<-dbReadDataFrame(conn, name, df = dfr)
         )
         
         spdf <- sp::SpatialLinesDataFrame(Sline, dfr)
@@ -476,9 +479,10 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     } else {
         cols <- colnames(dfTemp)[3:length(colnames(dfTemp))]
         cols <- cols[!(cols %in% c(geom))]
+        dfr <- dfTemp[,3:length(colnames(dfTemp))][cols]
         # column definitions
-        suppressMessages(
-            dfr<-dbReadDataFrame(conn, name, df = dfTemp[,3:length(colnames(dfTemp))][cols])
+        if (gid == "\".R_rownames\"") suppressMessages(
+            dfr<-dbReadDataFrame(conn, name, df = dfr)
         )
         spdf <- sp::SpatialPolygonsDataFrame(Spol, dfr)
         return(spdf)

@@ -219,20 +219,26 @@ tryCatch({
         data("roe_vector_geom")
         
         p1 <- roe_vector_geom$meteo_stations
+        row.names(p1) <- 7:2 # mess with row.names
         pgInsert(conn, c("rpostgis", "pts"), data.obj = p1, df.mode = TRUE, 
             overwrite = TRUE)
+        p2 <- pgGetGeom(conn, c("rpostgis", "pts"), gid = "station_id") # works but ignores df.mode
         p2 <- pgGetGeom(conn, c("rpostgis", "pts"))
         all.equal(p1@data, p2@data)
         
         p1 <- roe_vector_geom$roads
+        p1$bla <- as.numeric(row.names(p1)) + 100
         pgInsert(conn, c("rpostgis", "lin"), data.obj = p1, df.mode = TRUE, 
             overwrite = TRUE)
+        p2 <- pgGetGeom(conn, c("rpostgis", "lin"), gid = "bla") # works but ignores df.mode
         p2 <- pgGetGeom(conn, c("rpostgis", "lin"))
         all.equal(p1@data, p2@data)
         
         p1 <- roe_vector_geom$adm_boundaries
+        p1$bla <- as.numeric(row.names(p1)) + 100
         pgInsert(conn, c("rpostgis", "poly"), data.obj = p1, 
             df.mode = TRUE, overwrite = TRUE)
+        p2 <- pgGetGeom(conn, c("rpostgis", "poly"), gid = "bla") # works but ignores df.mode
         p2 <- pgGetGeom(conn, c("rpostgis", "poly"))  # ordering...
         all.equal(p1@data, p2@data)
         

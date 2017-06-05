@@ -17,8 +17,7 @@ c("schema","table")})}
 \item{geom}{The name of the geometry/(geography) column. (Default = \code{"geom"})}
 
 \item{gid}{Name of the column in \code{name} holding the IDs. Should be
-unique if additional columns of unique data are being
-appended. \code{gid=NULL} (default) automatically creates a
+unique for each record to return. \code{gid=NULL} (default) automatically creates a
 new unique ID for each row in the \code{sp} object.}
 
 \item{other.cols}{Names of specific columns in the table to

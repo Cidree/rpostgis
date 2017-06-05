@@ -182,10 +182,11 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
         if (is.null(df)) {
             df <- dbReadTable(conn, name)
             if (".R_rownames" %in% colnames(df)) {
-             try({
-               row.names(df) <- df$.R_rownames
-               df$.R_rownames <- NULL
-              })
+              # still read rownames if exist
+               try({
+                 row.names(df) <- df$.R_rownames
+                 df$.R_rownames <- NULL
+                })
             }
             return(df)
         } else {
@@ -203,7 +204,15 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
         if (length(defs) == 0) {
             message("R data frame definitions not found. Using standard import...")
             if (is.null(df)) {
-                return(dbReadTable(conn, name))
+                df <- dbReadTable(conn, name)
+                if (".R_rownames" %in% colnames(df)) {
+                  # still read rownames if exist
+                  try({
+                  row.names(df) <- df$.R_rownames
+                  df$.R_rownames <- NULL
+                  })
+                }
+                return(df)
             } else {
                 return(df)
             }
