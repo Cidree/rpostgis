@@ -190,6 +190,13 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
             }
             return(df)
         } else {
+            if (".R_rownames" %in% colnames(df)) {
+                  # still read rownames if exist
+                  try({
+                  row.names(df) <- df$.R_rownames
+                  df$.R_rownames <- NULL
+                  })
+                }
             return(df)
         }
     } else {
@@ -214,6 +221,13 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
                 }
                 return(df)
             } else {
+                if (".R_rownames" %in% colnames(df)) {
+                  # still read rownames if exist
+                  try({
+                  row.names(df) <- df$.R_rownames
+                  df$.R_rownames <- NULL
+                  })
+                }              
                 return(df)
             }
         }
