@@ -93,7 +93,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
         other.cols <- paste(DBI::dbQuoteIdentifier(conn, other.cols), 
             collapse = ",")
     } else {
-        if (other.cols) {
+        if (other.cols & (length(dbTableInfo(conn,name)$column_name) > 1)) {
             other.cols <- "*"
         } else {
             other.cols <- NULL
@@ -112,8 +112,9 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
         if (typ %in% c("ST_Point", "ST_MultiPoint")) {
             ret <- pgGetPts(conn, name, geom, gid, other.cols, 
                 clauses)
+            if (typ == "ST_MultiPoint") mp <- "Multi" else mp<-NULL
             message(paste0("Returning ", sub("...", "", typ), 
-                " types in SpatialPoints*-class."))
+                " types in Spatial",mp,"Points*-class."))
             return(ret)
         } else if (typ %in% c("ST_LineString", "ST_MultiLineString")) {
             ret <- pgGetLines(conn, name, geom, gid, other.cols, 
@@ -525,6 +526,7 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
         q <- paste0(prequery, query, post)
         dbExecute(conn, q)
         geo <- pgGetGeom(conn, name = name, ...)
+        
     })
     # rollback on failed/not saving view, else commit
     if (is.null(geo)) {

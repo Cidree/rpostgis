@@ -8,11 +8,20 @@ NEW FUNCTIONS
 UPDATES
 
 * `pgGetRast`: re-written for faster reading of rasters from the database. Multi-band
-raster import is now supported (`band` argument changed to `bands`, and can be given a vector of integers).
-Default is still to import the first band (1) of the raster. Multi-band rasters 
-imported as `RasterBrick`-class objects. When raster blocks have imperfect alignment,
+raster import is now supported (`band` argument changed to `bands`, and can be given a vector of integers,
+or TRUE to return all bands). Default is still to import the first band (1) of the raster. 
+Multi-band rasters imported as `RasterBrick`-class objects. When raster blocks have imperfect alignment,
 `ST_SnapToGrid` is applied to register the raster according to the upper left pixel
 of the full raster dataset.
+
+* `pgWriteRast`: now attempts to write a new SRID if one cannot be resolved 
+from the raster's proj4string.
+
+* all query-constructor functions (e.g. `dbDrop`) now return nothing 
+(previously returned TRUE) if `exec = FALSE`.
+
+* `pgGetGeom`: `other.cols = FALSE` now not necessary when reading only
+a geometry column (e.g., in query mode or from a one-column table).
 
 BUG FIXES
 

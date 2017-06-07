@@ -199,5 +199,5 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
         }
     }
     ## Return TRUE
-    return(TRUE)
+    if (exec) return(TRUE)
 }

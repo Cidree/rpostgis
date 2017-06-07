@@ -70,7 +70,7 @@ dbAddKey <- function(conn, name, colname, type = c("primary",
         dbSendQuery(conn, tmp.query)
     }
     ## Return TRUE
-    return(TRUE)
+    if(exec) return(TRUE)
 }
 
 ## dbAsDate
@@ -197,7 +197,7 @@ dbColumn <- function(conn, name, colname, action = c("add", "drop"),
         dbSendQuery(conn, tmp.query)
     }
     ## Return TRUE
-    return(TRUE)
+    if(exec) return(TRUE)
 }
 
 ## dbComment
@@ -257,8 +257,8 @@ dbComment <- function(conn, name, comment, type = c("table",
         dbConnCheck(conn)
         dbSendQuery(conn, tmp.query)
     }
-    ## Return nothing
-    return(TRUE)
+    ## Return true
+    if(exec) return(TRUE)
 }
 
 ## dbDrop
@@ -322,8 +322,8 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
         dbConnCheck(conn)
         dbSendQuery(conn, tmp.query)
     }
-    ## Return nothing
-    return(TRUE)
+    ## Return true
+    if(exec) return(TRUE)
 }
 
 ## dbIndex
@@ -402,8 +402,8 @@ dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
         dbConnCheck(conn)
         dbSendQuery(conn, tmp.query)
     }
-    ## Return TRUE
-    return(TRUE)
+    ## Return true
+    if(exec) return(TRUE)
 }
 
 ## dbSchema
@@ -460,8 +460,8 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
         ## Execute the query
         if (exec)
             dbSendQuery(conn, tmp.query)
-        ## Return nothing
-        return(TRUE)
+        ## Return true
+        if(exec) return(TRUE)
     }
 }
 
@@ -556,6 +556,6 @@ dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
         dbConnCheck(conn)
         dbSendQuery(conn, tmp.query)
     }
-    ## Return TRUE
-    return(TRUE)
+    ## Return true
+    if(exec) return(TRUE)
 }

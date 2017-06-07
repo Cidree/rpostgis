@@ -48,6 +48,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     }
     
     nameq <- dbTableNameFix(conn, name)
+    namef <- dbTableNameFix(conn, name, as.identifier = FALSE)
     
     if (overwrite) {
         dbDrop(conn, name, ifexists = TRUE)
@@ -94,21 +95,23 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
       
       # loop over blocks
       for (i in 1:tr$n) {
-          rr <- rb[tr$row[i]:(tr$row[i] + tr$nrows[i] - 1), , drop = FALSE]
+          suppressWarnings(rr <- rb[tr$row[i]:(tr$row[i] + tr$nrows[i] - 1), , drop = FALSE])
           
           for (l in 1:cr$n) {
-              r <- rr[, cr$row[l]:(cr$row[l] + cr$nrows[l] - 1), 
-                  drop = FALSE]
+              suppressWarnings(r <- rr[, cr$row[l]:(cr$row[l] + cr$nrows[l] - 1), 
+                  drop = FALSE])
               ex <- raster::extent(r)
               d <- dim(r)
-              
+
               # rid counter
               n <- n + 1
               
-              srid <- suppressMessages(pgSRID(conn, r@crs))
+              srid <- 0
+              try(srid <- suppressMessages(pgSRID(conn, r@crs, create.srid = TRUE)))
               
               # only ST_MakeEmptyRaster/ST_AddBand during first band loop
               if (b == 1) {
+                
                 # 2. make empty raster
                 tmp.query <- paste0("INSERT INTO ", paste(nameq, 
                     collapse = "."), " (rid, band_names, rast) VALUES (",n, 
@@ -152,7 +155,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     if (constraints) {
         # 5. add raster constraints
         tmp.query <- paste0("SELECT AddRasterConstraints(", dbQuoteString(conn, 
-            name[1]), "::name,", dbQuoteString(conn, name[2]), 
+            namef[1]), "::name,", dbQuoteString(conn, namef[2]), 
             "::name, 'rast'::name);")
         dbExecute(conn, tmp.query)
     }
