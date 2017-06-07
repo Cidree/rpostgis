@@ -32,6 +32,9 @@ for this value. This did not affect the actual data of the raster, or their usag
 however it could have affected export of this raster to external files,
 or viewing in a GIS.
 
+* `pgWriteRast`: fixed bug where constraints were not written for
+tables given without a schema name in `name`.
+
 
 rpostgis 1.2.1
 ==============
