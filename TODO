@@ -1,4 +1,5 @@
-
+* store proj4string for geometry data frame mode .R_df_defs (?)
+ 
 
 * pgIntersectPts (pg-functions.R) -> move to rpostgisLT(?)
 
@@ -13,8 +14,6 @@
 7/21/16
 
 * add st_isvalid check to pgGet* functions(?)
-
-* update pgGetRast.r to load rasters from PostGIS type
 
 5/3/17
 

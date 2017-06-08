@@ -33,7 +33,7 @@
 
 dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
     ## case of no schema provided
-      if (length(t.nm) == 1 && !is.null(conn)) {
+      if (length(t.nm) == 1 && !is.null(conn) && !inherits(conn, what = "AnsiConnection")) {
         schemalist<-dbGetQuery(conn,"select nspname as s from pg_catalog.pg_namespace;")$s
         user<-dbGetQuery(conn,"SELECT current_user as user;")$user
         schema<-dbGetQuery(conn,"SHOW search_path;")$search_path
