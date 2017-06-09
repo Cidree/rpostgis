@@ -224,7 +224,11 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         
         ###
         if(df.mode) {
-            dat<-dbWriteDataFrame(conn, in.tab, dat , only.defs = TRUE)
+            # add geom column with attribute proj4string
+            eval(parse(text = paste0("dat<-data.frame(dat,.rpostgis.geom.",geom," = 1)")))
+            eval(parse(text = paste0("dat$.rpostgis.geom.",geom," <- '",
+                                     as.character(data.obj@proj4string),"'")))
+            dat <-dbWriteDataFrame(conn, in.tab, dat , only.defs = TRUE)[,1:length(names(dat))-1] # dat.na not used further
           } else {
             # remove existing defs if table exists
             if (dbExistsTable(conn, ".R_df_defs", table.only = TRUE)) {

@@ -105,7 +105,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
     ## modular handling of different data type attributes (add new
     ## below)
 
-    ## 1. handle attribute (time zones)
+    ## handle attribute (time zones)
     attr2 <- lapply(d[1, ], function(x) {
         attr(x, "tzone")[1]
     })
@@ -122,15 +122,23 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
         eval(parse(text = paste0("attributes(d$", t, ")$tzone <- pgtz")))
     }
 
-    ## 2. handle attribute (factor levels)
+    ## handle attribute (factor levels)
     fact <- unlist(lapply(d[1, ], function(x) {
         paste0("/*/", paste(attr(x, "levels"), collapse = "/*/"),
             "/*/")
     }))
     fact <- gsub(",", "\\,", fact, fixed = TRUE)
     attr2[!fact == "/*//*/"] <- fact[!fact == "/*//*/"]
-
-    ## 3. #####
+    ## end factor
+    
+    ## handle spatial p4s (found using .rpostgis.geom. in column name, from pgInsert)
+    sp.index <- grep(".rpostgis.geom.",names(d))
+    if (length(sp.index) > 0) {
+      types[sp.index] <- "Spatial"
+      attr2[sp.index] <- paste0('"',d[,sp.index][1],'"') # double quote for array
+      names(d)[sp.index] <- gsub(".rpostgis.geom.","",names(d)[sp.index])
+    }
+    ## end spatial
 
     ## end modular handling of different data type attributes
 
@@ -200,14 +208,8 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
             return(df)
         }
     } else {
-        sql_query <- paste0("SELECT unnest(df_def[1:1]) as nms,
-                            unnest(df_def[2:2]) as defs,
-                            unnest(df_def[3:3]) as atts
-                            FROM ",
-            nameque[1], ".\".R_df_defs\" WHERE table_nm = ",
-            dbQuoteString(conn, name[2]), ";")
-        defs <- dbGetQuery(conn, sql_query)
-
+        defs <- dbGetDefs(conn, name)
+        
         if (length(defs) == 0) {
             message("R data frame definitions not found. Using standard import...")
             if (is.null(df)) {

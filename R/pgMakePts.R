@@ -63,7 +63,7 @@ pgMakePts <- function(conn, name, colname = "geom", x = "x",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec)
@@ -94,7 +94,7 @@ pgMakePts <- function(conn, name, colname = "geom", x = "x",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {
@@ -151,7 +151,7 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec)
@@ -187,7 +187,7 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {

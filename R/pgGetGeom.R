@@ -33,9 +33,11 @@
 ##' @param query character, a full SQL query including a geometry column. 
 ##'     For use with query mode only (see details).
 ##' @return sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
+##' @importFrom sp proj4string
 ##' @export
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' 
 ##' 
 ##' @examples
 ##' \dontrun{
@@ -93,7 +95,8 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
         other.cols <- paste(DBI::dbQuoteIdentifier(conn, other.cols), 
             collapse = ",")
     } else {
-        if (other.cols & (length(dbTableInfo(conn,name)$column_name) > 1)) {
+        if (other.cols & sum(!dbTableInfo(conn,
+                            name)$column_name %in% c(".R_rownames",".db_pkid")) > 1) {
             other.cols <- "*"
         } else {
             other.cols <- NULL
@@ -105,6 +108,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
                         ") as geo FROM ", nameque, " WHERE ", geomque, " IS NOT NULL ", 
                         clauses, ") a;")
     typ <- dbGetQuery(conn, tmp.query)$type
+
     # assign to correct function
     if (length(typ) == 0) {
         stop("No geometries found.")
@@ -115,19 +119,16 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
             if (typ == "ST_MultiPoint") mp <- "Multi" else mp<-NULL
             message(paste0("Returning ", sub("...", "", typ), 
                 " types in Spatial",mp,"Points*-class."))
-            return(ret)
         } else if (typ %in% c("ST_LineString", "ST_MultiLineString")) {
             ret <- pgGetLines(conn, name, geom, gid, other.cols, 
                 clauses)
             message(paste0("Returning ", sub("...", "", typ), 
                 " types in SpatialLines*-class."))
-            return(ret)
         } else if (typ %in% c("ST_Polygon", "ST_MultiPolygon")) {
             ret <- pgGetPolys(conn, name, geom, gid, other.cols, 
                 clauses)
             message(paste0("Returning ", sub("...", "", typ), 
                 " types in SpatialPolygons*-class."))
-            return(ret)
         } else {
             stop(paste0("Geometry type ", typ, " not supported."))
         }
@@ -136,6 +137,18 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
             collapse = ", "), "). Use
                   \"clauses\" to modify query to select only one geometry type."))
     }
+    
+    ## get df mode proj4string
+    defs <- dbGetDefs(conn, name)
+    if (length(defs) > 0 & geom %in% defs$nms) {
+      p4s <- defs$atts[defs$nms == geom]
+      p4s <- CRS(p4s)
+      sp::proj4string(ret) <- p4s
+      return(ret)
+    } else {
+      return(ret)
+    }
+    
 }
 
 ## pgGetPts

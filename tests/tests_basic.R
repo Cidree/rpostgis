@@ -204,6 +204,9 @@ tryCatch({
         pgInsert(conn, new_table, pts.sponly, df.mode = TRUE, 
             overwrite = TRUE)
         
+        pts.sponly2 <- pgGetGeom(conn, new_table)
+        all.equal(pts.sponly,pts.sponly2)
+        
         # pgMakePts
         pgInsert(conn, c("rpostgis", "meuse"), meuse)
         pgMakePts(conn, c("rpostgis", "meuse"), colname = "geom_make", 
@@ -224,7 +227,7 @@ tryCatch({
             overwrite = TRUE)
         p2 <- pgGetGeom(conn, c("rpostgis", "pts"), gid = "station_id") # works but ignores df.mode
         p2 <- pgGetGeom(conn, c("rpostgis", "pts"))
-        all.equal(p1@data, p2@data)
+        all.equal(p1, p2)
         
         p1 <- roe_vector_geom$roads
         p1$bla <- as.numeric(row.names(p1)) + 100
@@ -263,7 +266,7 @@ tryCatch({
         
         rm(alb, d, d2, meuse, bnd, conn, conn2, cred, crsf, roe_gps_data, 
             roe_vector_geom, roe_raster, drv, ex_table, lin, ls, 
-            new_table, p1, p2, poly, pts, pts.sponly, r, rast, 
+            new_table, p1, p2, poly, pts, pts.sponly, pts.sponly2, r, rast, 
             rastclp, matview, df, rast2)
     }))
     print("ALL GOOD!!!")

@@ -62,7 +62,7 @@ dbAddKey <- function(conn, name, colname, type = c("primary",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {
@@ -126,7 +126,7 @@ dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query and return TRUE
     if (exec) {
@@ -189,7 +189,7 @@ dbColumn <- function(conn, name, colname, action = c("add", "drop"),
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {
@@ -250,7 +250,7 @@ dbComment <- function(conn, name, comment, type = c("table",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {
@@ -315,7 +315,7 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {
@@ -395,7 +395,7 @@ dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {
@@ -455,7 +455,7 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
             message(paste0("Query ", ifelse(exec, "", "not "),
                 "executed:"))
             message(tmp.query)
-            message("--")
+            #message("--")
         }
         ## Execute the query
         if (exec)
@@ -549,7 +549,7 @@ dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {

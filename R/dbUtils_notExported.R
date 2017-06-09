@@ -164,6 +164,31 @@ dbConnCheck <- function(conn) {
 }
 
 
+## dbGetDefs
+##' Get definitions for data frame mode reading
+##' 
+##' @param conn A PostgreSQL connection
+##' @param name Table/view name string, length 1-2.
+##' 
+##' @keywords internal
+
+dbGetDefs <- function(conn, name) {
+    name <- dbTableNameFix(conn, name, as.identifier = FALSE)
+    if (dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
+      sql_query <- paste0("SELECT unnest(df_def[1:1]) as nms,
+                              unnest(df_def[2:2]) as defs,
+                              unnest(df_def[3:3]) as atts
+                              FROM ",
+              dbQuoteIdentifier(conn, name[1]), ".\".R_df_defs\" WHERE table_nm = ",
+              dbQuoteString(conn, name[2]), ";")
+      defs <- dbGetQuery(conn, sql_query)
+      return(defs)
+    } else {
+      return(data.frame())
+    }
+}
+
+
 ## pg* non-exported functions
 
 ## pgCheckGeom

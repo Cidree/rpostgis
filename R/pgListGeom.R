@@ -51,7 +51,7 @@ pgListGeom <- function(conn, display = TRUE, exec = TRUE, geog = FALSE) {
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query and return it if successful
     if (exec) {
@@ -89,7 +89,7 @@ pgListRast <- function(conn, display = TRUE, exec = TRUE) {
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query and return it if successful
     if (exec) {
