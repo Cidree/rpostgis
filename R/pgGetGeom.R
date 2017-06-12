@@ -12,6 +12,11 @@
 ##' a temporary view with name ".rpostgis_TEMPview" is used only
 ##' within the function execution. In this mode, the other arguments can be used 
 ##' normally to modify the Spatial* object returned from the query.
+##' 
+##' Definitions for tables written in "data frame mode" are automatically
+##' applied using this function, including proj4strings of the \code{Spatial*}-class
+##' object. Note that if the proj4string of the original dataset is not found to 
+##' be equivalent to the database proj4string (using \code{pgSRID}), it will not be applied.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
@@ -142,8 +147,15 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     defs <- dbGetDefs(conn, name)
     if (length(defs) > 0 & geom %in% defs$nms) {
       p4s <- defs$atts[defs$nms == geom]
-      p4s <- CRS(p4s)
-      sp::proj4string(ret) <- p4s
+      if (p4s != "NA") {
+        p4s <- CRS(p4s, doCheckCRSArgs = FALSE)
+      # change (exact) proj4string if equivalent to existing
+        suppressMessages({
+          if (pgSRID(conn, ret@proj4string) %in% pgSRID(conn, p4s)) {
+            sp::proj4string(ret) <- p4s
+          }
+        })
+      }
       return(ret)
     } else {
       return(ret)

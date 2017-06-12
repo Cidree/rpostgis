@@ -49,6 +49,11 @@ as a new view (\code{name}) if desired. If (\code{name}) is not specified,
 a temporary view with name ".rpostgis_TEMPview" is used only
 within the function execution. In this mode, the other arguments can be used 
 normally to modify the Spatial* object returned from the query.
+
+Definitions for tables written in "data frame mode" are automatically
+applied using this function, including proj4strings of the \code{Spatial*}-class
+object. Note that if the proj4string of the original dataset is not found to 
+be equivalent to the database proj4string (using \code{pgSRID}), it will not be applied.
 }
 \examples{
 \dontrun{

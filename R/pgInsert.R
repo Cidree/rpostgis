@@ -31,6 +31,12 @@
 ##' (default), the function will return \code{TRUE} for successful insert and
 ##' \code{FALSE} for failed inserts.
 ##' 
+##' Use this function with code{df.mode = TRUE} to save \code{Spatial*}-class 
+##' objects to the database in "data frame mode". Along with normal 
+##' \code{dbwriteDataFrame} operation, the proj4string of the spatial 
+##' data will also be saved, and re-attached to the data when using 
+##' \code{pgGetGeom} to re-import the data.
+##' 
 ##' pgi objects are a list containing four character strings: (1)
 ##' in.table, the table name which will be created or inserted
 ##' into (2) db.new.table, the SQL statement to create the new
@@ -304,7 +310,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
         ".", nameque[2], cols2, " VALUES ", values, up.query,";")
     try(quei <- dbExecute(conn, temp.query))
     if (!is.null(quei)) {
-        if (df.mode) {dbAddKey(conn, name, colname = ".db_pkid", type = "primary")}
+        if (df.mode) {suppressMessages(dbAddKey(conn, name, colname = ".db_pkid", type = "primary"))}
         dbExecute(conn, "COMMIT;")
         message(paste0("Data inserted into table ",nameque[1],".",nameque[2]))
         ## Return TRUE

@@ -28,6 +28,7 @@
 ##' (faster with large datasets), otherwise the \code{rgeos} function
 ##' \code{writeWKT} is used.
 ##'
+##'
 ##' @param data.obj A Spatial* or Spatial*DataFrame, or data frame for
 ##'     \code{pgInsertize}.
 ##' @param geom character string, the name of geometry column in the

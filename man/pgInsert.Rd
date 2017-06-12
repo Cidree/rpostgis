@@ -132,6 +132,12 @@ tables or databases). If \code{return.pgi = FALSE}
 (default), the function will return \code{TRUE} for successful insert and
 \code{FALSE} for failed inserts.
 
+Use this function with code{df.mode = TRUE} to save \code{Spatial*}-class 
+objects to the database in "data frame mode". Along with normal 
+\code{dbwriteDataFrame} operation, the proj4string of the spatial 
+data will also be saved, and re-attached to the data when using 
+\code{pgGetGeom} to re-import the data.
+
 pgi objects are a list containing four character strings: (1)
 in.table, the table name which will be created or inserted
 into (2) db.new.table, the SQL statement to create the new
