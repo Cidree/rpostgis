@@ -5,14 +5,14 @@
 \title{Check if geometry or geography column exists in a table,
 and return the column name for use in a query.}
 \usage{
-pgCheckGeom(conn, namechar, geom)
+pgCheckGeom(conn, name, geom)
 }
 \arguments{
 \item{conn}{A PostgreSQL connection}
 
-\item{namechar}{A table name formatted for use in a query}
-
 \item{geom}{a geometry or geography column name}
+
+\item{namechar}{A table name formatted for use in a query}
 }
 \description{
 Check if geometry or geography column exists in a table,

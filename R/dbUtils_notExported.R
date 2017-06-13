@@ -201,24 +201,26 @@ dbGetDefs <- function(conn, name) {
 ##' 
 ##' @keywords internal
 
-pgCheckGeom <- function(conn, namechar, geom) {
-    
+pgCheckGeom <- function(conn, name, geom) {
+  
+    namechar <- dbQuoteString(conn, 
+                  paste(dbTableNameFix(conn,name, as.identifier = FALSE), collapse = "."))
     ## Check table exists geom
     tmp.query <- paste0("SELECT f_geometry_column AS geo FROM geometry_columns\nWHERE 
-        (f_table_schema||'.'||f_table_name) = '", 
-        namechar, "';")
+        (f_table_schema||'.'||f_table_name) = ", 
+        namechar, ";")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     ## Check table exists geog
     tmp.query <- paste0("SELECT f_geography_column AS geo FROM geography_columns\nWHERE 
-        (f_table_schema||'.'||f_table_name) = '", 
-        namechar, "';")
+        (f_table_schema||'.'||f_table_name) = ", 
+        namechar, ";")
     tab.list.geog <- dbGetQuery(conn, tmp.query)$geo
     tab.list <- c(tab.list, tab.list.geog)
     
     if (is.null(tab.list)) {
-        stop(paste0("Table/view '", namechar, "' is not listed in geometry_columns or geography_columns."))
+        stop(paste0("Table/view ", namechar, " is not listed in geometry_columns or geography_columns."))
     } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", namechar, "' geometry/geography column not found. Available columns: ", 
+        stop(paste0("Table/view ", namechar, " geometry/geography column not found. Available columns: ", 
             paste(tab.list, collapse = ", ")))
     }
     ## prepare geom column
@@ -229,4 +231,30 @@ pgCheckGeom <- function(conn, namechar, geom) {
           geomque <- DBI::dbQuoteIdentifier(conn, geom)
         }
     return(geomque)
+}
+
+## pgGetSRID
+##' Get SRID(s) from a geometry/geography column in a table
+##' 
+##' @param conn A PostgreSQL connection
+##' @param name A schema/table name
+##' @param geom a geometry or geography column name
+##' 
+##' @keywords internal
+
+
+pgGetSRID <- function(conn, name, geom) {
+    
+    ## Check and prepare the schema.name
+    nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
+    ## prepare geom column
+    geomque <- pgCheckGeom(conn, name, geom)
+    
+    ## Retrieve the SRID
+    tmp.query <- paste0("SELECT DISTINCT a.s as st_srid FROM
+                        (SELECT ST_SRID(", geomque, ") as s FROM ",
+                        nameque, " WHERE ", geomque, " IS NOT NULL) a;")
+    srid <- dbGetQuery(conn, tmp.query)
+    
+    return(srid$st_srid)
 }

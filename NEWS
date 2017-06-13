@@ -1,4 +1,4 @@
-rpostgis 1.2.1-1
+rpostgis 1.3.0
 ==============
 
 NEW FUNCTIONS
@@ -6,6 +6,9 @@ NEW FUNCTIONS
 * `pgListRast` to list all raster columns in a PostGIS database
 
 UPDATES
+
+* `pgGetGeom`: now includes `boundary` parameter, to spatially subset
+GEOMETRY/GEOGRPAHY objects to return (same usage as in `pgGetRast`)
 
 * "Data frame mode" for Spatial* objects: now saves proj4string of Spatial* objects
 in data frame mode writing with `pgInsert`. It is then re-imported using `pgGetGeom`, if 
@@ -27,6 +30,8 @@ from the raster's proj4string.
 
 * `pgGetGeom`: `other.cols = FALSE` now not necessary when reading only
 a geometry column (e.g., in query mode or from a one-column table).
+
+* example data removed, now part of extension package `rpostgisLT`
 
 BUG FIXES
 

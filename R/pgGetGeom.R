@@ -37,6 +37,14 @@
 ##'     "ORDER BY ...", "LIMIT ..."); see below for examples.
 ##' @param query character, a full SQL query including a geometry column. 
 ##'     For use with query mode only (see details).
+##' @param boundary \code{sp} object or numeric. A Spatial* object,
+##'     whose bounding box will be used to select geometries
+##'     to import. Alternatively, four numbers
+##'     (e.g. \code{c([top], [bottom], [right], [left])}) indicating the
+##'     projection-specific limits with which to subset spatial data. \code{boundary = NULL}
+##'     (default) will not subset by spatial extent.
+##'     Note this is not a true 'clip'- all features intersecting the
+##'     bounding box with be returned un-modified.
 ##' @return sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
 ##' @importFrom sp proj4string
 ##' @export
@@ -69,7 +77,7 @@
 ##' }
 
 pgGetGeom <- function(conn, name, geom = "geom", gid = NULL, 
-    other.cols = TRUE, clauses = NULL, query = NULL) {
+    other.cols = TRUE, clauses = NULL, query = NULL, boundary = NULL) {
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
@@ -77,19 +85,35 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     if (!is.null(query)) {
       if (missing(name)) name <- NULL
       ret <- pgGetGeomQ(conn, query, name = name, geom = geom, gid = gid, 
-                        other.cols = other.cols, clauses = clauses)
+                        other.cols = other.cols, clauses = clauses, boundary = boundary)
       if (is.null(ret)) stop("Query retrieval failed.", call. = FALSE) else return(ret)
     }
     ## Check and prepare the schema.name
     nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
-    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
     
-    geomque <- pgCheckGeom(conn, namechar, geom)
+    geomque <- pgCheckGeom(conn, name, geom)
+    
+    if (!is.null(boundary)) {
+      ## get srid for boundary box
+      srid <- pgGetSRID(conn, name, geom)
+      if (typeof(boundary) != "double") {
+            boundary <- c(boundary@bbox[2, 2], boundary@bbox[2,
+                1], boundary@bbox[1, 2], boundary@bbox[1, 1])
+      }
+      b.clause <- paste0(" AND ST_Intersects(",
+              geomque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+              " ", boundary[1], ",", boundary[4], " ", boundary[2],
+              ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
+              " ", boundary[1], ",", boundary[4], " ", boundary[1],
+              "))'),", srid, "))")
+    } else {
+      b.clause <- NULL
+    }
     
     ## prepare clauses
-    if (!is.null(clauses)) {
-      clauses <- sub("^where", "AND", clauses, ignore.case = TRUE) 
+    if (!is.null(clauses) | !is.null(b.clause)) {
+      clauses <- paste(b.clause, sub("^where", "AND", clauses, ignore.case = TRUE),
+                       collapse = "\n") 
       } else {
         if (".db_pkid" %in% dbTableInfo(conn,name)$column_name) {
           clauses <- "ORDER BY \".db_pkid\""
@@ -198,9 +222,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## prepare geom column
-    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
-    geomque <- pgCheckGeom(conn, namechar, geom)
+    geomque <- pgCheckGeom(conn, name, geom)
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
         if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
@@ -336,9 +358,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     
     ## prepare geom column
-    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
-    geomque <- pgCheckGeom(conn, namechar, geom)
+    geomque <- pgCheckGeom(conn, name, geom)
     ## Check gid
     if (is.null(gid)) {
         if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
@@ -442,9 +462,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## prepare geom column
-    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
-    geomque <- pgCheckGeom(conn, namechar, geom)
+    geomque <- pgCheckGeom(conn, name, geom)
     ## Check gid
     if (is.null(gid)) {
         if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {

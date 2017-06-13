@@ -29,23 +29,22 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
       stop("PostGIS is not enabled on this database.")
     }
     ## Check and prepare the schema.name
-    name <- dbTableNameFix(conn,name)
-    nameque <- paste(name, collapse = ".")
-    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
+    nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
+    namechar <- dbQuoteString(conn, 
+                  paste(dbTableNameFix(conn,name, as.identifier = FALSE), collapse = "."))
     ## Check table exists
     tmp.query <- paste0("SELECT geo FROM\n  (SELECT (gc.f_table_schema||'.'||gc.f_table_name) AS tab,
                         gc.f_geography_column AS geo\n  FROM geography_columns AS gc\n   UNION\n
                         SELECT (gc.f_table_schema||'.'||gc.f_table_name) AS tab,
                         gc.f_geometry_column AS geo\n  FROM geometry_columns AS gc\n   UNION\n   
                         SELECT rc.r_table_schema||'.'||rc.r_table_name AS tab, rc.r_raster_column AS geo\n   
-                        FROM raster_columns as rc) a\n  WHERE tab  = '",
-                        namechar, "';")
+                        FROM raster_columns as rc) a\n  WHERE tab  = ",
+                        namechar, ";")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     if (is.null(tab.list)) {
-        stop(paste0("Table/view '", namechar, "' is not listed in geometry_columns or raster_columns."))
+        stop(paste0("Table/view ", namechar, " is not listed in geometry_columns or raster_columns."))
     } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view '", namechar, "' geometry/raster column not found.\nAvailable geometry/raster columns: ",
+        stop(paste0("Table/view ", namechar, " geometry/raster column not found.\nAvailable geometry/raster columns: ",
             paste(tab.list, collapse = ", ")))
     }
     geomque <- DBI::dbQuoteIdentifier(conn, geom)

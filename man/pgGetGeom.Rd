@@ -5,7 +5,7 @@
 \title{Load a PostGIS geometry from a PostgreSQL table/view/query into R.}
 \usage{
 pgGetGeom(conn, name, geom = "geom", gid = NULL, other.cols = TRUE,
-  clauses = NULL, query = NULL)
+  clauses = NULL, query = NULL, boundary = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -33,6 +33,15 @@ query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 
 \item{query}{character, a full SQL query including a geometry column. 
 For use with query mode only (see details).}
+
+\item{boundary}{\code{sp} object or numeric. A Spatial* object,
+whose bounding box will be used to select geometries
+to import. Alternatively, four numbers
+(e.g. \code{c([top], [bottom], [right], [left])}) indicating the
+projection-specific limits with which to subset spatial data. \code{boundary = NULL}
+(default) will not subset by spatial extent.
+Note this is not a true 'clip'- all features intersecting the
+bounding box with be returned un-modified.}
 }
 \value{
 sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)

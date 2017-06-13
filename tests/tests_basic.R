@@ -4,7 +4,7 @@ cwd <- getwd()
 
 tryCatch({
     setwd("~")
-    library(rpostgis)
+    library(rpostgisLT) # for roe deer example datasets
     library(RPostgreSQL)
     drv <- dbDriver("PostgreSQL")
     library(sp)
@@ -28,12 +28,12 @@ tryCatch({
         pgListGeom(conn,geog=TRUE)
         
         # retrieval functions
-        pts <- pgGetGeom(conn, ex_table, geom = "geom")
+        pts <- pgGetGeom(conn, ex_table, geom = "geom", boundary = c(30,25,-80,-100))
         pts2 <- pgGetGeom(conn, ex_table, geom = "geom", other.cols = c("gid","dummy","burst"),
                           clauses = "where id = 'continental' order by time limit 100")
-        poly <- pgGetGeom(conn2, c("env_data", "adm_boundaries"), 
-            clauses = "order by nome_com")
         lin <- pgGetGeom(conn2, c("env_data", "roads"))
+        poly <- pgGetGeom(conn2, c("env_data", "adm_boundaries"), 
+            clauses = "order by nome_com", boundary = lin)
         bnd <- pgGetBoundary(conn, ex_table)
         rast <- pgGetRast(conn2, c("env_data", "corine_land_cover"))
         rastclp <- pgGetRast(conn2, c("env_data", "srtm_dem"), 
@@ -53,7 +53,7 @@ tryCatch({
                               env_data.roads r,
                               env_data.adm_boundaries b
                             WHERE 
-                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento'")
+                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento'", boundary = lin[1,])
         poly <- pgGetGeom(conn2, name = c("env_data","test"))
         # test ROLLBACK (fail)
         try(pts2 <- pgGetGeom(conn2, query = "SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
@@ -64,6 +64,7 @@ tryCatch({
         # geography columns
         pgListGeom(conn, geog = TRUE)
         pgeog <- pgGetGeom(conn, c("example_data","steps"), geom = "step_geog", clauses = "limit 500")
+        pgeog2 <- pgGetGeom(conn, c("example_data", "continental"), geom = "geog", boundary = pts)
         pgeog2 <- pgGetBoundary(conn, c("example_data", "continental"), geom = "geog")
         rm(pgeog2)
         
