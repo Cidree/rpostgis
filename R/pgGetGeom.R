@@ -35,8 +35,6 @@
 ##' @param clauses character, additional SQL to append to modify select
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); see below for examples.
-##' @param query character, a full SQL query including a geometry column. 
-##'     For use with query mode only (see details).
 ##' @param boundary \code{sp} object or numeric. A Spatial* object,
 ##'     whose bounding box will be used to select geometries
 ##'     to import. Alternatively, four numbers
@@ -45,6 +43,8 @@
 ##'     (default) will not subset by spatial extent.
 ##'     Note this is not a true 'clip'- all features intersecting the
 ##'     bounding box with be returned un-modified.
+##' @param query character, a full SQL query including a geometry column. 
+##'     For use with query mode only (see details).
 ##' @return sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
 ##' @importFrom sp proj4string
 ##' @export
@@ -66,7 +66,7 @@
 ##' ## Return a Spatial*-only (no data frame), 
 ##' ## retaining id from table as rownames and with a subset of the data
 ##' pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
-##'     other.cols = FALSE, clauses  = "WHERE field = 'highway'")
+##'     other.cols = FALSE, clauses  = "WHERE road_type = 'highway'")
 ##' ## Query mode
 ##' pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom 
 ##'                            FROM
@@ -77,7 +77,7 @@
 ##' }
 
 pgGetGeom <- function(conn, name, geom = "geom", gid = NULL, 
-    other.cols = TRUE, clauses = NULL, query = NULL, boundary = NULL) {
+    other.cols = TRUE, clauses = NULL, boundary = NULL, query = NULL) {
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
@@ -125,7 +125,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
             collapse = ",")
     } else {
         if (other.cols & sum(!dbTableInfo(conn,
-                            name)$column_name %in% c(".R_rownames",".db_pkid")) > 1) {
+                            name)$column_name %in% c(".R_rownames",".db_pkid", gid, geom)) > 0) {
             other.cols <- "*"
         } else {
             other.cols <- NULL
@@ -549,9 +549,10 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
 pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     # set view name
     if (is.null(name)) {
-        name <- ".rpostgis_TEMPview"
+        name <- dbTableNameFix(conn, ".rpostgis_TEMPview", as.identifier = FALSE)
         keep <- FALSE
     } else {
+        name <- dbTableNameFix(conn, name , as.identifier = FALSE)
         keep <- TRUE
     }
     dbExecute(conn, "BEGIN;")
@@ -575,8 +576,11 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     if (is.null(geo)) {
         dbExecute(conn, "ROLLBACK;")
     } else {
-        if (!keep) 
-            dbExecute(conn, "ROLLBACK;") else dbExecute(conn, "COMMIT;")
+        if (!keep) { dbExecute(conn, "ROLLBACK;") } else {
+          dbExecute(conn, "COMMIT;")
+          message(paste0("Created view ",paste(dbQuoteIdentifier(conn, 
+            name), collapse = "."),"."))
+        }
     }
     return(geo)
 }
