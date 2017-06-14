@@ -30,7 +30,7 @@ tryCatch({
         # retrieval functions
         pts <- pgGetGeom(conn, ex_table, geom = "geom", boundary = c(30,25,-80,-100))
         pts2 <- pgGetGeom(conn, ex_table, geom = "geom", other.cols = c("gid","dummy","burst"),
-                          clauses = "where id = 'continental' order by time limit 100")
+                          clauses = "where id = 'continental' order by time limit 100;")
         lin <- pgGetGeom(conn2, c("env_data", "roads"))
         poly <- pgGetGeom(conn2, c("env_data", "adm_boundaries"), 
             clauses = "order by nome_com", boundary = lin)
@@ -65,8 +65,10 @@ tryCatch({
         pgListGeom(conn, geog = TRUE)
         pgeog <- pgGetGeom(conn, c("example_data","steps"), geom = "step_geog", clauses = "limit 500")
         pgeog2 <- pgGetGeom(conn, c("example_data", "continental"), geom = "geog", boundary = pts)
+        pgeog2 <- pgGetBoundary(conn, c("example_data", "continental"), geom = "geog", clauses = "where id = 'continental'")
         pgeog2 <- pgGetBoundary(conn, c("example_data", "continental"), geom = "geog")
-        rm(pgeog2)
+        pgeom <- pgGetBoundary(conn, c("example_data", "gps_data_animals"), geom = "ge'om", clauses = "where roads_dist < 100")
+        rm(pgeog2, pgeom)
         
         # get SRIDs
         pgSRID(conn, crs = bnd@proj4string)
@@ -270,6 +272,7 @@ tryCatch({
             roe_vector_geom, roe_raster, drv, ex_table, lin, ls, 
             new_table, p1, p2, poly, pts, pts.sponly, pts.sponly2, r, rast, 
             rastclp, matview, df, rast2)
+        detach("package:rpostgisLT", unload=TRUE)
     }))
     print("ALL GOOD!!!")
 }, error = function(x) {

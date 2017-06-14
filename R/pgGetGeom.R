@@ -94,7 +94,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     geomque <- pgCheckGeom(conn, name, geom)
     
     if (!is.null(boundary)) {
-      ## get srid for boundary box
+      ## get srid for boundary box - could be incorrect only if clauses are used to specify a subset by SRID
       srid <- pgGetSRID(conn, name, geom)
       if (typeof(boundary) != "double") {
             boundary <- c(boundary@bbox[2, 2], boundary@bbox[2,
@@ -105,15 +105,15 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
               " ", boundary[1], ",", boundary[4], " ", boundary[2],
               ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
               " ", boundary[1], ",", boundary[4], " ", boundary[1],
-              "))'),", srid, "))")
+              "))'),", srid[1], "))")
     } else {
       b.clause <- NULL
     }
     
     ## prepare clauses
     if (!is.null(clauses) | !is.null(b.clause)) {
-      clauses <- paste(b.clause, sub("^where", "AND", clauses, ignore.case = TRUE),
-                       collapse = "\n") 
+      clauses <- paste(b.clause, sub("^where", "AND", sub(";$","", sub("\\s+$","",clauses)),
+                                     ignore.case = TRUE),collapse = "\n") 
       } else {
         if (".db_pkid" %in% dbTableInfo(conn,name)$column_name) {
           clauses <- "ORDER BY \".db_pkid\""

@@ -7,20 +7,22 @@ NEW FUNCTIONS
 
 UPDATES
 
-* `pgGetGeom`: now includes `boundary` parameter, to spatially subset
-GEOMETRY/GEOGRPAHY objects to return (same usage as in `pgGetRast`)
-
-* "Data frame mode" for Spatial* objects: now saves proj4string of Spatial* objects
-in data frame mode writing with `pgInsert`. It is then re-imported using `pgGetGeom`, if 
-the saved proj4string and the database proj4string (defined by the column's SRID) are
-equivalent. Otherwise, the database proj4string is used.
-
 * `pgGetRast`: re-written for faster reading of rasters from the database. Multi-band
 raster import is now supported (`band` argument changed to `bands`, and can be given a vector of integers,
 or TRUE to return all bands). Default is still to import the first band (1) of the raster. 
 Multi-band rasters imported as `RasterBrick`-class objects. When raster blocks have imperfect alignment,
 `ST_SnapToGrid` is applied to register the raster according to the upper left pixel
 of the full raster dataset.
+
+* "Data frame mode" for Spatial* objects: now saves proj4string of Spatial* objects
+in data frame mode writing with `pgInsert`. It is then re-imported using `pgGetGeom`, if 
+the saved proj4string and the database proj4string (defined by the column's SRID) are
+equivalent. Otherwise, the database proj4string is used.
+
+* `pgGetGeom`: now includes `boundary` parameter, to spatially subset
+GEOMETRY/GEOGRPAHY objects to return (same usage as in `pgGetRast`)
+
+* `pgGetBoundary`: now includes `clauses` parameter, with same usage as in `pgGetGeom`
 
 * `pgWriteRast`: now attempts to write a new SRID if one cannot be resolved 
 from the raster's proj4string.

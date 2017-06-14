@@ -2,7 +2,7 @@
 % Please edit documentation in R/dbUtils_notExported.R
 \name{pgGetSRID}
 \alias{pgGetSRID}
-\title{Get SRID(s) from a geometry/geography column in a table}
+\title{Get SRID(s) from a geometry/geography column in a full table}
 \usage{
 pgGetSRID(conn, name, geom)
 }
@@ -14,6 +14,6 @@ pgGetSRID(conn, name, geom)
 \item{geom}{a geometry or geography column name}
 }
 \description{
-Get SRID(s) from a geometry/geography column in a table
+Get SRID(s) from a geometry/geography column in a full table
 }
 \keyword{internal}

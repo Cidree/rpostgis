@@ -234,7 +234,7 @@ pgCheckGeom <- function(conn, name, geom) {
 }
 
 ## pgGetSRID
-##' Get SRID(s) from a geometry/geography column in a table
+##' Get SRID(s) from a geometry/geography column in a full table
 ##' 
 ##' @param conn A PostgreSQL connection
 ##' @param name A schema/table name

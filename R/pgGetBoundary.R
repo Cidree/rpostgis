@@ -11,6 +11,9 @@
 ##'     c("schema","table")})
 ##' @param geom character, Name of the column in \code{name} holding the
 ##'     geometry/(geography) or raster object (Default = \code{"geom"})
+##' @param clauses character, additional SQL to append to modify select
+##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
+##'     "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialPolygons
@@ -23,7 +26,7 @@
 ##' pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 ##' }
 
-pgGetBoundary <- function(conn, name, geom = "geom") {
+pgGetBoundary <- function(conn, name, geom = "geom", clauses = NULL) {
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
       stop("PostGIS is not enabled on this database.")
@@ -32,6 +35,10 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
     namechar <- dbQuoteString(conn, 
                   paste(dbTableNameFix(conn,name, as.identifier = FALSE), collapse = "."))
+    ## prepare clauses
+    if (!is.null(clauses)) clauses <- sub("^where", "AND", sub(";$","", sub("\\s+$","",clauses)),
+                                          ignore.case = TRUE)
+    
     ## Check table exists
     tmp.query <- paste0("SELECT geo FROM\n  (SELECT (gc.f_table_schema||'.'||gc.f_table_name) AS tab,
                         gc.f_geography_column AS geo\n  FROM geography_columns AS gc\n   UNION\n
@@ -50,9 +57,11 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     geomque <- DBI::dbQuoteIdentifier(conn, geom)
     ## Check data type
     tmp.query <- paste0("SELECT DISTINCT pg_typeof(", geomque , ") AS type FROM ",
-        nameque, "\n  WHERE ", geomque , " IS NOT NULL;")
+        nameque, "\n  WHERE ", geomque , " IS NOT NULL ",clauses,";")
     type <- suppressWarnings(dbGetQuery(conn, tmp.query))
-    if (type$type == "raster") {
+    if (length(type$type) == 0) {
+        stop("No records found.")
+    } else if (type$type == "raster") {
         func <- "ST_Union"
     } else if (type$type == "geometry") {
         func <- "ST_Collect"
@@ -64,7 +73,7 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     }
     ## Retrieve the SRID
     tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", geomque, ")) FROM ",
-        nameque, " WHERE ", geomque, " IS NOT NULL;")
+        nameque, " WHERE ", geomque, " IS NOT NULL ",clauses,";")
     srid <- dbGetQuery(conn, tmp.query)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
@@ -84,7 +93,7 @@ pgGetBoundary <- function(conn, name, geom = "geom") {
     }
     ## Retrieve envelope
     tmp.query <- paste0("SELECT ST_Astext(ST_Envelope(", func,
-        "(", geomque , "))) FROM ", nameque, " WHERE ", geomque , " IS NOT NULL;")
+        "(", geomque , "))) FROM ", nameque, " WHERE ", geomque , " IS NOT NULL ",clauses,";")
     wkt <- suppressWarnings(dbGetQuery(conn, tmp.query))
     env <- rgeos::readWKT(wkt$st_astext, p4s = p4s)
     return(env)
