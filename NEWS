@@ -1,17 +1,21 @@
 rpostgis 1.3.0
 ==============
 
+OVERALL CHANGES
+
+* example data removed, now part of extension package `rpostgisLT`
+
 NEW FUNCTIONS
 
 * `pgListRast` to list all raster columns in a PostGIS database
 
-UPDATES
+NEW FEATURES
 
 * `pgGetRast`: re-written for faster reading of rasters from the database. Multi-band
 raster import is now supported (`band` argument changed to `bands`, and can be given a vector of integers,
 or TRUE to return all bands). Default is still to import the first band (1) of the raster. 
 Multi-band rasters imported as `RasterBrick`-class objects. When raster blocks have imperfect alignment,
-`ST_SnapToGrid` is applied to register the raster according to the upper left pixel
+PostGIS function `ST_SnapToGrid` is applied to register the raster according to the upper left pixel
 of the full raster dataset.
 
 * "Data frame mode" for Spatial* objects: now saves proj4string of Spatial* objects
@@ -24,6 +28,8 @@ GEOMETRY/GEOGRPAHY objects to return (same usage as in `pgGetRast`)
 
 * `pgGetBoundary`: now includes `clauses` parameter, with same usage as in `pgGetGeom`
 
+UPDATES
+
 * `pgWriteRast`: now attempts to write a new SRID if one cannot be resolved 
 from the raster's proj4string.
 
@@ -32,8 +38,6 @@ from the raster's proj4string.
 
 * `pgGetGeom`: `other.cols = FALSE` now not necessary when reading only
 a geometry column (e.g., in query mode or from a one-column table).
-
-* example data removed, now part of extension package `rpostgisLT`
 
 BUG FIXES
 
