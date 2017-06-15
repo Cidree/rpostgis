@@ -284,7 +284,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
             cols <- colnames(dbData)[4:length(colnames(dbData))]
             cols <- cols[!(cols %in% c(geom))]
             
-            dfr <- dbData[,4:length(colnames(dbData))][cols]
+            dfr <- dbData[4:length(colnames(dbData))][cols]
             # column definitions
             if (gid == "\".R_rownames\"") suppressMessages(
               dfr<-dbReadDataFrame(conn, name, df = dfr)
@@ -313,7 +313,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
         if (!is.null(other.cols)) {
             cols <- colnames(dbData)[3:length(colnames(dbData))]
             cols <- cols[!(cols %in% c(geom))]
-            dfr <- dbData[,3:length(colnames(dbData))][cols]
+            dfr <- dbData[3:length(colnames(dbData))][cols]
             # column definitions
             if (gid == "\".R_rownames\"") suppressMessages(
               dfr<-dbReadDataFrame(conn, name, df = dfr)
@@ -421,7 +421,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
         cols <- colnames(dfTemp)[3:length(colnames(dfTemp))]
         cols <- cols[!(cols %in% c(geom))]
         # column definitions
-        dfr <- dfTemp[,3:length(colnames(dfTemp))][cols]
+        dfr <- dfTemp[3:length(colnames(dfTemp))][cols]
         if (gid == "\".R_rownames\"") suppressMessages(
             dfr<-dbReadDataFrame(conn, name, df = dfr)
         )
@@ -523,7 +523,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     } else {
         cols <- colnames(dfTemp)[3:length(colnames(dfTemp))]
         cols <- cols[!(cols %in% c(geom))]
-        dfr <- dfTemp[,3:length(colnames(dfTemp))][cols]
+        dfr <- dfTemp[3:length(colnames(dfTemp))][cols]
         # column definitions
         if (gid == "\".R_rownames\"") suppressMessages(
             dfr<-dbReadDataFrame(conn, name, df = dfr)
