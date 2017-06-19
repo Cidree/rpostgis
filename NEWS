@@ -51,6 +51,8 @@ or viewing in a GIS.
 * `pgWriteRast`: fixed bug where constraints were not written for
 tables given without a schema name in `name`.
 
+* `pgGetGeom`: fixed bug for one-column `other.cols` specifications
+
 
 rpostgis 1.2.1
 ==============
