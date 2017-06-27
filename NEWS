@@ -53,6 +53,9 @@ tables given without a schema name in `name`.
 
 * `pgGetGeom`: fixed bug for one-column `other.cols` specifications
 
+* `dbReadDataFrame`: infolocs columns of type `POSIXlt` now re-import time zone 
+attribute correctly (previously just used database time zone)
+
 
 rpostgis 1.2.1
 ==============

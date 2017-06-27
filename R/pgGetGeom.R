@@ -175,9 +175,11 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
         p4s <- CRS(p4s, doCheckCRSArgs = FALSE)
       # change (exact) proj4string if equivalent to existing
         suppressMessages({
+          suppressWarnings({
           if (pgSRID(conn, ret@proj4string) %in% pgSRID(conn, p4s)) {
             sp::proj4string(ret) <- p4s
           }
+          })
         })
       }
       return(ret)
