@@ -27,7 +27,7 @@
 ##'     Note that constraint notices may print to the console,
 ##'     depending on the PostgreSQL server settings.
 ##' @param overwrite Whether to overwrite the existing table (\code{name}).
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @importFrom raster res blockSize extent t as.matrix values values<-
 ##' @importFrom methods as
 ##' @export

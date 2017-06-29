@@ -46,5 +46,5 @@ pgGetRast(conn, c("schema", "DEM"), digits = 9, boundary = c(55,
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }

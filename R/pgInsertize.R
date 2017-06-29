@@ -71,7 +71,7 @@
 ##'     be ignored (see \code{dbWriteDataFrame} for more information.
 ##' @param geog Logical; Whether to write the spatial data as a PostGIS 
 ##' 'GEOGRPAHY' type.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @keywords internal
 ##' @importFrom stats na.omit
 ##' @importFrom rgeos writeWKT

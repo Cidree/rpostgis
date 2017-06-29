@@ -113,7 +113,7 @@
 ##'     existing column type.
 ##' @param geog Logical; Whether to write the spatial data as a PostGIS 
 ##'     'GEOGRPAHY' type. By default, FALSE, unless \code{geom = "geog"}.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @export
 ##' @return Returns \code{TRUE} if the insertion was successful,
 ##' \code{FALSE} if failed, or a \code{pgi} object if specified.

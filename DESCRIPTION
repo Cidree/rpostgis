@@ -11,7 +11,7 @@ Description: Provides an interface between R and
 Authors@R: c(
     person("Mathieu", "Basille", email = "basille@ufl.edu", role =
            c("aut")),
-    person("David", "Bucklin", email = "dbucklin@ufl.edu", role =
+    person("David", "Bucklin", email = "david.bucklin@gmail.com", role =
            c("aut", "cre")) )
 SystemRequirements:
     'PostgreSQL' with 'PostGIS' extension

@@ -22,7 +22,7 @@ pgGetPolys(conn, c("schema", "states"), geom = "statesgeom",
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 
 Mathieu Basille \email{basille@ufl.edu}
 }

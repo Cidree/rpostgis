@@ -170,5 +170,5 @@ pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf,
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }

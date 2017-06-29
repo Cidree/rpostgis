@@ -58,5 +58,5 @@ Function follows process from
 \url{http://postgis.net/docs/using_raster_dataman.html#RT_Creating_Rasters}.
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }

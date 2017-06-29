@@ -14,7 +14,7 @@
 ##' @param clauses character, additional SQL to append to modify select
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialPolygons
 ##' @importFrom rgeos readWKT

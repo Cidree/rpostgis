@@ -37,7 +37,7 @@
 #'     overwriting a view must be done manually (e.g., with \code{\link[rpostgis]{dbDrop}}).
 #' @param only.defs Logical; if \code{TRUE}, only the table
 #'     definitions will be written.
-#' @author David Bucklin \email{dbucklin@@ufl.edu}
+#' @author David Bucklin \email{david.bucklin@@gmail.com}
 #' @aliases dbWriteDF
 #' @export
 #' @return \code{TRUE} for successful write with

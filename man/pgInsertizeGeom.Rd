@@ -155,6 +155,6 @@ pgInsert(conn, data.obj = values)
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }
 \keyword{internal}

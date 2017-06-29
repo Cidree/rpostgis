@@ -48,7 +48,7 @@
 ##' @return sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
 ##' @importFrom sp proj4string
 ##' @export
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' 
 ##' 
@@ -193,7 +193,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
 
 ##' Load a PostGIS point geometry from a PostgreSQL table/view into R.
 ##' @return Spatial(Multi)PointsDataFrame or Spatial(Multi)Points
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialPoints
@@ -331,7 +331,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 ## pgGetLines
 
 ##' Load a PostGIS linestring geometry from a PostgreSQL table/view into R.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialLines
@@ -436,7 +436,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
 ## pgGetPolys
 
 ##' Load a PostGIS polygon geometry from a PostgreSQL table/view into R.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialPolygons

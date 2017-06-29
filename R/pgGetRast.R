@@ -23,7 +23,7 @@
 ##'     (e.g. \code{c([top], [bottom], [right], [left])}) indicating the
 ##'     projection-specific limits with which to clip the raster. \code{boundary = NULL}
 ##'     (default) will return the full raster.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @importFrom raster raster brick nlayers extent crop
 ##' @importFrom sp CRS
 ##' @importFrom methods as

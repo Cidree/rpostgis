@@ -9,7 +9,7 @@
 ##'     columns stored in the database
 ##' @return If \code{exec = TRUE}, a data frame with schema, table,
 ##'     geometry/(geography) or raster (for pgListRast) column, and geometry/(geography) type.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @export
 ##' @examples
 ##' \dontrun{
