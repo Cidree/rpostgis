@@ -2,17 +2,21 @@
 
 ##' Write raster to PostGIS database table.
 ##'
-##' Sends R \code{Raster*} to a new PostGIS database table.
+##' Sends R raster to a new PostGIS database table.
 ##' 
 ##' RasterLayer names will be stored in an array in the column
 ##' "band_names", which will be restored in R when imported with the function
 ##' \code{\link[rpostgis]{pgGetRast}}.
+##' 
+##' Rasters from the \code{sp} package are converted to \code{raster}
+##' package objects prior to insert.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema (if
 ##'     necessary) and table name to hold the
 ##'     raster (e.g., \code{name = c("schema","table")})
-##' @param raster An R \code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack}
+##' @param raster An R \code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack} from 
+##'     raster package; a \code{SpatialGrid*} or \code{SpatialPixels*} from sp package
 ##' @param bit.depth The bit depth of the raster. Will be set to 32-bit
 ##'     (unsigned int, signed int, or float, depending on the data)
 ##'     if left null, but can be specified (as character) as one of the
@@ -24,7 +28,8 @@
 ##'     depending on the PostgreSQL server settings.
 ##' @param overwrite Whether to overwrite the existing table (\code{name}).
 ##' @author David Bucklin \email{dbucklin@@ufl.edu}
-##' @importFrom raster res blockSize extent t as.matrix values
+##' @importFrom raster res blockSize extent t as.matrix values values<-
+##' @importFrom methods as
 ##' @export
 ##' @return TRUE for successful import.
 ##' 
@@ -46,7 +51,18 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
     }
-    
+  
+    r_class <- dbQuoteString(conn, class(raster)[1])
+  
+    # sp-handling
+    if (class(raster)[1] %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels")) {
+      if (class(raster) %in% c("SpatialGrid", "SpatialPixels") || length(raster@data) < 2) {
+        raster <- as(raster, "RasterLayer")
+      } else {
+        raster <- as(raster, "RasterBrick")
+      }
+    }
+  
     nameq <- dbTableNameFix(conn, name)
     namef <- dbTableNameFix(conn, name, as.identifier = FALSE)
     
@@ -56,7 +72,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     
     # 1. create raster table
     tmp.query <- paste0("CREATE TABLE ", paste(nameq, collapse = "."), 
-        " (rid serial primary key, band_names text[], rast raster);")
+        " (rid serial primary key, band_names text[], r_class character varying, rast raster);")
     dbExecute(conn, tmp.query)
     
     r1 <- raster
@@ -93,6 +109,9 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
       # rid counter
       n<-0
       
+      # handle empty data rasters by setting ndval to all values
+      if (all(is.na(values(rb)))) values(rb) <- ndval
+      
       # loop over blocks
       for (i in 1:tr$n) {
           suppressWarnings(rr <- rb[tr$row[i]:(tr$row[i] + tr$nrows[i] - 1), , drop = FALSE])
@@ -114,8 +133,8 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
                 
                 # 2. make empty raster
                 tmp.query <- paste0("INSERT INTO ", paste(nameq, 
-                    collapse = "."), " (rid, band_names, rast) VALUES (",n, 
-                    ",",bnds,", ST_MakeEmptyRaster(", 
+                    collapse = "."), " (rid, band_names, r_class, rast) VALUES (",n, 
+                    ",",bnds,",",r_class,", ST_MakeEmptyRaster(", 
                     d[2], ",", d[1], ",", ex[1], ",", ex[4], ",", 
                     res[1], ",", -res[2], ", 0, 0,", srid[1], ") );")
                 dbExecute(conn, tmp.query)

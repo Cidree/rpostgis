@@ -18,6 +18,10 @@ Multi-band rasters imported as `RasterBrick`-class objects. When raster blocks h
 PostGIS function `ST_SnapToGrid` is applied to register the raster according to the upper left pixel
 of the full raster dataset.
 
+* `pgGetRast`/`pgWriteRast`: now support sp-class `SpatialGrid*` and `SpatialPixels*`
+type objects. The class of the raster written in pgWriteRast is saved in a database column,
+and re-applied to the raster during import with `pgGetRast`.
+
 * "Data frame mode" for Spatial* objects: now saves proj4string of Spatial* objects
 in data frame mode writing with `pgInsert`. It is then re-imported using `pgGetGeom`, if 
 the saved proj4string and the database proj4string (defined by the column's SRID) are
@@ -30,7 +34,7 @@ GEOMETRY/GEOGRPAHY objects to return (same usage as in `pgGetRast`)
 
 UPDATES
 
-* `pgWriteRast`: now attempts to write a new SRID if one cannot be resolved 
+* `pgWriteRast`: now attempts to write a new SRID to  `spatial_ref_sys`, if one cannot be resolved 
 from the raster's proj4string.
 
 * all query-constructor functions (e.g. `dbDrop`) now return nothing 

@@ -84,7 +84,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     }
     if (!is.null(query)) {
       if (missing(name)) name <- NULL
-      ret <- pgGetGeomQ(conn, query, name = name, geom = geom, gid = gid, 
+      ret <- pgGetGeomQ(conn, query = query, name = name, geom = geom, gid = gid, 
                         other.cols = other.cols, clauses = clauses, boundary = boundary)
       if (is.null(ret)) stop("Query retrieval failed.", call. = FALSE) else return(ret)
     }
@@ -563,7 +563,7 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     try({
         prequery <- paste0("CREATE OR REPLACE VIEW ", paste(dbQuoteIdentifier(conn, 
             name), collapse = "."), " AS ")
-        if (sub(".*(?=.$)", "", sub("\\s+$", "", query), perl = T) == 
+        if (sub(".*(?=.$)", "", sub("\\s+$", "", query), perl = TRUE) == 
             ";") {
             post <- NULL
         } else {

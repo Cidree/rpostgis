@@ -14,7 +14,8 @@ pgWriteRast(conn, name, raster, bit.depth = NULL, constraints = TRUE,
 necessary) and table name to hold the
 raster (e.g., \code{name = c("schema","table")})}
 
-\item{raster}{An R \code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack}}
+\item{raster}{An R \code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack} from 
+raster package; a \code{SpatialGrid*} or \code{SpatialPixels*} from sp package}
 
 \item{bit.depth}{The bit depth of the raster. Will be set to 32-bit
 (unsigned int, signed int, or float, depending on the data)
@@ -33,12 +34,15 @@ depending on the PostgreSQL server settings.}
 TRUE for successful import.
 }
 \description{
-Sends R \code{Raster*} to a new PostGIS database table.
+Sends R raster to a new PostGIS database table.
 }
 \details{
 RasterLayer names will be stored in an array in the column
 "band_names", which will be restored in R when imported with the function
 \code{\link[rpostgis]{pgGetRast}}.
+
+Rasters from the \code{sp} package are converted to \code{raster}
+package objects prior to insert.
 }
 \examples{
 \dontrun{

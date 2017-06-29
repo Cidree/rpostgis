@@ -30,7 +30,8 @@ table.}
 
 \item{geom}{character string. For \code{Spatial*} datasets, the name of
 geometry/(geography) column in the database table.  (existing or to be
-created; defaults to \code{"geom"}).}
+created; defaults to \code{"geom"}). The special name "geog" will
+automatically set \code{geog} to TRUE.}
 
 \item{df.mode}{Logical; Whether to write the (Spatial) data frame in data frame mode 
 (preserving data frame column attributes and row.names).
@@ -91,7 +92,7 @@ for new tables/overwrites, since this method will change the
 existing column type.}
 
 \item{geog}{Logical; Whether to write the spatial data as a PostGIS 
-'GEOGRPAHY' type.}
+'GEOGRPAHY' type. By default, FALSE, unless \code{geom = "geog"}.}
 
 \item{x}{A list of class \code{pgi}}
 
@@ -132,11 +133,13 @@ tables or databases). If \code{return.pgi = FALSE}
 (default), the function will return \code{TRUE} for successful insert and
 \code{FALSE} for failed inserts.
 
-Use this function with code{df.mode = TRUE} to save \code{Spatial*}-class 
-objects to the database in "data frame mode". Along with normal 
+Use this function with code{df.mode = TRUE} to save data frames from
+\code{Spatial*}-class objects to the database in "data frame mode". Along with normal 
 \code{dbwriteDataFrame} operation, the proj4string of the spatial 
 data will also be saved, and re-attached to the data when using 
-\code{pgGetGeom} to re-import the data.
+\code{pgGetGeom} to import the data. Note that other attributes
+of \code{Spatial*} objects are \strong{not} saved (e.g., \code{coords.nrs},
+which is used to specify the column index of x/y columns in \code{SpatialPoints*}).
 
 pgi objects are a list containing four character strings: (1)
 in.table, the table name which will be created or inserted

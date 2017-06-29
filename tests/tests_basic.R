@@ -93,7 +93,7 @@ tryCatch({
         pts3035<-spTransform(pts, rast@crs)
         pgInsert(conn, c(new_table[1], "pts3035"), pts3035)
         pgInsert(conn, c(new_table[1], "ptsgeo"), pts3035, overwrite = TRUE, geog = TRUE)
-        pgInsert(conn, c(new_table[1], "linegeog"), pgeog, geom = "geog", geog = TRUE)
+        pgInsert(conn, c(new_table[1], "linegeog"), pgeog, geom = "geog")
         pgeogline2<-pgGetGeom(conn, c(new_table[1], "linegeog"), geom = "geog")
         ae.all <- c(ae.all,paste(all.equal(pgeog,pgeogline2), collapse = ","))
         rm(pts3035, pgeog, pgeogline2)
@@ -106,6 +106,28 @@ tryCatch({
         rm(pgi)
         
         pgListGeom(conn)
+        
+        # SP-type rasters
+        data(meuse.grid) # only the non-missing valued cells
+        coordinates(meuse.grid) = c("x", "y") # promote to SpatialPointsDataFrame
+        proj4string(meuse.grid) <- CRS("+init=epsg:28992")
+        gridded(meuse.grid) <- TRUE # promote to SpatialPixelsDataFrame
+        
+        # test with SpatialPixelsDataFrame
+        y <- meuse.grid
+        pgWriteRast(conn, c("rpostgis", "from_spx"), y, overwrite = TRUE)
+        
+        y2 <- pgGetRast(conn, c("rpostgis", "from_spx"))
+        ae.all <- c(ae.all,paste(all.equal(class(y), class(y2)), collapse = ","))
+        
+        x <- as(meuse.grid, "SpatialGridDataFrame")
+        pgWriteRast(conn, c("rpostgis", "from_sgdf"), x, overwrite = TRUE)
+        
+        x2 <- pgGetRast(conn, c("rpostgis", "from_sgdf"))
+        ae.all <- c(ae.all,paste(all.equal(class(x), class(x2)), collapse = ","))
+        
+        rm(x,x2,y,y2, meuse.grid)
+        # end SP-type rasters
         
         r <- raster(nrows = 18, ncols = 36, xmn = -180, xmx = 180, 
             ymn = -90, ymx = 90, vals = 1)
@@ -133,7 +155,7 @@ tryCatch({
         # write rast stack/brick
         ls <- list.files("N:/Species_Distribution_Modelling/Source_File_Climate_data/Future_climate/for_LF_UW_comparison/UW/a2/ukmo/", 
             full.names = TRUE)
-        ls <- ls[!grepl(pattern = ".prj", ls)]
+        ls <- ls[!grepl(pattern = ".prj", ls)][1:5]
         
         rast <- stack(ls)
         system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, 
@@ -142,7 +164,7 @@ tryCatch({
         system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, 
             overwrite = TRUE))
         
-        rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(12:15), boundary = c(30, -5, -80, -95))
+        rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(2:4), boundary = c(30, -5, -80, -95))
         rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = TRUE)
         
         ae.all <- c(ae.all,paste(all.equal(rast,rast2), collapse = ","))
