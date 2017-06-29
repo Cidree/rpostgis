@@ -10,7 +10,7 @@
 ##' where a dummy connection will be used.
 ##' @param t.nm Table name string, length 1-2.
 ##' @param as.identifier Boolean whether to return (schema,table) name as database
-##' sanitized identifers (TRUE) or as regular character (FALSE)
+##' sanitized identifiers (TRUE) or as regular character (FALSE)
 ##' @return character vector of length 2. Each character element is in
 ##'     (escaped) double-quotes when as.identifier = TRUE.
 ##' @keywords internal

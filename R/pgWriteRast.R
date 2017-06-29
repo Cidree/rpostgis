@@ -21,7 +21,7 @@
 ##'     (unsigned int, signed int, or float, depending on the data)
 ##'     if left null, but can be specified (as character) as one of the
 ##'     PostGIS pixel types (see \url{http://postgis.net/docs/RT_ST_BandPixelType.html})
-##' @param constraints Whether to create constraints from raster data. Recommened
+##' @param constraints Whether to create constraints from raster data. Recommended
 ##'     to leave \code{TRUE} unless applying constraints manually (see
 ##'     \url{http://postgis.net/docs/RT_AddRasterConstraints.html}).
 ##'     Note that constraint notices may print to the console,

@@ -4,7 +4,7 @@
 ##'
 ##' This function takes a take an R \code{sp} object (\code{Spatial*} or
 ##' \code{Spatial*DataFrame}), or a regular \code{data.frame}, and performs the
-##' database insert (and table creation, when the table doesn't exist)
+##' database insert (and table creation, when the table does not exist)
 ##' on the database.
 ##'
 ##' If \code{new.id} is specified, a new sequential integer field is
@@ -81,7 +81,7 @@
 ##'     column to be added to the table for insert (for spatial objects without
 ##'     data frames, this column is created even if left \code{NULL}
 ##'     and defaults to the name \code{"gid"}). If \code{partial.match
-##'     = TRUE} and the column does not exist in the databse table,
+##'     = TRUE} and the column does not exist in the database table,
 ##'     it will be discarded.
 ##' @param row.names Whether to add the data frame row names to the 
 ##'     database table. Column name will be '.R_rownames'.

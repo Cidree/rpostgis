@@ -38,7 +38,7 @@ to import. Alternatively, four numbers
 projection-specific limits with which to subset spatial data. \code{boundary = NULL}
 (default) will not subset by spatial extent.
 Note this is not a true 'clip'- all features intersecting the
-bounding box with be returned un-modified.}
+bounding box with be returned unmodified.}
 
 \item{query}{character, a full SQL query including a geometry column. 
 For use with query mode only (see details).}
