@@ -34,8 +34,8 @@ Retrieve rasters from a PostGIS table.
 \details{
 Default is to return a \code{raster}-class object
 \code{RasterLayer} for one-band, \code{RasterBrick} for
-multiple bands. \code{sp}-class rasters (\code{SpatialGridDataFrame}s or
-\code{SpatialPixelsDataFrame}) written using \code{pgWriteRast} will
+multiple bands. \code{sp}-class rasters (\code{SpatialGrid*}s or
+\code{SpatialPixels*}) written using \code{pgWriteRast} will
 attempt to re-import as the same data class.
 }
 \examples{

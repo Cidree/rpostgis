@@ -30,6 +30,7 @@
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @importFrom raster res blockSize extent t as.matrix values values<-
 ##' @importFrom methods as
+##' @importFrom sp SpatialPixelsDataFrame
 ##' @export
 ##' @return TRUE for successful import.
 ##' 
@@ -59,6 +60,8 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     # sp-handling
     if (class(raster)[1] %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels")) {
       if (class(raster) %in% c("SpatialGrid", "SpatialPixels") || length(raster@data) < 2) {
+        # SpatialPixels needs a value
+        if (class(raster) == "SpatialPixels") raster <- SpatialPixelsDataFrame(raster, data = data.frame(rep(0, length(raster))))
         raster <- as(raster, "RasterLayer")
       } else {
         raster <- as(raster, "RasterBrick")

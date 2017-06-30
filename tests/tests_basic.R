@@ -110,6 +110,23 @@ tryCatch({
         pgListGeom(conn)
         
         # SP-type rasters
+        data(meuse.grid)
+        pg = meuse.grid[c("x", "y")]
+        y <- SpatialPixels(SpatialPoints(pg, proj4string = CRS("+init=epsg:28992")))
+        pgWriteRast(conn, c("rpostgis", "from_spx"), y, overwrite = TRUE)
+        
+        y2 <- pgGetRast(conn, c("rpostgis", "from_spx"))
+        all.equal(class(y), class(y2))
+
+        x = GridTopology(c(0,0), c(1,1), c(5,5))
+        x = SpatialGrid(grid = x, proj4string = CRS("+init=epsg:28992"))
+        pgWriteRast(conn, c("rpostgis", "from_sg"), x, overwrite = TRUE)
+        
+        x2 <- pgGetRast(conn, c("rpostgis", "from_sg"))
+        all.equal(class(x), class(x2))
+        
+        rm(x,x2,y,y2,pg, meuse.grid)
+      
         data(meuse.grid) # only the non-missing valued cells
         coordinates(meuse.grid) = c("x", "y") # promote to SpatialPointsDataFrame
         proj4string(meuse.grid) <- CRS("+init=epsg:28992")
@@ -117,9 +134,9 @@ tryCatch({
         
         # test with SpatialPixelsDataFrame
         y <- meuse.grid
-        pgWriteRast(conn, c("rpostgis", "from_spx"), y, overwrite = TRUE)
+        pgWriteRast(conn, c("rpostgis", "from_spxdf"), y, overwrite = TRUE)
         
-        y2 <- pgGetRast(conn, c("rpostgis", "from_spx"))
+        y2 <- pgGetRast(conn, c("rpostgis", "from_spxdf"))
         ae.all <- c(ae.all,paste(all.equal(class(y), class(y2)), collapse = ","))
         
         x <- as(meuse.grid, "SpatialGridDataFrame")

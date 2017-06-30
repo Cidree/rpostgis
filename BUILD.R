@@ -36,7 +36,7 @@ manual(overwrite=TRUE)
 # install()
 # test code coverage
 source("tests/tests_basic.R")
-print(ae.all) # all.equal test results
+print(ae.all) # all.equal test results (returns all TRUE except for one)
 
 # check code coverage
 library(covr)

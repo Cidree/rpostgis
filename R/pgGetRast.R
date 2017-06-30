@@ -6,8 +6,8 @@
 ##' 
 ##' Default is to return a \code{raster}-class object
 ##' \code{RasterLayer} for one-band, \code{RasterBrick} for
-##' multiple bands. \code{sp}-class rasters (\code{SpatialGridDataFrame}s or
-##' \code{SpatialPixelsDataFrame}) written using \code{pgWriteRast} will
+##' multiple bands. \code{sp}-class rasters (\code{SpatialGrid*}s or
+##' \code{SpatialPixels*}) written using \code{pgWriteRast} will
 ##' attempt to re-import as the same data class.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
@@ -234,11 +234,9 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
       try ({
         r_class <- dbGetQuery(conn, paste0("SELECT DISTINCT r_class FROM ",
                                        nameque," WHERE ", rastque ," IS NOT NULL;"))[,1]
-        if (length(r_class) == 1 & !is.null(r_class) &
-            r_class %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels"))
-            rout <- as(rout, r_class)
+        if (length(r_class) == 1 & !is.null(r_class) & 
+            r_class %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels")) rout <- as(rout, r_class)
       }, silent = TRUE)
     }
-
     return(rout)
 }
