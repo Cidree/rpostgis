@@ -1,7 +1,7 @@
 ## Test environments
 * local Windows 7 install, R 3.4.0
 * R Under development (unstable) (2017-05-06 r72662)
-* Debian Linux 8.7, R 3.3.3
+* Debian Linux 8.8, R 3.4.0
 
 ## R CMD check results
 There were no ERRORs, WARNINGS, or NOTEs.

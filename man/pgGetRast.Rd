@@ -41,7 +41,7 @@ attempt to re-import as the same data class.
 \examples{
 \dontrun{
 pgGetRast(conn, c("schema", "tablename"))
-pgGetRast(conn, c("schema", "DEM"), digits = 9, boundary = c(55,
+pgGetRast(conn, c("schema", "DEM"), boundary = c(55,
     50, 17, 12))
 }
 }

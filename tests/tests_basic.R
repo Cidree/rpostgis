@@ -3,14 +3,14 @@
 cwd <- getwd()
 
 tryCatch({
-    setwd("~")
+    # setwd(".rpostgis)
     library(rpostgisLT) # for roe deer example datasets
     library(RPostgreSQL)
     drv <- dbDriver("PostgreSQL")
     library(sp)
     library(raster)
     data("meuse")
-    cred <- scan(".pgpass_rpostgis", what = "character")
+    cred <- scan("~/.pgpass_rpostgis", what = "character")
     conn <- dbConnect(drv, host = cred[1], dbname = cred[2], 
         user = cred[3], password = cred[4])
     conn2 <- dbConnect(drv, host = cred[1], dbname = cred[5], 
@@ -58,6 +58,8 @@ tryCatch({
         # test ROLLBACK (fail)
         try(pts2 <- pgGetGeom(conn2, query = "SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
                            other.cols = FALSE, geom = "geo"))
+        message("THIS IS SUPPOSED BE AN ERROR!")
+        
         pts2 <- pgGetGeom(conn2, query = "SELECT 1 as id, st_collect(geom) as geom FROM env_data.meteo_stations;",
                            other.cols = TRUE)
         dbDrop(conn2, name = c("env_data","test"), type = "view")
@@ -153,7 +155,7 @@ tryCatch({
         ae.all <- c(ae.all,paste(all.equal(rast,rast2), collapse = ","))
         
         # write rast stack/brick
-        ls <- list.files("N:/Species_Distribution_Modelling/Source_File_Climate_data/Future_climate/for_LF_UW_comparison/UW/a2/ukmo/", 
+        ls <- list.files("tests/test_data/rstack/", 
             full.names = TRUE)
         ls <- ls[!grepl(pattern = ".prj", ls)][1:5]
         

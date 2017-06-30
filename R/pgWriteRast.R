@@ -40,8 +40,10 @@
 ##' pgWriteRast(conn, c("schema", "tablename"), raster_name)
 ##'
 ##' # basic test
-##' r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
-##' pgWriteRast(conn, c("schema", "test"), raster = r, bit.depth = "2BUI", overwrite = TRUE)
+##' r <- raster::raster(nrows=180, ncols=360, xmn=-180, xmx=180,
+##'     ymn=-90, ymx=90, vals=1)
+##' pgWriteRast(conn, c("schema", "test"), raster = r,
+##'     bit.depth = "2BUI", overwrite = TRUE)
 ##' }
 
 pgWriteRast <- function(conn, name, raster, bit.depth = NULL, 
@@ -62,6 +64,9 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
         raster <- as(raster, "RasterBrick")
       }
     }
+    
+    # crs
+    r_crs <- dbQuoteString(conn, as.character(raster@crs))
   
     nameq <- dbTableNameFix(conn, name)
     namef <- dbTableNameFix(conn, name, as.identifier = FALSE)
@@ -72,7 +77,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     
     # 1. create raster table
     tmp.query <- paste0("CREATE TABLE ", paste(nameq, collapse = "."), 
-        " (rid serial primary key, band_names text[], r_class character varying, rast raster);")
+        " (rid serial primary key, band_names text[], r_class character varying, r_proj4 character varying, rast raster);")
     dbExecute(conn, tmp.query)
     
     r1 <- raster
@@ -133,8 +138,8 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
                 
                 # 2. make empty raster
                 tmp.query <- paste0("INSERT INTO ", paste(nameq, 
-                    collapse = "."), " (rid, band_names, r_class, rast) VALUES (",n, 
-                    ",",bnds,",",r_class,", ST_MakeEmptyRaster(", 
+                    collapse = "."), " (rid, band_names, r_class, r_proj4, rast) VALUES (",n, 
+                    ",",bnds,",",r_class,",",r_crs,", ST_MakeEmptyRaster(", 
                     d[2], ",", d[1], ",", ex[1], ",", ex[4], ",", 
                     res[1], ",", -res[2], ", 0, 0,", srid[1], ") );")
                 dbExecute(conn, tmp.query)

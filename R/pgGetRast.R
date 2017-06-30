@@ -24,7 +24,7 @@
 ##'     projection-specific limits with which to clip the raster. \code{boundary = NULL}
 ##'     (default) will return the full raster.
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
-##' @importFrom raster raster brick nlayers extent crop
+##' @importFrom raster crs<- raster brick nlayers extent crop
 ##' @importFrom sp CRS
 ##' @importFrom methods as
 ##' @export
@@ -32,7 +32,7 @@
 ##' @examples
 ##' \dontrun{
 ##' pgGetRast(conn, c("schema", "tablename"))
-##' pgGetRast(conn, c("schema", "DEM"), digits = 9, boundary = c(55,
+##' pgGetRast(conn, c("schema", "DEM"), boundary = c(55,
 ##'     50, 17, 12))
 ##' }
 
@@ -213,13 +213,29 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
       rout <- raster::crop(rout,extclip)
     }
     
+    # get/set proj4
+    r_crs <- NULL
+    if ("r_proj4" %in% dbTableInfo(conn, name)$column_name) {
+      try ({
+        r_crs <- dbGetQuery(conn, paste0("SELECT DISTINCT r_proj4 FROM ",
+                                       nameque," WHERE ", rastque ," IS NOT NULL;"))[,1]
+        if (length(r_crs) == 1 & !is.null(r_crs) & !is.na(r_crs)) {
+          r_crs <- CRS(r_crs, doCheckCRSArgs = FALSE)
+          suppressMessages(suppressWarnings(
+            if (any(pgSRID(conn, rout@crs) %in% pgSRID(conn, r_crs))) crs(rout) <- r_crs
+          ))
+        }
+      })
+    }
+    
     # get/set class
     r_class <- NULL
     if ("r_class" %in% dbTableInfo(conn, name)$column_name) {
       try ({
         r_class <- dbGetQuery(conn, paste0("SELECT DISTINCT r_class FROM ",
-                                       nameque," WHERE ", rastque ," IS NOT NULL;"))[1,1]
-        if (!is.null(r_class) & r_class %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels"))
+                                       nameque," WHERE ", rastque ," IS NOT NULL;"))[,1]
+        if (length(r_class) == 1 & !is.null(r_class) &
+            r_class %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels"))
             rout <- as(rout, r_class)
       }, silent = TRUE)
     }
