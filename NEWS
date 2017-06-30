@@ -27,6 +27,10 @@ in data frame mode writing with `pgInsert`. It is then re-imported using `pgGetG
 the saved proj4string and the database proj4string (defined by the column's SRID) are
 equivalent. Otherwise, the database proj4string is used.
 
+* `pgGetRast`/`pgWriteRast`: original R proj4string is saved in the raster database table,
+and re-imported, if the saved proj4string and the database proj4string (defined by the column's SRID) are
+equivalent. Otherwise, the database proj4string is used.
+
 * `pgGetGeom`: now includes `boundary` parameter, to spatially subset
 GEOMETRY/GEOGRPAHY objects to return (same usage as in `pgGetRast`)
 
