@@ -42,5 +42,5 @@ dbDisconnect(con)
 }
 \author{
 Mathieu Basille (\email{basille@ufl.edu}) and David
-    Bucklin (\email{dbucklin@ufl.edu})
+    Bucklin (\email{david.bucklin@gmail.com})
 }

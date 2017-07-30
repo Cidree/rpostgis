@@ -5,18 +5,12 @@
 \alias{pgListRast}
 \title{List geometries/rasters}
 \usage{
-pgListGeom(conn, display = TRUE, exec = TRUE, geog = FALSE)
+pgListGeom(conn, geog = TRUE)
 
-pgListRast(conn, display = TRUE, exec = TRUE)
+pgListRast(conn)
 }
 \arguments{
 \item{conn}{A PostgreSQL database connection.}
-
-\item{display}{Logical. Whether to display the query (defaults to
-\code{TRUE}).}
-
-\item{exec}{Logical. Whether to execute the query (defaults to
-\code{TRUE}).}
 
 \item{geog}{Logical. For pgListGeom, whether to include PostGIS geography-type 
 columns stored in the database}
@@ -36,5 +30,5 @@ pgListRast(conn)
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }

@@ -22,7 +22,7 @@
 ##'     \code{srid} in \code{spatial_ref_sys} between 880001 and
 ##'     889999 will be used.
 ##' @return SRID code (integer).
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @export
 ##' @importFrom sp CRS
 ##' @examples

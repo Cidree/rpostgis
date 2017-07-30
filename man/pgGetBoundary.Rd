@@ -4,7 +4,7 @@
 \alias{pgGetBoundary}
 \title{Retrieve bounding envelope of geometries or rasters.}
 \usage{
-pgGetBoundary(conn, name, geom = "geom")
+pgGetBoundary(conn, name, geom = "geom", clauses = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -15,6 +15,10 @@ c("schema","table")})}
 
 \item{geom}{character, Name of the column in \code{name} holding the
 geometry/(geography) or raster object (Default = \code{"geom"})}
+
+\item{clauses}{character, additional SQL to append to modify select
+query from table. Must begin with an SQL clause (e.g., "WHERE ...",
+"ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.}
 }
 \value{
 SpatialPolygon
@@ -30,5 +34,5 @@ pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }

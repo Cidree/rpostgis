@@ -29,5 +29,5 @@ dbTableInfo(conn, c("schema", "table"))
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }

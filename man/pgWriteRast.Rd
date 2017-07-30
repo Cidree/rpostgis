@@ -14,14 +14,15 @@ pgWriteRast(conn, name, raster, bit.depth = NULL, constraints = TRUE,
 necessary) and table name to hold the
 raster (e.g., \code{name = c("schema","table")})}
 
-\item{raster}{An R \code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack}}
+\item{raster}{An R \code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack} from 
+raster package; a \code{SpatialGrid*} or \code{SpatialPixels*} from sp package}
 
 \item{bit.depth}{The bit depth of the raster. Will be set to 32-bit
 (unsigned int, signed int, or float, depending on the data)
 if left null, but can be specified (as character) as one of the
 PostGIS pixel types (see \url{http://postgis.net/docs/RT_ST_BandPixelType.html})}
 
-\item{constraints}{Whether to create constraints from raster data. Recommened
+\item{constraints}{Whether to create constraints from raster data. Recommended
 to leave \code{TRUE} unless applying constraints manually (see
 \url{http://postgis.net/docs/RT_AddRasterConstraints.html}).
 Note that constraint notices may print to the console,
@@ -33,20 +34,25 @@ depending on the PostgreSQL server settings.}
 TRUE for successful import.
 }
 \description{
-Sends R \code{Raster*} to a new PostGIS database table.
+Sends R raster to a new PostGIS database table.
 }
 \details{
 RasterLayer names will be stored in an array in the column
 "band_names", which will be restored in R when imported with the function
 \code{\link[rpostgis]{pgGetRast}}.
+
+Rasters from the \code{sp} package are converted to \code{raster}
+package objects prior to insert.
 }
 \examples{
 \dontrun{
 pgWriteRast(conn, c("schema", "tablename"), raster_name)
 
 # basic test
-r<-raster(nrows=180, ncols=360, xmn=-180, xmx=180, ymn=-90, ymx=90, vals=1)
-pgWriteRast(conn, c("schema", "test"), raster = r, bit.depth = "2BUI", overwrite = TRUE)
+r <- raster::raster(nrows=180, ncols=360, xmn=-180, xmx=180,
+    ymn=-90, ymx=90, vals=1)
+pgWriteRast(conn, c("schema", "test"), raster = r,
+    bit.depth = "2BUI", overwrite = TRUE)
 }
 }
 \seealso{
@@ -54,5 +60,5 @@ Function follows process from
 \url{http://postgis.net/docs/using_raster_dataman.html#RT_Creating_Rasters}.
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }

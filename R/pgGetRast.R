@@ -3,6 +3,12 @@
 ##' Load raster from PostGIS database.
 ##'
 ##' Retrieve rasters from a PostGIS table.
+##' 
+##' Default is to return a \code{raster}-class object
+##' \code{RasterLayer} for one-band, \code{RasterBrick} for
+##' multiple bands. \code{sp}-class rasters (\code{SpatialGrid*}s or
+##' \code{SpatialPixels*}) written using \code{pgWriteRast} will
+##' attempt to re-import as the same data class.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
@@ -17,15 +23,16 @@
 ##'     (e.g. \code{c([top], [bottom], [right], [left])}) indicating the
 ##'     projection-specific limits with which to clip the raster. \code{boundary = NULL}
 ##'     (default) will return the full raster.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
-##' @importFrom raster raster brick nlayers extent crop
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
+##' @importFrom raster crs<- raster brick nlayers extent crop
 ##' @importFrom sp CRS
+##' @importFrom methods as
 ##' @export
 ##' @return RasterLayer
 ##' @examples
 ##' \dontrun{
 ##' pgGetRast(conn, c("schema", "tablename"))
-##' pgGetRast(conn, c("schema", "DEM"), digits = 9, boundary = c(55,
+##' pgGetRast(conn, c("schema", "DEM"), boundary = c(55,
 ##'     50, 17, 12))
 ##' }
 
@@ -39,6 +46,10 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
     name1 <- dbTableNameFix(conn,name)
     nameque <- paste(name1, collapse = ".")
     namechar <- gsub("'","''",paste(gsub('^"|"$', '', name1),collapse="."))
+    
+    ## rast query name
+    rastque <- dbQuoteIdentifier(conn, rast)
+    
     ## Check table exists
     tmp.query <- paste0("SELECT r_raster_column AS geo FROM raster_columns\n  WHERE (r_table_schema||'.'||r_table_name) = '",
                         namechar, "';")
@@ -51,8 +62,8 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
                 collapse = ", ")))
     }
     ## Check bands
-    tmp.query <- paste0("SELECT st_numbands(", rast, ") FROM ",
-        nameque, " WHERE ", rast, " IS NOT NULL LIMIT 1;")
+    tmp.query <- paste0("SELECT st_numbands(", rastque, ") FROM ",
+        nameque, " WHERE ", rastque, " IS NOT NULL LIMIT 1;")
     nbs <- 1:dbGetQuery(conn, tmp.query)[1,1]
     if (is.logical(bands) && bands) {
       bands <- nbs
@@ -61,8 +72,8 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
                   min(nbs) , " and " , max(nbs), "."))
     }
     ## Retrieve the SRID
-    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", rast, ")) FROM ",
-        nameque, " WHERE ", rast, " IS NOT NULL;")
+    tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", rastque, ")) FROM ",
+        nameque, " WHERE ", rastque, " IS NOT NULL;")
     srid <- dbGetQuery(conn, tmp.query)
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
@@ -82,13 +93,13 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
     }
     
     # check alignment of raster
-    tmp.query <- paste0("select st_samealignment(",rast,") from ",nameque,";")
+    tmp.query <- paste0("select st_samealignment(",rastque,") from ",nameque,";")
     # needs postgis version 2.1+, so just try
     al <- FALSE
     try(al <- dbGetQuery(conn, tmp.query)[1,1])
     if (!al) {
       # get alignment from upper left pixel of all raster tiles
-      tmp.query <- paste0("select min(st_upperleftx(",rast,")) ux, max(st_upperlefty(",rast,")) uy FROM ",
+      tmp.query <- paste0("select min(st_upperleftx(",rastque,")) ux, max(st_upperlefty(",rastque,")) uy FROM ",
             nameque,";")
       aligner <- dbGetQuery(conn, tmp.query)
       aq <- c("ST_SnapToGrid(", paste0(aligner[1,1],","), paste0(aligner[1,2],"),"))
@@ -108,12 +119,12 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
               st_width(rast) as cols,
               st_height(rast) as rows
               from
-              (select st_union(",aq[1],rast,",",aq[2],aq[3],b,") rast from ",nameque,") as a;"))
+              (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque,") as a;"))
   
           vals <- dbGetQuery(conn,paste0("select
             unnest(st_dumpvalues(rast, 1)) as vals 
             from
-            (select st_union(",aq[1],rast,",",aq[2],aq[3],b,") rast from ",nameque,") as a;"))$vals
+            (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque,") as a;"))$vals
           
           rout <- raster::raster(nrows = info$rows, ncols = info$cols, 
             xmn = info$xmn, xmx = info$xmx, ymn = info$ymn, ymx = info$ymx,
@@ -146,9 +157,9 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
               st_width(rast) as cols,
               st_height(rast) as rows
               from
-              (select st_union(",aq[1],rast,",",aq[2],aq[3],b,") rast from ",nameque, "\n
+              (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque, "\n
               WHERE ST_Intersects(",
-              rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+              rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
               " ", boundary[1], ",", boundary[4], " ", boundary[2],
               ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
               " ", boundary[1], ",", boundary[4], " ", boundary[1],
@@ -160,9 +171,9 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
           vals <- dbGetQuery(conn,paste0("select
             unnest(st_dumpvalues(rast, 1)) as vals 
             from
-            (select st_union(",aq[1],rast,",",aq[2],aq[3],b,") rast from ",nameque, "\n
+            (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque, "\n
               WHERE ST_Intersects(",
-              rast, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+              rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
               " ", boundary[1], ",", boundary[4], " ", boundary[2],
               ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
               " ", boundary[1], ",", boundary[4], " ", boundary[1],
@@ -202,5 +213,30 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
       rout <- raster::crop(rout,extclip)
     }
     
+    # get/set proj4
+    r_crs <- NULL
+    if ("r_proj4" %in% dbTableInfo(conn, name)$column_name) {
+      try ({
+        r_crs <- dbGetQuery(conn, paste0("SELECT DISTINCT r_proj4 FROM ",
+                                       nameque," WHERE ", rastque ," IS NOT NULL;"))[,1]
+        if (length(r_crs) == 1 & !is.null(r_crs) & !is.na(r_crs)) {
+          r_crs <- CRS(r_crs, doCheckCRSArgs = FALSE)
+          suppressMessages(suppressWarnings(
+            if (any(pgSRID(conn, rout@crs) %in% pgSRID(conn, r_crs))) crs(rout) <- r_crs
+          ))
+        }
+      })
+    }
+    
+    # get/set class
+    r_class <- NULL
+    if ("r_class" %in% dbTableInfo(conn, name)$column_name) {
+      try ({
+        r_class <- dbGetQuery(conn, paste0("SELECT DISTINCT r_class FROM ",
+                                       nameque," WHERE ", rastque ," IS NOT NULL;"))[,1]
+        if (length(r_class) == 1 & !is.null(r_class) & 
+            r_class %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels")) rout <- as(rout, r_class)
+      }, silent = TRUE)
+    }
     return(rout)
 }

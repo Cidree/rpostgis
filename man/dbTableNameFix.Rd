@@ -13,7 +13,7 @@ where a dummy connection will be used.}
 \item{t.nm}{Table name string, length 1-2.}
 
 \item{as.identifier}{Boolean whether to return (schema,table) name as database
-sanitized identifers (TRUE) or as regular character (FALSE)}
+sanitized identifiers (TRUE) or as regular character (FALSE)}
 }
 \value{
 character vector of length 2. Each character element is in

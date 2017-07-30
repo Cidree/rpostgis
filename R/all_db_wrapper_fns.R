@@ -479,7 +479,7 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
 ##'     column names, types, nullable, and maximum length of character
 ##'     columns.
 ##' @return data frame
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @export
 ##' @examples
 ##' \dontrun{

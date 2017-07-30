@@ -48,7 +48,7 @@ and defaults to the name \code{"gid"}).}
 database table. Column name will be '.R_rownames'.}
 
 \item{alter.names}{Logical, whether to make database column names
-DB-compliant (remove special characters). Defualt is
+DB-compliant (remove special characters). Default is
 \code{TRUE}.  (This should to be set to \code{FALSE} to match
 to non-standard names in an existing database table using the
 \code{force.match} setting.)}
@@ -71,7 +71,7 @@ be ignored (see \code{dbWriteDataFrame} for more information.}
 \value{
 pgi A list containing four character strings: (1)
     in.table, the table name which will be created or inserted
-    into, if specifed by either create.table or force.match (else
+    into, if specified by either create.table or force.match (else
     NULL) (2) db.new.table, the SQL statement to create the new
     table, if specified in create.table (else NULL), (3)
     db.cols.insert, a character string of the database column
@@ -155,6 +155,6 @@ pgInsert(conn, data.obj = values)
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }
 \keyword{internal}

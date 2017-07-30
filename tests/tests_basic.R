@@ -3,14 +3,14 @@
 cwd <- getwd()
 
 tryCatch({
-    setwd("~")
-    library(rpostgis)
+    # setwd(".rpostgis)
+    library(rpostgisLT) # for roe deer example datasets
     library(RPostgreSQL)
     drv <- dbDriver("PostgreSQL")
     library(sp)
     library(raster)
     data("meuse")
-    cred <- scan(".pgpass_rpostgis", what = "character")
+    cred <- scan("~/.pgpass_rpostgis", what = "character")
     conn <- dbConnect(drv, host = cred[1], dbname = cred[2], 
         user = cred[3], password = cred[4])
     conn2 <- dbConnect(drv, host = cred[1], dbname = cred[5], 
@@ -28,12 +28,12 @@ tryCatch({
         pgListGeom(conn,geog=TRUE)
         
         # retrieval functions
-        pts <- pgGetGeom(conn, ex_table, geom = "geom")
+        pts <- pgGetGeom(conn, ex_table, geom = "geom", boundary = c(30,25,-80,-100))
         pts2 <- pgGetGeom(conn, ex_table, geom = "geom", other.cols = c("gid","dummy","burst"),
-                          clauses = "where id = 'continental' order by time limit 100")
-        poly <- pgGetGeom(conn2, c("env_data", "adm_boundaries"), 
-            clauses = "order by nome_com")
+                          clauses = "where id = 'continental' order by time limit 100;")
         lin <- pgGetGeom(conn2, c("env_data", "roads"))
+        poly <- pgGetGeom(conn2, c("env_data", "adm_boundaries"), 
+            clauses = "order by nome_com", boundary = lin)
         bnd <- pgGetBoundary(conn, ex_table)
         rast <- pgGetRast(conn2, c("env_data", "corine_land_cover"))
         rastclp <- pgGetRast(conn2, c("env_data", "srtm_dem"), 
@@ -53,19 +53,24 @@ tryCatch({
                               env_data.roads r,
                               env_data.adm_boundaries b
                             WHERE 
-                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento'")
+                              ST_Intersects(r.geom, b.geom) AND nome_com = 'Trento'", boundary = lin[1,])
         poly <- pgGetGeom(conn2, name = c("env_data","test"))
         # test ROLLBACK (fail)
         try(pts2 <- pgGetGeom(conn2, query = "SELECT st_collect(geom) as geom FROM env_data.meteo_stations;",
                            other.cols = FALSE, geom = "geo"))
+        message("THIS IS SUPPOSED BE AN ERROR!")
+        
         pts2 <- pgGetGeom(conn2, query = "SELECT 1 as id, st_collect(geom) as geom FROM env_data.meteo_stations;",
                            other.cols = TRUE)
         dbDrop(conn2, name = c("env_data","test"), type = "view")
         # geography columns
         pgListGeom(conn, geog = TRUE)
         pgeog <- pgGetGeom(conn, c("example_data","steps"), geom = "step_geog", clauses = "limit 500")
+        pgeog2 <- pgGetGeom(conn, c("example_data", "continental"), geom = "geog", boundary = pts)
+        pgeog2 <- pgGetBoundary(conn, c("example_data", "continental"), geom = "geog", clauses = "where id = 'continental'")
         pgeog2 <- pgGetBoundary(conn, c("example_data", "continental"), geom = "geog")
-        rm(pgeog2)
+        pgeom <- pgGetBoundary(conn, c("example_data", "gps_data_animals"), geom = "ge'om", clauses = "where roads_dist < 100")
+        rm(pgeog2, pgeom)
         
         # get SRIDs
         pgSRID(conn, crs = bnd@proj4string)
@@ -90,7 +95,7 @@ tryCatch({
         pts3035<-spTransform(pts, rast@crs)
         pgInsert(conn, c(new_table[1], "pts3035"), pts3035)
         pgInsert(conn, c(new_table[1], "ptsgeo"), pts3035, overwrite = TRUE, geog = TRUE)
-        pgInsert(conn, c(new_table[1], "linegeog"), pgeog, geom = "geog", geog = TRUE)
+        pgInsert(conn, c(new_table[1], "linegeog"), pgeog, geom = "geog")
         pgeogline2<-pgGetGeom(conn, c(new_table[1], "linegeog"), geom = "geog")
         ae.all <- c(ae.all,paste(all.equal(pgeog,pgeogline2), collapse = ","))
         rm(pts3035, pgeog, pgeogline2)
@@ -103,6 +108,45 @@ tryCatch({
         rm(pgi)
         
         pgListGeom(conn)
+        
+        # SP-type rasters
+        data(meuse.grid)
+        pg = meuse.grid[c("x", "y")]
+        y <- SpatialPixels(SpatialPoints(pg, proj4string = CRS("+init=epsg:28992")))
+        pgWriteRast(conn, c("rpostgis", "from_spx"), y, overwrite = TRUE)
+        
+        y2 <- pgGetRast(conn, c("rpostgis", "from_spx"))
+        all.equal(class(y), class(y2))
+
+        x = GridTopology(c(0,0), c(1,1), c(5,5))
+        x = SpatialGrid(grid = x, proj4string = CRS("+init=epsg:28992"))
+        pgWriteRast(conn, c("rpostgis", "from_sg"), x, overwrite = TRUE)
+        
+        x2 <- pgGetRast(conn, c("rpostgis", "from_sg"))
+        all.equal(class(x), class(x2))
+        
+        rm(x,x2,y,y2,pg, meuse.grid)
+      
+        data(meuse.grid) # only the non-missing valued cells
+        coordinates(meuse.grid) = c("x", "y") # promote to SpatialPointsDataFrame
+        proj4string(meuse.grid) <- CRS("+init=epsg:28992")
+        gridded(meuse.grid) <- TRUE # promote to SpatialPixelsDataFrame
+        
+        # test with SpatialPixelsDataFrame
+        y <- meuse.grid
+        pgWriteRast(conn, c("rpostgis", "from_spxdf"), y, overwrite = TRUE)
+        
+        y2 <- pgGetRast(conn, c("rpostgis", "from_spxdf"))
+        ae.all <- c(ae.all,paste(all.equal(class(y), class(y2)), collapse = ","))
+        
+        x <- as(meuse.grid, "SpatialGridDataFrame")
+        pgWriteRast(conn, c("rpostgis", "from_sgdf"), x, overwrite = TRUE)
+        
+        x2 <- pgGetRast(conn, c("rpostgis", "from_sgdf"))
+        ae.all <- c(ae.all,paste(all.equal(class(x), class(x2)), collapse = ","))
+        
+        rm(x,x2,y,y2, meuse.grid)
+        # end SP-type rasters
         
         r <- raster(nrows = 18, ncols = 36, xmn = -180, xmx = 180, 
             ymn = -90, ymx = 90, vals = 1)
@@ -128,9 +172,9 @@ tryCatch({
         ae.all <- c(ae.all,paste(all.equal(rast,rast2), collapse = ","))
         
         # write rast stack/brick
-        ls <- list.files("N:/Species_Distribution_Modelling/Source_File_Climate_data/Future_climate/for_LF_UW_comparison/UW/a2/ukmo/", 
+        ls <- list.files("tests/test_data/rstack/", 
             full.names = TRUE)
-        ls <- ls[!grepl(pattern = ".prj", ls)]
+        ls <- ls[!grepl(pattern = ".prj", ls)][1:5]
         
         rast <- stack(ls)
         system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, 
@@ -139,7 +183,7 @@ tryCatch({
         system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, 
             overwrite = TRUE))
         
-        rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(12:15), boundary = c(30, -5, -80, -95))
+        rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(2:4), boundary = c(30, -5, -80, -95))
         rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = TRUE)
         
         ae.all <- c(ae.all,paste(all.equal(rast,rast2), collapse = ","))
@@ -269,6 +313,7 @@ tryCatch({
             roe_vector_geom, roe_raster, drv, ex_table, lin, ls, 
             new_table, p1, p2, poly, pts, pts.sponly, pts.sponly2, r, rast, 
             rastclp, matview, df, rast2)
+        detach("package:rpostgisLT", unload=TRUE)
     }))
     print("ALL GOOD!!!")
 }, error = function(x) {

@@ -37,7 +37,7 @@
 #'     overwriting a view must be done manually (e.g., with \code{\link[rpostgis]{dbDrop}}).
 #' @param only.defs Logical; if \code{TRUE}, only the table
 #'     definitions will be written.
-#' @author David Bucklin \email{dbucklin@@ufl.edu}
+#' @author David Bucklin \email{david.bucklin@@gmail.com}
 #' @aliases dbWriteDF
 #' @export
 #' @return \code{TRUE} for successful write with
@@ -115,7 +115,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
     attr2[badtz] <- "NULL"
     attr2 <- unlist(attr2)
 
-    ## convert non-matching tz time to db tz
+    ## convert non-matching tz time to db tz (runs but values unchanged in posixlt objects)
     pgtz <- dbGetQuery(conn, "SHOW timezone;")[1, 1]
     tzl <- names(attr2[attr2 != "NULL" & attr2 != pgtz])
     for (t in tzl) {
@@ -262,7 +262,7 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
                     ""], ordered = ordered)
                 }
                 ## handle POSIX time zones
-                if (att$defs %in% c("POSIXct", "POSIXlt", "POSIXt")) {
+                if (att$defs %in% c("POSIXct", "POSIXt")) {
                   d[, i] <- list(eval(parse(text = paste0("as.",
                     att$defs, "(as.character(d[,i]),
                                       tz='",
@@ -270,6 +270,11 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
                   ## assign R tz
                   eval(parse(text = paste0("attributes(d$", i,
                     ")$tzone <- att$atts")))
+                }
+                if (att$defs == "POSIXlt") {
+                    d[, i] <- list(eval(parse(text = paste0("as.", 
+                      att$defs, "(as.character(d[,i]),
+                                          tz=att$atts)"))))
                 }
                 ## end modular handling of different data types
             } else {

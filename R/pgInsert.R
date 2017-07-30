@@ -4,7 +4,7 @@
 ##'
 ##' This function takes a take an R \code{sp} object (\code{Spatial*} or
 ##' \code{Spatial*DataFrame}), or a regular \code{data.frame}, and performs the
-##' database insert (and table creation, when the table doesn't exist)
+##' database insert (and table creation, when the table does not exist)
 ##' on the database.
 ##'
 ##' If \code{new.id} is specified, a new sequential integer field is
@@ -31,11 +31,13 @@
 ##' (default), the function will return \code{TRUE} for successful insert and
 ##' \code{FALSE} for failed inserts.
 ##' 
-##' Use this function with code{df.mode = TRUE} to save \code{Spatial*}-class 
-##' objects to the database in "data frame mode". Along with normal 
+##' Use this function with code{df.mode = TRUE} to save data frames from
+##' \code{Spatial*}-class objects to the database in "data frame mode". Along with normal 
 ##' \code{dbwriteDataFrame} operation, the proj4string of the spatial 
 ##' data will also be saved, and re-attached to the data when using 
-##' \code{pgGetGeom} to re-import the data.
+##' \code{pgGetGeom} to import the data. Note that other attributes
+##' of \code{Spatial*} objects are \strong{not} saved (e.g., \code{coords.nrs},
+##' which is used to specify the column index of x/y columns in \code{SpatialPoints*}).
 ##' 
 ##' pgi objects are a list containing four character strings: (1)
 ##' in.table, the table name which will be created or inserted
@@ -59,7 +61,8 @@
 ##' @param data.obj A \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}
 ##' @param geom character string. For \code{Spatial*} datasets, the name of
 ##'     geometry/(geography) column in the database table.  (existing or to be
-##'     created; defaults to \code{"geom"}).
+##'     created; defaults to \code{"geom"}). The special name "geog" will
+##'     automatically set \code{geog} to TRUE. 
 ##' @param df.mode Logical; Whether to write the (Spatial) data frame in data frame mode 
 ##'     (preserving data frame column attributes and row.names).
 ##'     A new table must be created with this mode (or overwrite set to TRUE),
@@ -78,7 +81,7 @@
 ##'     column to be added to the table for insert (for spatial objects without
 ##'     data frames, this column is created even if left \code{NULL}
 ##'     and defaults to the name \code{"gid"}). If \code{partial.match
-##'     = TRUE} and the column does not exist in the databse table,
+##'     = TRUE} and the column does not exist in the database table,
 ##'     it will be discarded.
 ##' @param row.names Whether to add the data frame row names to the 
 ##'     database table. Column name will be '.R_rownames'.
@@ -109,8 +112,8 @@
 ##'     for new tables/overwrites, since this method will change the 
 ##'     existing column type.
 ##' @param geog Logical; Whether to write the spatial data as a PostGIS 
-##'     'GEOGRPAHY' type.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##'     'GEOGRPAHY' type. By default, FALSE, unless \code{geom = "geog"}.
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @export
 ##' @return Returns \code{TRUE} if the insertion was successful,
 ##' \code{FALSE} if failed, or a \code{pgi} object if specified.
@@ -138,6 +141,9 @@
 pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, partial.match = FALSE, 
     overwrite = FALSE, new.id = NULL, row.names = FALSE, upsert.using = NULL,
     alter.names = FALSE, encoding = NULL, return.pgi = FALSE, df.geom = NULL, geog = FALSE) {
+  
+    # auto-geog
+    if (geom == "geog") geog <- TRUE
   
     if (df.mode) {
       if (!dbExistsTable(conn,name, table.only = TRUE) | overwrite) {

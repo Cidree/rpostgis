@@ -31,13 +31,20 @@ RasterLayer
 \description{
 Retrieve rasters from a PostGIS table.
 }
+\details{
+Default is to return a \code{raster}-class object
+\code{RasterLayer} for one-band, \code{RasterBrick} for
+multiple bands. \code{sp}-class rasters (\code{SpatialGrid*}s or
+\code{SpatialPixels*}) written using \code{pgWriteRast} will
+attempt to re-import as the same data class.
+}
 \examples{
 \dontrun{
 pgGetRast(conn, c("schema", "tablename"))
-pgGetRast(conn, c("schema", "DEM"), digits = 9, boundary = c(55,
+pgGetRast(conn, c("schema", "DEM"), boundary = c(55,
     50, 17, 12))
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }

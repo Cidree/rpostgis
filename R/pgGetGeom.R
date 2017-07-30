@@ -35,12 +35,20 @@
 ##' @param clauses character, additional SQL to append to modify select
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); see below for examples.
+##' @param boundary \code{sp} object or numeric. A Spatial* object,
+##'     whose bounding box will be used to select geometries
+##'     to import. Alternatively, four numbers
+##'     (e.g. \code{c([top], [bottom], [right], [left])}) indicating the
+##'     projection-specific limits with which to subset spatial data. \code{boundary = NULL}
+##'     (default) will not subset by spatial extent.
+##'     Note this is not a true 'clip'- all features intersecting the
+##'     bounding box with be returned unmodified.
 ##' @param query character, a full SQL query including a geometry column. 
 ##'     For use with query mode only (see details).
 ##' @return sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
 ##' @importFrom sp proj4string
 ##' @export
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' 
 ##' 
@@ -58,7 +66,7 @@
 ##' ## Return a Spatial*-only (no data frame), 
 ##' ## retaining id from table as rownames and with a subset of the data
 ##' pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
-##'     other.cols = FALSE, clauses  = "WHERE field = 'highway'")
+##'     other.cols = FALSE, clauses  = "WHERE road_type = 'highway'")
 ##' ## Query mode
 ##' pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom 
 ##'                            FROM
@@ -69,27 +77,43 @@
 ##' }
 
 pgGetGeom <- function(conn, name, geom = "geom", gid = NULL, 
-    other.cols = TRUE, clauses = NULL, query = NULL) {
+    other.cols = TRUE, clauses = NULL, boundary = NULL, query = NULL) {
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
     }
     if (!is.null(query)) {
       if (missing(name)) name <- NULL
-      ret <- pgGetGeomQ(conn, query, name = name, geom = geom, gid = gid, 
-                        other.cols = other.cols, clauses = clauses)
+      ret <- pgGetGeomQ(conn, query = query, name = name, geom = geom, gid = gid, 
+                        other.cols = other.cols, clauses = clauses, boundary = boundary)
       if (is.null(ret)) stop("Query retrieval failed.", call. = FALSE) else return(ret)
     }
     ## Check and prepare the schema.name
     nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
-    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
     
-    geomque <- pgCheckGeom(conn, namechar, geom)
+    geomque <- pgCheckGeom(conn, name, geom)
+    
+    if (!is.null(boundary)) {
+      ## get srid for boundary box - could be incorrect only if clauses are used to specify a subset by SRID
+      srid <- pgGetSRID(conn, name, geom)
+      if (typeof(boundary) != "double") {
+            boundary <- c(boundary@bbox[2, 2], boundary@bbox[2,
+                1], boundary@bbox[1, 2], boundary@bbox[1, 1])
+      }
+      b.clause <- paste0(" AND ST_Intersects(",
+              geomque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+              " ", boundary[1], ",", boundary[4], " ", boundary[2],
+              ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
+              " ", boundary[1], ",", boundary[4], " ", boundary[1],
+              "))'),", srid[1], "))")
+    } else {
+      b.clause <- NULL
+    }
     
     ## prepare clauses
-    if (!is.null(clauses)) {
-      clauses <- sub("^where", "AND", clauses, ignore.case = TRUE) 
+    if (!is.null(clauses) | !is.null(b.clause)) {
+      clauses <- paste(b.clause, sub("^where", "AND", sub(";$","", sub("\\s+$","",clauses)),
+                                     ignore.case = TRUE),collapse = "\n") 
       } else {
         if (".db_pkid" %in% dbTableInfo(conn,name)$column_name) {
           clauses <- "ORDER BY \".db_pkid\""
@@ -101,7 +125,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
             collapse = ",")
     } else {
         if (other.cols & sum(!dbTableInfo(conn,
-                            name)$column_name %in% c(".R_rownames",".db_pkid")) > 1) {
+                            name)$column_name %in% c(".R_rownames",".db_pkid", gid, geom)) > 0) {
             other.cols <- "*"
         } else {
             other.cols <- NULL
@@ -149,11 +173,13 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
       p4s <- defs$atts[defs$nms == geom]
       if (p4s != "NA") {
         p4s <- CRS(p4s, doCheckCRSArgs = FALSE)
-      # change (exact) proj4string if equivalent to existing
+        # change (exact) proj4string if equivalent to existing
         suppressMessages({
-          if (pgSRID(conn, ret@proj4string) %in% pgSRID(conn, p4s)) {
+          suppressWarnings({
+          if (any(pgSRID(conn, ret@proj4string) %in% pgSRID(conn, p4s))) {
             sp::proj4string(ret) <- p4s
           }
+          })
         })
       }
       return(ret)
@@ -167,7 +193,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
 
 ##' Load a PostGIS point geometry from a PostgreSQL table/view into R.
 ##' @return Spatial(Multi)PointsDataFrame or Spatial(Multi)Points
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialPoints
@@ -198,9 +224,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## prepare geom column
-    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
-    geomque <- pgCheckGeom(conn, namechar, geom)
+    geomque <- pgCheckGeom(conn, name, geom)
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
         if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
@@ -307,7 +331,7 @@ pgGetPts <- function(conn, name, geom = "geom", gid = NULL, other.cols = "*",
 ## pgGetLines
 
 ##' Load a PostGIS linestring geometry from a PostgreSQL table/view into R.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialLines
@@ -336,9 +360,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     
     ## prepare geom column
-    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
-    geomque <- pgCheckGeom(conn, namechar, geom)
+    geomque <- pgCheckGeom(conn, name, geom)
     ## Check gid
     if (is.null(gid)) {
         if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
@@ -414,7 +436,7 @@ pgGetLines <- function(conn, name, geom = "geom", gid = NULL,
 ## pgGetPolys
 
 ##' Load a PostGIS polygon geometry from a PostgreSQL table/view into R.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialPolygons
@@ -442,9 +464,7 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
     ## prepare additional clauses
     clauses<-sub("^where", "AND",clauses, ignore.case = TRUE)
     ## prepare geom column
-    namechar <- gsub("\"\"", "\"", gsub("'", "''", paste(gsub("^\"|\"$", 
-        "", dbTableNameFix(conn,name)), collapse = ".")))
-    geomque <- pgCheckGeom(conn, namechar, geom)
+    geomque <- pgCheckGeom(conn, name, geom)
     ## Check gid
     if (is.null(gid)) {
         if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
@@ -531,9 +551,10 @@ pgGetPolys <- function(conn, name, geom = "geom", gid = NULL,
 pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     # set view name
     if (is.null(name)) {
-        name <- ".rpostgis_TEMPview"
+        name <- dbTableNameFix(conn, ".rpostgis_TEMPview", as.identifier = FALSE)
         keep <- FALSE
     } else {
+        name <- dbTableNameFix(conn, name , as.identifier = FALSE)
         keep <- TRUE
     }
     dbExecute(conn, "BEGIN;")
@@ -542,7 +563,7 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     try({
         prequery <- paste0("CREATE OR REPLACE VIEW ", paste(dbQuoteIdentifier(conn, 
             name), collapse = "."), " AS ")
-        if (sub(".*(?=.$)", "", sub("\\s+$", "", query), perl = T) == 
+        if (sub(".*(?=.$)", "", sub("\\s+$", "", query), perl = TRUE) == 
             ";") {
             post <- NULL
         } else {
@@ -557,8 +578,11 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     if (is.null(geo)) {
         dbExecute(conn, "ROLLBACK;")
     } else {
-        if (!keep) 
-            dbExecute(conn, "ROLLBACK;") else dbExecute(conn, "COMMIT;")
+        if (!keep) { dbExecute(conn, "ROLLBACK;") } else {
+          dbExecute(conn, "COMMIT;")
+          message(paste0("Created view ",paste(dbQuoteIdentifier(conn, 
+            name), collapse = "."),"."))
+        }
     }
     return(geo)
 }

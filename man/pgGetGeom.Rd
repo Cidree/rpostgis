@@ -5,7 +5,7 @@
 \title{Load a PostGIS geometry from a PostgreSQL table/view/query into R.}
 \usage{
 pgGetGeom(conn, name, geom = "geom", gid = NULL, other.cols = TRUE,
-  clauses = NULL, query = NULL)
+  clauses = NULL, boundary = NULL, query = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -30,6 +30,15 @@ data frame).}
 \item{clauses}{character, additional SQL to append to modify select
 query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 "ORDER BY ...", "LIMIT ..."); see below for examples.}
+
+\item{boundary}{\code{sp} object or numeric. A Spatial* object,
+whose bounding box will be used to select geometries
+to import. Alternatively, four numbers
+(e.g. \code{c([top], [bottom], [right], [left])}) indicating the
+projection-specific limits with which to subset spatial data. \code{boundary = NULL}
+(default) will not subset by spatial extent.
+Note this is not a true 'clip'- all features intersecting the
+bounding box with be returned unmodified.}
 
 \item{query}{character, a full SQL query including a geometry column. 
 For use with query mode only (see details).}
@@ -69,7 +78,7 @@ pgGetGeom(conn, c("schema", "tablename"), gid = "table_id",
 ## Return a Spatial*-only (no data frame), 
 ## retaining id from table as rownames and with a subset of the data
 pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
-    other.cols = FALSE, clauses  = "WHERE field = 'highway'")
+    other.cols = FALSE, clauses  = "WHERE road_type = 'highway'")
 ## Query mode
 pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom 
                            FROM
@@ -80,7 +89,7 @@ pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 
 Mathieu Basille \email{basille@ufl.edu}
 }
