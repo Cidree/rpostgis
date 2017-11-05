@@ -2,24 +2,23 @@
 % Please edit documentation in R/pgGetGeom.R
 \name{pgGetGeom}
 \alias{pgGetGeom}
-\title{Load a PostGIS geometry from a PostgreSQL table/view into R.}
+\title{Load a PostGIS geometry from a PostgreSQL table/view/query into R.}
 \usage{
 pgGetGeom(conn, name, geom = "geom", gid = NULL, other.cols = TRUE,
-  clauses = NULL)
+  clauses = NULL, boundary = NULL, query = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
 \item{name}{A character string specifying a PostgreSQL schema and
-table/view name holding the geometry (e.g., `name =
-c("schema","table")`)}
+table/view name holding the geometry (e.g., \code{name =
+c("schema","table")})}
 
-\item{geom}{The name of the geometry column. (Default = "geom")}
+\item{geom}{The name of the geometry/(geography) column. (Default = \code{"geom"})}
 
-\item{gid}{Name of the column in `name` holding the IDs. Should be
-unique if additional columns of unique data are being
-appended. \code{gid=NULL} (default) automatically creates a
-new unique ID for each row in the `sp` object.}
+\item{gid}{Name of the column in \code{name} holding the IDs. Should be
+unique for each record to return. \code{gid=NULL} (default) automatically creates a
+new unique ID for each row in the \code{sp} object.}
 
 \item{other.cols}{Names of specific columns in the table to
 retrieve, in a character vector (e.g. \code{other.cols=c("col1","col2")}.)
@@ -31,14 +30,39 @@ data frame).}
 \item{clauses}{character, additional SQL to append to modify select
 query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 "ORDER BY ...", "LIMIT ..."); see below for examples.}
+
+\item{boundary}{\code{sp} object or numeric. A Spatial* object,
+whose bounding box will be used to select geometries
+to import. Alternatively, four numbers
+(e.g. \code{c([top], [bottom], [right], [left])}) indicating the
+projection-specific limits with which to subset spatial data. \code{boundary = NULL}
+(default) will not subset by spatial extent.
+Note this is not a true 'clip'- all features intersecting the
+bounding box with be returned unmodified.}
+
+\item{query}{character, a full SQL query including a geometry column. 
+For use with query mode only (see details).}
 }
 \value{
 sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
 }
 \description{
 Retrieve point, linestring, or polygon geometries from a PostGIS
-table/view, and convert it to an R `sp` object (Spatial* or
-Spatial*DataFrame).
+table/view/query, and convert it to an R \code{sp} object (\code{Spatial*} or
+\code{Spatial*DataFrame}).
+}
+\details{
+The query mode version of \code{pgGetGeom} allows the user to enter a
+complete SQL query (\code{query}) that returns a Geometry column, and save the query
+as a new view (\code{name}) if desired. If (\code{name}) is not specified,
+a temporary view with name ".rpostgis_TEMPview" is used only
+within the function execution. In this mode, the other arguments can be used 
+normally to modify the Spatial* object returned from the query.
+
+Definitions for tables written in "data frame mode" are automatically
+applied using this function, including proj4strings of the \code{Spatial*}-class
+object. Note that if the proj4string of the original dataset is not found to 
+be equivalent to the database proj4string (using \code{pgSRID}), it will not be applied.
 }
 \examples{
 \dontrun{
@@ -54,12 +78,18 @@ pgGetGeom(conn, c("schema", "tablename"), gid = "table_id",
 ## Return a Spatial*-only (no data frame), 
 ## retaining id from table as rownames and with a subset of the data
 pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
-    other.cols = FALSE, clauses  = "WHERE field = 'highway'")
+    other.cols = FALSE, clauses  = "WHERE road_type = 'highway'")
+## Query mode
+pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom 
+                           FROM
+                             schema.roads r,
+                             schema.adm_boundaries b
+                           WHERE 
+                             ST_Intersects(r.geom, b.geom);")
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 
 Mathieu Basille \email{basille@ufl.edu}
 }
-

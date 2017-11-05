@@ -4,26 +4,25 @@
 \alias{pgGetRast}
 \title{Load raster from PostGIS database.}
 \usage{
-pgGetRast(conn, name, rast = "rast", digits = 9, boundary = NULL)
+pgGetRast(conn, name, rast = "rast", bands = 1, boundary = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{name}{A character string specifying a PostgreSQL schema (if
-necessary), and table or view name for the table holding the
-raster (e.g., name = c("schema","table"))}
+\item{name}{A character string specifying a PostgreSQL schema and
+table/view name holding the geometry (e.g., \code{name =
+c("schema","table")})}
 
-\item{rast}{Name of the column in 'name' holding the raster object}
+\item{rast}{Name of the column in \code{name} holding the raster object}
 
-\item{digits}{numeric, precision for detecting whether points are
-on a regular grid (a low number of digits is a low precision)
-- From rasterFromXYZ function (\code{raster} package)}
+\item{bands}{Index number(s) for the band(s) to retrieve (defaults to 1).
+The special case (\code{bands = TRUE}) returns all bands in the raster.}
 
 \item{boundary}{\code{sp} object or numeric. A Spatial* object,
 whose bounding box will be used to select the part of the
 raster to import. Alternatively, four numbers
-(e.g. \code{c(north, south, east, west)}) indicating the
-projection-specific limits with which to clip the raster. NULL
+(e.g. \code{c([top], [bottom], [right], [left])}) indicating the
+projection-specific limits with which to clip the raster. \code{boundary = NULL}
 (default) will return the full raster.}
 }
 \value{
@@ -32,14 +31,20 @@ RasterLayer
 \description{
 Retrieve rasters from a PostGIS table.
 }
+\details{
+Default is to return a \code{raster}-class object
+\code{RasterLayer} for one-band, \code{RasterBrick} for
+multiple bands. \code{sp}-class rasters (\code{SpatialGrid*}s or
+\code{SpatialPixels*}) written using \code{pgWriteRast} will
+attempt to re-import as the same data class.
+}
 \examples{
 \dontrun{
 pgGetRast(conn, c("schema", "tablename"))
-pgGetRast(conn, c("schema", "DEM"), digits = 9, boundary = c(55,
+pgGetRast(conn, c("schema", "DEM"), boundary = c(55,
     50, 17, 12))
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }
-

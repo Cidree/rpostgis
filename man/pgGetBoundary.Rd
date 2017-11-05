@@ -4,24 +4,28 @@
 \alias{pgGetBoundary}
 \title{Retrieve bounding envelope of geometries or rasters.}
 \usage{
-pgGetBoundary(conn, name, geom = "geom")
+pgGetBoundary(conn, name, geom = "geom", clauses = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
 
-\item{name}{A character string specifying a PostgreSQL schema (if
-necessary), and table or view name for the table holding the
-geometries/raster(s) (e.g., name = c("schema","table"))}
+\item{name}{A character string specifying a PostgreSQL schema and
+table/view name holding the geometry (e.g., \code{name =
+c("schema","table")})}
 
-\item{geom}{character, Name of the column in 'name' holding the
-geometry or raster object (Default = 'geom')}
+\item{geom}{character, Name of the column in \code{name} holding the
+geometry/(geography) or raster object (Default = \code{"geom"})}
+
+\item{clauses}{character, additional SQL to append to modify select
+query from table. Must begin with an SQL clause (e.g., "WHERE ...",
+"ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.}
 }
 \value{
 SpatialPolygon
 }
 \description{
 Retrieve bounding envelope (rectangle) of all geometries or
-rasters in a Postgresql table.
+rasters in a PostGIS table.
 }
 \examples{
 \dontrun{
@@ -30,6 +34,5 @@ pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 }
 }
 \author{
-David Bucklin \email{dbucklin@ufl.edu}
+David Bucklin \email{david.bucklin@gmail.com}
 }
-

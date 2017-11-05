@@ -5,7 +5,8 @@
 ##' Add a new POINT or LINESTRING geometry field.
 ##'
 ##' @param conn A connection object.
-##' @param name A character string specifying a PostgreSQL table name.
+##' @param name A character string specifying a PostgreSQL schema and
+##'     table name (e.g., \code{name = c("schema","table")})
 ##' @param colname A character string specifying the name of the new
 ##'     geometry column.
 ##' @param x The name of the x/longitude field.
@@ -62,7 +63,7 @@ pgMakePts <- function(conn, name, colname = "geom", x = "x",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec)
@@ -93,7 +94,7 @@ pgMakePts <- function(conn, name, colname = "geom", x = "x",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {
@@ -150,7 +151,7 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec)
@@ -186,7 +187,7 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
     if (display) {
         message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
         message(tmp.query)
-        message("--")
+        #message("--")
     }
     ## Execute the query
     if (exec) {

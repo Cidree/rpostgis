@@ -28,6 +28,7 @@
 ##' (faster with large datasets), otherwise the \code{rgeos} function
 ##' \code{writeWKT} is used.
 ##'
+##'
 ##' @param data.obj A Spatial* or Spatial*DataFrame, or data frame for
 ##'     \code{pgInsertize}.
 ##' @param geom character string, the name of geometry column in the
@@ -51,8 +52,10 @@
 ##'     column to be added to the table.  (for spatial objects without
 ##'     data frames, this column is created even if left \code{NULL}
 ##'     and defaults to the name \code{"gid"}).
+##' @param row.names Whether to add the data frame row names to the 
+##'     database table. Column name will be '.R_rownames'.
 ##' @param alter.names Logical, whether to make database column names
-##'     DB-compliant (remove special characters). Defualt is
+##'     DB-compliant (remove special characters). Default is
 ##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
 ##'     to non-standard names in an existing database table using the
 ##'     \code{force.match} setting.)
@@ -61,14 +64,21 @@
 ##'     existing database table \code{name}. Only columns in the 
 ##'     data frame that exactly match the database
 ##'     table will be inserted into the database table.
-##' @author David Bucklin \email{dbucklin@@ufl.edu}
+##' @param df.mode Logical; Whether to write data in data frame mode 
+##'     (preserving data frame column attributes and row.names).
+##'     A new table must be created with this mode (or overwrite set to TRUE),
+##'     and the row.names, alter.names, and new.id arguments will
+##'     be ignored (see \code{dbWriteDataFrame} for more information.
+##' @param geog Logical; Whether to write the spatial data as a PostGIS 
+##' 'GEOGRPAHY' type.
+##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @keywords internal
 ##' @importFrom stats na.omit
 ##' @importFrom rgeos writeWKT
 ##' @importFrom DBI dbDriver
 ##' @return pgi A list containing four character strings: (1)
 ##'     in.table, the table name which will be created or inserted
-##'     into, if specifed by either create.table or force.match (else
+##'     into, if specified by either create.table or force.match (else
 ##'     NULL) (2) db.new.table, the SQL statement to create the new
 ##'     table, if specified in create.table (else NULL), (3)
 ##'     db.cols.insert, a character string of the database column
@@ -104,7 +114,8 @@
 ##' }
 
 pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
-    force.match = NULL, conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE) {
+    force.match = NULL, conn = NULL, new.id = NULL, row.names = FALSE,
+    alter.names = FALSE, partial.match = FALSE, df.mode = FALSE, geog = FALSE) {
     ## Load wkb package if available
     wkb.t <- suppressPackageStartupMessages(requireNamespace("wkb",quietly=TRUE))
     mx <- 1
@@ -156,6 +167,11 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         colnames(dat) <- t.names
         geom <- tolower(gsub(replace, "_", geom))
     }
+    
+    if (row.names) {
+      dat<-data.frame(dat, .R_rownames=attr(dat, "row.names"), stringsAsFactors = FALSE)
+    }
+    
     ## Handle projections - first check if connection given; if so,
     ## try to resolve SRID if it doesn't exist, try to create (if no
     ## writing for user on spatial_ref_sys, will fail quietly)
@@ -195,12 +211,34 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         if (multi) {
             pgtype <- paste0("Multi", pgtype)
         }
-        if (!is.na(proj)) {
-            pgtype <- paste0(pgtype, ",", proj)
+        if (!is.na(proj[1])) {
+            pgtype <- paste0(pgtype, ",", proj[1])
         }
-        add.geom <- paste0("ALTER TABLE ", nt[1], ".", nt[2],
-            " ADD COLUMN ", geom, " geometry(", pgtype, ");")
-        new.table <- paste0(new.table, "; ", add.geom)
+        if (!geog) {
+          add.geom <- paste0("ALTER TABLE ", nt[1], ".", nt[2],
+            " ADD COLUMN ", geom, " geometry(", pgtype, ");") 
+        } else {
+          add.geom <- paste0("ALTER TABLE ", nt[1], ".", nt[2],
+            " ADD COLUMN ", geom, " geography(", pgtype, ");") 
+        }
+        new.table <- paste0(new.table, "\n", add.geom)
+        
+        ###
+        if(df.mode) {
+            # add geom column with attribute proj4string
+            eval(parse(text = paste0("dat<-data.frame(dat,.rpostgis.geom.",geom," = 1)")))
+            eval(parse(text = paste0("dat$.rpostgis.geom.",geom," <- '",
+                                     as.character(data.obj@proj4string),"'")))
+            dat <-dbWriteDataFrame(conn, in.tab, dat , only.defs = TRUE)[,1:length(names(dat))-1] # dat.na not used further
+          } else {
+            # remove existing defs if table exists
+            if (dbExistsTable(conn, ".R_df_defs", table.only = TRUE)) {
+              sql_query<-paste0("DELETE FROM \".R_df_defs\" WHERE table_nm = ",
+                dbQuoteString(conn, in.tab[length(in.tab)]),";")
+              dbExecute(conn, sql_query)
+            }
+          }
+        ###
     }
     if (!is.null(force.match)) {
         if (is.null(conn)) {
@@ -241,11 +279,12 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     ## geometry is inserted)
     open <- "'"
     close <- "',"
-    if (!wkb.t | multi | class(data.obj)[1] %in% c("SpatialLines",
+    if (!wkb.t | multi | geog | class(data.obj)[1] %in% c("SpatialLines",
         "SpatialLinesDataFrame")) {
         ## wkt conversion, multipolygons not handled correctly by wkb
         ## at this time, and wkb only outputs MULTILINESTRINGS (so all
         ## linestrings are sent using WKT)
+        if (geog) cast <- "::geography" else cast <- NULL
         message("Using writeWKT from rgeos package...")
         geom.1 <- rgeos::writeWKT(data.obj, byid = TRUE)
         if (length(colnames(dat)) == 0) {
@@ -259,19 +298,19 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         ## Set all NA to NULL
         df[is.na(df)] <- "NULL"
         ## Double all single ' to escape. Format rows of data frame
-        if (!is.na(proj)) {
+        if (!is.na(proj[1])) {
             if (multi == TRUE) {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_Multi(ST_GeomFromText('", x[length(colnames(df))],
-                  "',", proj, ")))"))
+                  "',", proj[1], "))", cast, ")"))
             } else {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_GeomFromText('", x[length(colnames(df))],
-                  "',", proj, "))"))
+                  "',", proj[1], ")", cast, ")"))
             }
         } else {
             warning("Spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0).")
@@ -280,13 +319,13 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_Multi(ST_GeomFromText('", x[length(colnames(df))],
-                  "')))"))
+                  "'))", cast, ")"))
             } else {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_GeomFromText('", x[length(colnames(df))],
-                  "'))"))
+                  "')", cast, ")"))
             }
         }
     } else {
@@ -306,19 +345,19 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
         ## Set all NA to NULL
         df[is.na(df)] <- "NULL"
         ## Double all single quotes to escape. Format rows of data frame.
-        if (!is.na(proj)) {
+        if (!is.na(proj[1])) {
             if (multi == TRUE) {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_Multi(ST_SetSRID('", x[length(colnames(df))],
-                  "'::geometry,", proj, ")))"))
+                  "'::geometry,", proj[1], ")))"))
             } else {
                 d1 <- apply(df, 1, function(x) paste0("(", open,
                   toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                     1], fixed = TRUE), collapse = "','")), close,
                   "ST_SetSRID('", x[length(colnames(df))], "'::geometry,",
-                  proj, "))"))
+                  proj[1], "))"))
             }
         } else {
             warning("Spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0).")
@@ -369,7 +408,8 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
 ##' }
 
 pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL, 
-    conn = NULL, new.id = NULL, alter.names = TRUE, partial.match = FALSE) {
+    conn = NULL, new.id = NULL, row.names = FALSE, alter.names = FALSE,
+    partial.match = FALSE, df.mode = FALSE) {
     if (!is.data.frame(data.obj)) {
         stop("data.obj must be a data frame.")
     }
@@ -395,6 +435,11 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         t.names <- tolower(gsub(replace, "_", colnames(data.obj)))
         colnames(data.obj) <- t.names
     }
+    
+    if (row.names) {
+      data.obj<-data.frame(data.obj, .R_rownames=attr(data.obj, "row.names"), stringsAsFactors = FALSE)
+    }
+    
     ## Create new table statement if set
     if (!is.null(create.table)) {
         nt <- dbTableNameFix(conn,create.table)
@@ -402,6 +447,20 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
         ## Make create table statement
         new.table <- dbBuildTableQuery(conn, name = in.tab, 
             obj = data.obj, row.names = FALSE)
+        
+        ###
+        if(df.mode) {
+          data.obj<-dbWriteDataFrame(conn, in.tab, data.obj, only.defs = TRUE)
+        } else {
+          # remove existing defs if table exists
+          if (dbExistsTable(conn, ".R_df_defs", table.only = TRUE)) {
+            sql_query<-paste0("DELETE FROM \".R_df_defs\" WHERE table_nm = ",
+              dbQuoteString(conn, in.tab[length(in.tab)]),";")
+            dbExecute(conn, sql_query)
+          }
+        }
+        ###
+        
     }
     ## Match columns to DB table if set
     if (!is.null(force.match)) {

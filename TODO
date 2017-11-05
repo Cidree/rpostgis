@@ -1,8 +1,9 @@
+* store proj4string for geometry data frame mode .R_df_defs (?)
+ 
+
 * pgIntersectPts (pg-functions.R) -> move to rpostgisLT(?)
 
 * pgIntersectStp (pgIntersectsSts in pg-functions.R) -> move to rpostgisLT(?)
-
-* sqlCopyCSV (pg-functions.R)
 
 * Change pgAddKey into pgKey (+ action = "drop"?)
 
@@ -14,11 +15,15 @@
 
 * add st_isvalid check to pgGet* functions(?)
 
-* add support for loading "geography" data type in pgGet* functions
+5/3/17
 
-* update pgGetRast.r to load rasters from PostGIS type
+* create internal function to handle data frame mode process (for use in dbWriteDataFrame, and rpostgisLT infolocs writing).
 
-* insert rasters into tables
+6/2/2017
+
+* clauses for pgGetBoundary
+
+* 'proj' argument in GET functions to return data in different projection
 
 KNOWN ISSUES
 

@@ -4,7 +4,7 @@
 ##'
 ##' The function checks for the availability of the PostGIS extension,
 ##' and if it is available, but not installed, install
-##' it. Additionnaly, can also install Topology, Tiger Geocoder and
+##' it. Additionally, can also install Topology, Tiger Geocoder and
 ##' SFCGAL extensions.
 ##'
 ##' @param conn A connection object (required, even if \code{exec =
@@ -199,5 +199,5 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
         }
     }
     ## Return TRUE
-    return(TRUE)
+    if (exec) return(TRUE)
 }
