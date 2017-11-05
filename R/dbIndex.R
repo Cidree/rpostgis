@@ -34,26 +34,30 @@
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
-##' ## examples use a dummy connection from DBI package
-##' conn<-DBI::ANSI()
-##' dbIndex(conn,name = c("fla", "bli"), colname = "geom", method = "gist",
+##' ## Examples use a dummy connection from DBI package
+##' conn <- DBI::ANSI()
+##'
+##' ## GIST index
+##' dbIndex(conn, name = c("sch", "tbl"), colname = "geom", method = "gist",
 ##'     exec = FALSE)
-
+##'
+##' ## Regular BTREE index on multiple columns
+##' dbIndex(conn, name = c("sch", "tbl"), colname = c("col1", "col2",
+##'     "col3"), exec = FALSE)
 dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
     method = c("btree", "hash", "rtree", "gist"), display = TRUE,
     exec = TRUE) {
-    ## Check and prepare the schema.name and column name
-    name <- dbTableNameFix(conn,name)
-    nameque <- paste(name, collapse = ".")
-    colname<-DBI::dbQuoteIdentifier(conn,colname)
     ## Check and prepare the name of the index
     if (missing(idxname)) {
-        idxname <- DBI::dbQuoteIdentifier(conn,
-            paste(gsub('"','',name[length(name)]), gsub('"','',colname), "idx",
-            sep = "_"))
-        } else {
-        idxname<-DBI::dbQuoteIdentifier(conn,idxname)      
-            }
+        idxname <- DBI::dbQuoteIdentifier(conn, paste(name[length(name)],
+            paste(colname, collapse = "_"), "idx", sep = "_"))
+    } else {
+        idxname <- DBI::dbQuoteIdentifier(conn, idxname)
+    }
+    ## Check and prepare the schema.name and column name
+    name <- dbTableNameFix(conn, name)
+    nameque <- paste(name, collapse = ".")
+    colname <- paste(DBI::dbQuoteIdentifier(conn, colname), collapse = ", ")
     ## Argument UNIQUE
     unique <- ifelse(unique, "UNIQUE ", "")
     ## Check and prepare the method for the index
