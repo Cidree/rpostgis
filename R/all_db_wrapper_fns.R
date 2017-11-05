@@ -349,11 +349,14 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
 ##'
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL table name.
-##' @param colname A character string specifying the name of the
-##'     column to which the key will be associated.
+##' @param colname A character string, or a character vector
+##'     specifying the name of the column to which the key will be
+##'     associated; alternatively, a character vector specifying the
+##'     name of the columns to build the index.
 ##' @param idxname A character string specifying the name of the index
-##'     to be created. By default, this is the name of the table
-##'     (without the schema) suffixed by \code{_idx}.
+##'     to be created. By default, this uses the name of the table
+##'     (without the schema) and the name of the columns as follows:
+##'     \code{<table_name>_<column_names>_idx}.
 ##' @param unique Logical. Causes the system to check for duplicate
 ##'     values in the table when the index is created (if data already
 ##'     exist) and each time data is added. Attempts to insert or
@@ -363,7 +366,7 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
 ##'     index. Choices are \code{"btree"}, \code{"hash"},
 ##'     \code{"rtree"}, and \code{"gist"}. The default method is
 ##'     \code{"btree"}, although \code{"gist"} should be the index of
-##'     choice for Post GIS spatial types (geometry, geography,
+##'     choice for PostGIS spatial types (geometry, geography,
 ##'     raster).
 ##' @param display Logical. Whether to display the query (defaults to
 ##'     \code{TRUE}).
