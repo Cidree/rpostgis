@@ -85,7 +85,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     
     r1 <- raster
     res <- round(raster::res(r1), 10)
-    
+
     # figure out block size
     tr <- raster::blockSize(r1[[1]], 10000, minblocks = 1, minrows = 80)
     cr <- raster::blockSize(raster::t(r1[[1]]), 10000, minblocks = 1, 
@@ -147,12 +147,20 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
                     res[1], ",", -res[2], ", 0, 0,", srid[1], ") );")
                 dbExecute(conn, tmp.query)
                 
+                # upper left x/y for alignment snapping
+                if (l == 1) {
+                  tmp.query <- paste0("SELECT st_upperleftx(rast) x FROM ", paste(nameq, collapse = ".") ," where rid = 1;")
+                  upx <- dbGetQuery(conn, tmp.query)$x
+                  tmp.query <- paste0("SELECT st_upperlefty(rast) y FROM ", paste(nameq, collapse = ".") ," where rid = 1;")
+                  upy <- dbGetQuery(conn, tmp.query)$y
+                }
+                
                 # 3. new band
                 bndargs<-paste0("ROW(",1:length(names(r1)),",",bit.depth,"::text,0,", ndval,")")
                 tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
-                    " SET rast = ST_AddBand(rast,ARRAY[",
-                    paste(bndargs,collapse = ","),"]::addbandarg[])
-                    where rid = ", 
+                    " SET rast = ST_SnapToGrid(ST_AddBand(rast,ARRAY[",
+                    paste(bndargs,collapse = ","),"]::addbandarg[]), ", upx, "," , upy , ") ", 
+                    "where rid = ", 
                     n, ";")
                 dbExecute(conn, tmp.query)
               }
