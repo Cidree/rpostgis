@@ -5,6 +5,11 @@ OVERALL CHANGES
 
 * `dbAddKey` and `dbIndex`: support added for keys and indexes referencing multiple columns.
 
+BUG FIXES
+
+* `pgWriteRast`: fixed alignment issue affecting high-precision decimal-degree unit based raster writing, where
+PostGIS was not able to add a same alignment constraint to all tiles in the newly-created raster.
+
 rpostgis 1.3.0
 ==============
 
