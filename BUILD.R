@@ -1,4 +1,4 @@
-setwd('C:/David/git/rpostgis/')
+setwd('/home/david/git/rpostgis/')
 library(devtools)
 library(basr)
 install()

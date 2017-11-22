@@ -12,12 +12,15 @@ dbIndex(conn, name, colname, idxname, unique = FALSE, method = c("btree",
 
 \item{name}{A character string specifying a PostgreSQL table name.}
 
-\item{colname}{A character string specifying the name of the
-column to which the key will be associated.}
+\item{colname}{A character string, or a character vector
+specifying the name of the column to which the key will be
+associated; alternatively, a character vector specifying the
+name of the columns to build the index.}
 
 \item{idxname}{A character string specifying the name of the index
-to be created. By default, this is the name of the table
-(without the schema) suffixed by \code{_idx}.}
+to be created. By default, this uses the name of the table
+(without the schema) and the name of the columns as follows:
+\code{<table_name>_<column_names>_idx}.}
 
 \item{unique}{Logical. Causes the system to check for duplicate
 values in the table when the index is created (if data already
@@ -29,7 +32,7 @@ generate an error.}
 index. Choices are \code{"btree"}, \code{"hash"},
 \code{"rtree"}, and \code{"gist"}. The default method is
 \code{"btree"}, although \code{"gist"} should be the index of
-choice for Post GIS spatial types (geometry, geography,
+choice for PostGIS spatial types (geometry, geography,
 raster).}
 
 \item{display}{Logical. Whether to display the query (defaults to
@@ -45,10 +48,16 @@ raster).}
 Defines a new index on a PostgreSQL table.
 }
 \examples{
-## examples use a dummy connection from DBI package
-conn<-DBI::ANSI()
-dbIndex(conn,name = c("schema", "table"), colname = "geom", method = "gist",
+## Examples use a dummy connection from DBI package
+conn <- DBI::ANSI()
+
+## GIST index
+dbIndex(conn, name = c("sch", "tbl"), colname = "geom", method = "gist",
     exec = FALSE)
+
+## Regular BTREE index on multiple columns
+dbIndex(conn, name = c("sch", "tbl"), colname = c("col1", "col2",
+    "col3"), exec = FALSE)
 }
 \seealso{
 The PostgreSQL documentation:

@@ -10,20 +10,26 @@ dbAddKey(conn, name, colname, type = c("primary", "foreign"), reference,
 \arguments{
 \item{conn}{A connection object.}
 
-\item{name}{A character string specifying a PostgreSQL table name.}
+\item{name}{A character string, or a character vector, specifying
+a PostgreSQL table name.}
 
 \item{colname}{A character string specifying the name of the
-column to which the key will be assign.}
+column to which the key will be assign; alternatively, a
+character vector specifying the name of the columns for keys
+spanning more than one column.}
 
 \item{type}{The type of the key, either \code{"primary"} or
 \code{"foreign"}}
 
 \item{reference}{A character string specifying a foreign table
-name to which the foreign key will be associated.}
+name to which the foreign key will be associated (ignored if
+\code{type == "primary"}).}
 
 \item{colref}{A character string specifying the name of the
 primary key in the foreign table to which the foreign key will
-be associated.}
+be associated; alternatively, a character vector specifying
+the name of the columns for keys spanning more than one column
+(ignored if \code{type == "primary"}).}
 
 \item{display}{Logical. Whether to display the query (defaults to
 \code{TRUE}).}
@@ -38,10 +44,24 @@ be associated.}
 Add a primary or foreign key to a table column.
 }
 \examples{
-## examples use a dummy connection from DBI package
-conn<-DBI::ANSI()
-dbAddKey(conn, name = c("schema", "table"), colname = "id", type = "foreign",
-    reference = c("flu", "bla"), colref = "id", exec = FALSE)
+## Examples use a dummy connection from DBI package
+conn <- DBI::ANSI()
+
+## Primary key
+dbAddKey(conn, name = c("sch1", "tbl1"), colname = "id1", exec = FALSE)
+
+## Primary key using multiple columns
+dbAddKey(conn, name = c("sch1", "tbl1"), colname = c("id1", "id2",
+    "id3"), exec = FALSE)
+
+## Foreign key
+dbAddKey(conn, name = c("sch1", "tbl1"), colname = "id", type = "foreign",
+    reference = c("sch2", "tbl2"), colref = "id", exec = FALSE)
+
+## Foreign key using multiple columns
+dbAddKey(conn, name = c("sch1", "tbl1"), colname = c("id1", "id2"),
+    type = "foreign", reference = c("sch2", "tbl2"), colref = c("id3",
+        "id4"), exec = FALSE)
 }
 \seealso{
 The PostgreSQL documentation:
