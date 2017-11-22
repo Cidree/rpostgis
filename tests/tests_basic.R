@@ -3,7 +3,7 @@
 cwd <- getwd()
 
 tryCatch({
-    # setwd(".rpostgis)
+    #setwd(".rpostgis")
     library(rpostgisLT) # for roe deer example datasets
     library(RPostgreSQL)
     drv <- dbDriver("PostgreSQL")
@@ -211,8 +211,12 @@ tryCatch({
         
         # test general db functions
         dbComment(conn, new_table, comment = "test table for rpostgis.")
-        dbAddKey(conn, new_table, colname = "gid_r")
+        dbAddKey(conn, new_table, colname = c("gid_r", "time")) # multi-column primary
         
+        # send data to database with geom, overwrite, with new ID num
+        pgInsert(conn, new_table, pts, overwrite = TRUE, new.id = "gid_r")
+        dbAddKey(conn, new_table, colname = c("gid_r"))
+
         dbColumn(conn, new_table, "date2", coltype = "character varying")
         dbExecute(conn, "UPDATE rpostgis.db_test SET date2 = time;")
         
@@ -224,6 +228,8 @@ tryCatch({
         
         dbIndex(conn, new_table, colname = "date2")
         dbIndex(conn, new_table, colname = "geom", method = "gist")
+        # multi-colum index
+        dbIndex(conn, new_table, colname = c("gid_r", "time"), method = "btree")
         
         dbVacuum(conn, new_table, full = TRUE)
         
