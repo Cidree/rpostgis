@@ -1,9 +1,13 @@
-rpostgis 1.3.0-1
+rpostgis 1.3.0-2
 ================
 
-OVERALL CHANGES
+NEW FEATURES
 
 * `dbAddKey` and `dbIndex`: support added for keys and indexes referencing multiple columns.
+
+* `pgWriteRast`: new `blocks` argument to specify exact number of desired blocks for the new 
+raster in PostGIS table. Default block size (`blocks = NULL`) will retain previous functionality,
+though the minimum block size (rows or columns) was increased to 100 (previously 80).
 
 BUG FIXES
 

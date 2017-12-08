@@ -4,8 +4,8 @@
 \alias{pgWriteRast}
 \title{Write raster to PostGIS database table.}
 \usage{
-pgWriteRast(conn, name, raster, bit.depth = NULL, constraints = TRUE,
-  overwrite = FALSE)
+pgWriteRast(conn, name, raster, bit.depth = NULL, blocks = NULL,
+  constraints = TRUE, overwrite = FALSE)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -21,6 +21,10 @@ raster package; a \code{SpatialGrid*} or \code{SpatialPixels*} from sp package}
 (unsigned int, signed int, or float, depending on the data)
 if left null, but can be specified (as character) as one of the
 PostGIS pixel types (see \url{http://postgis.net/docs/RT_ST_BandPixelType.html})}
+
+\item{blocks}{Optional desired number of blocks (tiles) to split the raster
+into in the resulting PostGIS table. This should be specified as a
+one or two-length (columns, rows) integer vector.}
 
 \item{constraints}{Whether to create constraints from raster data. Recommended
 to leave \code{TRUE} unless applying constraints manually (see
@@ -43,6 +47,12 @@ RasterLayer names will be stored in an array in the column
 
 Rasters from the \code{sp} package are converted to \code{raster}
 package objects prior to insert.
+
+If \code{blocks = NULL} the attempted block size will be around
+10,000 pixels in size (100 x 100 cells), so number of blocks will
+vary by raster size. If a specified number of blocks is desired,
+set blocks to a one or two-length integer vector. Note that fewer, larger
+blocks generally results in faster write times.
 }
 \examples{
 \dontrun{

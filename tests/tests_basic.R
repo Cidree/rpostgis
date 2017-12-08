@@ -3,7 +3,7 @@
 cwd <- getwd()
 
 tryCatch({
-    #setwd(".rpostgis")
+    # setwd("./rpostgis")
     library(rpostgisLT) # for roe deer example datasets
     library(RPostgreSQL)
     drv <- dbDriver("PostgreSQL")
@@ -120,7 +120,7 @@ tryCatch({
 
         x = GridTopology(c(0,0), c(1,1), c(5,5))
         x = SpatialGrid(grid = x, proj4string = CRS("+init=epsg:28992"))
-        pgWriteRast(conn, c("rpostgis", "from_sg"), x, overwrite = TRUE)
+        pgWriteRast(conn, c("rpostgis", "from_sg"), x, blocks = c(1,2), overwrite = TRUE)
         
         x2 <- pgGetRast(conn, c("rpostgis", "from_sg"))
         all.equal(class(x), class(x2))
@@ -150,22 +150,23 @@ tryCatch({
         
         r <- raster(nrows = 18, ncols = 36, xmn = -180, xmx = 180, 
             ymn = -90, ymx = 90, vals = 1)
-        pgWriteRast(conn, c("rpostgis", "test_rast"), raster = r, 
+        pgWriteRast(conn, c("rpostgis", "test_rast"), raster = r, blocks = c(2,3.5),
             bit.depth = "2BUI", overwrite = TRUE)
         rast2 <- pgGetRast(conn,  c("rpostgis", "test_rast"))
+        print(all.equal(r, rast2))
         
         ae.all <- c(ae.all,paste(all.equal(r, rast2),collapse = ","))
         
         data(roe_raster)
         rast <- roe_raster$corine06
-        pgWriteRast(conn, c("rpostgis", "clc"), raster = rast, 
+        pgWriteRast(conn, c("rpostgis", "clc"), raster = rast, blocks = c(18,10), 
             overwrite = TRUE)
         
         rast2 <- pgGetRast(conn, c("rpostgis", "clc"), bands = c(1))
         ae.all <- c(ae.all,paste(all.equal(rast,rast2),collapse = ","))
         
         rast <- roe_raster$srtm_dem
-        pgWriteRast(conn, c("rpostgis", "srtm"), raster = rast, 
+        pgWriteRast(conn, c("rpostgis", "srtm"), raster = rast, blocks = c(14,2),
             overwrite = TRUE)
         
         rast2 <- pgGetRast(conn, c("rpostgis", "srtm"), bands = c(1))
@@ -180,7 +181,7 @@ tryCatch({
         system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, 
             overwrite = TRUE))
         rast <- brick(rast)
-        system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, 
+        system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, blocks = c(1,3),
             overwrite = TRUE))
         
         rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(2:4), boundary = c(30, -5, -80, -95))

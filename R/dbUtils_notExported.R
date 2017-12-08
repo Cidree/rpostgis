@@ -258,3 +258,68 @@ pgGetSRID <- function(conn, name, geom) {
     
     return(srid$st_srid)
 }
+
+## bs
+##' Return indexes for an exact number of blocks for a raster
+##' 
+##' @param r a raster
+##' @param blocks Number of desired blocks (columns, rows)
+##' 
+##' @importFrom raster nrow ncol
+##' @keywords internal
+
+bs <- function(r, blocks) {
+  blocks <- as.integer(blocks)
+  if (any(is.na(blocks)) || length(blocks) > 2) stop("blocks must be a 1- or 2-length integer vector.")
+  if (any(blocks == 0)) stop("Invalid number of blocks (0).")
+  if (length(blocks) == 1) blocks <- c(blocks, blocks)
+  r <- r[[1]]
+  
+  cr <- list()
+  tr <- list()
+  
+  # cr
+  b <- blocks[1]
+  n.r <- raster::ncol(r)
+  if (b == 1) {
+    cr$row <- 1
+    cr$nrows <- n.r
+    cr$n <- 1
+  } else {
+    if (b >= n.r) b <- n.r
+    if (n.r%%b == 0) {
+      by <- n.r/b
+      cr$row <- seq(1, to = n.r, by = by)
+      cr$nrows <- rep(by, b)
+      cr$n <- length(cr$row)
+    } else {
+      by <- floor(n.r/b)
+      cr$row <- c(1,seq(1+by+(n.r%%b), to = n.r, by = by))
+      cr$nrows <- c(cr$row[2:length(cr$row)], n.r+1) - cr$row
+      cr$n <- length(cr$row)
+    }
+  }
+  
+  # tr
+  b <- blocks[2]
+  n.r <- raster::nrow(r)
+  if (b == 1) {
+    tr$row <- 1
+    tr$nrows <- n.r
+    tr$n <- 1
+  } else {
+    if (b >= n.r) b <- n.r
+    if (n.r%%b == 0) {
+      by <- n.r/b
+      tr$row <- seq(1, to = n.r, by = by)
+      tr$nrows <- rep(by, b)
+      tr$n <- length(tr$row)
+    } else {
+      by <- floor(n.r/b)
+      tr$row <- c(1,seq(1+by+(n.r%%b), to = n.r, by = by))
+      tr$nrows <- c(tr$row[2:length(tr$row)], n.r+1) - tr$row
+      tr$n <- length(tr$row)
+    }
+  }
+  return(list(cr = cr, tr = tr))
+}

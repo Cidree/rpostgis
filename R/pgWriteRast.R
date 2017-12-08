@@ -10,6 +10,12 @@
 ##' 
 ##' Rasters from the \code{sp} package are converted to \code{raster}
 ##' package objects prior to insert.
+##' 
+##' If \code{blocks = NULL} the attempted block size will be around
+##' 10,000 pixels in size (100 x 100 cells), so number of blocks will
+##' vary by raster size. If a specified number of blocks is desired,
+##' set blocks to a one or two-length integer vector. Note that fewer, larger
+##' blocks generally results in faster write times.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema (if
@@ -21,6 +27,9 @@
 ##'     (unsigned int, signed int, or float, depending on the data)
 ##'     if left null, but can be specified (as character) as one of the
 ##'     PostGIS pixel types (see \url{http://postgis.net/docs/RT_ST_BandPixelType.html})
+##' @param blocks Optional desired number of blocks (tiles) to split the raster
+##'     into in the resulting PostGIS table. This should be specified as a
+##'     one or two-length (columns, rows) integer vector.
 ##' @param constraints Whether to create constraints from raster data. Recommended
 ##'     to leave \code{TRUE} unless applying constraints manually (see
 ##'     \url{http://postgis.net/docs/RT_AddRasterConstraints.html}).
@@ -48,7 +57,7 @@
 ##' }
 
 pgWriteRast <- function(conn, name, raster, bit.depth = NULL, 
-    constraints = TRUE, overwrite = FALSE) {
+    blocks = NULL, constraints = TRUE, overwrite = FALSE) {
     
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
@@ -87,9 +96,15 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     res <- round(raster::res(r1), 10)
 
     # figure out block size
-    tr <- raster::blockSize(r1[[1]], 10000, minblocks = 1, minrows = 80)
-    cr <- raster::blockSize(raster::t(r1[[1]]), 10000, minblocks = 1, 
-        minrows = 80)
+    if (!is.null(blocks)) {
+      bs <- bs(r1, blocks)
+      tr <- bs$tr
+      cr <- bs$cr
+    } else {
+      tr <- raster::blockSize(r1[[1]], 10000, minblocks = 1, minrows = 100)
+      cr <- raster::blockSize(raster::t(r1[[1]]), 10000, minblocks = 1, 
+        minrows = 100)
+    }
     
     message("Splitting ",length(names(r1))," band(s) into ", cr$n, " x ", tr$n, " blocks...")
     
@@ -110,6 +125,9 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     
     # band names
     bnds<-dbQuoteString(conn, paste0("{{",paste(names(r1),collapse = "},{"),"}}"))
+    
+    srid <- 0
+    try(srid <- suppressMessages(pgSRID(conn, r1@crs, create.srid = TRUE)))
     
     # loop over bands
     for (b in 1:length(names(r1))) {
@@ -133,9 +151,6 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
               # rid counter
               n <- n + 1
               
-              srid <- 0
-              try(srid <- suppressMessages(pgSRID(conn, r@crs, create.srid = TRUE)))
-              
               # only ST_MakeEmptyRaster/ST_AddBand during first band loop
               if (b == 1) {
                 
@@ -148,7 +163,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
                 dbExecute(conn, tmp.query)
                 
                 # upper left x/y for alignment snapping
-                if (l == 1) {
+                if (l == 1 & i == 1) {
                   tmp.query <- paste0("SELECT st_upperleftx(rast) x FROM ", paste(nameq, collapse = ".") ," where rid = 1;")
                   upx <- dbGetQuery(conn, tmp.query)$x
                   tmp.query <- paste0("SELECT st_upperlefty(rast) y FROM ", paste(nameq, collapse = ".") ," where rid = 1;")
