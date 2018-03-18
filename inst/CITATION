@@ -4,9 +4,9 @@ citEntry(entry = "Manual",
   title        = "rpostgis: R Interface to a 'PostGIS' Database",
   author       = personList(as.person("Mathieu Basille"),
                             as.person("David Bucklin")),
-  year         = "2017",
-  url          = "https://CRAN.R-project.org/package=rpostgis",
+  year         = "2018",
+  url          = "https://mablab.org/rpostgis",
 
   textVersion  =
-  paste("Mathieu Basille and David Bucklin (2017). rpostgis: R Interface to a 'PostGIS' Database. https://CRAN.R-project.org/package=rpostgis")
+  paste("Mathieu Basille and David Bucklin (2018). rpostgis: R Interface to a 'PostGIS' Database. https://mablab.org/rpostgis")
 )

@@ -1,0 +1,55 @@
+url: https://mablab.org/rpostgis
+
+template:
+  params:
+    bootswatch: cosmo
+
+navbar:
+  title: "rpostgis"
+  # type: inverse
+  left:
+    - icon: fa-home
+      href: index.html
+    - text: "Reference"
+      href: reference/index.html
+    - text: "News"
+      href: news/index.html
+    - icon: fa-github
+      href: https://github.com/mablab/rpostgis
+  right:
+    - text: "MabLab"
+      href: https://mablab.org/
+
+reference:
+- title: "PostGIS management"
+  contents:
+  - pgPostGIS
+  - pgListGeom
+  - pgListRast
+  - pgSRID
+- title: "Spatial data transfer"
+  contents:
+  - pgInsert
+  - pgGetGeom
+  - pgWriteRast
+  - pgGetRast
+- title: "Other spatial functions"
+  contents:
+  - pgGetBoundary
+  - pgMakePts
+  - pgMakeStp
+- title: "Storing R data.frame's in PostgreSQL"
+  contents: 
+  - dbWriteDataFrame
+  - dbReadDataFrame
+- title: "SQL wrappers for database management"
+  contents:
+  - dbSchema
+  - dbComment
+  - dbColumn
+  - dbAddKey
+  - dbAsDate
+  - dbIndex
+  - dbVacuum
+  - dbDrop
+  - dbTableInfo

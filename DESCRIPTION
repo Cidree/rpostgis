@@ -2,12 +2,11 @@ Package: rpostgis
 Version: 1.4.1
 Date: 2018-03-18
 Title: R Interface to a 'PostGIS' Database
-Description: Provides an interface between R and
-    'PostGIS'-enabled 'PostgreSQL' databases to transparently transfer
-    spatial data. Both vector (points, lines, polygons) and raster
-    data are supported in read and write modes. Also provides
-    convenience functions to execute common procedures in
-    'PostgreSQL/PostGIS'.
+Description: Provides an interface between R and 'PostGIS'-enabled
+    'PostgreSQL' databases to transparently transfer spatial
+    data. Both vector (points, lines, polygons) and raster data are
+    supported in read and write modes. Also provides convenience
+    functions to execute common procedures in 'PostgreSQL/PostGIS'.
 Authors@R: c(
     person("Mathieu", "Basille", email = "basille@ufl.edu", role =
            c("aut")),
@@ -30,6 +29,6 @@ Suggests:
     wkb
 License: GPL (>= 3)
 LazyData: true
-URL: https://mablab.org/rpostgis/index.html
+URL: https://mablab.org/rpostgis/
 BugReports: https://github.com/mablab/rpostgis/issues
 RoxygenNote: 6.0.1
