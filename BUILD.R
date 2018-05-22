@@ -19,6 +19,10 @@ run_examples()
 
 check(cran=TRUE)
 
+## Build documentation:
+pkgdown::build_site()
+
+
 #build binary
 # build()
 # install()

@@ -18,13 +18,29 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
   
-  
+  <script src="../extra.js"></script>
+<meta property="og:title" content="Function reference" />
+
+<meta property="og:image" content="https://mablab.org/rpostgis/logo.png" />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +63,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">rpostgis</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">rpostgis</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.4.1</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -76,6 +96,13 @@
   <a href="https://mablab.org/">MabLab</a>
 </li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -83,180 +110,175 @@
       
       </header>
 
-      <div class="row">
-  <div class="col-md-9">
+<div class="row">
+  <div class="contents col-md-9">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;1.4.1</small>
-      </h1>
+      <h1>Reference</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    <table class="ref-index">
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <colgroup>
+      <col class="alias" />
+      <col class="title" />
+    </colgroup>
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-postgis-management" class="hasAnchor"><a href="#section-postgis-management" class="anchor"></a>PostGIS management</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pgPostGIS.html">pgPostGIS</a></code> </p>
-          </td>
-          <td><p>Check and create PostGIS extension.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pgListGeom.html">pgListGeom</a></code> <code><a href="pgListGeom.html">pgListRast</a></code> </p>
-          </td>
-          <td><p>List geometries/rasters</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pgSRID.html">pgSRID</a></code> </p>
-          </td>
-          <td><p>Find (or create) PostGIS SRID based on CRS object.</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-spatial-data-transfer" class="hasAnchor"><a href="#section-spatial-data-transfer" class="anchor"></a>Spatial data transfer</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pgInsert.html">pgInsert</a></code> <code><a href="pgInsert.html">print</a></code> </p>
-          </td>
-          <td><p>Inserts data into a PostgreSQL table.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pgGetGeom.html">pgGetGeom</a></code> </p>
-          </td>
-          <td><p>Load a PostGIS geometry from a PostgreSQL table/view/query into R.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pgWriteRast.html">pgWriteRast</a></code> </p>
-          </td>
-          <td><p>Write raster to PostGIS database table.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pgGetRast.html">pgGetRast</a></code> </p>
-          </td>
-          <td><p>Load raster from PostGIS database.</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-other-spatial-functions" class="hasAnchor"><a href="#section-other-spatial-functions" class="anchor"></a>Other spatial functions</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pgGetBoundary.html">pgGetBoundary</a></code> </p>
-          </td>
-          <td><p>Retrieve bounding envelope of geometries or rasters.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="pgMakePts.html">pgMakePts</a></code> <code><a href="pgMakePts.html">pgMakeStp</a></code> </p>
-          </td>
-          <td><p>Add a POINT or LINESTRING geometry field.</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-storing-r-data-frame-s-in-postgresql" class="hasAnchor"><a href="#section-storing-r-data-frame-s-in-postgresql" class="anchor"></a>Storing R data.frame's in PostgreSQL</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbWriteDataFrame.html">dbWriteDataFrame</a></code> <code><a href="dbWriteDataFrame.html">dbReadDataFrame</a></code> </p>
-          </td>
-          <td><p>Write/read in data frame mode to/from database table.</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-sql-wrappers-for-database-management" class="hasAnchor"><a href="#section-sql-wrappers-for-database-management" class="anchor"></a>SQL wrappers for database management</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbSchema.html">dbSchema</a></code> </p>
-          </td>
-          <td><p>Check and create schema.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbComment.html">dbComment</a></code> </p>
-          </td>
-          <td><p>Comment table/view/schema.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbColumn.html">dbColumn</a></code> </p>
-          </td>
-          <td><p>Add or remove a column.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbAddKey.html">dbAddKey</a></code> </p>
-          </td>
-          <td><p>Add key.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbAsDate.html">dbAsDate</a></code> </p>
-          </td>
-          <td><p>Converts to timestamp.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbIndex.html">dbIndex</a></code> </p>
-          </td>
-          <td><p>Create an index.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbVacuum.html">dbVacuum</a></code> </p>
-          </td>
-          <td><p>Vacuum.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbDrop.html">dbDrop</a></code> </p>
-          </td>
-          <td><p>Drop table/view/schema.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="dbTableInfo.html">dbTableInfo</a></code> </p>
-          </td>
-          <td><p>Get information about table columns.</p></td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
+    <tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-postgis-management" class="hasAnchor"><a href="#section-postgis-management" class="anchor"></a>PostGIS management</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pgPostGIS.html">pgPostGIS()</a></code> </p>
+        </td>
+        <td><p>Check and create PostGIS extension.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pgListGeom.html">pgListGeom()</a></code> <code><a href="pgListGeom.html">pgListRast()</a></code> </p>
+        </td>
+        <td><p>List geometries/rasters</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pgSRID.html">pgSRID()</a></code> </p>
+        </td>
+        <td><p>Find (or create) PostGIS SRID based on CRS object.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-spatial-data-transfer" class="hasAnchor"><a href="#section-spatial-data-transfer" class="anchor"></a>Spatial data transfer</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pgInsert.html">pgInsert()</a></code> <code><a href="pgInsert.html">print(<i>&lt;pgi&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Inserts data into a PostgreSQL table.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pgGetGeom.html">pgGetGeom()</a></code> </p>
+        </td>
+        <td><p>Load a PostGIS geometry from a PostgreSQL table/view/query into R.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pgWriteRast.html">pgWriteRast()</a></code> </p>
+        </td>
+        <td><p>Write raster to PostGIS database table.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pgGetRast.html">pgGetRast()</a></code> </p>
+        </td>
+        <td><p>Load raster from PostGIS database.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-other-spatial-functions" class="hasAnchor"><a href="#section-other-spatial-functions" class="anchor"></a>Other spatial functions</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pgGetBoundary.html">pgGetBoundary()</a></code> </p>
+        </td>
+        <td><p>Retrieve bounding envelope of geometries or rasters.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="pgMakePts.html">pgMakePts()</a></code> <code><a href="pgMakePts.html">pgMakeStp()</a></code> </p>
+        </td>
+        <td><p>Add a POINT or LINESTRING geometry field.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-storing-r-data-frame-s-in-postgresql" class="hasAnchor"><a href="#section-storing-r-data-frame-s-in-postgresql" class="anchor"></a>Storing R data.frame's in PostgreSQL</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbWriteDataFrame.html">dbWriteDataFrame()</a></code> <code><a href="dbWriteDataFrame.html">dbReadDataFrame()</a></code> </p>
+        </td>
+        <td><p>Write/read in data frame mode to/from database table.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-sql-wrappers-for-database-management" class="hasAnchor"><a href="#section-sql-wrappers-for-database-management" class="anchor"></a>SQL wrappers for database management</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbSchema.html">dbSchema()</a></code> </p>
+        </td>
+        <td><p>Check and create schema.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbComment.html">dbComment()</a></code> </p>
+        </td>
+        <td><p>Comment table/view/schema.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbColumn.html">dbColumn()</a></code> </p>
+        </td>
+        <td><p>Add or remove a column.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbAddKey.html">dbAddKey()</a></code> </p>
+        </td>
+        <td><p>Add key.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbAsDate.html">dbAsDate()</a></code> </p>
+        </td>
+        <td><p>Converts to timestamp.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbIndex.html">dbIndex()</a></code> </p>
+        </td>
+        <td><p>Create an index.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbVacuum.html">dbVacuum()</a></code> </p>
+        </td>
+        <td><p>Vacuum.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbDrop.html">dbDrop()</a></code> </p>
+        </td>
+        <td><p>Drop table/view/schema.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="dbTableInfo.html">dbTableInfo()</a></code> </p>
+        </td>
+        <td><p>Get information about table columns.</p></td>
+      </tr>
+    </tbody>
+    </table>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -277,11 +299,31 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    
+    apiKey: 'API_KEY',
+    indexName: 'INDEX_NAME',
+    inputSelector: 'input#search-input.form-control',
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
+  });
+</script>
+
+
   </body>
 </html>
+

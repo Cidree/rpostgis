@@ -3,6 +3,9 @@ url: https://mablab.org/rpostgis
 template:
   params:
     bootswatch: cosmo
+    docsearch:
+      api_key: API_KEY
+      index_name: INDEX_NAME
 
 navbar:
   title: "rpostgis"

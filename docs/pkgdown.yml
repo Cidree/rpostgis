@@ -1,5 +1,8 @@
+pandoc: 1.17.2
+pkgdown: 1.0.0
+pkgdown_sha: ~
+articles: []
 urls:
   reference: https://mablab.org/rpostgis/reference
   article: https://mablab.org/rpostgis/articles
-articles: {}
 

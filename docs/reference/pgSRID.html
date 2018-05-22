@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Find (or create) PostGIS SRID based on CRS object. <U+2014> pgSRID <e2><80><a2> rpostgis</title>
+<title>Find (or create) PostGIS SRID based on CRS object. — pgSRID • rpostgis</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -18,13 +18,38 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
   
-  
+  <script src="../extra.js"></script>
+<meta property="og:title" content="Find (or create) PostGIS SRID based on CRS object. — pgSRID" />
+
+<meta property="og:description" content="This function takes CRS-class object and a
+PostgreSQL database connection (with PostGIS extension), and
+returns the matching SRID(s) for that CRS. If a match is not
+found, a new entry can be created in the PostgreSQL
+spatial_ref_sys table using the parameters specified by the
+CRS. New entries will be created with auth_name =
+'rpostgis_custom', with the default value being the next open value
+between 880001-889999 (a different SRID value can be entered if desired.)" />
+
+<meta property="og:image" content="https://mablab.org/rpostgis/logo.png" />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +72,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">rpostgis</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">rpostgis</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.4.1</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -76,6 +105,13 @@
   <a href="https://mablab.org/">MabLab</a>
 </li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -83,12 +119,15 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Find (or create) PostGIS SRID based on CRS object.</h1>
+    
+    <div class="hidden name"><code>pgSRID.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>This function takes <code><a href='http://www.rdocumentation.org/packages/sp/topics/CRS-class'>CRS</a></code>-class object and a
 PostgreSQL database connection (with PostGIS extension), and
@@ -99,10 +138,11 @@ CRS. New entries will be created with <code>auth_name =
 'rpostgis_custom'</code>, with the default value being the next open value
 between 880001-889999 (a different SRID value can be entered if desired.)</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>pgSRID</span>(<span class='no'>conn</span>, <span class='no'>crs</span>, <span class='kw'>create.srid</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>new.srid</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -171,11 +211,31 @@ David Bucklin <a href='mailto:david.bucklin@gmail.com'>david.bucklin@gmail.com</
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    
+    apiKey: 'API_KEY',
+    indexName: 'INDEX_NAME',
+    inputSelector: 'input#search-input.form-control',
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
+  });
+</script>
+
+
   </body>
 </html>
+

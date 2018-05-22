@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>All news • rpostgis</title>
+<title>Changelog • rpostgis</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -18,13 +18,29 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+
+
+<!-- docsearch -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
+
   
-  
+  <script src="../extra.js"></script>
+<meta property="og:title" content="Changelog" />
+
+<meta property="og:image" content="https://mablab.org/rpostgis/logo.png" />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +63,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">rpostgis</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">rpostgis</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.4.1</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -76,6 +96,13 @@
   <a href="https://mablab.org/">MabLab</a>
 </li>
       </ul>
+      
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -83,17 +110,17 @@
       
       </header>
 
-      <div class="row">
-
-  <div class="col-md-9">
+<div class="row">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Change log <small>All releases</small></h1>
+      <h1>Changelog <small></small></h1>
+      
     </div>
 
-    <div class="contents">
     <div id="rpostgis-1-4-1" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-4-1" class="anchor"></a>rpostgis 1.4.1</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-4-1" class="anchor"></a>rpostgis 1.4.1<small> Unreleased </small>
+</h1>
 <p>DOCUMENTATION</p>
 <ul>
 <li><p><code>rpostgis</code> now has a new home: <a href="https://mablab.org/rpostgis/" class="uri">https://mablab.org/rpostgis/</a></p></li>
@@ -101,8 +128,9 @@
 </ul>
 </div>
     <div id="rpostgis-1-4-0" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-4-0" class="anchor"></a>rpostgis 1.4.0</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-4-0" class="anchor"></a>rpostgis 1.4.0<small> 2017-12-10 </small>
+</h1>
 <p>NEW FEATURES</p>
 <ul>
 <li><p><code>dbAddKey</code> and <code>dbIndex</code>: support added for keys and indexes referencing multiple columns.</p></li>
@@ -115,8 +143,9 @@
 </ul>
 </div>
     <div id="rpostgis-1-3-0" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-3-0" class="anchor"></a>rpostgis 1.3.0</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-3-0" class="anchor"></a>rpostgis 1.3.0<small> 2017-06-30 </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li>Example data removed, now part of extension package <code>rpostgisLT</code>
@@ -131,28 +160,29 @@
 <ul>
 <li><p><code>pgGetRast</code>: re-written for faster reading of rasters from the database. Multi-band raster import is now supported (<code>band</code> argument changed to <code>bands</code>, and can be given a vector of integers, or TRUE to return all bands). Default is still to import the first band (1) of the raster. Multi-band rasters imported as <code>RasterBrick</code>-class objects. When raster blocks have imperfect alignment, PostGIS function <code>ST_SnapToGrid</code> is applied to register the raster according to the upper left pixel of the full raster dataset.</p></li>
 <li><p><code>pgGetRast</code>/<code>pgWriteRast</code>: now support sp-class <code>SpatialGrid*</code> and <code>SpatialPixels*</code> type objects. The class of the raster written in pgWriteRast is saved in a database column, and re-applied to the raster during import with <code>pgGetRast</code>.</p></li>
-<li><p><e2>&lt;80&gt;&lt;9c&gt;Data frame mode<e2>&lt;80&gt;&lt;9d&gt; for Spatial* objects: now saves proj4string of Spatial* objects in data frame mode writing with <code>pgInsert</code>. It is then re-imported using <code>pgGetGeom</code>, if the saved proj4string and the database proj4string (defined by the column<e2>&lt;80&gt;&lt;99&gt;s SRID) are equivalent. Otherwise, the database proj4string is used.</e2></e2></e2></p></li>
-<li><p><code>pgGetRast</code>/<code>pgWriteRast</code>: original R proj4string is saved in the raster database table, and re-imported, if the saved proj4string and the database proj4string (defined by the column<e2>&lt;80&gt;&lt;99&gt;s SRID) are equivalent. Otherwise, the database proj4string is used.</e2></p></li>
+<li><p>“Data frame mode” for Spatial* objects: now saves proj4string of Spatial* objects in data frame mode writing with <code>pgInsert</code>. It is then re-imported using <code>pgGetGeom</code>, if the saved proj4string and the database proj4string (defined by the column’s SRID) are equivalent. Otherwise, the database proj4string is used.</p></li>
+<li><p><code>pgGetRast</code>/<code>pgWriteRast</code>: original R proj4string is saved in the raster database table, and re-imported, if the saved proj4string and the database proj4string (defined by the column’s SRID) are equivalent. Otherwise, the database proj4string is used.</p></li>
 <li><p><code>pgGetGeom</code>: now includes <code>boundary</code> parameter, to spatially subset GEOMETRY/GEOGRPAHY objects to return (same usage as in <code>pgGetRast</code>).</p></li>
 <li><p><code>pgGetBoundary</code>: now includes <code>clauses</code> parameter, with same usage as in <code>pgGetGeom</code></p></li>
 </ul>
 <p>UPDATES</p>
 <ul>
-<li><p><code>pgWriteRast</code>: now attempts to write a new SRID to <code>spatial_ref_sys</code>, if one cannot be resolved from the raster<e2>&lt;80&gt;&lt;99&gt;s proj4string.</e2></p></li>
+<li><p><code>pgWriteRast</code>: now attempts to write a new SRID to <code>spatial_ref_sys</code>, if one cannot be resolved from the raster’s proj4string.</p></li>
 <li><p>All query-constructor functions (e.g. <code>dbDrop</code>) now return nothing (previously returned TRUE) if <code>exec = FALSE</code>.</p></li>
 <li><p><code>pgGetGeom</code>: <code>other.cols = FALSE</code> now not necessary when reading only a geometry column (e.g., in query mode or from a one-column table).</p></li>
 </ul>
 <p>BUG FIXES</p>
 <ul>
-<li><p><code>pgWriteRast</code>: fixed bug affecting imported raster<e2>&lt;80&gt;&lt;99&gt;s metadata regarding the upper left pixel location (returned by PostGIS function <code>ST_UpperLeftX</code>/<code>ST_UpperLeftY(rast)</code>). Previously, <code>pgWriteRast</code> was erroneously applying the lower left pixel location for this value. This did not affect the actual data of the raster, or their usage within PostGIS, however it could have affected export of this raster to external files, or viewing in a GIS.</e2></p></li>
+<li><p><code>pgWriteRast</code>: fixed bug affecting imported raster’s metadata regarding the upper left pixel location (returned by PostGIS function <code>ST_UpperLeftX</code>/<code>ST_UpperLeftY(rast)</code>). Previously, <code>pgWriteRast</code> was erroneously applying the lower left pixel location for this value. This did not affect the actual data of the raster, or their usage within PostGIS, however it could have affected export of this raster to external files, or viewing in a GIS.</p></li>
 <li><p><code>pgWriteRast</code>: fixed bug where constraints were not written for tables given without a schema name in <code>name</code>.</p></li>
 <li><p><code>pgGetGeom</code>: fixed bug for one-column <code>other.cols</code> specifications.</p></li>
 <li><p><code>dbReadDataFrame</code>: infolocs columns of type <code>POSIXlt</code> now re-import time zone attribute correctly (previously just used database time zone).</p></li>
 </ul>
 </div>
     <div id="rpostgis-1-2-1" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-2-1" class="anchor"></a>rpostgis 1.2.1</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-2-1" class="anchor"></a>rpostgis 1.2.1<small> 2017-05-07 </small>
+</h1>
 <p>NEW FEATURES</p>
 <ul>
 <li>Support for PostGIS <code>GEOGRAPHY</code> types added, in <code>pgGetGeom</code>, <code>pgListGeom</code>, <code>pgGetBoundary</code>, <code>pgInsert</code>. With <code>pgInsert</code>, a <code>Spatial*</code> object can be uploaded to PostGIS as a geography using <code>geog = TRUE</code>.</li>
@@ -160,7 +190,7 @@
 <p>BUG FIXES</p>
 <ul>
 <li><p><code>pgInsert</code> and <code>pgWriteRast</code>: fixed bug causing failed uploads when multiple PostGIS SRIDs found with <code>pgSRID</code> for a spatial object, now uses the first one returned.</p></li>
-<li><p><code>pgGetGeom</code>: fixed bug when loading non-spatial columns with names <e2>&lt;80&gt;&lt;98&gt;x<e2>&lt;80&gt;&lt;99&gt; or <e2>&lt;80&gt;&lt;98&gt;y<e2>&lt;80&gt;&lt;99&gt; for point geometries.</e2></e2></e2></e2></p></li>
+<li><p><code>pgGetGeom</code>: fixed bug when loading non-spatial columns with names ‘x’ or ‘y’ for point geometries.</p></li>
 </ul>
 <p>UPDATES</p>
 <ul>
@@ -169,8 +199,9 @@
 </ul>
 </div>
     <div id="rpostgis-1-2-0" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-2-0" class="anchor"></a>rpostgis 1.2.0</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-2-0" class="anchor"></a>rpostgis 1.2.0<small> 2017-03-14 </small>
+</h1>
 <p>NEW FEATURES</p>
 <ul>
 <li><p><code>pgGetGeom</code>: new <code>query</code> argument allows <code>pgGetGeom</code> to specify a full SQL query which returns a GEOMETRY instead of an existing table/view. If desired, the query can be saved in the database as a new view using the <code>name</code> argument.</p></li>
@@ -182,17 +213,19 @@
 </ul>
 </div>
     <div id="rpostgis-1-1-1" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-1-1" class="anchor"></a>rpostgis 1.1.1</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-1-1" class="anchor"></a>rpostgis 1.1.1<small> 2017-01-18 </small>
+</h1>
 <p>BUG FIXES</p>
 <ul>
-<li><p><code>pgGetGeom</code>: fixed bug causing failed imports for views due to usage of <code>RPostgreSQL::dbListFields</code> (changed to <code><a href="http://www.rdocumentation.org/packages/rpostgis/topics/dbTableInfo">rpostgis::dbTableInfo</a></code>).</p></li>
+<li><p><code>pgGetGeom</code>: fixed bug causing failed imports for views due to usage of <code>RPostgreSQL::dbListFields</code> (changed to <code><a href="../reference/dbTableInfo.html">rpostgis::dbTableInfo</a></code>).</p></li>
 <li><p>fixed bug for data frame mode writing (e.g., <code><a href="../reference/pgInsert.html">pgInsert(...,df.mode =   TRUE)</a></code> and <code>dbWriteDataFrame</code>) where factor names included a comma.</p></li>
 </ul>
 </div>
     <div id="rpostgis-1-1-0" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-1-0" class="anchor"></a>rpostgis 1.1.0</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-1-0" class="anchor"></a>rpostgis 1.1.0<small> 2017-01-06 </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li>Added four example datasets (all have prefix <code>roe_</code>).</li>
@@ -205,7 +238,7 @@
 <p>NEW FEATURES</p>
 <ul>
 <li><p><code>pgInsert</code> can write in data frame mode when <code>df.mode = TRUE</code> (default is <code>FALSE</code>).</p></li>
-<li><p><code>pgInsert</code> now defaults to <e2>&lt;80&gt;&lt;98&gt;alter.names = FALSE<e2>&lt;80&gt;&lt;99&gt;.</e2></e2></p></li>
+<li><p><code>pgInsert</code> now defaults to ‘alter.names = FALSE’.</p></li>
 <li><p><code>pgGetGeom</code> will try to read Spatial*DataFrames in data frame mode (will not affect import for non-data frame mode tables).</p></li>
 <li><p><code>pgGetRast</code> now has a <code>band</code> argument to select which band in the database raster to import.</p></li>
 </ul>
@@ -215,12 +248,13 @@
 <code>pgGetGeom</code>: Fix bug affecting one-column selections with <code>other.cols</code> argument for line and polygon imports.</li>
 </ul>
 <p>ABOUT DATA FRAME MODE</p>
-<p>Writing in data frame mode is only for new database tables (or for overwriting an existing one). It will save all column names as they appear in R, along with column data types and attributes. This is done by adding metadata to a lookup table in the table<e2>&lt;80&gt;&lt;99&gt;s schema named <e2>&lt;80&gt;&lt;98&gt;.R_df_defs<e2>&lt;80&gt;&lt;99&gt; (will be created if not present). It also adds two field with fixed names to the database table: <e2>&lt;80&gt;&lt;98&gt;.R_rownames<e2>&lt;80&gt;&lt;99&gt; (storing the <code>row.names</code> of the data frame), and <e2>&lt;80&gt;&lt;98&gt;.db_pkid<e2>&lt;80&gt;&lt;99&gt;, which is a new integer primary key. Existing columns in the <code>data.frame</code> matching these names will be automatically changed.</e2></e2></e2></e2></e2></e2></e2></p>
+<p>Writing in data frame mode is only for new database tables (or for overwriting an existing one). It will save all column names as they appear in R, along with column data types and attributes. This is done by adding metadata to a lookup table in the table’s schema named ‘.R_df_defs’ (will be created if not present). It also adds two field with fixed names to the database table: ‘.R_rownames’ (storing the <code>row.names</code> of the data frame), and ‘.db_pkid’, which is a new integer primary key. Existing columns in the <code>data.frame</code> matching these names will be automatically changed.</p>
 <p>All <code>Spatial*DataFrame</code>s writing should continue to use <code>pgInsert</code>, which can write in data frame mode when <code>df.mode = TRUE</code>. For more flexible writing of <code>Spatial*DataFrame</code>s and <code>data.frame</code>s to the database (including all inserts into existing database tables), use <code>pgInsert</code> with <code>df.mode = FALSE</code> (default).</p>
 </div>
     <div id="rpostgis-1-0-4" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-0-4" class="anchor"></a>rpostgis 1.0.4</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-0-4" class="anchor"></a>rpostgis 1.0.4<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGE</p>
 <ul>
 <li>Add package tests to repository.</li>
@@ -228,13 +262,13 @@
 <p>BUG FIXES</p>
 <ul>
 <li>
-<code>pgGetGeom</code>: Fix bug which was causing errors when using <e2>&lt;80&gt;&lt;98&gt;ORDER BY <e2>&lt;80&gt;<a6><e2>&lt;80&gt;&lt;99&gt; statements in the <code>clauses</code> argument.</e2></a6></e2></e2>
-</li>
+<code>pgGetGeom</code>: Fix bug which was causing errors when using ‘ORDER BY …’ statements in the <code>clauses</code> argument.</li>
 </ul>
 </div>
     <div id="rpostgis-1-0-3" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-0-3" class="anchor"></a>rpostgis 1.0.3</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-0-3" class="anchor"></a>rpostgis 1.0.3<small> 2016-10-29 </small>
+</h1>
 <p>OVERALL CHANGE</p>
 <ul>
 <li>Only allow <postgresqlconnection> for executed queries.</postgresqlconnection>
@@ -248,12 +282,12 @@
 </ul>
 </div>
     <div id="rpostgis-1-0-2" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-0-2" class="anchor"></a>rpostgis 1.0.2</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-0-2" class="anchor"></a>rpostgis 1.0.2<small> 2016-09-26 </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
-<li>Updated to use current search path schema as default in all functions (in previous versions default schema was fixed to <e2>&lt;80&gt;&lt;98&gt;public<e2>&lt;80&gt;&lt;99&gt;).</e2></e2>
-</li>
+<li>Updated to use current search path schema as default in all functions (in previous versions default schema was fixed to ‘public’).</li>
 </ul>
 <p>NEW FUNCTIONS</p>
 <ul>
@@ -263,13 +297,13 @@
 <p>NEW FEATURES</p>
 <ul>
 <li>
-<code>pgInsert</code> now provides <e2>&lt;80&gt;&lt;98&gt;upsert<e2>&lt;80&gt;&lt;99&gt; functionality (INSERT ON CONFLICT UPDATE) with the <e2>&lt;80&gt;&lt;98&gt;upsert.using<e2>&lt;80&gt;&lt;99&gt; argument. Requires PostgreSQL version 9.5+.</e2></e2></e2></e2>
-</li>
+<code>pgInsert</code> now provides ‘upsert’ functionality (INSERT ON CONFLICT UPDATE) with the ‘upsert.using’ argument. Requires PostgreSQL version 9.5+.</li>
 </ul>
 </div>
     <div id="rpostgis-1-0-1" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-0-1" class="anchor"></a>rpostgis 1.0.1</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-0-1" class="anchor"></a>rpostgis 1.0.1<small> Unreleased </small>
+</h1>
 <p>NEW FEATURES</p>
 <ul>
 <li>
@@ -277,8 +311,9 @@
 </ul>
 </div>
     <div id="rpostgis-1-0-0" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-1-0-0" class="anchor"></a>rpostgis 1.0.0</h1>
+<h1 class="page-header">
+<a href="#rpostgis-1-0-0" class="anchor"></a>rpostgis 1.0.0<small> 2016-08-20 </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li>Initial release to CRAN.</li>
@@ -290,8 +325,9 @@
 </ul>
 </div>
     <div id="rpostgis-0-10" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-10" class="anchor"></a>rpostgis 0.10</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-10" class="anchor"></a>rpostgis 0.10<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li><p>Big package cleaning.</p></li>
@@ -300,33 +336,37 @@
 </ul>
 </div>
     <div id="rpostgis-0-8-3" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-8-3" class="anchor"></a>rpostgis 0.8.3</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-8-3" class="anchor"></a>rpostgis 0.8.3<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGE</p>
 <ul>
-<li><p>Change <e2>&lt;80&gt;&lt;98&gt;str<e2>&lt;80&gt;&lt;99&gt; to <e2>&lt;80&gt;&lt;98&gt;query<e2>&lt;80&gt;&lt;99&gt;</e2></e2></e2></e2></p></li>
+<li><p>Change ‘str’ to ‘query’</p></li>
 <li><p>Now uses <code>messages</code> instead of <code>cat</code> to print SQL code.</p></li>
 </ul>
 </div>
     <div id="rpostgis-0-8-2" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-8-2" class="anchor"></a>rpostgis 0.8.2</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-8-2" class="anchor"></a>rpostgis 0.8.2<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li>Changed file extension to .R.</li>
 </ul>
 </div>
     <div id="rpostgis-0-8-1" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-8-1" class="anchor"></a>rpostgis 0.8.1</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-8-1" class="anchor"></a>rpostgis 0.8.1<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li>Fixed dependencies (DESCRIPTION, namespace, ::).</li>
 </ul>
 </div>
     <div id="rpostgis-0-8" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-8" class="anchor"></a>rpostgis 0.8</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-8" class="anchor"></a>rpostgis 0.8<small> Unreleased </small>
+</h1>
 <p>NEW FUNCTIONS</p>
 <ul>
 <li>
@@ -339,8 +379,9 @@
 </ul>
 </div>
     <div id="rpostgis-0-7" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-7" class="anchor"></a>rpostgis 0.7</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-7" class="anchor"></a>rpostgis 0.7<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li>Initial merge with <code>pgis2r</code> package, incorporating support for loading geometry/raster objects stored in PostgreSQL databases in R.</li>
@@ -353,16 +394,18 @@
 </ul>
 </div>
     <div id="rpostgis-0-6-1" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-6-1" class="anchor"></a>rpostgis 0.6.1</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-6-1" class="anchor"></a>rpostgis 0.6.1<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li>Update for roxygen2 4.0.</li>
 </ul>
 </div>
     <div id="rpostgis-0-6" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-6" class="anchor"></a>rpostgis 0.6</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-6" class="anchor"></a>rpostgis 0.6<small> Unreleased </small>
+</h1>
 <p>NEW FUNCTIONS</p>
 <ul>
 <li>
@@ -370,8 +413,9 @@
 </ul>
 </div>
     <div id="rpostgis-0-5" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-5" class="anchor"></a>rpostgis 0.5</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-5" class="anchor"></a>rpostgis 0.5<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li>Code completely commented and cleaned.</li>
@@ -383,8 +427,9 @@
 </ul>
 </div>
     <div id="rpostgis-0-4" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-4" class="anchor"></a>rpostgis 0.4</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-4" class="anchor"></a>rpostgis 0.4<small> Unreleased </small>
+</h1>
 <p>NEW FUNCTIONS</p>
 <ul>
 <li>
@@ -392,16 +437,18 @@
 </ul>
 </div>
     <div id="rpostgis-0-3-1" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-3-1" class="anchor"></a>rpostgis 0.3.1</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-3-1" class="anchor"></a>rpostgis 0.3.1<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li>Global change for <code>display = TRUE</code> to print the executed or non-executed query.</li>
 </ul>
 </div>
     <div id="rpostgis-0-3" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-3" class="anchor"></a>rpostgis 0.3</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-3" class="anchor"></a>rpostgis 0.3<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li><p>Non executed examples added for each function.</p></li>
@@ -420,8 +467,9 @@
 </ul>
 </div>
     <div id="rpostgis-0-2" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgis-0-2" class="anchor"></a>rpostgis 0.2</h1>
+<h1 class="page-header">
+<a href="#rpostgis-0-2" class="anchor"></a>rpostgis 0.2<small> Unreleased </small>
+</h1>
 <p>OVERALL CHANGES</p>
 <ul>
 <li><p>Change the package name to <code>rpostgis</code>.</p></li>
@@ -429,8 +477,9 @@
 </ul>
 </div>
     <div id="rpostgresqlmod-0-1" class="section level1">
-<h1 class="hasAnchor">
-<a href="#rpostgresqlmod-0-1" class="anchor"></a>RPostgreSQLmod 0.1</h1>
+<h1 class="page-header">
+<a href="#rpostgresqlmod-0-1" class="anchor"></a>RPostgreSQLmod 0.1<small> Unreleased </small>
+</h1>
 <p>NEW FUNCTIONS</p>
 <ul>
 <li><p><code>dbAddKey</code>: Add key.</p></li>
@@ -440,7 +489,6 @@
 <li><p><code>dbIndex</code>: CREATE INDEX.</p></li>
 </ul>
 </div>
-    </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -485,11 +533,31 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script>
+  docsearch({
+    
+    
+    apiKey: 'API_KEY',
+    indexName: 'INDEX_NAME',
+    inputSelector: 'input#search-input.form-control',
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
+  });
+</script>
+
+
   </body>
 </html>
+
