@@ -1,5 +1,5 @@
 {
-  "index_name": "INDEX_NAME",
+  "index_name": "rpostgis",
   "start_urls": [
     {
       "url": "https://mablab.org/rpostgis/index.html",

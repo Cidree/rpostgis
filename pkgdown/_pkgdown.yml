@@ -4,8 +4,8 @@ template:
   params:
     bootswatch: cosmo
     docsearch:
-      api_key: API_KEY
-      index_name: INDEX_NAME
+      api_key: "91afe5231e730105b1d4b94b1f9ad15b"
+      index_name: "rpostgis"
 
 navbar:
   title: "rpostgis"
