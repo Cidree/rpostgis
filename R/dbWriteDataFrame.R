@@ -242,9 +242,6 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
             d <- df
         }
 
-        ## get db tz
-        pgtz <- dbGetQuery(conn, "SHOW timezone;")[1, 1]
-
         ## assign types
         for (i in names(d)) {
             att <- defs[defs$nms == i, ]
@@ -266,7 +263,7 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
                   d[, i] <- list(eval(parse(text = paste0("as.",
                     att$defs, "(as.character(d[,i]),
                                       tz='",
-                    pgtz, "')"))))
+                    Sys.timezone(), "')"))))
                   ## assign R tz
                   eval(parse(text = paste0("attributes(d$", i,
                     ")$tzone <- att$atts")))

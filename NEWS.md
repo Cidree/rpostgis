@@ -7,6 +7,15 @@ DOCUMENTATION
 
 * Documentation prepared using `pkgdown`.
 
+rpostgis 1.4.0-1
+================
+
+BUG FIXES
+
+* Fixed bug affecting `dbReadDataFrame`, where datetimes were assigned the PostgreSQL time zone
+instead of the system timezone. This resulted in incorrect time assignments when the PostgreSQL
+time zone setting did not match the system's time zone setting. Tables in PostgreSQL written
+by `dbWriteDataFrame` were not affected and have the correct time assigned.
 
 rpostgis 1.4.0
 ==============
