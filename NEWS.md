@@ -7,9 +7,6 @@ DOCUMENTATION
 
 * Documentation prepared using `pkgdown`.
 
-rpostgis 1.4.0-1
-================
-
 BUG FIXES
 
 * Fixed bug affecting `dbReadDataFrame`, where datetimes were assigned the PostgreSQL time zone

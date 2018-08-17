@@ -112,7 +112,7 @@
 ##'     for new tables/overwrites, since this method will change the 
 ##'     existing column type.
 ##' @param geog Logical; Whether to write the spatial data as a PostGIS 
-##'     'GEOGRPAHY' type. By default, FALSE, unless \code{geom = "geog"}.
+##'     'GEOGRAPHY' type. By default, FALSE, unless \code{geom = "geog"}.
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @export
 ##' @return Returns \code{TRUE} if the insertion was successful,

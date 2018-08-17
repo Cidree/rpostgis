@@ -92,7 +92,7 @@ for new tables/overwrites, since this method will change the
 existing column type.}
 
 \item{geog}{Logical; Whether to write the spatial data as a PostGIS 
-'GEOGRPAHY' type. By default, FALSE, unless \code{geom = "geog"}.}
+'GEOGRAPHY' type. By default, FALSE, unless \code{geom = "geog"}.}
 
 \item{x}{A list of class \code{pgi}}
 

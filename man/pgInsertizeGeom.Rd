@@ -66,7 +66,7 @@ and the row.names, alter.names, and new.id arguments will
 be ignored (see \code{dbWriteDataFrame} for more information.}
 
 \item{geog}{Logical; Whether to write the spatial data as a PostGIS 
-'GEOGRPAHY' type.}
+'GEOGRAPHY' type.}
 }
 \value{
 pgi A list containing four character strings: (1)

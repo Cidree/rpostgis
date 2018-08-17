@@ -10,6 +10,8 @@ install()
 # use_build_ignore("cran-comments.md")
 # use_build_ignore("tests/test_data/")
 # use_build_ignore("BUILD.R")
+# use_build_ignore("docs")
+# use_build_ignore("pkgdown")
 
 document()
 spell_check()
