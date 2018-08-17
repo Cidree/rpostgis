@@ -1,5 +1,5 @@
 ## Test environments
-* local Ubuntu 16.04 install, R 3.4.3
+* local Ubuntu 16.04 install, R 3.4.4
 * R Under development (unstable) (2018-08-16 r75161) with devtools::build_win()
 * Debian 8, R 3.4.0
 
