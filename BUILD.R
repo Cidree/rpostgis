@@ -1,4 +1,4 @@
-setwd('/home/david/rpostgis/')
+setwd('/home/david/git/rpostgis/')
 library(devtools)
 library(basr)
 install()
@@ -59,3 +59,8 @@ revdep_check(dependencies = c("Depends"))
 
 # release to CRAN
 release()
+
+# badges currently broken for readme
+# [![CRAN Status](http://www.r-pkg.org/badges/version/rpostgis)](https://CRAN.R-project.org/package=rpostgis)
+# [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+# ![](https://cranlogs.r-pkg.org/badges/rpostgis)
