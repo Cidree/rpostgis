@@ -121,7 +121,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     mx <- 1
     ## If polys
     if (length(data.obj) == 1) {
-      try(mx <- sum(!sapply(slot(data.obj@polygons[[1]], "Polygons"),slot,"hole"))) 
+      try(mx <- sum(!sapply(slot(data.obj@polygons[[1]], "Polygons"),slot,"hole")), silent = TRUE) 
     } else {
       try(mx <- max(unlist(lapply(sapply(slot(data.obj, "polygons"),
          slot, "Polygons"), function(x) {
