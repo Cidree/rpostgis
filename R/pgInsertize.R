@@ -119,12 +119,17 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     ## Load wkb package if available
     wkb.t <- suppressPackageStartupMessages(requireNamespace("wkb",quietly=TRUE))
     mx <- 1
-    ## If points
-    try(mx <- max(unlist(lapply(sapply(slot(data.obj, "polygons"),
-       slot, "Polygons"), function(x) {
-         sum(!sapply(x, slot, "hole"))
-       }))), 
-    silent = TRUE)
+    ## If polys
+    if (length(data.obj) == 1) {
+      try(mx <- sum(!sapply(slot(data.obj@polygons[[1]], "Polygons"),slot,"hole"))) 
+    } else {
+      try(mx <- max(unlist(lapply(sapply(slot(data.obj, "polygons"),
+         slot, "Polygons"), function(x) {
+           sum(!sapply(x, slot, "hole"))
+         }))), 
+      silent = TRUE)
+    }
+    # If lines
     try(mx <- max(unlist(lapply(sapply(slot(data.obj, "lines"),
         slot, "Lines"), function(x) {
         length(x)
