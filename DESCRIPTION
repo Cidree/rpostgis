@@ -1,6 +1,6 @@
 Package: rpostgis
-Version: 1.4.1
-Date: 2018-08-17
+Version: 1.4.1-1
+Date: 2018-10-19
 Title: R Interface to a 'PostGIS' Database
 Description: Provides an interface between R and 'PostGIS'-enabled
     'PostgreSQL' databases to transparently transfer spatial
@@ -31,4 +31,4 @@ License: GPL (>= 3)
 LazyData: true
 URL: https://mablab.org/rpostgis/index.html
 BugReports: https://github.com/mablab/rpostgis/issues
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0

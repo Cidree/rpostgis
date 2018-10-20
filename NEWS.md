@@ -1,3 +1,13 @@
+rpostgis 1.4.1-1
+==============
+
+BUG FIXES
+
+* fixed bug affecting `pgInsert`, where single-part polygons with holes were 
+counted as MultiPolygons, causing the geometry column to be defined as MultiPolygon. 
+This did not affect import into the database, but caused an error when single-part
+polygons (without holes) were attempted to be inserted into the exiting table.
+
 rpostgis 1.4.1
 ==============
 

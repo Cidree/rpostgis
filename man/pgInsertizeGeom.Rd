@@ -6,13 +6,13 @@
 \title{Format R data objects for insert into a PostgreSQL table.}
 \usage{
 pgInsertizeGeom(data.obj, geom = "geom", create.table = NULL,
-  force.match = NULL, conn = NULL, new.id = NULL, row.names = FALSE,
-  alter.names = FALSE, partial.match = FALSE, df.mode = FALSE,
-  geog = FALSE)
+  force.match = NULL, conn = NULL, new.id = NULL,
+  row.names = FALSE, alter.names = FALSE, partial.match = FALSE,
+  df.mode = FALSE, geog = FALSE)
 
 pgInsertize(data.obj, create.table = NULL, force.match = NULL,
-  conn = NULL, new.id = NULL, row.names = FALSE, alter.names = FALSE,
-  partial.match = FALSE, df.mode = FALSE)
+  conn = NULL, new.id = NULL, row.names = FALSE,
+  alter.names = FALSE, partial.match = FALSE, df.mode = FALSE)
 }
 \arguments{
 \item{data.obj}{A Spatial* or Spatial*DataFrame, or data frame for

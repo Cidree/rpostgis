@@ -121,9 +121,10 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
     mx <- 1
     ## If points
     try(mx <- max(unlist(lapply(sapply(slot(data.obj, "polygons"),
-        slot, "Polygons"), function(x) {
-        length(x)
-    }))), silent = TRUE)
+       slot, "Polygons"), function(x) {
+         sum(!sapply(x, slot, "hole"))
+       }))), 
+    silent = TRUE)
     try(mx <- max(unlist(lapply(sapply(slot(data.obj, "lines"),
         slot, "Lines"), function(x) {
         length(x)
