@@ -171,10 +171,11 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
                 }
                 
                 # 3. new band
+                if (res[1] != res[2]) s2g <- paste0(", ", res[1], ", ", -res[2]) else s2g <- NULL
                 bndargs<-paste0("ROW(",1:length(names(r1)),",",bit.depth,"::text,0,", ndval,")")
                 tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
                     " SET rast = ST_SnapToGrid(ST_AddBand(rast,ARRAY[",
-                    paste(bndargs,collapse = ","),"]::addbandarg[]), ", upx, "," , upy , ") ", 
+                    paste(bndargs,collapse = ","),"]::addbandarg[]), ", upx, "," , upy , s2g, ") ", 
                     "where rid = ", 
                     n, ";")
                 dbExecute(conn, tmp.query)
