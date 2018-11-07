@@ -1,7 +1,14 @@
+rpostgis 1.4.1-2
+==============
+
+BUG FIX
+
+* fixed bug affecting `pgWriteRast`, affecting rasters with irregular x/y resolutions.
+
 rpostgis 1.4.1-1
 ==============
 
-BUG FIXES
+BUG FIX
 
 * fixed bug affecting `pgInsert`, where single-part polygons with holes were 
 counted as MultiPolygons, causing the geometry column to be defined as MultiPolygon. 
