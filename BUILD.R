@@ -56,7 +56,8 @@ report(x)
 # tidy_source(arrow=TRUE,width.cutoff = 60)
 
 # check reverse dependencies (make sure to run on clean workspace)
-revdep_check(dependencies = c("Depends"))
+devtools::revdep_check(dependencies = c("Imports"))
+devtools::revdep_check_print_problems()
 
 # release to CRAN
 release()
