@@ -4,7 +4,7 @@ cwd <- getwd()
 
 tryCatch({
     # setwd("./rpostgis")
-    library(rpostgisLT) # for roe deer example datasets
+    library(rpostgis)
     library(RPostgreSQL)
     drv <- dbDriver("PostgreSQL")
     library(sp)
@@ -157,7 +157,7 @@ tryCatch({
         
         ae.all <- c(ae.all,paste(all.equal(r, rast2),collapse = ","))
         
-        data(roe_raster)
+        load("tests/test_data/roe_raster.rda")
         rast <- roe_raster$corine06
         pgWriteRast(conn, c("rpostgis", "clc"), raster = rast, blocks = c(18,10), 
             overwrite = TRUE)
@@ -271,7 +271,7 @@ tryCatch({
             srid = 26917, index = TRUE)
         
         # data.frame mode write/read
-        data("roe_vector_geom")
+        load("tests/test_data/roe_vector_geom.rda")
         
         p1 <- roe_vector_geom$meteo_stations
         row.names(p1) <- 7:2 # mess with row.names
@@ -297,7 +297,7 @@ tryCatch({
         p2 <- pgGetGeom(conn, c("rpostgis", "poly"))  # ordering...
         ae.all <- c(ae.all,paste(all.equal(p1@data, p2@data), collapse = ","))
         
-        data("roe_gps_data")
+        load("tests/test_data/roe_gps_data.rda")
         d <- rbind(roe_gps_data$GSM01511[, 1:14], roe_gps_data$GSM01508[, 
             1:14])
         d$acquisition_time <- as.POSIXct(paste0(d$utc_date, " ", 
@@ -320,7 +320,6 @@ tryCatch({
             roe_vector_geom, roe_raster, drv, ex_table, lin, ls, 
             new_table, p1, p2, poly, pts, pts.sponly, pts.sponly2, r, rast, 
             rastclp, matview, df, rast2)
-        detach("package:rpostgisLT", unload=TRUE)
     }))
     print("ALL GOOD!!!")
 }, error = function(x) {

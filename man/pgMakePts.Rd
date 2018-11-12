@@ -8,9 +8,8 @@
 pgMakePts(conn, name, colname = "geom", x = "x", y = "y", srid,
   index = TRUE, display = TRUE, exec = TRUE)
 
-pgMakeStp(conn, name, colname = "geom", x = "x", y = "y",
-  dx = "dx", dy = "dy", srid, index = TRUE, display = TRUE,
-  exec = TRUE)
+pgMakeStp(conn, name, colname = "geom", x = "x", y = "y", dx = "dx",
+  dy = "dy", srid, index = TRUE, display = TRUE, exec = TRUE)
 }
 \arguments{
 \item{conn}{A connection object.}
