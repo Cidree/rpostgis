@@ -31,4 +31,4 @@ License: GPL (>= 3)
 LazyData: true
 URL: https://mablab.org/rpostgis/index.html
 BugReports: https://github.com/mablab/rpostgis/issues
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
