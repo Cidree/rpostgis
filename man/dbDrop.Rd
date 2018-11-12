@@ -4,8 +4,9 @@
 \alias{dbDrop}
 \title{Drop table/view/schema.}
 \usage{
-dbDrop(conn, name, type = c("table", "schema", "view", "materialized view"),
-  ifexists = FALSE, cascade = FALSE, display = TRUE, exec = TRUE)
+dbDrop(conn, name, type = c("table", "schema", "view",
+  "materialized view"), ifexists = FALSE, cascade = FALSE,
+  display = TRUE, exec = TRUE)
 }
 \arguments{
 \item{conn}{A connection object.}

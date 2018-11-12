@@ -4,8 +4,9 @@
 \alias{dbIndex}
 \title{Create an index.}
 \usage{
-dbIndex(conn, name, colname, idxname, unique = FALSE, method = c("btree",
-  "hash", "rtree", "gist"), display = TRUE, exec = TRUE)
+dbIndex(conn, name, colname, idxname, unique = FALSE,
+  method = c("btree", "hash", "rtree", "gist"), display = TRUE,
+  exec = TRUE)
 }
 \arguments{
 \item{conn}{A connection object.}
