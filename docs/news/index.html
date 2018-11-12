@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rpostgis</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.4.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.4.2</span>
       </span>
     </div>
 
@@ -121,9 +121,19 @@
       
     </div>
 
+    <div id="rpostgis-1-4-2" class="section level1">
+<h1 class="page-header">
+<a href="#rpostgis-1-4-2" class="anchor"></a>rpostgis 1.4.2<small> Unreleased </small>
+</h1>
+<p>BUG FIXES</p>
+<ul>
+<li><p>fixed bug affecting <code>pgWriteRast</code>, affecting rasters with irregular x/y resolutions.</p></li>
+<li><p>fixed bug affecting <code>pgInsert</code>, where single-part polygons with holes were counted as MultiPolygons, causing the geometry column to be defined as MultiPolygon. This did not affect import into the database, but caused an error when single-part polygons (without holes) were attempted to be inserted into the existing table.</p></li>
+</ul>
+</div>
     <div id="rpostgis-1-4-1" class="section level1">
 <h1 class="page-header">
-<a href="#rpostgis-1-4-1" class="anchor"></a>rpostgis 1.4.1<small> Unreleased </small>
+<a href="#rpostgis-1-4-1" class="anchor"></a>rpostgis 1.4.1<small> 2018-08-17 </small>
 </h1>
 <p>DOCUMENTATION</p>
 <ul>
@@ -503,6 +513,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#rpostgis-1-4-2">1.4.2</a></li>
         <li><a href="#rpostgis-1-4-1">1.4.1</a></li>
         <li><a href="#rpostgis-1-4-0">1.4.0</a></li>
         <li><a href="#rpostgis-1-3-0">1.3.0</a></li>

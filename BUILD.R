@@ -1,5 +1,6 @@
 setwd('/home/david/git/rpostgis/')
 library(devtools)
+# install_github("basille/basr")
 library(basr)
 install()
 
