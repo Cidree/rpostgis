@@ -25,9 +25,6 @@ check(cran=TRUE)
 ## Build documentation:
 pkgdown::build_site()
 
-# package tests
-source("tests/tests_basic.R")
-print(ae.all) # all.equal test results (returns all TRUE except for one)
 
 #build binary
 # build()
@@ -42,6 +39,11 @@ build_win()
 
 # write manual
 manual(overwrite=TRUE)
+
+# install()
+# test code coverage
+source("tests/tests_basic.R")
+print(ae.all) # all.equal test results (returns all TRUE except for one)
 
 # check code coverage
 library(covr)
