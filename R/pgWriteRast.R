@@ -36,6 +36,7 @@
 ##'     Note that constraint notices may print to the console,
 ##'     depending on the PostgreSQL server settings.
 ##' @param overwrite Whether to overwrite the existing table (\code{name}).
+##' @param append Whether to append to the existing table (\code{name}).
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @importFrom raster res blockSize extent t as.matrix values values<-
 ##' @importFrom methods as
@@ -57,7 +58,7 @@
 ##' }
 
 pgWriteRast <- function(conn, name, raster, bit.depth = NULL, 
-    blocks = NULL, constraints = TRUE, overwrite = FALSE) {
+    blocks = NULL, constraints = TRUE, overwrite = FALSE, append = FALSE) {
     
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
@@ -87,14 +88,25 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
         dbDrop(conn, name, ifexists = TRUE)
     }
     
-    # 1. create raster table
-    tmp.query <- paste0("CREATE TABLE ", paste(nameq, collapse = "."), 
-        " (rid serial primary key, band_names text[], r_class character varying, r_proj4 character varying, rast raster);")
-    dbExecute(conn, tmp.query)
+    if (!dbExistsTable(conn, name, table.only = F)) {
+      # 1. create raster table
+      tmp.query <- paste0("CREATE TABLE ", paste(nameq, collapse = "."), 
+          " (rid serial primary key, band_names text[], r_class character varying, r_proj4 character varying, rast raster);")
+      dbExecute(conn, tmp.query)
+      n <- 0
+      append <- F
+    } else {
+      if (!append) {stop("Need to specify `append = TRUE` to add raster to an existing table.")}
+      # how to incorporate schema into this fn?
+      message("Appending to existing table. Dropping any existing raster constraints...")
+      try(dbExecute(conn, paste0("SELECT DropRasterConstraints('", namef[1], "','", namef[2], "','rast',",
+                                 paste(rep("TRUE", 12), collapse = ","),");")))
+      n <- dbGetQuery(conn, paste0("SELECT max(rid) r from ", paste(nameq, collapse = "."), ";"))$r
+    }
     
     r1 <- raster
     res <- round(raster::res(r1), 10)
-
+  
     # figure out block size
     if (!is.null(blocks)) {
       bs <- bs(r1, blocks)
@@ -133,7 +145,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     for (b in 1:length(names(r1))) {
       rb <- r1[[b]]
       # rid counter
-      n<-0
+      # n<-0
       
       # handle empty data rasters by setting ndval to all values
       if (all(is.na(values(rb)))) values(rb) <- ndval
@@ -198,6 +210,10 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     }
     
     # 4. create index
+    if (append) {
+      tmp.query <- paste0("DROP INDEX ", gsub("\"", "", paste(nameq, collapse = ".")), "_rast_st_conhull_idx")
+      dbExecute(conn, tmp.query)
+    }
     tmp.query <- paste0("CREATE INDEX ", gsub("\"", "", nameq[2]), 
         "_rast_st_conhull_idx ON ", paste(nameq, collapse = "."), 
         " USING gist( ST_ConvexHull(rast) );")

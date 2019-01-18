@@ -15,6 +15,8 @@
 ##'     table/view name holding the geometry (e.g., \code{name =
 ##'     c("schema","table")})
 ##' @param rast Name of the column in \code{name} holding the raster object
+##' @param clauses character, optional SQL to append to modify select
+##'     query from table. Must begin with 'WHERE'.
 ##' @param bands Index number(s) for the band(s) to retrieve (defaults to 1).
 ##' The special case (\code{bands = TRUE}) returns all bands in the raster.
 ##' @param boundary \code{sp} object or numeric. A Spatial* object,
@@ -36,7 +38,7 @@
 ##'     50, 17, 12))
 ##' }
 
-pgGetRast <- function(conn, name, rast = "rast", bands = 1,
+pgGetRast <- function(conn, name, rast = "rast", clauses = NULL, bands = 1,
     boundary = NULL) {
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
@@ -49,6 +51,8 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
     
     ## rast query name
     rastque <- dbQuoteIdentifier(conn, rast)
+    
+    clauses2 <-sub("^where", "AND",clauses, ignore.case = TRUE)
     
     ## Check table exists
     tmp.query <- paste0("SELECT r_raster_column AS geo FROM raster_columns\n  WHERE (r_table_schema||'.'||r_table_name) = '",
@@ -119,12 +123,12 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
               st_width(rast) as cols,
               st_height(rast) as rows
               from
-              (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque,") as a;"))
+              (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque," ", clauses,") as a;"))
   
           vals <- dbGetQuery(conn,paste0("select
             unnest(st_dumpvalues(rast, 1)) as vals 
             from
-            (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque,") as a;"))$vals
+            (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque," ", clauses,") as a;"))$vals
           
           rout <- raster::raster(nrows = info$rows, ncols = info$cols, 
             xmn = info$xmn, xmx = info$xmx, ymn = info$ymn, ymx = info$ymx,
@@ -163,7 +167,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
               " ", boundary[1], ",", boundary[4], " ", boundary[2],
               ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
               " ", boundary[1], ",", boundary[4], " ", boundary[1],
-              "))'),", srid, "))) as a;"))
+              "))'),", srid, "))", clauses2,") as a;"))
           if (is.na(info$cols) & is.na(info$rows)) {
             stop("No data found within geographic subset defined by 'boundary'.")
           }
@@ -177,7 +181,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
               " ", boundary[1], ",", boundary[4], " ", boundary[2],
               ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
               " ", boundary[1], ",", boundary[4], " ", boundary[1],
-              "))'),", srid, "))) as a;"))$vals  
+              "))'),", srid, "))", clauses2,") as a;"))$vals  
           
           rout <- raster::raster(nrows = info$rows, ncols = info$cols, 
             xmn = info$xmn, xmx = info$xmx, ymn = info$ymn, ymx = info$ymx,
@@ -201,7 +205,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
         ct<-1
         for (b in bands) {
           lnm<-dbGetQuery(conn, paste0("SELECT DISTINCT band_names[",b,
-                                       "][1] as nm FROM ",nameque,";"))
+                                       "][1] as nm FROM ",nameque," ", clauses,";"))
           names(rout)[ct]<-lnm$nm
           ct<-ct+1
         }
@@ -218,7 +222,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
     if ("r_proj4" %in% dbTableInfo(conn, name)$column_name) {
       try ({
         r_crs <- dbGetQuery(conn, paste0("SELECT DISTINCT r_proj4 FROM ",
-                                       nameque," WHERE ", rastque ," IS NOT NULL;"))[,1]
+                                       nameque," WHERE ", rastque ," IS NOT NULL ", clauses2,";"))[,1]
         if (length(r_crs) == 1 & !is.null(r_crs) & !is.na(r_crs)) {
           r_crs <- CRS(r_crs, doCheckCRSArgs = FALSE)
           suppressMessages(suppressWarnings(
@@ -233,7 +237,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
     if ("r_class" %in% dbTableInfo(conn, name)$column_name) {
       try ({
         r_class <- dbGetQuery(conn, paste0("SELECT DISTINCT r_class FROM ",
-                                       nameque," WHERE ", rastque ," IS NOT NULL;"))[,1]
+                                       nameque," WHERE ", rastque ," IS NOT NULL ", clauses2,";"))[,1]
         if (length(r_class) == 1 & !is.null(r_class) & 
             r_class %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels")) rout <- as(rout, r_class)
       }, silent = TRUE)
