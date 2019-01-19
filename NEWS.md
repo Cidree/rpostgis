@@ -1,3 +1,20 @@
+rpostgis 1.4.2-1
+==============
+
+NEW FEATURES
+
+* `pgWriteRast`: Now allows insert with `append = TRUE` to an existing 
+PostGIS raster table. Note that any existing constraints are dropped for
+the insert, but re-created after insert (if `constraints = TRUE`). This 
+allows more than one raster to be entered into a table. It is recommended
+to alter the raster names (`names(raster) <-`) prior to import to ensure 
+each raster in a table has a unique entry in the `band_names` column. 
+See `pgGetRast`'s new `clauses` argument for importing subsets of a raster table.
+
+* `pgGetRast`: A `clauses` argument allows to specify additional SQL 
+(i.e. `clauses = "WHERE band_names = '{{temp01}}'"`)
+to select a specific subset of a raster table to import.
+
 rpostgis 1.4.2
 ==============
 

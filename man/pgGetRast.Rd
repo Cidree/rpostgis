@@ -4,7 +4,8 @@
 \alias{pgGetRast}
 \title{Load raster from PostGIS database.}
 \usage{
-pgGetRast(conn, name, rast = "rast", bands = 1, boundary = NULL)
+pgGetRast(conn, name, rast = "rast", clauses = NULL, bands = 1,
+  boundary = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -14,6 +15,9 @@ table/view name holding the geometry (e.g., \code{name =
 c("schema","table")})}
 
 \item{rast}{Name of the column in \code{name} holding the raster object}
+
+\item{clauses}{character, optional SQL to append to modify select
+query from table. Must begin with 'WHERE'.}
 
 \item{bands}{Index number(s) for the band(s) to retrieve (defaults to 1).
 The special case (\code{bands = TRUE}) returns all bands in the raster.}

@@ -5,7 +5,7 @@
 \title{Write raster to PostGIS database table.}
 \usage{
 pgWriteRast(conn, name, raster, bit.depth = NULL, blocks = NULL,
-  constraints = TRUE, overwrite = FALSE)
+  constraints = TRUE, overwrite = FALSE, append = FALSE)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -33,6 +33,8 @@ Note that constraint notices may print to the console,
 depending on the PostgreSQL server settings.}
 
 \item{overwrite}{Whether to overwrite the existing table (\code{name}).}
+
+\item{append}{Whether to append to the existing table (\code{name}).}
 }
 \value{
 TRUE for successful import.

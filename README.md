@@ -3,6 +3,9 @@ rpostgis
 
 [CRAN](https://CRAN.R-project.org/package=rpostgis)
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+[![CRAN Status](http://www.r-pkg.org/badges/version/rpostgis)](https://CRAN.R-project.org/package=rpostgis)
+[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+![](https://cranlogs.r-pkg.org/badges/rpostgis)
 
 `rpostgis` provides an interface between R and `PostGIS`-enabled
 `PostgreSQL` databases to transparently transfer spatial data. Both
