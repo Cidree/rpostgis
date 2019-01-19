@@ -178,11 +178,21 @@ tryCatch({
         ls <- ls[!grepl(pattern = ".prj", ls)][1:5]
         
         rast <- stack(ls)
-        system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, 
-            overwrite = TRUE))
+        pgWriteRast(conn, c("rpostgis", "uw"), rast, 
+            overwrite = TRUE)
+        
+        # append *2
+        rast.app <- rast*2
+        names(rast.app) <- paste(names(rast.app), "x2")
+        pgWriteRast(conn, c("rpostgis", "uw"), rast.app, 
+                    append = TRUE)
+        bla <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(2:4), boundary = c(30, -5, -80, -95), clauses = "where band_names = '{{apr_prec.x2},{apr_temp.x2},{aug_prec.x2},{aug_temp.x2},{dec_prec.x2}}'")
+        all.equal(rast.app, bla2)
+        
         rast <- brick(rast)
-        system.time(pgWriteRast(conn, c("rpostgis", "uw"), rast, blocks = c(1,3),
-            overwrite = TRUE))
+        pgWriteRast(conn, c("rpostgis", "uw"), rast, blocks = c(1,3),
+            overwrite = TRUE)
+        bla <- pgGetRast(conn, c("rpostgis", "uw"), bands = T)
         
         rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(2:4), boundary = c(30, -5, -80, -95))
         rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = TRUE)
