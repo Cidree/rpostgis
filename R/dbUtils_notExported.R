@@ -156,7 +156,7 @@ dbExistsTable <- function (conn, name, table.only = FALSE) {
 ##' @keywords internal
 
 dbConnCheck <- function(conn) {
-  if (inherits(conn, c("PostgreSQLConnection")) | inherits(con_raster, c("PqConnection"))) { {
+  if (inherits(conn, c("PostgreSQLConnection")) | inherits(con_raster, c("PqConnection")))  {
           return(TRUE)
       } else {
         return(stop("'conn' must be a <PostgreSQLConnection> object."))
