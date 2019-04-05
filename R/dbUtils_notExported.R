@@ -124,6 +124,7 @@ dbExistsTable <- function (conn, name, table.only = FALSE) {
     chk<-dbGetQuery(conn, paste0("SELECT 1 FROM information_schema.tables 
                WHERE table_schema = ",dbQuoteString(conn,full.name[1]),
                " AND table_name = ",dbQuoteString(conn,full.name[2]),to,";"))[1,1]
+    if (length(chk) == 1 && is.na(chk)) chk <- NULL
     if (is.null(chk)) {
       exists.t <- FALSE
       # check version (matviews >= 9.3)
@@ -156,13 +157,12 @@ dbExistsTable <- function (conn, name, table.only = FALSE) {
 ##' @keywords internal
 
 dbConnCheck <- function(conn) {
-  if (inherits(conn, c("PostgreSQLConnection"))) {
+  if (inherits(conn, c("PostgreSQLConnection")) | inherits(conn, "PqConnection")) {
           return(TRUE)
       } else {
         return(stop("'conn' must be a <PostgreSQLConnection> object."))
       }
 }
-
 
 ## dbGetDefs
 ##' Get definitions for data frame mode reading
@@ -174,7 +174,7 @@ dbConnCheck <- function(conn) {
 
 dbGetDefs <- function(conn, name) {
     name <- dbTableNameFix(conn, name, as.identifier = FALSE)
-    if (dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
+    if (rpostgis:::dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
       sql_query <- paste0("SELECT unnest(df_def[1:1]) as nms,
                               unnest(df_def[2:2]) as defs,
                               unnest(df_def[3:3]) as atts

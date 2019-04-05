@@ -25,6 +25,7 @@ Imports:
     sp,
     stats
 Suggests:
+    RPostgres,
     rgdal,
     wkb
 License: GPL (>= 3)
