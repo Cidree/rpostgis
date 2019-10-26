@@ -3,10 +3,22 @@
 cwd <- getwd()
 
 tryCatch({
+  library(rpostgis)
+  library(RPostgreSQL)
+  library(RPostgres)
     # setwd("./rpostgis")
-    library(rpostgis)
-    library(RPostgreSQL)
-    drv <- dbDriver("PostgreSQL")
+  ae.all <- list()
+  for (i in 1:2) {
+    if (i == 1) {
+      ae.all[[i]] <- NA
+      drv <- dbDriver("PostgreSQL")
+      message("testing RPostgreSQL driver...")
+    }
+    if (i == 2) {
+      ae.all[[i]] <- NA
+      drv <- Postgres()
+      message("testing RPostgres driver...")
+    }
     library(sp)
     library(raster)
     data("meuse")
@@ -19,7 +31,6 @@ tryCatch({
     # general arguments
     new_table <- c("rpostgis", "db_test")
     ex_table <- c("example_data", "relocations_plus")
-    ae.all <- NULL
     
     print(system.time({
         # general
@@ -97,7 +108,7 @@ tryCatch({
         pgInsert(conn, c(new_table[1], "ptsgeo"), pts3035, overwrite = TRUE, geog = TRUE)
         pgInsert(conn, c(new_table[1], "linegeog"), pgeog, geom = "geog")
         pgeogline2<-pgGetGeom(conn, c(new_table[1], "linegeog"), geom = "geog")
-        ae.all <- c(ae.all,paste(all.equal(pgeog,pgeogline2), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(pgeog,pgeogline2), collapse = ","))
         rm(pts3035, pgeog, pgeogline2)
         # pgi mode
         pgInsert(conn, c("rpostgis", "db_test2"), pts)
@@ -137,13 +148,13 @@ tryCatch({
         pgWriteRast(conn, c("rpostgis", "from_spxdf"), y, overwrite = TRUE)
         
         y2 <- pgGetRast(conn, c("rpostgis", "from_spxdf"))
-        ae.all <- c(ae.all,paste(all.equal(class(y), class(y2)), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(class(y), class(y2)), collapse = ","))
         
         x <- as(meuse.grid, "SpatialGridDataFrame")
         pgWriteRast(conn, c("rpostgis", "from_sgdf"), x, overwrite = TRUE)
         
         x2 <- pgGetRast(conn, c("rpostgis", "from_sgdf"))
-        ae.all <- c(ae.all,paste(all.equal(class(x), class(x2)), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(class(x), class(x2)), collapse = ","))
         
         rm(x,x2,y,y2, meuse.grid)
         # end SP-type rasters
@@ -155,7 +166,7 @@ tryCatch({
         rast2 <- pgGetRast(conn,  c("rpostgis", "test_rast"))
         print(all.equal(r, rast2))
         
-        ae.all <- c(ae.all,paste(all.equal(r, rast2),collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(r, rast2),collapse = ","))
         
         load("tests/test_data/roe_raster.rda")
         rast <- roe_raster$corine06
@@ -163,14 +174,14 @@ tryCatch({
             overwrite = TRUE)
         
         rast2 <- pgGetRast(conn, c("rpostgis", "clc"), bands = c(1))
-        ae.all <- c(ae.all,paste(all.equal(rast,rast2),collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(rast,rast2),collapse = ","))
         
         rast <- roe_raster$srtm_dem
         pgWriteRast(conn, c("rpostgis", "srtm"), raster = rast, blocks = c(14,2),
             overwrite = TRUE)
         
         rast2 <- pgGetRast(conn, c("rpostgis", "srtm"), bands = c(1))
-        ae.all <- c(ae.all,paste(all.equal(rast,rast2), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(rast,rast2), collapse = ","))
         
         # write rast stack/brick
         ls <- list.files("tests/test_data/rstack/", 
@@ -187,7 +198,6 @@ tryCatch({
         pgWriteRast(conn, c("rpostgis", "uw"), rast.app, 
                     append = TRUE)
         bla <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(2:4), boundary = c(30, -5, -80, -95), clauses = "where band_names = '{{apr_prec.x2},{apr_temp.x2},{aug_prec.x2},{aug_temp.x2},{dec_prec.x2}}'")
-        all.equal(rast.app, bla2)
         
         rast <- brick(rast)
         pgWriteRast(conn, c("rpostgis", "uw"), rast, blocks = c(1,3),
@@ -197,7 +207,7 @@ tryCatch({
         rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(2:4), boundary = c(30, -5, -80, -95))
         rast2 <- pgGetRast(conn, c("rpostgis", "uw"), bands = TRUE)
         
-        ae.all <- c(ae.all,paste(all.equal(rast,rast2), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(rast,rast2), collapse = ","))
         
         # List rasters
         pgListRast(conn)
@@ -209,7 +219,7 @@ tryCatch({
         dum.dat <- pts@data
         row.names(dum.dat) <- sample(row.names(dum.dat), size = length(row.names(dum.dat)), replace = FALSE)
         pgInsert(conn, new_table, dum.dat, row.names = TRUE, overwrite = TRUE)
-        ae.all <- c(ae.all,paste(all.equal(dum.dat, dbReadDataFrame(conn, new_table)), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(dum.dat, dbReadDataFrame(conn, new_table)), collapse = ","))
         rm(dum.dat)
         
         # df.geom test
@@ -252,7 +262,7 @@ tryCatch({
         pgInsert(conn, new_table, pts, upsert.using = "gid_r")
         pts2 <- pgGetGeom(conn, new_table)
         
-        ae.all <- c(ae.all,paste(all.equal(pts, pts2), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(pts, pts2), collapse = ","))
         # only difference is date2 (tz difference)
         pts <- pts2
         rm(pts2)
@@ -267,10 +277,10 @@ tryCatch({
             overwrite = TRUE)
         
         pts.sponly2 <- pgGetGeom(conn, new_table)
-        ae.all <- c(ae.all,paste(all.equal(pts.sponly,pts.sponly2), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(pts.sponly,pts.sponly2), collapse = ","))
         
         # pgMakePts
-        pgInsert(conn, c("rpostgis", "meuse"), meuse)
+        pgInsert(conn, c("rpostgis", "meuse"), meuse, overwrite = T)
         pgMakePts(conn, c("rpostgis", "meuse"), colname = "geom_make", 
             srid = 26917, index = TRUE)
         
@@ -289,7 +299,7 @@ tryCatch({
             overwrite = TRUE)
         p2 <- pgGetGeom(conn, c("rpostgis", "pts"), gid = "station_id") # works but ignores df.mode
         p2 <- pgGetGeom(conn, c("rpostgis", "pts"))
-        ae.all <- c(ae.all,paste(all.equal(p1, p2), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(p1, p2), collapse = ","))
         
         p1 <- roe_vector_geom$roads
         p1$bla <- as.numeric(row.names(p1)) + 100
@@ -297,7 +307,7 @@ tryCatch({
             overwrite = TRUE)
         p2 <- pgGetGeom(conn, c("rpostgis", "lin"), gid = "bla") # works but ignores df.mode
         p2 <- pgGetGeom(conn, c("rpostgis", "lin"))
-        ae.all <- c(ae.all,paste(all.equal(p1@data, p2@data), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(p1@data, p2@data), collapse = ","))
         
         p1 <- roe_vector_geom$adm_boundaries
         p1$bla <- as.numeric(row.names(p1)) + 100
@@ -305,7 +315,7 @@ tryCatch({
             df.mode = TRUE, overwrite = TRUE)
         p2 <- pgGetGeom(conn, c("rpostgis", "poly"), gid = "bla") # works but ignores df.mode
         p2 <- pgGetGeom(conn, c("rpostgis", "poly"))  # ordering...
-        ae.all <- c(ae.all,paste(all.equal(p1@data, p2@data), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(p1@data, p2@data), collapse = ","))
         
         load("tests/test_data/roe_gps_data.rda")
         d <- rbind(roe_gps_data$GSM01511[, 1:14], roe_gps_data$GSM01508[, 
@@ -317,7 +327,7 @@ tryCatch({
         
         dbWriteDataFrame(conn, c("rpostgis", "d"), d)
         d2 <- dbReadDataFrame(conn, c("rpostgis", "d"))
-        ae.all <- c(ae.all,paste(all.equal(d, d2), collapse = ","))
+        ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(d, d2), collapse = ","))
         # end data frame mode section
         
         # drop schema
@@ -331,6 +341,7 @@ tryCatch({
             new_table, p1, p2, poly, pts, pts.sponly, pts.sponly2, r, rast, 
             rastclp, matview, df, rast2)
     }))
+  }
     print("ALL GOOD!!!")
 }, error = function(x) {
     print("errors...")
