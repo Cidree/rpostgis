@@ -88,7 +88,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
         dbDrop(conn, name, ifexists = TRUE)
     }
     
-    if (!dbExistsTable(conn, name, table.only = F)) {
+    if (!rpostgis:::dbExistsTable(conn, name, table.only = F)) {
       # 1. create raster table
       tmp.query <- paste0("CREATE TABLE ", paste(nameq, collapse = "."), 
           " (rid serial primary key, band_names text[], r_class character varying, r_proj4 character varying, rast raster);")

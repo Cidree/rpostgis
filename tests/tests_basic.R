@@ -4,17 +4,17 @@ cwd <- getwd()
 
 tryCatch({
   library(rpostgis)
-  library(RPostgreSQL)
-  library(RPostgres)
     # setwd("./rpostgis")
   ae.all <- list()
   for (i in 1:2) {
     if (i == 1) {
+      library(RPostgreSQL)
       ae.all[[i]] <- NA
       drv <- dbDriver("PostgreSQL")
       message("testing RPostgreSQL driver...")
     }
     if (i == 2) {
+      library(RPostgres)
       ae.all[[i]] <- NA
       drv <- Postgres()
       message("testing RPostgres driver...")
@@ -106,7 +106,7 @@ tryCatch({
         pts3035<-spTransform(pts, rast@crs)
         pgInsert(conn, c(new_table[1], "pts3035"), pts3035)
         pgInsert(conn, c(new_table[1], "ptsgeo"), pts3035, overwrite = TRUE, geog = TRUE)
-        pgInsert(conn, c(new_table[1], "linegeog"), pgeog, geom = "geog")
+        pgInsert(conn, c(new_table[1], "linegeog"), pgeog, geom = "geog", overwrite = T)
         pgeogline2<-pgGetGeom(conn, c(new_table[1], "linegeog"), geom = "geog")
         ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(pgeog,pgeogline2), collapse = ","))
         rm(pts3035, pgeog, pgeogline2)
@@ -197,7 +197,8 @@ tryCatch({
         names(rast.app) <- paste(names(rast.app), "x2")
         pgWriteRast(conn, c("rpostgis", "uw"), rast.app, 
                     append = TRUE)
-        bla <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(2:4), boundary = c(30, -5, -80, -95), clauses = "where band_names = '{{apr_prec.x2},{apr_temp.x2},{aug_prec.x2},{aug_temp.x2},{dec_prec.x2}}'")
+        bla <- pgGetRast(conn, c("rpostgis", "uw"), bands = c(2:4), boundary = c(30, -5, -80, -95), 
+                         clauses = "where band_names = '{{apr_prec.x2},{apr_temp.x2},{aug_prec.x2},{aug_temp.x2},{dec_prec.x2}}'")
         
         rast <- brick(rast)
         pgWriteRast(conn, c("rpostgis", "uw"), rast, blocks = c(1,3),
@@ -223,7 +224,7 @@ tryCatch({
         rm(dum.dat)
         
         # df.geom test
-        suppressWarnings(df<-dbReadTable(conn, ex_table))
+        suppressWarnings(df<-dbGetQuery(conn, paste0("SELECT * FROM ", paste(ex_table, collapse = "."), ";")))
         pgInsert(conn, new_table, data.obj = df, df.geom = c("geom","(POINT,4326)"), overwrite = TRUE)
         pgInsert(conn, new_table, data.obj = df, df.geom = "geom", overwrite = TRUE)
 
@@ -232,7 +233,7 @@ tryCatch({
         
         # test general db functions
         dbComment(conn, new_table, comment = "test table for rpostgis.")
-        dbAddKey(conn, new_table, colname = c("gid_r", "time")) # multi-column primary
+        dbAddKey(conn, new_table, colname = c("gid_r", "time"), type = "primary") # multi-column primary
         
         # send data to database with geom, overwrite, with new ID num
         pgInsert(conn, new_table, pts, overwrite = TRUE, new.id = "gid_r")
@@ -347,5 +348,6 @@ tryCatch({
     print("errors...")
     print(x)
 })
+ae.all
 setwd(cwd)
 rm(cwd)

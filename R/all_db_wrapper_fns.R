@@ -81,7 +81,7 @@ dbAddKey <- function(conn, name, colname, type = c("primary",
     ## Execute the query and return TRUE
     if (exec) {
         dbConnCheck(conn)
-        dbSendQuery(conn, tmp.query)
+        dbExecute(conn, tmp.query)
         return(TRUE)
     }
 }
@@ -145,7 +145,7 @@ dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
     ## Execute the query and return TRUE
     if (exec) {
         dbConnCheck(conn)
-        dbSendQuery(conn, tmp.query)
+        dbExecute(conn, tmp.query)
         return(TRUE)
     }
 }
@@ -208,7 +208,7 @@ dbColumn <- function(conn, name, colname, action = c("add", "drop"),
     ## Execute the query
     if (exec) {
         dbConnCheck(conn)
-        dbSendQuery(conn, tmp.query)
+        dbExecute(conn, tmp.query)
     }
     ## Return TRUE
     if(exec) return(TRUE)
@@ -269,7 +269,7 @@ dbComment <- function(conn, name, comment, type = c("table",
     ## Execute the query
     if (exec) {
         dbConnCheck(conn)
-        dbSendQuery(conn, tmp.query)
+        dbExecute(conn, tmp.query)
     }
     ## Return true
     if(exec) return(TRUE)
@@ -334,7 +334,7 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
     ## Execute the query
     if (exec) {
         dbConnCheck(conn)
-        dbSendQuery(conn, tmp.query)
+        dbExecute(conn, tmp.query)
     }
     ## Return true
     if(exec) return(TRUE)
@@ -422,7 +422,7 @@ dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
     ## Execute the query and return TRUE
     if (exec) {
         dbConnCheck(conn)
-        dbSendQuery(conn, tmp.query)
+        dbExecute(conn, tmp.query)
         return(TRUE)
     }
 }
@@ -481,7 +481,7 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
         }
         ## Execute the query
         if (exec)
-            dbSendQuery(conn, tmp.query)
+            dbExecute(conn, tmp.query)
         ## Return true
         if(exec) return(TRUE)
     }
@@ -576,7 +576,7 @@ dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
     ## Execute the query
     if (exec) {
         dbConnCheck(conn)
-        dbSendQuery(conn, tmp.query)
+        dbExecute(conn, tmp.query)
     }
     ## Return true
     if(exec) return(TRUE)

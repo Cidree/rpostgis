@@ -146,14 +146,14 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
     if (geom == "geog") geog <- TRUE
   
     if (df.mode) {
-      if (!dbExistsTable(conn,name, table.only = TRUE) | overwrite) {
+      if (!rpostgis:::dbExistsTable(conn,name, table.only = TRUE) | overwrite) {
         # set necessary argument values
         partial.match <- FALSE
         new.id <- ".db_pkid"
         row.names <- TRUE
         upsert.using <- NULL
         alter.names <- FALSE
-      } else if (!overwrite & dbExistsTable(conn,name, table.only = TRUE)) {
+      } else if (!overwrite & rpostgis:::dbExistsTable(conn,name, table.only = TRUE)) {
         stop("df.mode = TRUE only allowed for new tables or with overwrite = TRUE.")
       }
     }
@@ -181,7 +181,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
         }
     }
     ## Check for existing table
-    exists.t <- dbExistsTable(conn, name, table.only = TRUE)
+    exists.t <- rpostgis:::dbExistsTable(conn, name, table.only = TRUE)
     if (!exists.t) {
         message("Creating new table...")
         create.table <- name
@@ -240,7 +240,9 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
             }
         }
         quet <- NULL
-        try(quet <- dbExecute(conn, pgi$db.new.table))
+        try({
+          for (q in pgi$db.new.table) quet <- dbExecute(conn, q)
+          })
         if (is.null(quet)) {
             dbExecute(conn, "ROLLBACK;")
             message("Table creation failed. No changes made to database.")

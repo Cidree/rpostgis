@@ -227,7 +227,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
           add.geom <- paste0("ALTER TABLE ", nt[1], ".", nt[2],
             " ADD COLUMN ", geom, " geography(", pgtype, ");") 
         }
-        new.table <- paste0(new.table, "\n", add.geom)
+        new.table <- c(new.table, add.geom)
         
         ###
         if(df.mode) {
@@ -238,7 +238,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geom", create.table = NULL,
             dat <-dbWriteDataFrame(conn, in.tab, dat , only.defs = TRUE)[,1:length(names(dat))-1] # dat.na not used further
           } else {
             # remove existing defs if table exists
-            if (dbExistsTable(conn, ".R_df_defs", table.only = TRUE)) {
+            if (rpostgis:::dbExistsTable(conn, ".R_df_defs", table.only = TRUE)) {
               sql_query<-paste0("DELETE FROM \".R_df_defs\" WHERE table_nm = ",
                 dbQuoteString(conn, in.tab[length(in.tab)]),";")
               dbExecute(conn, sql_query)
@@ -459,7 +459,7 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
           data.obj<-dbWriteDataFrame(conn, in.tab, data.obj, only.defs = TRUE)
         } else {
           # remove existing defs if table exists
-          if (dbExistsTable(conn, ".R_df_defs", table.only = TRUE)) {
+          if (rpostgis:::dbExistsTable(conn, ".R_df_defs", table.only = TRUE)) {
             sql_query<-paste0("DELETE FROM \".R_df_defs\" WHERE table_nm = ",
               dbQuoteString(conn, in.tab[length(in.tab)]),";")
             dbExecute(conn, sql_query)
