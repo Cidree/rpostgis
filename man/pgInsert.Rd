@@ -8,7 +8,8 @@
 pgInsert(conn, name, data.obj, geom = "geom", df.mode = FALSE,
   partial.match = FALSE, overwrite = FALSE, new.id = NULL,
   row.names = FALSE, upsert.using = NULL, alter.names = FALSE,
-  encoding = NULL, return.pgi = FALSE, df.geom = NULL, geog = FALSE)
+  encoding = NULL, return.pgi = FALSE, df.geom = NULL,
+  geog = FALSE)
 
 \method{print}{pgi}(x, ...)
 }

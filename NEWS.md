@@ -1,3 +1,13 @@
+rpostgis 1.4.2-2
+==============
+
+OVERALL CHANGES
+
+* The `RPostgres::Postgres()` driver can now be used as a connection. 
+While `rpostgis` is functional with the driver, it not been tested 
+extensively, and the default `RPostgreSQL::PostgreSQL()`
+driver is recommended for most use cases.
+
 rpostgis 1.4.2-1
 ==============
 

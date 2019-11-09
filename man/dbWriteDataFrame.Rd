@@ -52,7 +52,7 @@ The \code{rpostgis} database table read functions
 \code{dbReadDataFrame} and \code{pgGetGeom} will use the metadata
 created in data frame mode to recreate a data.frame in R, if it is
 available. Otherwise, it will be imported using default
-\code{RPostgreSQL::dbReadTable} methods.
+\code{RPostgreSQL::dbGetQuery} methods.
 
 All \code{Spatial*DataFrame}s must be written with \code{\link[rpostgis]{pgInsert}}.
 For more flexible writing of \code{data.frame}s to the database

@@ -97,7 +97,6 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
       append <- F
     } else {
       if (!append) {stop("Need to specify `append = TRUE` to add raster to an existing table.")}
-      # how to incorporate schema into this fn?
       message("Appending to existing table. Dropping any existing raster constraints...")
       try(dbExecute(conn, paste0("SELECT DropRasterConstraints('", namef[1], "','", namef[2], "','rast',",
                                  paste(rep("TRUE", 12), collapse = ","),");")))
