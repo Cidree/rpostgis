@@ -5,8 +5,8 @@ OVERALL CHANGES
 
 * The `RPostgres::Postgres()` driver can now be used as a connection. 
 While `rpostgis` is functional with the driver, it should be considered
-experimental, and the default `RPostgreSQL::PostgreSQL()`
-driver is recommended for most use cases.
+experimental and may not function as expected in all cases. The default 
+`RPostgreSQL::PostgreSQL()` driver is recommended for most use cases.
 
 NEW FEATURES
 
@@ -19,7 +19,7 @@ each raster in a table has a unique entry in the `band_names` column.
 See `pgGetRast`'s new `clauses` argument for importing subsets of a raster table.
 
 * `pgGetRast`: A `clauses` argument allows to specify additional SQL 
-(i.e. `clauses = "WHERE band_names = '{{temp01}}'"`)
+(e.g. `clauses = "WHERE band_names = '{{landcover_2010}}'"`)
 to select a specific subset of a raster table to import.
 
 rpostgis 1.4.2
