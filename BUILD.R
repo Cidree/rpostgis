@@ -26,8 +26,8 @@ check(cran=TRUE)
 check_win_devel()
 
 # rhub version, windows with development R
-# library(rhub) #library for testing on a variety of system configs
-# check(platform = "windows-x86_64-devel")
+library(rhub) #library for testing on a variety of system configs
+check(platform = "windows-x86_64-devel")
 
 # write manual
 manual(overwrite=TRUE)
