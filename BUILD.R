@@ -52,16 +52,15 @@ report(x)
 # check reverse dependencies (make sure to run on clean workspace)
 rm(list=ls())
 devtools::revdep()
-
 library(revdepcheck)
 revdep_check()
 revdep_reset()
 
-# release to CRAN
-release()
-
 ## Build documentation:
 pkgdown::build_site()
+
+# release to CRAN
+release()
 
 # badges currently broken for readme
 # [![CRAN Status](http://www.r-pkg.org/badges/version/rpostgis)](https://CRAN.R-project.org/package=rpostgis)
