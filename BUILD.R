@@ -20,6 +20,8 @@ document()
 # run examples and checks (not using these)
 # run_examples()
 # spell_check()
+
+# check locally
 check(cran=TRUE)
 
 # test on r-devel
