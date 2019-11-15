@@ -4,8 +4,14 @@
 \alias{pgPostGIS}
 \title{Check and create PostGIS extension.}
 \usage{
-pgPostGIS(conn, topology = FALSE, tiger = FALSE, sfcgal = FALSE,
-  display = TRUE, exec = TRUE)
+pgPostGIS(
+  conn,
+  topology = FALSE,
+  tiger = FALSE,
+  sfcgal = FALSE,
+  display = TRUE,
+  exec = TRUE
+)
 }
 \arguments{
 \item{conn}{A connection object (required, even if \code{exec =

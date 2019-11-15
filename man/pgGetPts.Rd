@@ -4,8 +4,14 @@
 \alias{pgGetPts}
 \title{Load a PostGIS point geometry from a PostgreSQL table/view into R.}
 \usage{
-pgGetPts(conn, name, geom = "geom", gid = NULL, other.cols = "*",
-  clauses = NULL)
+pgGetPts(
+  conn,
+  name,
+  geom = "geom",
+  gid = NULL,
+  other.cols = "*",
+  clauses = NULL
+)
 }
 \value{
 Spatial(Multi)PointsDataFrame or Spatial(Multi)Points

@@ -4,8 +4,15 @@
 \alias{dbVacuum}
 \title{Vacuum.}
 \usage{
-dbVacuum(conn, name, full = FALSE, verbose = FALSE, analyze = TRUE,
-  display = TRUE, exec = TRUE)
+dbVacuum(
+  conn,
+  name,
+  full = FALSE,
+  verbose = FALSE,
+  analyze = TRUE,
+  display = TRUE,
+  exec = TRUE
+)
 }
 \arguments{
 \item{conn}{A connection object.}

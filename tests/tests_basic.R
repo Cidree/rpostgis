@@ -9,15 +9,17 @@ tryCatch({
   for (i in 1:2) {
     if (i == 1) {
       library(RPostgreSQL)
-      ae.all[[i]] <- NA
+      ae.all[[i]] <- "PostgreSQL Tests"
       drv <- dbDriver("PostgreSQL")
       message("testing RPostgreSQL driver...")
+      Sys.sleep(3)
     }
     if (i == 2) {
       library(RPostgres)
-      ae.all[[i]] <- NA
+      ae.all[[i]] <- "RPostgres Tests"
       drv <- Postgres()
       message("testing RPostgres driver...")
+      Sys.sleep(3)
     }
     library(sp)
     library(raster)
@@ -175,6 +177,7 @@ tryCatch({
         
         rast2 <- pgGetRast(conn, c("rpostgis", "clc"), bands = c(1))
         ae.all[[i]] <- c(ae.all[[i]],paste(all.equal(rast,rast2),collapse = ","))
+        rast2 <- pgGetRast(conn, c("rpostgis", "clc"), clauses = "where rid < 10") # clauses test
         
         rast <- roe_raster$srtm_dem
         pgWriteRast(conn, c("rpostgis", "srtm"), raster = rast, blocks = c(14,2),
@@ -337,10 +340,7 @@ tryCatch({
         dbDisconnect(conn)
         dbDisconnect(conn2)
         
-        rm(alb, d, d2, meuse, bnd, conn, conn2, cred, crsf, roe_gps_data, 
-            roe_vector_geom, roe_raster, drv, ex_table, lin, ls, 
-            new_table, p1, p2, poly, pts, pts.sponly, pts.sponly2, r, rast, 
-            rastclp, matview, df, rast2)
+        rm(list = ls()[!ls() %in% c("ae.all","i","cwd")])
     }))
   }
     print("ALL GOOD!!!")
@@ -348,6 +348,7 @@ tryCatch({
     print("errors...")
     print(x)
 })
+
 ae.all
 setwd(cwd)
 rm(cwd)

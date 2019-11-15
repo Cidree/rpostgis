@@ -4,9 +4,16 @@
 \alias{dbColumn}
 \title{Add or remove a column.}
 \usage{
-dbColumn(conn, name, colname, action = c("add", "drop"),
-  coltype = "integer", cascade = FALSE, display = TRUE,
-  exec = TRUE)
+dbColumn(
+  conn,
+  name,
+  colname,
+  action = c("add", "drop"),
+  coltype = "integer",
+  cascade = FALSE,
+  display = TRUE,
+  exec = TRUE
+)
 }
 \arguments{
 \item{conn}{A connection object.}

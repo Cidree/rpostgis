@@ -4,8 +4,14 @@
 \alias{dbComment}
 \title{Comment table/view/schema.}
 \usage{
-dbComment(conn, name, comment, type = c("table", "view", "schema"),
-  display = TRUE, exec = TRUE)
+dbComment(
+  conn,
+  name,
+  comment,
+  type = c("table", "view", "schema"),
+  display = TRUE,
+  exec = TRUE
+)
 }
 \arguments{
 \item{conn}{A connection object.}

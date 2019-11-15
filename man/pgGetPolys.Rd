@@ -4,8 +4,14 @@
 \alias{pgGetPolys}
 \title{Load a PostGIS polygon geometry from a PostgreSQL table/view into R.}
 \usage{
-pgGetPolys(conn, name, geom = "geom", gid = NULL, other.cols = "*",
-  clauses = NULL)
+pgGetPolys(
+  conn,
+  name,
+  geom = "geom",
+  gid = NULL,
+  other.cols = "*",
+  clauses = NULL
+)
 }
 \value{
 SpatialPolygonsDataFrame or SpatialPolygons

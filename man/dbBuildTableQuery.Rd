@@ -4,8 +4,13 @@
 \alias{dbBuildTableQuery}
 \title{Builds CREATE TABLE query for a data frame object.}
 \usage{
-dbBuildTableQuery(conn = NULL, name, obj, field.types = NULL,
-  row.names = FALSE)
+dbBuildTableQuery(
+  conn = NULL,
+  name,
+  obj,
+  field.types = NULL,
+  row.names = FALSE
+)
 }
 \arguments{
 \item{conn}{A PostgreSQL connection}

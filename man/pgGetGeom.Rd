@@ -4,8 +4,16 @@
 \alias{pgGetGeom}
 \title{Load a PostGIS geometry from a PostgreSQL table/view/query into R.}
 \usage{
-pgGetGeom(conn, name, geom = "geom", gid = NULL, other.cols = TRUE,
-  clauses = NULL, boundary = NULL, query = NULL)
+pgGetGeom(
+  conn,
+  name,
+  geom = "geom",
+  gid = NULL,
+  other.cols = TRUE,
+  clauses = NULL,
+  boundary = NULL,
+  query = NULL
+)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}

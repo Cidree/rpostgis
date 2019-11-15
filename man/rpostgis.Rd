@@ -3,7 +3,6 @@
 \docType{package}
 \name{rpostgis}
 \alias{rpostgis}
-\alias{rpostgis-package}
 \title{R interface to a PostGIS database.}
 \description{
 'rpostgis' provides an interface between R and
@@ -18,19 +17,19 @@
 A typical session starts by establishing the connection to a
 working PostgreSQL database:
 
-library(rpostgis)
+    library(rpostgis)
     con <- dbConnect("PostgreSQL", dbname = <dbname>, host = <host>,
             user = <user>, password = <password>)
 
 For example, this could be:
 
-con <- dbConnect("PostgreSQL", dbname = "rpostgis", host = "localhost",
+    con <- dbConnect("PostgreSQL", dbname = "rpostgis", host = "localhost",
         user = "postgres", password = "postgres")
 
 The next step typically involves checking if PostGIS was installed
 on the working database, and if not try to install it:
 
-pgPostGIS(con)
+    pgPostGIS(con)
 
 The function should return \code{TRUE} for all \code{pg-}
 functions to work.
@@ -38,7 +37,7 @@ functions to work.
 Finally, at the end of an interactive session, the connection to
 the database should be closed:
 
-dbDisconnect(con)
+    dbDisconnect(con)
 }
 \author{
 Mathieu Basille (\email{basille@ufl.edu}) and David

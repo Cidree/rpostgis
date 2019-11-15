@@ -4,8 +4,16 @@
 \alias{pgWriteRast}
 \title{Write raster to PostGIS database table.}
 \usage{
-pgWriteRast(conn, name, raster, bit.depth = NULL, blocks = NULL,
-  constraints = TRUE, overwrite = FALSE, append = FALSE)
+pgWriteRast(
+  conn,
+  name,
+  raster,
+  bit.depth = NULL,
+  blocks = NULL,
+  constraints = TRUE,
+  overwrite = FALSE,
+  append = FALSE
+)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}

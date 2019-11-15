@@ -14,24 +14,16 @@ install()
 # use_build_ignore("docs")
 # use_build_ignore("pkgdown")
 
+# create/update documentation
 document()
-spell_check()
 
-# run examples and checks
-run_examples()
-
+# run examples and checks (not using these)
+# run_examples()
+# spell_check()
 check(cran=TRUE)
 
-## Build documentation:
-pkgdown::build_site()
-
-
-#build binary
-# build()
-# install()
-
 # test on r-devel
-build_win()
+check_win_devel()
 
 # rhub version, windows with development R
 # library(rhub) #library for testing on a variety of system configs
@@ -56,11 +48,18 @@ report(x)
 # tidy_source(arrow=TRUE,width.cutoff = 60)
 
 # check reverse dependencies (make sure to run on clean workspace)
-devtools::revdep_check(dependencies = c("Imports"))
-devtools::revdep_check_print_problems()
+rm(list=ls())
+devtools::revdep()
+
+library(revdepcheck)
+revdep_check()
+revdep_reset()
 
 # release to CRAN
 release()
+
+## Build documentation:
+pkgdown::build_site()
 
 # badges currently broken for readme
 # [![CRAN Status](http://www.r-pkg.org/badges/version/rpostgis)](https://CRAN.R-project.org/package=rpostgis)

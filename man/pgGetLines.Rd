@@ -4,8 +4,14 @@
 \alias{pgGetLines}
 \title{Load a PostGIS linestring geometry from a PostgreSQL table/view into R.}
 \usage{
-pgGetLines(conn, name, geom = "geom", gid = NULL, other.cols = "*",
-  clauses = NULL)
+pgGetLines(
+  conn,
+  name,
+  geom = "geom",
+  gid = NULL,
+  other.cols = "*",
+  clauses = NULL
+)
 }
 \value{
 SpatialLinesDataFrame or SpatialLines

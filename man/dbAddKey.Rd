@@ -4,8 +4,16 @@
 \alias{dbAddKey}
 \title{Add key.}
 \usage{
-dbAddKey(conn, name, colname, type = c("primary", "foreign"), reference,
-  colref, display = TRUE, exec = TRUE)
+dbAddKey(
+  conn,
+  name,
+  colname,
+  type = c("primary", "foreign"),
+  reference,
+  colref,
+  display = TRUE,
+  exec = TRUE
+)
 }
 \arguments{
 \item{conn}{A connection object.}

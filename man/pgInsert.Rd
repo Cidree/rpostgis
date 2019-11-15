@@ -5,11 +5,23 @@
 \alias{print.pgi}
 \title{Inserts data into a PostgreSQL table.}
 \usage{
-pgInsert(conn, name, data.obj, geom = "geom", df.mode = FALSE,
-  partial.match = FALSE, overwrite = FALSE, new.id = NULL,
-  row.names = FALSE, upsert.using = NULL, alter.names = FALSE,
-  encoding = NULL, return.pgi = FALSE, df.geom = NULL,
-  geog = FALSE)
+pgInsert(
+  conn,
+  name,
+  data.obj,
+  geom = "geom",
+  df.mode = FALSE,
+  partial.match = FALSE,
+  overwrite = FALSE,
+  new.id = NULL,
+  row.names = FALSE,
+  upsert.using = NULL,
+  alter.names = FALSE,
+  encoding = NULL,
+  return.pgi = FALSE,
+  df.geom = NULL,
+  geog = FALSE
+)
 
 \method{print}{pgi}(x, ...)
 }
@@ -121,7 +133,7 @@ non-Linestring), which is faster for large datasets.  In all other
 cases the \code{rgeos} function \code{\link[rgeos]{writeWKT}} is used.
 
 In the event of function or database error, the database uses
-ROLLBACK to revert to the previous state.
+ROLLBACK to revert to the previous state. 
 
 If the user specifies \code{return.pgi = TRUE}, and data preparation is
 successful, the function will return 

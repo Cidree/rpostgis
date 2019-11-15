@@ -4,8 +4,7 @@
 \alias{dbAsDate}
 \title{Converts to timestamp.}
 \usage{
-dbAsDate(conn, name, date = "date", tz = NULL, display = TRUE,
-  exec = TRUE)
+dbAsDate(conn, name, date = "date", tz = NULL, display = TRUE, exec = TRUE)
 }
 \arguments{
 \item{conn}{A connection object.}

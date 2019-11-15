@@ -4,8 +4,14 @@
 \alias{pgGetRast}
 \title{Load raster from PostGIS database.}
 \usage{
-pgGetRast(conn, name, rast = "rast", clauses = NULL, bands = 1,
-  boundary = NULL)
+pgGetRast(
+  conn,
+  name,
+  rast = "rast",
+  bands = 1,
+  boundary = NULL,
+  clauses = NULL
+)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -16,9 +22,6 @@ c("schema","table")})}
 
 \item{rast}{Name of the column in \code{name} holding the raster object}
 
-\item{clauses}{character, optional SQL to append to modify select
-query from table. Must begin with 'WHERE'.}
-
 \item{bands}{Index number(s) for the band(s) to retrieve (defaults to 1).
 The special case (\code{bands = TRUE}) returns all bands in the raster.}
 
@@ -28,6 +31,9 @@ raster to import. Alternatively, four numbers
 (e.g. \code{c([top], [bottom], [right], [left])}) indicating the
 projection-specific limits with which to clip the raster. \code{boundary = NULL}
 (default) will return the full raster.}
+
+\item{clauses}{character, optional SQL to append to modify select
+query from table. Must begin with 'WHERE'.}
 }
 \value{
 RasterLayer
