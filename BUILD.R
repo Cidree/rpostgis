@@ -17,9 +17,9 @@ install()
 # create/update documentation
 document()
 
-# run examples and checks (not using these)
-# run_examples()
-# spell_check()
+# run examples and spell check
+# run_examples() # not using
+spell_check()
 
 # check locally
 check(cran=TRUE)
