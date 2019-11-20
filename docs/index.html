@@ -117,7 +117,11 @@
 <a href="#getting-started" class="anchor"></a>Getting started</h2>
 <p><code>rpostgis</code> relies on a working connection provided by the <code>RPostgreSQL</code> package to a PostgreSQL database, e.g.:</p>
 <div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r">conn &lt;-<span class="st"> </span>RPostgreSQL::<span class="kw">dbConnect</span>(<span class="st">"PostgreSQL"</span>, <span class="dt">host =</span> <span class="st">"localhost"</span>, <span class="dt">dbname =</span> <span class="st">"&lt;DB_NAME&gt;"</span>, 
-    <span class="dt">user =</span> <span class="st">"&lt;USER&gt;"</span>, <span class="dt">password =</span> <span class="st">"&lt;PASSWORD&gt;"</span>)</code></pre></div>
+    <span class="dt">user =</span> <span class="st">"&lt;USER&gt;"</span>, <span class="dt">password =</span> <span class="st">"&lt;PASSWORD&gt;"</span>)
+    </code></pre></div>
+<blockquote>
+<p>Note: as of <code>rpostgis 1.4.3</code> the <code><a href="https://rdrr.io/pkg/RPostgres/man/Postgres.html">RPostgres::Postgres()</a></code> driver is also allowed for connection objects; however, this should be considered experimental and is not recommended for most use cases.</p>
+</blockquote>
 <p>Once the connection is established, the first step is to check if the database has <code>PostGIS</code> already installed (and install it if it’s not the case):</p>
 <div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r"><span class="kw"><a href="reference/pgPostGIS.html">pgPostGIS</a></span>(conn)</code></pre></div>
 <p>If the function returns <code>TRUE</code>, the database is ready and functional. You can check the geometries and rasters present in the database with:</p>

@@ -73,7 +73,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
     }
 
     if (!only.defs) {
-        if (rpostgis:::dbExistsTable(conn, name, table.only = TRUE)) {
+        if (dbExistsTable(conn, name, table.only = TRUE)) {
             if (!overwrite) {
                 stop("Table ", paste(nameque, collapse = "."),
                   " already exists. Use overwrite = TRUE to replace it.")
@@ -84,7 +84,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
     }
 
     ## create defs table
-    if (!rpostgis:::dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
+    if (!dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
         sql_query <- paste0("CREATE TABLE ", nameque[1], ".\".R_df_defs\" (table_nm character varying, df_def text[]);")
         dbExecute(conn, sql_query)
         suppressMessages({
@@ -182,11 +182,11 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
     nameque <- dbTableNameFix(conn, name)
     name <- dbTableNameFix(conn, name, as.identifier = FALSE)
 
-    if (!rpostgis:::dbExistsTable(conn, name)) {
+    if (!dbExistsTable(conn, name)) {
         stop("Table ", paste(name, collapse = "."), " not found.")
     }
 
-    if (!rpostgis:::dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
+    if (!dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
         message("R data frame definitions table not found. Using standard import...")
         if (is.null(df)) {
             nmq <- paste(dbTableNameFix(conn, name, T), collapse = ".")

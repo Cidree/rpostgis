@@ -8,13 +8,14 @@ tryCatch({
   ae.all <- list()
   for (i in 1:2) {
     if (i == 1) {
-      library(RPostgreSQL)
+      # RPostgreSQL is attached with rpostgis
       ae.all[[i]] <- "PostgreSQL Tests"
       drv <- dbDriver("PostgreSQL")
       message("testing RPostgreSQL driver...")
       Sys.sleep(3)
     }
     if (i == 2) {
+      # RPostgres is suggests; not attached with rpostgis
       library(RPostgres)
       ae.all[[i]] <- "RPostgres Tests"
       drv <- Postgres()

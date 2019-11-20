@@ -160,7 +160,7 @@ dbConnCheck <- function(conn) {
   if (inherits(conn, c("PostgreSQLConnection")) | inherits(conn, "PqConnection")) {
           return(TRUE)
       } else {
-        return(stop("'conn' must be a <PostgreSQLConnection> object."))
+        return(stop("'conn' must be connection object: <PostgreSQLConnection> from `RPostgreSQL`, or <PqConnection> from `RPostgres`"))
       }
 }
 
@@ -174,7 +174,7 @@ dbConnCheck <- function(conn) {
 
 dbGetDefs <- function(conn, name) {
     name <- dbTableNameFix(conn, name, as.identifier = FALSE)
-    if (rpostgis:::dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
+    if (dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
       sql_query <- paste0("SELECT unnest(df_def[1:1]) as nms,
                               unnest(df_def[2:2]) as defs,
                               unnest(df_def[3:3]) as atts
