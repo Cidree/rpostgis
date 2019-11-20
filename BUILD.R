@@ -28,8 +28,8 @@ check(cran=TRUE)
 check_win_devel()
 
 # rhub version, windows with development R
-library(rhub) #library for testing on a variety of system configs
-check(platform = "windows-x86_64-devel")
+# rhub::validate_email() # may need to validate e-mail with rhub prior to running check
+rhub::check(platform = "windows-x86_64-devel")
 
 # write manual
 manual(overwrite=TRUE)
