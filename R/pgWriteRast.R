@@ -2,7 +2,7 @@
 
 ##' Write raster to PostGIS database table.
 ##'
-##' Sends R raster to a new PostGIS database table.
+##' Sends R raster to a PostGIS database table.
 ##' 
 ##' RasterLayer names will be stored in an array in the column
 ##' "band_names", which will be restored in R when imported with the function

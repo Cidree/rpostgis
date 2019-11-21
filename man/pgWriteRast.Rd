@@ -48,7 +48,7 @@ depending on the PostgreSQL server settings.}
 TRUE for successful import.
 }
 \description{
-Sends R raster to a new PostGIS database table.
+Sends R raster to a PostGIS database table.
 }
 \details{
 RasterLayer names will be stored in an array in the column
