@@ -5,7 +5,7 @@
 ##' Internal rpostgis function to return common (length = 2) schema
 ##' and table name vector from various table and schema + table name
 ##' inputs.
-##' 
+##'
 ##' @param conn A connection object. Must be provided but can be set NULL,
 ##' where a dummy connection will be used.
 ##' @param t.nm Table name string, length 1-2.
@@ -18,17 +18,18 @@
 ##' @importFrom DBI dbQuoteString
 ##' @examples
 ##' \dontrun{
-##' name<-c("schema","table")
+##' name <- c("schema", "table")
 ##' dbTableNameFix(conn,name)
-##' 
-##' #current search path schema is added to single-length character object (if only table is given)
-##' name<-"table"
-##' dbTableNameFix(conn,name)
-##' 
-##' #schema or table names with double quotes should be given exactly as they are 
-##' (make sure to wrap in single quotes in R):
-##' name<-c('sch"ema','"table"')
-##' dbTableNameFix(conn,name)
+##'
+##' ## Current search path schema is added to single-length character
+##' ## object (if only table is given)
+##' name <- "table"
+##' dbTableNameFix(conn, name)
+##'
+##' ## Schema or table names with double quotes should be given exactly as
+##' ## they are (make sure to wrap in single quotes in R):
+##' name <- c('sch"ema', '"table"')
+##' dbTableNameFix(conn, name)
 ##' }
 
 dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
@@ -43,7 +44,7 @@ dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
           sch<-user
         } else {
           sch<-schema[!schema=="\"$user\""][1]
-        } 
+        }
         t.nm <- c(sch, t.nm)
       }
       if (length(t.nm) > 2)
@@ -74,13 +75,13 @@ dbVersion<- function (conn) {
 
 ## dbBuildTableQuery
 ##' Builds CREATE TABLE query for a data frame object.
-##' 
+##'
 ##' @param conn A PostgreSQL connection
 ##' @param name Table name string, length 1-2.
 ##' @param obj A data frame object.
 ##' @param field.types optional named list of the types for each field in \code{obj}
 ##' @param row.names logical, should row.name of \code{obj} be exported as a row_names field? Default is FALSE
-##' 
+##'
 ##' @note Adapted from RPostgreSQL::postgresqlBuildTableDefinition
 ##' @keywords internal
 
@@ -91,8 +92,8 @@ dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.n
     } else {
       nameque<-paste(dbTableNameFix(conn, name),collapse = ".")
     }
-  
-    if (!is.data.frame(obj)) 
+
+    if (!is.data.frame(obj))
         obj <- as.data.frame(obj)
     if (!is.null(row.names) && row.names) {
         obj <- cbind(row.names(obj), obj)
@@ -102,26 +103,26 @@ dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.n
         field.types <- sapply(obj, dbDataType, dbObj = conn)
     }
     i <- match("row_names", names(field.types), nomatch = 0)
-    if (i > 0) 
+    if (i > 0)
         field.types[i] <- dbDataType(conn, row.names(obj))
     flds <- paste(dbQuoteIdentifier(conn ,names(field.types)), field.types)
-    
-    paste("CREATE TABLE ", nameque , "\n(", paste(flds, 
+
+    paste("CREATE TABLE ", nameque , "\n(", paste(flds,
         collapse = ",\n\t"), "\n);")
 }
 
 ## dbExistsTable
 ##' Check if a PostgreSQL table/view exists
-##' 
+##'
 ##' @param conn A PostgreSQL connection
 ##' @param name Table/view name string, length 1-2.
-##' 
+##'
 ##' @keywords internal
 
 dbExistsTable <- function (conn, name, table.only = FALSE) {
     if (!table.only) to<-NULL else to<-" AND table_type = 'BASE TABLE'"
     full.name<-dbTableNameFix(conn,name, as.identifier = FALSE)
-    chk<-dbGetQuery(conn, paste0("SELECT 1 FROM information_schema.tables 
+    chk<-dbGetQuery(conn, paste0("SELECT 1 FROM information_schema.tables
                WHERE table_schema = ",dbQuoteString(conn,full.name[1]),
                " AND table_name = ",dbQuoteString(conn,full.name[2]),to,";"))[1,1]
     if (length(chk) == 1 && is.na(chk)) chk <- NULL
@@ -151,9 +152,9 @@ dbExistsTable <- function (conn, name, table.only = FALSE) {
 
 ## dbConnCheck
 ##' Check if a supported PostgreSQL connection
-##' 
+##'
 ##' @param conn A PostgreSQL connection
-##' 
+##'
 ##' @keywords internal
 
 dbConnCheck <- function(conn) {
@@ -166,10 +167,10 @@ dbConnCheck <- function(conn) {
 
 ## dbGetDefs
 ##' Get definitions for data frame mode reading
-##' 
+##'
 ##' @param conn A PostgreSQL connection
 ##' @param name Table/view name string, length 1-2.
-##' 
+##'
 ##' @keywords internal
 
 dbGetDefs <- function(conn, name) {
@@ -193,41 +194,41 @@ dbGetDefs <- function(conn, name) {
 
 ## pgCheckGeom
 ##' Check if geometry or geography column exists in a table,
-##' and return the column name for use in a query. 
-##' 
+##' and return the column name for use in a query.
+##'
 ##' @param conn A PostgreSQL connection
 ##' @param namechar A table name formatted for use in a query
 ##' @param geom a geometry or geography column name
-##' 
+##'
 ##' @keywords internal
 
 pgCheckGeom <- function(conn, name, geom) {
-  
-    namechar <- dbQuoteString(conn, 
+
+    namechar <- dbQuoteString(conn,
                   paste(dbTableNameFix(conn,name, as.identifier = FALSE), collapse = "."))
     ## Check table exists geom
-    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM geometry_columns\nWHERE 
-        (f_table_schema||'.'||f_table_name) = ", 
+    tmp.query <- paste0("SELECT f_geometry_column AS geo FROM geometry_columns\nWHERE
+        (f_table_schema||'.'||f_table_name) = ",
         namechar, ";")
     tab.list <- dbGetQuery(conn, tmp.query)$geo
     ## Check table exists geog
-    tmp.query <- paste0("SELECT f_geography_column AS geo FROM geography_columns\nWHERE 
-        (f_table_schema||'.'||f_table_name) = ", 
+    tmp.query <- paste0("SELECT f_geography_column AS geo FROM geography_columns\nWHERE
+        (f_table_schema||'.'||f_table_name) = ",
         namechar, ";")
     tab.list.geog <- dbGetQuery(conn, tmp.query)$geo
     tab.list <- c(tab.list, tab.list.geog)
-    
+
     if (is.null(tab.list)) {
         stop(paste0("Table/view ", namechar, " is not listed in geometry_columns or geography_columns."))
     } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view ", namechar, " geometry/geography column not found. Available columns: ", 
+        stop(paste0("Table/view ", namechar, " geometry/geography column not found. Available columns: ",
             paste(tab.list, collapse = ", ")))
     }
     ## prepare geom column
     if (geom %in% tab.list.geog) {
           # geog version
           geomque <- paste0(DBI::dbQuoteIdentifier(conn, geom),"::GEOMETRY")
-        } else { 
+        } else {
           geomque <- DBI::dbQuoteIdentifier(conn, geom)
         }
     return(geomque)
@@ -235,36 +236,36 @@ pgCheckGeom <- function(conn, name, geom) {
 
 ## pgGetSRID
 ##' Get SRID(s) from a geometry/geography column in a full table
-##' 
+##'
 ##' @param conn A PostgreSQL connection
 ##' @param name A schema/table name
 ##' @param geom a geometry or geography column name
-##' 
+##'
 ##' @keywords internal
 
 
 pgGetSRID <- function(conn, name, geom) {
-    
+
     ## Check and prepare the schema.name
     nameque <- paste(dbTableNameFix(conn,name), collapse = ".")
     ## prepare geom column
     geomque <- pgCheckGeom(conn, name, geom)
-    
+
     ## Retrieve the SRID
     tmp.query <- paste0("SELECT DISTINCT a.s as st_srid FROM
                         (SELECT ST_SRID(", geomque, ") as s FROM ",
                         nameque, " WHERE ", geomque, " IS NOT NULL) a;")
     srid <- dbGetQuery(conn, tmp.query)
-    
+
     return(srid$st_srid)
 }
 
 ## bs
 ##' Return indexes for an exact number of blocks for a raster
-##' 
+##'
 ##' @param r a raster
 ##' @param blocks Number of desired blocks (columns, rows)
-##' 
+##'
 ##' @importFrom raster nrow ncol
 ##' @keywords internal
 
@@ -274,10 +275,10 @@ bs <- function(r, blocks) {
   if (any(blocks == 0)) stop("Invalid number of blocks (0).")
   if (length(blocks) == 1) blocks <- c(blocks, blocks)
   r <- r[[1]]
-  
+
   cr <- list()
   tr <- list()
-  
+
   # cr
   b <- blocks[1]
   n.r <- raster::ncol(r)
@@ -299,7 +300,7 @@ bs <- function(r, blocks) {
       cr$n <- length(cr$row)
     }
   }
-  
+
   # tr
   b <- blocks[2]
   n.r <- raster::nrow(r)

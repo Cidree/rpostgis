@@ -23,6 +23,12 @@ navbar:
     - text: "MabLab"
       href: https://mablab.org/
 
+authors:
+  Mathieu Basille:
+    href: https://mablab.org
+  David Bucklin:
+    href: https://mablab.org/people/david-bucklin/
+
 reference:
 - title: "PostGIS management"
   contents:

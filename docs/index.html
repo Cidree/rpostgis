@@ -93,42 +93,42 @@
   <div class="contents col-md-9">
 <div id="rpostgis" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#rpostgis" class="anchor"></a>rpostgis</h1></div>
-<p><a href="https://CRAN.R-project.org/package=rpostgis">CRAN</a> <a href="http://www.repostatus.org/#active"><img src="http://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active - The project has reached a stable, usable state and is being actively developed."></a> <a href="https://CRAN.R-project.org/package=rpostgis"><img src="http://www.r-pkg.org/badges/version/rpostgis" alt="CRAN Status"></a> <a href="http://www.repostatus.org/#active"><img src="http://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active - The project has reached a stable, usable state and is being actively developed."></a> <img src="https://cranlogs.r-pkg.org/badges/rpostgis"></p>
-<p><code>rpostgis</code> provides an interface between R and <code>PostGIS</code>-enabled <code>PostgreSQL</code> databases to transparently transfer spatial data. Both vector (points, lines, polygons) and raster data are supported in read and write modes. Also provides convenience functions to execute common procedures in <code>PostgreSQL</code>/<code>PostGIS</code>.</p>
+<a href="#rpostgis" class="anchor"></a>rpostgis <img src="reference/figures/rpostgis-1024-white.png" align="right" width="200px">
+</h1></div>
+<!-- badges: start -->
+<p><a href="https://CRAN.R-project.org/package=rpostgis"><img src="http://www.r-pkg.org/badges/version/rpostgis" alt="CRAN Status"></a> <a href="http://www.repostatus.org/#active"><img src="http://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active - The project has reached a stable, usable state and is being actively developed."></a> <img src="https://cranlogs.r-pkg.org/badges/rpostgis"><!-- badges: end --></p>
+<p>The <code>rpostgis</code> package provides an interface between R and <a href="https://postgis.net/"><code>PostGIS</code></a>-enabled <a href="https://postgresql.org/"><code>PostgreSQL</code></a> databases to transparently transfer spatial data. Both vector (points, lines, polygons) and raster data are supported in read and write modes. Also provides convenience functions to execute common procedures in <code>PostgreSQL</code>/<code>PostGIS</code>.</p>
 <div id="installation-of-the-released-versions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation-of-the-released-versions" class="anchor"></a>Installation of the released versions</h2>
 <p>You can install the latest released version from CRAN:</p>
-<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"rpostgis"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"rpostgis"</span>)</code></pre></div>
 <p>You can then use <code><a href="https://rdrr.io/r/utils/update.packages.html">update.packages()</a></code> to update to the latest CRAN version.</p>
 </div>
 <div id="installation-of-the-development-versions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation-of-the-development-versions" class="anchor"></a>Installation of the development versions</h2>
-<p>A stable version of the package is always available on the project’s <a href="https://github.com/mablab/rpostgis">GitHub page</a>, and may be ahead of the CRAN version. To install it, use the <a href="https://CRAN.R-project.org/package=devtools"><code>devtools</code></a>:</p>
-<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(devtools)
-<span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"mablab/rpostgis"</span>)</code></pre></div>
+<p>A stable version of the package is always available on the project’s <a href="https://github.com/mablab/rpostgis">GitHub page</a>, and may be ahead of the CRAN version. To install it, use the <a href="https://CRAN.R-project.org/package=remotes"><code>remotes</code></a>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">remotes::<span class="kw">install_github</span>(<span class="st">"mablab/rpostgis"</span>)</code></pre></div>
 <p>For the latest (possibly unstable) development version, use:</p>
-<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"mablab/rpostgis"</span>, <span class="dt">ref =</span> <span class="st">"dev"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">remotes::<span class="kw">install_github</span>(<span class="st">"mablab/rpostgis"</span>, <span class="dt">ref =</span> <span class="st">"dev"</span>)</code></pre></div>
 </div>
 <div id="getting-started" class="section level2">
 <h2 class="hasAnchor">
 <a href="#getting-started" class="anchor"></a>Getting started</h2>
 <p><code>rpostgis</code> relies on a working connection provided by the <code>RPostgreSQL</code> package to a PostgreSQL database, e.g.:</p>
-<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r">conn &lt;-<span class="st"> </span>RPostgreSQL::<span class="kw">dbConnect</span>(<span class="st">"PostgreSQL"</span>, <span class="dt">host =</span> <span class="st">"localhost"</span>, <span class="dt">dbname =</span> <span class="st">"&lt;DB_NAME&gt;"</span>, 
-    <span class="dt">user =</span> <span class="st">"&lt;USER&gt;"</span>, <span class="dt">password =</span> <span class="st">"&lt;PASSWORD&gt;"</span>)
-    </code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">conn &lt;-<span class="st"> </span>RPostgreSQL::<span class="kw">dbConnect</span>(<span class="st">"PostgreSQL"</span>, <span class="dt">host =</span> <span class="st">"localhost"</span>,
+    <span class="dt">dbname =</span> <span class="st">"&lt;DB_NAME&gt;"</span>, <span class="dt">user =</span> <span class="st">"&lt;USER&gt;"</span>, <span class="dt">password =</span> <span class="st">"&lt;PASSWORD&gt;"</span>)</code></pre></div>
 <blockquote>
-<p>Note: as of <code>rpostgis 1.4.3</code> the <code><a href="https://rdrr.io/pkg/RPostgres/man/Postgres.html">RPostgres::Postgres()</a></code> driver is also allowed for connection objects; however, this should be considered experimental and is not recommended for most use cases.</p>
+<p>Note: as of <code>rpostgis 1.4.3</code> the <code>RPostgres::Postgres()</code> driver is also allowed for connection objects; however, this should be considered experimental and is not recommended for most use cases.</p>
 </blockquote>
 <p>Once the connection is established, the first step is to check if the database has <code>PostGIS</code> already installed (and install it if it’s not the case):</p>
-<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r"><span class="kw"><a href="reference/pgPostGIS.html">pgPostGIS</a></span>(conn)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/pgPostGIS.html">pgPostGIS</a></span>(conn)</code></pre></div>
 <p>If the function returns <code>TRUE</code>, the database is ready and functional. You can check the geometries and rasters present in the database with:</p>
-<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r"><span class="kw"><a href="reference/pgListGeom.html">pgListGeom</a></span>(conn, <span class="dt">geog =</span> <span class="ot">TRUE</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/pgListGeom.html">pgListGeom</a></span>(conn, <span class="dt">geog =</span> <span class="ot">TRUE</span>)
 <span class="kw"><a href="reference/pgListGeom.html">pgListRast</a></span>(conn)</code></pre></div>
 <p>To terminate the session, close and clear the connection with:</p>
-<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r">RPostgreSQL::<span class="kw">dbDisconnect</span>(conn)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">RPostgreSQL::<span class="kw">dbDisconnect</span>(conn)</code></pre></div>
 </div>
 <div id="documentation" class="section level2">
 <h2 class="hasAnchor">
@@ -143,6 +143,8 @@
 <h2>Links</h2>
 <ul class="list-unstyled">
 <li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=rpostgis">https://​cloud.r-project.org/​package=rpostgis</a>
+</li>
+<li>Browse source code at <br><a href="https://github.com/mablab/rpostgis">https://​github.com/​mablab/​rpostgis</a>
 </li>
 <li>Report a bug at <br><a href="https://github.com/mablab/rpostgis/issues">https://​github.com/​mablab/​rpostgis/​issues</a>
 </li>
@@ -163,8 +165,10 @@
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Mathieu Basille <br><small class="roles"> Author </small>  </li>
-<li>David Bucklin <br><small class="roles"> Author, maintainer </small>  </li>
+<li>
+<a href="https://mablab.org">Mathieu Basille</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-9366-7127" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID"></a> </li>
+<li>
+<a href="https://mablab.org/people/david-bucklin/">David Bucklin</a> <br><small class="roles"> Author, maintainer </small>  </li>
 </ul>
 </div>
 
@@ -173,7 +177,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Mathieu Basille, David Bucklin.</p>
+  <p>Developed by <a href="https://mablab.org">Mathieu Basille</a>, <a href="https://mablab.org/people/david-bucklin/">David Bucklin</a>.</p>
 </div>
 
 <div class="pkgdown">

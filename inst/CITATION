@@ -4,10 +4,10 @@ citEntry(entry = "Article",
   title        = "rpostgis: linking R with a PostGIS spatial database",
   author       = personList(as.person("David Bucklin"),
                             as.person("Mathieu Basille")),
-  journal      = "The R Journal", volume = "10", number = "1", pages = "251-268",                     
+  journal      = "The R Journal", volume = "10", number = "1", pages = "251-268",
   year         = "2018",
   url          = "https://journal.r-project.org/archive/2018/RJ-2018-025/index.html",
 
   textVersion  =
-  paste("Bucklin, D., & Basille, M. (2018). rpostgis: linking R with a PostGIS spatial database. The R Journal, 10(1), 251-268. https://journal.r-project.org/archive/2018/RJ-2018-025/index.html")
+  paste("Bucklin, D. & Basille, M. (2018). rpostgis: linking R with a PostGIS spatial database. The R Journal, 10(1), 251-268. https://journal.r-project.org/archive/2018/RJ-2018-025/index.html")
 )

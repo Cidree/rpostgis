@@ -9,7 +9,7 @@ Description: Provides an interface between R and 'PostGIS'-enabled
     functions to execute common procedures in 'PostgreSQL/PostGIS'.
 Authors@R: c(
     person("Mathieu", "Basille", email = "basille@ufl.edu", role =
-           c("aut")),
+           c("aut"), comment = c(ORCID = "0000-0001-9366-7127")),
     person("David", "Bucklin", email = "david.bucklin@gmail.com", role =
            c("aut", "cre")) )
 SystemRequirements:
@@ -30,6 +30,6 @@ Suggests:
     wkb
 License: GPL (>= 3)
 LazyData: true
-URL: https://mablab.org/rpostgis/index.html
+URL: https://mablab.org/rpostgis/, https://github.com/mablab/rpostgis
 BugReports: https://github.com/mablab/rpostgis/issues
 RoxygenNote: 7.0.0
