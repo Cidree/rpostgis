@@ -229,7 +229,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
             if (any(pgSRID(conn, rout@crs) %in% pgSRID(conn, r_crs))) crs(rout) <- r_crs
           ))
         }
-      })
+      }, silent = TRUE)
     }
     
     # get/set class
