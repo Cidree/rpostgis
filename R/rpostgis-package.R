@@ -40,6 +40,7 @@
 ##' @import RPostgreSQL
 ##' @import DBI
 ##' @importFrom methods slot "slot<-"
+##' @keywords internal
 ##' @author Mathieu Basille (\email{basille@@ufl.edu}) and David
 ##'     Bucklin (\email{david.bucklin@@gmail.com})
 NULL

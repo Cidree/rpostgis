@@ -26,17 +26,18 @@ inputs.
 }
 \examples{
 \dontrun{
-name<-c("schema","table")
+name <- c("schema", "table")
 dbTableNameFix(conn,name)
 
-#current search path schema is added to single-length character object (if only table is given)
-name<-"table"
-dbTableNameFix(conn,name)
+## Current search path schema is added to single-length character
+## object (if only table is given)
+name <- "table"
+dbTableNameFix(conn, name)
 
-#schema or table names with double quotes should be given exactly as they are 
-(make sure to wrap in single quotes in R):
-name<-c('sch"ema','"table"')
-dbTableNameFix(conn,name)
+## Schema or table names with double quotes should be given exactly as
+## they are (make sure to wrap in single quotes in R):
+name <- c('sch"ema', '"table"')
+dbTableNameFix(conn, name)
 }
 }
 \keyword{internal}

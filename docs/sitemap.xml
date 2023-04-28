@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://mablab.org/rpostgis/404.html</loc>
+  </url>
+  <url>
+    <loc>https://mablab.org/rpostgis/authors.html</loc>
+  </url>
+  <url>
     <loc>https://mablab.org/rpostgis/index.html</loc>
+  </url>
+  <url>
+    <loc>https://mablab.org/rpostgis/news/index.html</loc>
   </url>
   <url>
     <loc>https://mablab.org/rpostgis/reference/bs.html</loc>
@@ -53,6 +62,9 @@
   </url>
   <url>
     <loc>https://mablab.org/rpostgis/reference/dbWriteDataFrame.html</loc>
+  </url>
+  <url>
+    <loc>https://mablab.org/rpostgis/reference/index.html</loc>
   </url>
   <url>
     <loc>https://mablab.org/rpostgis/reference/pgCheckGeom.html</loc>

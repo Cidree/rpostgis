@@ -15,17 +15,16 @@ convenience functions to execute common procedures in
 `PostgreSQL`/`PostGIS`.
 
 > **Warning** 
-> Due to retirement of the package `rgeos`, `rpostgis` will retire on September
-> 2023.
-> 
+> Due to retirement of the package `rgeos`, `rpostgis` will retire in September 2023.
 >  * For vector operations, please check package `sf`, which provides a mechanism
 >    to connect to PostGIS databases.
 >  * For raster operations, no alternative solution is identified yet.
 >  * For general database operations, use 'RPostgreSQL' directly.
->
+> 
 > If you are interested in the development and maintenance of `rpostgis`, please
 > check [this issue on the GitHub
 > repository](https://github.com/mablab/rpostgis/issues/28).
+> For more information on R-spatial evolution, visit: [https://r-spatial.org/](https://r-spatial.org/).
 
 ## Installation of the released versions
 

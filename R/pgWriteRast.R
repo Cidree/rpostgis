@@ -69,9 +69,9 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
   
     # sp-handling
     if (class(raster)[1] %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels")) {
-      if (class(raster) %in% c("SpatialGrid", "SpatialPixels") || length(raster@data) < 2) {
+      if (class(raster)[1] %in% c("SpatialGrid", "SpatialPixels") || length(raster@data) < 2) {
         # SpatialPixels needs a value
-        if (class(raster) == "SpatialPixels") raster <- SpatialPixelsDataFrame(raster, data = data.frame(rep(0, length(raster))))
+        if (inherits(raster, "SpatialPixels")) raster <- SpatialPixelsDataFrame(raster, data = data.frame(rep(0, length(raster))))
         raster <- as(raster, "RasterLayer")
       } else {
         raster <- as(raster, "RasterBrick")

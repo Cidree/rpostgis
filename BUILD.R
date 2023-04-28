@@ -5,14 +5,14 @@ library(basr)
 install()
 
 # build ignores
-# use_build_ignore("rpostgis.pdf")
-# use_build_ignore("tests")
-# use_build_ignore("revdep")
-# use_build_ignore("cran-comments.md")
-# use_build_ignore("tests/test_data/")
-# use_build_ignore("BUILD.R")
-# use_build_ignore("docs")
-# use_build_ignore("pkgdown")
+use_build_ignore("rpostgis.pdf")
+use_build_ignore("tests")
+use_build_ignore("revdep")
+use_build_ignore("cran-comments.md")
+use_build_ignore("tests/test_data/")
+use_build_ignore("BUILD.R")
+use_build_ignore("docs")
+use_build_ignore("pkgdown")
 
 # create/update documentation
 document()

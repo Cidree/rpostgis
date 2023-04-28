@@ -1,3 +1,9 @@
+rpostgis 1.4.4
+==============
+
+Added startup message to display message about upcoming package
+retirement in September 2023.
+
 rpostgis 1.4.3
 ==============
 
