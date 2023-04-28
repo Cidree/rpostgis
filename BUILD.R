@@ -17,6 +17,9 @@ use_build_ignore("pkgdown")
 # create/update documentation
 document()
 
+# write manual
+manual(overwrite=TRUE)
+
 # run examples and spell check
 # run_examples() # not using
 spell_check()
@@ -30,9 +33,6 @@ check_win_devel()
 # rhub version, windows with development R
 # rhub::validate_email() # may need to validate e-mail with rhub prior to running check
 rhub::check(platform = "windows-x86_64-devel")
-
-# write manual
-manual(overwrite=TRUE)
 
 # install()
 # test code coverage

@@ -2,13 +2,13 @@
 
 <!-- badges: start -->
 [![CRAN Status](http://www.r-pkg.org/badges/version/rpostgis)](https://CRAN.R-project.org/package=rpostgis)
-[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+[![Project Status: Inactive - The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 ![](https://cranlogs.r-pkg.org/badges/rpostgis)
 <!-- badges: end -->
 
 The `rpostgis` package provides an interface between R and
 [`PostGIS`](https://postgis.net/)-enabled
-[`PostgreSQL`](https://postgresql.org/) databases to transparently
+[`PostgreSQL`](https://www.postgresql.org/) databases to transparently
 transfer spatial data. Both vector (points, lines, polygons) and
 raster data are supported in read and write modes. Also provides
 convenience functions to execute common procedures in

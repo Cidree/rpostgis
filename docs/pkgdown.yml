@@ -2,7 +2,7 @@ pandoc: 1.19.2.4
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles: {}
-last_built: 2023-04-28T13:40Z
+last_built: 2023-04-28T15:06Z
 urls:
   reference: https://mablab.org/rpostgis/reference
   article: https://mablab.org/rpostgis/articles

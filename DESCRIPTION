@@ -29,7 +29,6 @@ Suggests:
     rgdal,
     wkb
 License: GPL (>= 3)
-LazyData: true
 URL: https://mablab.org/rpostgis/, https://github.com/mablab/rpostgis
 BugReports: https://github.com/mablab/rpostgis/issues
 RoxygenNote: 7.2.3

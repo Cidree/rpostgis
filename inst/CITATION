@@ -1,9 +1,6 @@
-citHeader("To cite rpostgis in publications use:")
-
-citEntry(entry = "Article",
+bibentry(bibtype = "Article", header = "To cite rpostgis in publications use:",
   title        = "rpostgis: linking R with a PostGIS spatial database",
-  author       = personList(as.person("David Bucklin"),
-                            as.person("Mathieu Basille")),
+  author       = c(person("David", "Bucklin"), person("Mathieu", "Basille")),
   journal      = "The R Journal", volume = "10", number = "1", pages = "251-268",
   year         = "2018",
   url          = "https://journal.r-project.org/archive/2018/RJ-2018-025/index.html",
