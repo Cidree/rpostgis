@@ -1,5 +1,5 @@
 ## Test environments
-* local x86_64-pc-linux-gnu, R 4.2.2
+* local Ubuntu 18.04.6 LTS, R 4.3.0
 * R Under development (unstable) (2023-04-27 r84335 ucrt)
 * R-devel on Windows Server 2022, R-devel, 64 bit, with rhub::check()
 
