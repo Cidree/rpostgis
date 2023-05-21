@@ -58,173 +58,173 @@
 ##' }
 
 pgWriteRast <- function(conn, name, raster, bit.depth = NULL, 
-    blocks = NULL, constraints = TRUE, overwrite = FALSE, append = FALSE) {
-    
-    dbConnCheck(conn)
-    if (!suppressMessages(pgPostGIS(conn))) {
-        stop("PostGIS is not enabled on this database.")
-    }
+                        blocks = NULL, constraints = TRUE, overwrite = FALSE, append = FALSE) {
   
-    r_class <- dbQuoteString(conn, class(raster)[1])
+  dbConnCheck(conn)
+  if (!suppressMessages(pgPostGIS(conn))) {
+    stop("PostGIS is not enabled on this database.")
+  }
   
-    # sp-handling
-    if (class(raster)[1] %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels")) {
-      if (class(raster)[1] %in% c("SpatialGrid", "SpatialPixels") || length(raster@data) < 2) {
-        # SpatialPixels needs a value
-        if (inherits(raster, "SpatialPixels")) raster <- SpatialPixelsDataFrame(raster, data = data.frame(rep(0, length(raster))))
-        raster <- as(raster, "RasterLayer")
-      } else {
-        raster <- as(raster, "RasterBrick")
-      }
-    }
-    
-    # crs
-    r_crs <- dbQuoteString(conn, as.character(raster@crs))
+  r_class <- dbQuoteString(conn, class(raster)[1])
   
-    nameq <- dbTableNameFix(conn, name)
-    namef <- dbTableNameFix(conn, name, as.identifier = FALSE)
-    
-    if (overwrite) {
-        dbDrop(conn, name, ifexists = TRUE)
-    }
-    
-    if (!dbExistsTable(conn, name, table.only = F)) {
-      # 1. create raster table
-      tmp.query <- paste0("CREATE TABLE ", paste(nameq, collapse = "."), 
-          " (rid serial primary key, band_names text[], r_class character varying, r_proj4 character varying, rast raster);")
-      dbExecute(conn, tmp.query)
-      n.base <- 0
-      append <- F
+  # sp and raster handling
+  if (class(raster)[1] %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels")) {
+    if (class(raster)[1] %in% c("SpatialGrid", "SpatialPixels") || length(raster@data) < 2) {
+      # SpatialPixels needs a value
+      if (inherits(raster, "SpatialPixels")) 
+        raster <- SpatialPixelsDataFrame(raster, data = data.frame(rep(0, length(raster))))
+      raster <- as(raster, "SpatRaster")
     } else {
-      if (!append) {stop("Need to specify `append = TRUE` to add raster to an existing table.")}
-      message("Appending to existing table. Dropping any existing raster constraints...")
-      try(dbExecute(conn, paste0("SELECT DropRasterConstraints('", namef[1], "','", namef[2], "','rast',",
-                                 paste(rep("TRUE", 12), collapse = ","),");")))
-      n.base <- dbGetQuery(conn, paste0("SELECT max(rid) r from ", paste(nameq, collapse = "."), ";"))$r
+      raster <- as(raster, "SpatRaster")
     }
-    
-    r1 <- raster
-    res <- round(raster::res(r1), 10)
+  }
   
-    # figure out block size
-    if (!is.null(blocks)) {
-      bs <- bs(r1, blocks)
-      tr <- bs$tr
-      cr <- bs$cr
-    } else {
-      tr <- raster::blockSize(r1[[1]], 10000, minblocks = 1, minrows = 100)
-      cr <- raster::blockSize(raster::t(r1[[1]]), 10000, minblocks = 1, 
-        minrows = 100)
-    }
-    
-    message("Splitting ",length(names(r1))," band(s) into ", cr$n, " x ", tr$n, " blocks...")
-    
-    # figure out bit depth
-    if (is.null(bit.depth)) {
-        if (is.integer(raster::values(r1))) {
-            if (min(raster::values(r1), na.rm = TRUE) >= 0) {
-                bit.depth <- "32BUI"
-            } else {
-                bit.depth <- "32BSI"
-            }
-        } else {
-            bit.depth <- "32BF"
-        }
-    }
-    bit.depth <- dbQuoteString(conn, bit.depth)
-    ndval<--99999
-    
-    # band names
-    bnds<-dbQuoteString(conn, paste0("{{",paste(names(r1),collapse = "},{"),"}}"))
-    
-    srid <- 0
-    try(srid <- suppressMessages(pgSRID(conn, r1@crs, create.srid = TRUE)))
-    
-    # loop over bands
-    for (b in 1:length(names(r1))) {
-      rb <- r1[[b]]
-      # rid counter
-      n<-n.base
-      
-      # handle empty data rasters by setting ndval to all values
-      if (all(is.na(values(rb)))) values(rb) <- ndval
-      
-      # loop over blocks
-      for (i in 1:tr$n) {
-          suppressWarnings(rr <- rb[tr$row[i]:(tr$row[i] + tr$nrows[i] - 1), , drop = FALSE])
-          
-          for (l in 1:cr$n) {
-              suppressWarnings(r <- rr[, cr$row[l]:(cr$row[l] + cr$nrows[l] - 1), 
-                  drop = FALSE])
-              ex <- raster::extent(r)
-              d <- dim(r)
-
-              # rid counter
-              n <- n + 1
-              
-              # only ST_MakeEmptyRaster/ST_AddBand during first band loop
-              if (b == 1) {
-                
-                # 2. make empty raster
-                tmp.query <- paste0("INSERT INTO ", paste(nameq, 
-                    collapse = "."), " (rid, band_names, r_class, r_proj4, rast) VALUES (",n, 
-                    ",",bnds,",",r_class,",",r_crs,", ST_MakeEmptyRaster(", 
-                    d[2], ",", d[1], ",", ex[1], ",", ex[4], ",", 
-                    res[1], ",", -res[2], ", 0, 0,", srid[1], ") );")
-                dbExecute(conn, tmp.query)
-                
-                # upper left x/y for alignment snapping
-                if (l == 1 & i == 1) {
-                  tmp.query <- paste0("SELECT st_upperleftx(rast) x FROM ", paste(nameq, collapse = ".") ," where rid = 1;")
-                  upx <- dbGetQuery(conn, tmp.query)$x
-                  tmp.query <- paste0("SELECT st_upperlefty(rast) y FROM ", paste(nameq, collapse = ".") ," where rid = 1;")
-                  upy <- dbGetQuery(conn, tmp.query)$y
-                }
-                
-                # 3. new band
-                if (res[1] != res[2]) s2g <- paste0(", ", res[1], ", ", -res[2]) else s2g <- NULL
-                bndargs<-paste0("ROW(",1:length(names(r1)),",",bit.depth,"::text,0,", ndval,")")
-                tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
-                    " SET rast = ST_SnapToGrid(ST_AddBand(rast,ARRAY[",
-                    paste(bndargs,collapse = ","),"]::addbandarg[]), ", upx, "," , upy , s2g, ") ", 
-                    "where rid = ", 
-                    n, ";")
-                dbExecute(conn, tmp.query)
-              }
-              
-              mr <- raster::as.matrix(r)
-              mr[is.na(mr)] <- ndval
-              r2 <- paste(apply(mr, 1, FUN = function(x) {
-                  paste0("[", paste(x, collapse = ","), "]")
-              }), collapse = ",")
-              
-              tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
-                  " SET rast = ST_SetValues(rast,",b,", 1, 1, ARRAY[", 
-                  r2, "]::double precision[][])
-                               where rid = ", 
-                  n, ";")
-              dbExecute(conn, tmp.query)
-          }
-      }
-    }
-    
-    # 4. create index
-    if (append) {
-      tmp.query <- paste0("DROP INDEX ", gsub("\"", "", paste(nameq, collapse = ".")), "_rast_st_conhull_idx")
-      dbExecute(conn, tmp.query)
-    }
-    tmp.query <- paste0("CREATE INDEX ", gsub("\"", "", nameq[2]), 
-        "_rast_st_conhull_idx ON ", paste(nameq, collapse = "."), 
-        " USING gist( ST_ConvexHull(rast) );")
+  # crs
+  r_crs <- dbQuoteString(conn, terra::crs(raster))
+  
+  nameq <- dbTableNameFix(conn, name)
+  namef <- dbTableNameFix(conn, name, as.identifier = FALSE)
+  
+  if (overwrite) {
+    dbDrop(conn, name, ifexists = TRUE)
+  }
+  
+  if (!dbExistsTable(conn, name, table.only = F)) {
+    # 1. create raster table
+    tmp.query <- paste0("CREATE TABLE ", paste(nameq, collapse = "."), 
+                        " (rid serial primary key, band_names text[], r_class character varying, r_proj4 character varying, rast raster);")
     dbExecute(conn, tmp.query)
-    
-    if (constraints) {
-        # 5. add raster constraints
-        tmp.query <- paste0("SELECT AddRasterConstraints(", dbQuoteString(conn, 
-            namef[1]), "::name,", dbQuoteString(conn, namef[2]), 
-            "::name, 'rast'::name);")
-        dbExecute(conn, tmp.query)
+    n.base <- 0
+    append <- F
+  } else {
+    if (!append) {stop("Need to specify `append = TRUE` to add raster to an existing table.")}
+    message("Appending to existing table. Dropping any existing raster constraints...")
+    try(dbExecute(conn, paste0("SELECT DropRasterConstraints('", namef[1], "','", namef[2], "','rast',",
+                               paste(rep("TRUE", 12), collapse = ","),");")))
+    n.base <- dbGetQuery(conn, paste0("SELECT max(rid) r from ", paste(nameq, collapse = "."), ";"))$r
+  }
+  
+  r1 <- raster
+  res <- round(terra::res(r1), 10)
+  
+  # figure out block size
+  if (!is.null(blocks)) {
+    bs <- bs(r1, blocks)
+    tr <- bs$tr
+    cr <- bs$cr
+  } else {
+    tr <- terra::blocks(terra::r1[[1]],10000)
+    cr <- terra::blocks(terra::t(r1[[1]]),10000)
+  }
+  
+  message("Splitting ",length(names(r1))," band(s) into ", cr$n, " x ", tr$n, " blocks...")
+  
+  # figure out bit depth
+  if (is.null(bit.depth)) {
+    if (is.integer(terra::values(r1))) {
+      if (min(terra::values(r1), na.rm = TRUE) >= 0) {
+        bit.depth <- "32BUI"
+      } else {
+        bit.depth <- "32BSI"
+      }
+    } else {
+      bit.depth <- "32BF"
     }
+  }
+  bit.depth <- dbQuoteString(conn, bit.depth)
+  ndval <-- 99999
+  
+  # band names
+  bnds <- dbQuoteString(conn, paste0("{{",paste(names(r1),collapse = "},{"),"}}"))
+  
+  srid <- 0
+  try(srid <- suppressMessages(pgSRID(conn, x@crs, create.srid = TRUE)))
+  
+  # loop over bands
+  for (b in 1:length(names(r1))) {
+    rb <- r1[[b]]
+    # rid counter
+    n<-n.base
     
-    return(TRUE)
+    # handle empty data rasters by setting ndval to all values
+    if (all(is.na(values(rb)))) values(rb) <- ndval
+    
+    # loop over blocks
+    for (i in 1:tr$n) {
+      suppressWarnings(rr <- rb[tr$row[i]:(tr$row[i] + tr$nrows[i] - 1), , drop = FALSE])
+      
+      for (l in 1:cr$n) {
+        suppressWarnings(r <- rr[, cr$row[l]:(cr$row[l] + cr$nrows[l] - 1), 
+                                 drop = FALSE])
+        ex <- raster::extent(r)
+        d <- dim(r)
+        
+        # rid counter
+        n <- n + 1
+        
+        # only ST_MakeEmptyRaster/ST_AddBand during first band loop
+        if (b == 1) {
+          
+          # 2. make empty raster
+          tmp.query <- paste0("INSERT INTO ", paste(nameq, 
+                                                    collapse = "."), " (rid, band_names, r_class, r_proj4, rast) VALUES (",n, 
+                              ",",bnds,",",r_class,",",r_crs,", ST_MakeEmptyRaster(", 
+                              d[2], ",", d[1], ",", ex[1], ",", ex[4], ",", 
+                              res[1], ",", -res[2], ", 0, 0,", srid[1], ") );")
+          dbExecute(conn, tmp.query)
+          
+          # upper left x/y for alignment snapping
+          if (l == 1 & i == 1) {
+            tmp.query <- paste0("SELECT st_upperleftx(rast) x FROM ", paste(nameq, collapse = ".") ," where rid = 1;")
+            upx <- dbGetQuery(conn, tmp.query)$x
+            tmp.query <- paste0("SELECT st_upperlefty(rast) y FROM ", paste(nameq, collapse = ".") ," where rid = 1;")
+            upy <- dbGetQuery(conn, tmp.query)$y
+          }
+          
+          # 3. new band
+          if (res[1] != res[2]) s2g <- paste0(", ", res[1], ", ", -res[2]) else s2g <- NULL
+          bndargs<-paste0("ROW(",1:length(names(r1)),",",bit.depth,"::text,0,", ndval,")")
+          tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
+                              " SET rast = ST_SnapToGrid(ST_AddBand(rast,ARRAY[",
+                              paste(bndargs,collapse = ","),"]::addbandarg[]), ", upx, "," , upy , s2g, ") ", 
+                              "where rid = ", 
+                              n, ";")
+          dbExecute(conn, tmp.query)
+        }
+        
+        mr <- raster::as.matrix(r)
+        mr[is.na(mr)] <- ndval
+        r2 <- paste(apply(mr, 1, FUN = function(x) {
+          paste0("[", paste(x, collapse = ","), "]")
+        }), collapse = ",")
+        
+        tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
+                            " SET rast = ST_SetValues(rast,",b,", 1, 1, ARRAY[", 
+                            r2, "]::double precision[][])
+                               where rid = ", 
+                            n, ";")
+        dbExecute(conn, tmp.query)
+      }
+    }
+  }
+  
+  # 4. create index
+  if (append) {
+    tmp.query <- paste0("DROP INDEX ", gsub("\"", "", paste(nameq, collapse = ".")), "_rast_st_conhull_idx")
+    dbExecute(conn, tmp.query)
+  }
+  tmp.query <- paste0("CREATE INDEX ", gsub("\"", "", nameq[2]), 
+                      "_rast_st_conhull_idx ON ", paste(nameq, collapse = "."), 
+                      " USING gist( ST_ConvexHull(rast) );")
+  dbExecute(conn, tmp.query)
+  
+  if (constraints) {
+    # 5. add raster constraints
+    tmp.query <- paste0("SELECT AddRasterConstraints(", dbQuoteString(conn, 
+                                                                      namef[1]), "::name,", dbQuoteString(conn, namef[2]), 
+                        "::name, 'rast'::name);")
+    dbExecute(conn, tmp.query)
+  }
+  
+  return(TRUE)
 }

@@ -7,7 +7,7 @@
 bs(r, blocks)
 }
 \arguments{
-\item{r}{a raster}
+\item{r}{a RasterLayer or SpatRaster object}
 
 \item{blocks}{Number of desired blocks (columns, rows)}
 }
