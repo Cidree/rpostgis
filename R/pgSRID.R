@@ -112,13 +112,7 @@ pgSRID <- function(conn, raster, create.srid = FALSE, new.srid = NULL) {
             srid <- new.srid
         }
     }
-    proj.wkt <- "NA"
-    if (suppressPackageStartupMessages(requireNamespace("rgdal", 
-                                                        quietly = TRUE))) {
-        try(proj.wkt <- rgdal::showWKT(p4s))
-    } else {
-        message("Package 'rgdal' is not installed.\nNew SRID will be created, but 'srtext' column (WKT representation of projection) will be 'NA'.")
-    }
+    proj.wkt <- sf::st_crs(p4s)$wkt
     ## insert new SRID
     temp.query <- paste0("INSERT INTO spatial_ref_sys (srid,auth_name,auth_srid,srtext,proj4text) VALUES (", 
                          srid, ",'rpostgis_custom',", srid, ",'", proj.wkt, "','", 
