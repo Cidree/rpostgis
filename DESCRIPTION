@@ -23,7 +23,8 @@ Imports:
     raster,
     rgeos,
     sp,
-    stats
+    stats,
+    terra
 Suggests:
     RPostgres,
     rgdal,
