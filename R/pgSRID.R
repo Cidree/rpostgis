@@ -39,18 +39,18 @@
 ##' pgSRID(conn, crs2, create.srid = TRUE)
 ##' }
 
-pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
+pgSRID <- function(conn, raster, create.srid = FALSE, new.srid = NULL) {
     ## Check if PostGIS is enabled
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
     }
     ## check object
-    if (!inherits(crs, "CRS")) {
-        stop("Object is not of class CRS.")
+    if (!inherits(raster, "SpatRaster")) {
+        stop("Object is not of class SpatRaster.")
     }
     ## extract p4s
-    p4s <- crs@projargs
+    p4s <- terra::crs(raster, proj = TRUE)
     ## if crs is undefined (NA), return 0
     if (is.na(p4s)) {
         srid <- 0
@@ -62,7 +62,7 @@ pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
     if (length(epsg.ext) == 1) {
         epsg <- strsplit(epsg.ext, ":")[[1]][2]
         temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE auth_name = 'EPSG' AND auth_srid = ", 
-            epsg, ";")
+                             epsg, ";")
         srid <- dbGetQuery(conn, temp.query)$srid
         if (length(srid) > 0) {
             return(srid)
@@ -71,28 +71,23 @@ pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
     ## check for matching p4s in spatial_ref_sys (with or without
     ## trailing white space)
     temp.query <- paste0("SELECT srid FROM spatial_ref_sys\nWHERE\n(proj4text = '", 
-        p4s, "'\n OR\n regexp_replace(proj4text,'[[:space:]]+$','') = '", 
-        p4s, "');")
+                         p4s, "'\n OR\n regexp_replace(proj4text,'[[:space:]]+$','') = '", 
+                         p4s, "');")
     srid <- dbGetQuery(conn, temp.query)$srid
     
     if (length(srid) > 0) {
         return(srid)
     }
-    ## check for matching EPSG with showEPSG (rgdal dependency)
-    if (suppressPackageStartupMessages(requireNamespace("rgdal", 
-        quietly = TRUE))) {
-        message("Using function 'rgdal::showEPSG' to look for a match.")
-        epsg <- "OGRERR_UNSUPPORTED_SRS"
-        try(epsg <- rgdal::showEPSG(p4s))
-        if (epsg != "OGRERR_UNSUPPORTED_SRS") {
-            temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE auth_name = 'EPSG' AND auth_srid = ", 
-                epsg, ";")
-            srid <- dbGetQuery(conn, temp.query)$srid
-            if (length(srid) > 0) {
-                return(srid)
-            }
-        }
+    ## check for matching EPSG
+    epsg <- terra::crs(raster, describe = T)[1,3]
+    if(!is.null(epsg)){
+        temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE auth_name = 'EPSG' AND auth_srid = ", 
+                             epsg, ";")
+        srid <- dbGetQuery(conn, temp.query)$srid
+        
+        return(srid)
     }
+    
     if (!create.srid) {
         stop("No SRID matches found. Re-run with 'create.srid = TRUE' to create new SRID entry in spatial_ref_sys.")
     }
@@ -100,7 +95,7 @@ pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
     if (!is.null(new.srid)) {
         ## check if exists
         temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE srid = ", 
-            new.srid, ";")
+                             new.srid, ";")
         check.srid <- dbGetQuery(conn, temp.query)
         if (length(check.srid) > 0) {
             stop(paste0("SRID ", new.srid, " already exists in 'spatial_ref_sys'.\nSelect another 'new.srid' or leave it to 'NULL' to select the next open SRID between 880000 and 889999."))
@@ -119,17 +114,17 @@ pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
     }
     proj.wkt <- "NA"
     if (suppressPackageStartupMessages(requireNamespace("rgdal", 
-        quietly = TRUE))) {
+                                                        quietly = TRUE))) {
         try(proj.wkt <- rgdal::showWKT(p4s))
     } else {
         message("Package 'rgdal' is not installed.\nNew SRID will be created, but 'srtext' column (WKT representation of projection) will be 'NA'.")
     }
     ## insert new SRID
     temp.query <- paste0("INSERT INTO spatial_ref_sys (srid,auth_name,auth_srid,srtext,proj4text) VALUES (", 
-        srid, ",'rpostgis_custom',", srid, ",'", proj.wkt, "','", 
-        p4s, "');")
+                         srid, ",'rpostgis_custom',", srid, ",'", proj.wkt, "','", 
+                         p4s, "');")
     dbSendQuery(conn, temp.query)
     message(paste0("No matches were found in spatial_ref_sys. New SRID created (", 
-        srid, ")."))
+                   srid, ")."))
     return(srid)
 }
