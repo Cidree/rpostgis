@@ -263,7 +263,7 @@ pgGetSRID <- function(conn, name, geom) {
 ## bs
 ##' Return indexes for an exact number of blocks for a raster
 ##'
-##' @param r a raster
+##' @param r a RasterLayer or SpatRaster object
 ##' @param blocks Number of desired blocks (columns, rows)
 ##'
 ##' @importFrom raster nrow ncol
@@ -278,32 +278,40 @@ bs <- function(r, blocks) {
 
   cr <- list()
   tr <- list()
+  
+  if(class(r)[1] == "RasterLayer"){
+    n.c <- raster::ncol(r)
+    n.r <- raster::nrow(r)
+  } else if(class(r)[1] == "SpatRaster"){
+    n.c <- terra::ncol(r)
+    n.r <- terra::nrow(r)
+  } else {
+    stop("Invalid input: 'r' must be either a RasterLayer or SpatRaster object.")
+  }
 
   # cr
   b <- blocks[1]
-  n.r <- raster::ncol(r)
   if (b == 1) {
     cr$row <- 1
-    cr$nrows <- n.r
+    cr$nrows <- n.c
     cr$n <- 1
   } else {
-    if (b >= n.r) b <- n.r
-    if (n.r%%b == 0) {
-      by <- n.r/b
-      cr$row <- seq(1, to = n.r, by = by)
+    if (b >= n.c) b <- n.c
+    if (n.c%%b == 0) {
+      by <- n.c/b
+      cr$row <- seq(1, to = n.c, by = by)
       cr$nrows <- rep(by, b)
       cr$n <- length(cr$row)
     } else {
-      by <- floor(n.r/b)
-      cr$row <- c(1,seq(1+by+(n.r%%b), to = n.r, by = by))
-      cr$nrows <- c(cr$row[2:length(cr$row)], n.r+1) - cr$row
+      by <- floor(n.c/b)
+      cr$row <- c(1,seq(1+by+(n.c%%b), to = n.c, by = by))
+      cr$nrows <- c(cr$row[2:length(cr$row)], n.c+1) - cr$row
       cr$n <- length(cr$row)
     }
   }
 
   # tr
   b <- blocks[2]
-  n.r <- raster::nrow(r)
   if (b == 1) {
     tr$row <- 1
     tr$nrows <- n.r
