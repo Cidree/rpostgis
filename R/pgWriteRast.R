@@ -138,13 +138,13 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
   bnds <- dbQuoteString(conn, paste0("{{",paste(names(r1),collapse = "},{"),"}}"))
   
   srid <- 0
-  try(srid <- suppressMessages(pgSRID(conn, x@crs, create.srid = TRUE)))
+  try(srid <- suppressMessages(pgSRID(conn, r1, create.srid = TRUE)))
   
   # loop over bands
-  for (b in 1:length(names(r1))) {
+  for (b in 1:terra::nlyr(r1)) {
     rb <- r1[[b]]
     # rid counter
-    n<-n.base
+    n <- n.base
     
     # handle empty data rasters by setting ndval to all values
     if (all(is.na(values(rb)))) values(rb) <- ndval
@@ -156,7 +156,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
       for (l in 1:cr$n) {
         suppressWarnings(r <- rr[, cr$row[l]:(cr$row[l] + cr$nrows[l] - 1), 
                                  drop = FALSE])
-        ex <- raster::extent(r)
+        ex <- terra::ext(r)
         d <- dim(r)
         
         # rid counter
@@ -192,7 +192,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
           dbExecute(conn, tmp.query)
         }
         
-        mr <- raster::as.matrix(r)
+        mr <- terra::as.matrix(r)
         mr[is.na(mr)] <- ndval
         r2 <- paste(apply(mr, 1, FUN = function(x) {
           paste0("[", paste(x, collapse = ","), "]")
