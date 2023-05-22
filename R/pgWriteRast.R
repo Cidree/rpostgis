@@ -183,7 +183,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
           
           # 3. new band
           if (res[1] != res[2]) s2g <- paste0(", ", res[1], ", ", -res[2]) else s2g <- NULL
-          bndargs<-paste0("ROW(",1:length(names(r1)),",",bit.depth,"::text,0,", ndval,")")
+          bndargs <- paste0("ROW(",1:length(names(r1)),",",bit.depth,"::text,0,", ndval,")")
           tmp.query <- paste0("UPDATE ", paste(nameq, collapse = "."), 
                               " SET rast = ST_SnapToGrid(ST_AddBand(rast,ARRAY[",
                               paste(bndargs,collapse = ","),"]::addbandarg[]), ", upx, "," , upy , s2g, ") ", 
@@ -192,7 +192,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
           dbExecute(conn, tmp.query)
         }
         
-        mr <- terra::as.matrix(r)
+        mr <- terra::as.matrix(r, wide = TRUE)
         mr[is.na(mr)] <- ndval
         r2 <- paste(apply(mr, 1, FUN = function(x) {
           paste0("[", paste(x, collapse = ","), "]")
