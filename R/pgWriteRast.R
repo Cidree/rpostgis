@@ -68,7 +68,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
   r_class <- dbQuoteString(conn, class(raster)[1])
   
   # sp and raster handling
-  if (class(raster)[1] %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels")) {
+  if (class(raster)[1] %in% c("SpatialPixelsDataFrame","SpatialGridDataFrame","SpatialGrid","SpatialPixels","RasterLayer")) {
     if (class(raster)[1] %in% c("SpatialGrid", "SpatialPixels") || length(raster@data) < 2) {
       # SpatialPixels needs a value
       if (inherits(raster, "SpatialPixels")) 
