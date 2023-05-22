@@ -12,8 +12,7 @@
 ##' between 880001-889999 (a different SRID value can be entered if desired.)
 ##'
 ##' @param conn A connection object to a PostgreSQL database.
-##' @param crs CRS object, created through a call to
-##'     \code{\link[sp]{CRS}}.
+##' @param raster SpatRaster object
 ##' @param create.srid Logical. If no matching SRID is found, should a new
 ##'     SRID be created? User must have write access on
 ##'     \code{spatial_ref_sys} table.

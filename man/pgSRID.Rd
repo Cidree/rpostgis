@@ -4,13 +4,10 @@
 \alias{pgSRID}
 \title{Find (or create) PostGIS SRID based on CRS object.}
 \usage{
-pgSRID(conn, crs, create.srid = FALSE, new.srid = NULL)
+pgSRID(conn, raster, create.srid = FALSE, new.srid = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database.}
-
-\item{crs}{CRS object, created through a call to
-\code{\link[sp]{CRS}}.}
 
 \item{create.srid}{Logical. If no matching SRID is found, should a new
 SRID be created? User must have write access on
@@ -20,6 +17,9 @@ SRID be created? User must have write access on
 SRID. If left NULL (default), the next open value of
 \code{srid} in \code{spatial_ref_sys} between 880001 and
 889999 will be used.}
+
+\item{crs}{CRS object, created through a call to
+\code{\link[sp]{CRS}}.}
 }
 \value{
 SRID code (integer).
