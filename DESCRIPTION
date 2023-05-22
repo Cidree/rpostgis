@@ -24,7 +24,8 @@ Imports:
     rgeos,
     sp,
     stats,
-    terra
+    terra,
+    sf
 Suggests:
     RPostgres,
     rgdal,
