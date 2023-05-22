@@ -113,7 +113,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     tr <- bs$tr
     cr <- bs$cr
   } else {
-    tr <- terra::blocks(terra::r1[[1]],10000)
+    tr <- terra::blocks(r1[[1]],10000)
     cr <- terra::blocks(terra::t(r1[[1]]),10000)
   }
   
