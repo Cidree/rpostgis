@@ -15,6 +15,7 @@
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
+##'         Adrian Cidre \email{adrian.cidre@@gmail.com}
 ##' @importFrom sp CRS
 ##' @importFrom sp SpatialPolygons
 ##' @importFrom rgeos readWKT
@@ -81,12 +82,12 @@ pgGetBoundary <- function(conn, name, geom = "geom", clauses = NULL) {
     } else if (nrow(srid) < 1) {
       stop("Database table is empty.")
     }
-    p4s <- sp::CRS(as.character(NA))@projargs
+    p4s <- NA
     tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
                         srid$st_srid, ";")
     db.proj4 <- dbGetQuery(conn, tmp.query)$p4s
     if (!is.null(db.proj4)) {
-      try(p4s <- sp::CRS(db.proj4)@projargs, silent = TRUE)
+      try(p4s <- sf::st_crs(db.proj4)$input, silent = TRUE)
     }
     if (is.na(p4s)) {
       warning("Table SRID not found. Projection will be undefined (NA)")
@@ -95,6 +96,6 @@ pgGetBoundary <- function(conn, name, geom = "geom", clauses = NULL) {
     tmp.query <- paste0("SELECT ST_Astext(ST_Envelope(", func,
         "(", geomque , "))) FROM ", nameque, " WHERE ", geomque , " IS NOT NULL ",clauses,";")
     wkt <- suppressWarnings(dbGetQuery(conn, tmp.query))
-    env <- rgeos::readWKT(wkt$st_astext, p4s = p4s)
+    env <- sf::st_as_sfc(wkt$st_astext, p4s)
     return(env)
 }
