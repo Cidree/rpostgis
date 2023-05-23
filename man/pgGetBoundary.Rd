@@ -35,4 +35,5 @@ pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 }
 \author{
 David Bucklin \email{david.bucklin@gmail.com}
+        Adrian Cidre \email{adrian.cidre@gmail.com}
 }
