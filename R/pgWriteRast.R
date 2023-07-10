@@ -38,6 +38,7 @@
 ##' @param overwrite Whether to overwrite the existing table (\code{name}).
 ##' @param append Whether to append to the existing table (\code{name}).
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
+##' @author Adrián Cidre \email{adrian.cidre@@gmail.com}
 ##' @importFrom raster res blockSize extent t as.matrix values values<-
 ##' @importFrom methods as
 ##' @importFrom sp SpatialPixelsDataFrame

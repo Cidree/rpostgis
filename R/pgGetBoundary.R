@@ -15,12 +15,9 @@
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
-##'         Adrian Cidre \email{adrian.cidre@@gmail.com}
-##' @importFrom sp CRS
-##' @importFrom sp SpatialPolygons
-##' @importFrom rgeos readWKT
+##' @author Adrian Cidre \email{adrian.cidre@@gmail.com}
 ##' @export
-##' @return SpatialPolygon
+##' @return sf object
 ##' @examples
 ##' \dontrun{
 ##' pgGetBoundary(conn, c("schema", "polys"), geom = "polygon")
