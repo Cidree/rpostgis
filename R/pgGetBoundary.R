@@ -18,10 +18,10 @@
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Adrian Cidre \email{adrian.cidre@@gmail.com}
 ##' @export
-##' @return object of class sfc (list-column with geometries)
+##' @return object of class \code{sfc} (list-column with geometries)
 ##' @examples
 ##' \dontrun{
-##' pgGetBoundary(conn, c("schema", "polys"), geom = "polygon")
+##' pgGetBoundary(conn, c("schema", "polys"), geom = "geom")
 ##' pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 ##' }
 
