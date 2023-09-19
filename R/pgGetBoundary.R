@@ -9,8 +9,9 @@
 ##' @param name A character string specifying a PostgreSQL schema and
 ##'     table/view name holding the geometry (e.g., \code{name =
 ##'     c("schema","table")})
-##' @param geom character, Name of the column in \code{name} holding the
-##'     geometry/(geography) or raster object (Default = \code{"geom"})
+##' @param geom A character string specifying the name of the geometry column
+##' in the table \code{name} (Default = \code{"geom"}). Note that for raster objects
+##' you will need to change the default value
 ##' @param clauses character, additional SQL to append to modify select
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.
