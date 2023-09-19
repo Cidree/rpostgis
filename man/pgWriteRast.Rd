@@ -81,4 +81,6 @@ Function follows process from
 }
 \author{
 David Bucklin \email{david.bucklin@gmail.com}
+
+Adrián Cidre \email{adrian.cidre@gmail.com}
 }

@@ -21,7 +21,7 @@ query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.}
 }
 \value{
-SpatialPolygon
+sf object
 }
 \description{
 Retrieve bounding envelope (rectangle) of all geometries or
@@ -35,5 +35,6 @@ pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 }
 \author{
 David Bucklin \email{david.bucklin@gmail.com}
-        Adrian Cidre \email{adrian.cidre@gmail.com}
+
+Adrian Cidre \email{adrian.cidre@gmail.com}
 }

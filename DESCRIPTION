@@ -8,22 +8,16 @@ Description: Provides an interface between R and 'PostGIS'-enabled
     supported in read and write modes. Also provides convenience
     functions to execute common procedures in 'PostgreSQL/PostGIS'.
 Authors@R: c(
-    person(
-    "Mathieu", "Basille",
-    email = "basille@ufl.edu", 
+    person("Mathieu", "Basille", email = "basille@ufl.edu", 
     role = c("aut"), 
     comment = c(ORCID = "0000-0001-9366-7127")),
-    
-    person(
-    "David", "Bucklin", 
+    person("David", "Bucklin", 
     email = "david.bucklin@gmail.com", 
-    role = c("aut", "cre")),
-    
-    person(
-    "Adrián", "Cidre González", 
+    role = c("aut")),
+    person("Adrián", "Cidre González", 
     email = "adrian.cidre@gmail.com", 
-    role = c("aut", "cre")),
-    comment = c(ORCID = "0000-0002-3310-3052"))
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-3310-3052")))
 SystemRequirements:
     'PostgreSQL' with 'PostGIS' extension
 Depends:
