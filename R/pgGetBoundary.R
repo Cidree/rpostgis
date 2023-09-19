@@ -17,7 +17,7 @@
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Adrian Cidre \email{adrian.cidre@@gmail.com}
 ##' @export
-##' @return sf object
+##' @return object of class sfc (list-column with geometries)
 ##' @examples
 ##' \dontrun{
 ##' pgGetBoundary(conn, c("schema", "polys"), geom = "polygon")
