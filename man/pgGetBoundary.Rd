@@ -13,15 +13,16 @@ pgGetBoundary(conn, name, geom = "geom", clauses = NULL)
 table/view name holding the geometry (e.g., \code{name =
 c("schema","table")})}
 
-\item{geom}{character, Name of the column in \code{name} holding the
-geometry/(geography) or raster object (Default = \code{"geom"})}
+\item{geom}{A character string specifying the name of the geometry column
+in the table \code{name} (Default = \code{"geom"}). Note that for raster objects
+you will need to change the default value}
 
 \item{clauses}{character, additional SQL to append to modify select
 query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.}
 }
 \value{
-sf object
+object of class \code{sfc} (list-column with geometries)
 }
 \description{
 Retrieve bounding envelope (rectangle) of all geometries or
@@ -29,7 +30,7 @@ rasters in a PostGIS table.
 }
 \examples{
 \dontrun{
-pgGetBoundary(conn, c("schema", "polys"), geom = "polygon")
+pgGetBoundary(conn, c("schema", "polys"), geom = "geom")
 pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 }
 }

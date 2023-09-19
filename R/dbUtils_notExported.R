@@ -14,8 +14,7 @@
 ##' @return character vector of length 2. Each character element is in
 ##'     (escaped) double-quotes when as.identifier = TRUE.
 ##' @keywords internal
-##' @importFrom DBI dbQuoteIdentifier
-##' @importFrom DBI dbQuoteString
+##' @importFrom DBI dbQuoteIdentifier dbQuoteString
 ##' @examples
 ##' \dontrun{
 ##' name <- c("schema", "table")
@@ -32,18 +31,18 @@
 ##' dbTableNameFix(conn, name)
 ##' }
 
-dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
+dbTableNameFix <- function(conn = NULL, t.nm, as.identifier = TRUE) {
     ## case of no schema provided
       if (length(t.nm) == 1 && !is.null(conn) && !inherits(conn, what = "AnsiConnection")) {
-        schemalist<-dbGetQuery(conn,"select nspname as s from pg_catalog.pg_namespace;")$s
-        user<-dbGetQuery(conn,"SELECT current_user as user;")$user
-        schema<-dbGetQuery(conn,"SHOW search_path;")$search_path
-        schema<-gsub(" ","",unlist(strsplit(schema,",",fixed=TRUE)),fixed=TRUE)
+        schemalist <- dbGetQuery(conn,"select nspname as s from pg_catalog.pg_namespace;")$s
+        user <- dbGetQuery(conn,"SELECT current_user as user;")$user
+        schema <- dbGetQuery(conn,"SHOW search_path;")$search_path
+        schema <- gsub(" ","",unlist(strsplit(schema,",",fixed = TRUE)),fixed = TRUE)
         # use user schema if available
         if ("\"$user\"" == schema[1] && user %in% schemalist) {
-          sch<-user
+          sch <- user
         } else {
-          sch<-schema[!schema=="\"$user\""][1]
+          sch <- schema[!schema == "\"$user\""][1]
         }
         t.nm <- c(sch, t.nm)
       }
@@ -51,9 +50,9 @@ dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
       {
         stop("Invalid PostgreSQL table/view name. Must be provided as one ('table') or two-length c('schema','table') character vector.")
       }
-    if (is.null(conn)) {conn<-DBI::ANSI()}
+    if (is.null(conn)) {conn <- DBI::ANSI()}
     if (!as.identifier) {return(t.nm)} else {
-    t.nm<-DBI::dbQuoteIdentifier(conn, t.nm)
+    t.nm <- DBI::dbQuoteIdentifier(conn, t.nm)
     return(t.nm)
     }
 }
@@ -66,9 +65,9 @@ dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
 ##' @return numeric vector of length 3 of major,minor,bug version.
 ##' @keywords internal
 
-dbVersion<- function (conn) {
-      pv<-dbGetQuery(conn,"SHOW server_version;")$server_version
-      nv<-unlist(strsplit(pv,".",fixed=TRUE))
+dbVersion <- function(conn) {
+      pv <- dbGetQuery(conn,"SHOW server_version;")$server_version
+      nv <- unlist(strsplit(pv,".",fixed = TRUE))
       return(as.numeric(nv))
 }
 
@@ -85,12 +84,12 @@ dbVersion<- function (conn) {
 ##' @note Adapted from RPostgreSQL::postgresqlBuildTableDefinition
 ##' @keywords internal
 
-dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.names = FALSE) {
+dbBuildTableQuery <- function(conn = NULL, name, obj, field.types = NULL, row.names = FALSE) {
     if (is.null(conn)) {
       conn <- DBI::ANSI()
       nameque <- dbQuoteIdentifier(conn,name)
     } else {
-      nameque<-paste(dbTableNameFix(conn, name),collapse = ".")
+      nameque <- paste(dbTableNameFix(conn, name),collapse = ".")
     }
 
     if (!is.data.frame(obj))
@@ -119,32 +118,32 @@ dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.n
 ##'
 ##' @keywords internal
 
-dbExistsTable <- function (conn, name, table.only = FALSE) {
-    if (!table.only) to<-NULL else to<-" AND table_type = 'BASE TABLE'"
-    full.name<-dbTableNameFix(conn,name, as.identifier = FALSE)
-    chk<-dbGetQuery(conn, paste0("SELECT 1 FROM information_schema.tables
+dbExistsTable <- function(conn, name, table.only = FALSE) {
+    if (!table.only) to <- NULL else to <- " AND table_type = 'BASE TABLE'"
+    full.name <- dbTableNameFix(conn,name, as.identifier = FALSE)
+    chk <- dbGetQuery(conn, paste0("SELECT 1 FROM information_schema.tables
                WHERE table_schema = ",dbQuoteString(conn,full.name[1]),
                " AND table_name = ",dbQuoteString(conn,full.name[2]),to,";"))[1,1]
     if (length(chk) == 1 && is.na(chk)) chk <- NULL
     if (is.null(chk)) {
       exists.t <- FALSE
       # check version (matviews >= 9.3)
-      ver<-dbVersion(conn)
+      ver <- dbVersion(conn)
       if (!table.only & !(ver[1] < 9 | (ver[1] == 9 && ver[2] < 3))) {
         # matview case - not in information_schema
-        chk2<-dbGetQuery(conn, paste0("SELECT oid::regclass::text, relname
+        chk2 <- dbGetQuery(conn, paste0("SELECT oid::regclass::text, relname
                 FROM pg_class
                 WHERE relkind = 'm'
                 AND relname = ",dbQuoteString(conn,full.name[2]),";"))
         if (length(names(chk2)) > 0) {
-          sch<-gsub(paste0(".",chk2[1,2]),"",chk2[,1])
-          if (full.name[1] %in% sch) exists.t<-TRUE else exists.t<-FALSE
+          sch <- gsub(paste0(".",chk2[1,2]),"",chk2[,1])
+          if (full.name[1] %in% sch) exists.t <- TRUE else exists.t <- FALSE
         } else {
-          exists.t<-FALSE
+          exists.t <- FALSE
         }
       }
     } else {
-    exists.t<-TRUE
+    exists.t <- TRUE
     }
   return(exists.t)
 }

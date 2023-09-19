@@ -4,12 +4,13 @@
 \alias{pgSRID}
 \title{Find (or create) PostGIS SRID based on CRS object.}
 \usage{
-pgSRID(conn, raster, create.srid = FALSE, new.srid = NULL)
+pgSRID(conn, crs, create.srid = FALSE, new.srid = NULL)
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database.}
 
-\item{raster}{SpatRaster object}
+\item{crs}{crs object, created through a call to
+\code{\link[sf]{st_crs}}.}
 
 \item{create.srid}{Logical. If no matching SRID is found, should a new
 SRID be created? User must have write access on
@@ -24,7 +25,7 @@ SRID. If left NULL (default), the next open value of
 SRID code (integer).
 }
 \description{
-This function takes \code{\link[sp]{CRS}}-class object and a
+This function takes \code{\link[sf]{st_crs}}-class object and a
 PostgreSQL database connection (with PostGIS extension), and
 returns the matching SRID(s) for that CRS. If a match is not
 found, a new entry can be created in the PostgreSQL
@@ -49,4 +50,6 @@ pgSRID(conn, crs2, create.srid = TRUE)
 }
 \author{
 David Bucklin \email{david.bucklin@gmail.com}
+
+Adrián Cidre González \email{adrian.cidre@gmail.com}
 }
