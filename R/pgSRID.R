@@ -2,7 +2,7 @@
 
 ##' Find (or create) PostGIS SRID based on CRS object.
 ##'
-##' This function takes \code{\link[sp]{CRS}}-class object and a
+##' This function takes \code{\link[sf]{st_crs}}-class object and a
 ##' PostgreSQL database connection (with PostGIS extension), and
 ##' returns the matching SRID(s) for that CRS. If a match is not
 ##' found, a new entry can be created in the PostgreSQL
@@ -12,7 +12,8 @@
 ##' between 880001-889999 (a different SRID value can be entered if desired.)
 ##'
 ##' @param conn A connection object to a PostgreSQL database.
-##' @param raster SpatRaster object
+##' @param crs crs object, created through a call to
+##'     \code{\link[sf]{st_crs}}.
 ##' @param create.srid Logical. If no matching SRID is found, should a new
 ##'     SRID be created? User must have write access on
 ##'     \code{spatial_ref_sys} table.
@@ -22,8 +23,9 @@
 ##'     889999 will be used.
 ##' @return SRID code (integer).
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
+##' @author Adrián Cidre González \email{adrian.cidre@@gmail.com}
 ##' @export
-##' @importFrom sp CRS
+##' @importFrom sf st_crs
 ##' @examples
 ##' \dontrun{
 ##' drv <- dbDriver("PostgreSQL")
@@ -38,18 +40,18 @@
 ##' pgSRID(conn, crs2, create.srid = TRUE)
 ##' }
 
-pgSRID <- function(conn, raster, create.srid = FALSE, new.srid = NULL) {
+pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
     ## Check if PostGIS is enabled
     dbConnCheck(conn)
     if (!suppressMessages(pgPostGIS(conn))) {
         stop("PostGIS is not enabled on this database.")
     }
     ## check object
-    if (!inherits(raster, "SpatRaster")) {
-        stop("Object is not of class SpatRaster.")
+    if (!inherits(crs, "crs")) {
+        stop("Object is not of class crs.")
     }
     ## extract p4s
-    p4s <- terra::crs(raster, proj = TRUE)
+    p4s <- crs$input
     ## if crs is undefined (NA), return 0
     if (is.na(p4s)) {
         srid <- 0
@@ -77,16 +79,21 @@ pgSRID <- function(conn, raster, create.srid = FALSE, new.srid = NULL) {
     if (length(srid) > 0) {
         return(srid)
     }
-    ## check for matching EPSG
-    epsg <- terra::crs(raster, describe = T)[1,3]
-    if(!is.null(epsg)){
-        temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE auth_name = 'EPSG' AND auth_srid = ", 
-                             epsg, ";")
-        srid <- dbGetQuery(conn, temp.query)$srid
-        
-        return(srid)
+    ## check for matching EPSG with st_crs (sf dependency)
+    if (suppressPackageStartupMessages(requireNamespace("sf", 
+                                                        quietly = TRUE))) {
+        message("Using function 'sf::st_crs' to look for a match.")
+        epsg <- NA
+        try(epsg <- sf::st_crs(p4s)$epsg)
+        if (!is.na(epsg)) {
+            temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE auth_name = 'EPSG' AND auth_srid = ", 
+                                 epsg, ";")
+            srid <- dbGetQuery(conn, temp.query)$srid
+            if (length(srid) > 0) {
+                return(srid)
+            }
+        }
     }
-    
     if (!create.srid) {
         stop("No SRID matches found. Re-run with 'create.srid = TRUE' to create new SRID entry in spatial_ref_sys.")
     }
@@ -111,7 +118,13 @@ pgSRID <- function(conn, raster, create.srid = FALSE, new.srid = NULL) {
             srid <- new.srid
         }
     }
-    proj.wkt <- sf::st_crs(p4s)$wkt
+    proj.wkt <- "NA"
+    if (suppressPackageStartupMessages(requireNamespace("sf", 
+                                                        quietly = TRUE))) {
+        try(proj.wkt <- sf::st_crs(p4s)$Wkt)
+    } else {
+        message("Package 'sf' is not installed.\nNew SRID will be created, but 'srtext' column (WKT representation of projection) will be 'NA'.")
+    }
     ## insert new SRID
     temp.query <- paste0("INSERT INTO spatial_ref_sys (srid,auth_name,auth_srid,srtext,proj4text) VALUES (", 
                          srid, ",'rpostgis_custom',", srid, ",'", proj.wkt, "','", 
