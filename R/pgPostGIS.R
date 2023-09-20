@@ -21,7 +21,7 @@
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return \code{TRUE} if PostGIS is installed.
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if PostGIS is installed.
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
