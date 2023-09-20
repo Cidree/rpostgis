@@ -15,8 +15,8 @@
 ##' @param clauses character, additional SQL to append to modify select
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.
-##' @author David Bucklin \email{david.bucklin@@gmail.com}
-##' @author Adrian Cidre \email{adrian.cidre@@gmail.com}
+##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrian Cidre 
+##' González \email{adrian.cidre@@gmail.com}
 ##' @export
 ##' @return object of class \code{sfc} (list-column with geometries)
 ##' @examples
