@@ -2,20 +2,20 @@
 
 ##' Inserts data into a PostgreSQL table.
 ##'
-##' This function takes a take an R \code{sp} object (\code{Spatial*} or
+##' This function takes a take an R \code{sf} object, a \code{sp} object (\code{Spatial*} or
 ##' \code{Spatial*DataFrame}), or a regular \code{data.frame}, and performs the
 ##' database insert (and table creation, when the table does not exist)
 ##' on the database.
 ##'
 ##' If \code{new.id} is specified, a new sequential integer field is
-##' added to the data frame for insert. For \code{Spatial*}-only
+##' added to the data frame for insert. For \code{spatial}-only
 ##' objects (no data frame), a new ID column is created by default with name
 ##' \code{"gid"}.
 ##'
-##' If the R package \code{wkb} is installed, this function will use
-##' \code{\link[wkb]{writeWKB}} for certain datasets (non-Multi types,
-##' non-Linestring), which is faster for large datasets.  In all other
-##' cases the \code{rgeos} function \code{\link[rgeos]{writeWKT}} is used.
+##' This function will use \code{\link[sf]{st_as_binary}} for certain datasets
+##' (non-Multi types, non-Linestring), which is faster for large datasets.  In 
+##' all other cases the \code{sf} function \code{\link[sf]{st_as_text}} is used
+##' to extract the Well-known Text (WKT) representation.
 ##'
 ##' In the event of function or database error, the database uses
 ##' ROLLBACK to revert to the previous state. 
@@ -32,12 +32,13 @@
 ##' \code{FALSE} for failed inserts.
 ##' 
 ##' Use this function with code{df.mode = TRUE} to save data frames from
-##' \code{Spatial*}-class objects to the database in "data frame mode". Along with normal 
+##' \code{spatial}-class objects to the database in "data frame mode". Along with normal 
 ##' \code{dbwriteDataFrame} operation, the proj4string of the spatial 
 ##' data will also be saved, and re-attached to the data when using 
 ##' \code{pgGetGeom} to import the data. Note that other attributes
-##' of \code{Spatial*} objects are \strong{not} saved (e.g., \code{coords.nrs},
-##' which is used to specify the column index of x/y columns in \code{SpatialPoints*}).
+##' of \code{spatial} objects are \strong{not} saved (e.g., \code{coords.nrs},
+##' which is used to specify the column index of x/y columns in \code{*POINT} and
+##'  \code{SpatialPoints*}).
 ##' 
 ##' pgi objects are a list containing four character strings: (1)
 ##' in.table, the table name which will be created or inserted
@@ -58,7 +59,7 @@
 ##'     partial matches of data frame and database column names, and
 ##'     \code{overwrite} allows for overwriting the existing database
 ##'     table.
-##' @param data.obj A \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}
+##' @param data.obj A \code{sf}, \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}
 ##' @param geom character string. For \code{Spatial*} datasets, the name of
 ##'     geometry/(geography) column in the database table.  (existing or to be
 ##'     created; defaults to \code{"geom"}). The special name "geog" will
@@ -113,7 +114,9 @@
 ##'     existing column type.
 ##' @param geog Logical; Whether to write the spatial data as a PostGIS 
 ##'     'GEOGRAPHY' type. By default, FALSE, unless \code{geom = "geog"}.
-##' @author David Bucklin \email{david.bucklin@@gmail.com}
+##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrián Cidre
+##' González \email{adrian.cidre@@gmail.com}
+##' @importFrom sf st_geometry_type st_as_sf st_transform st_crs
 ##' @export
 ##' @return Returns \code{TRUE} if the insertion was successful,
 ##' \code{FALSE} if failed, or a \code{pgi} object if specified.
@@ -138,10 +141,13 @@
 ##'     partial.match = TRUE)
 ##' }
 
-pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, partial.match = FALSE, 
+pgInsert <- function(conn, name, data.obj, geom = "geometry", df.mode = FALSE, partial.match = FALSE, 
     overwrite = FALSE, new.id = NULL, row.names = FALSE, upsert.using = NULL,
     alter.names = FALSE, encoding = NULL, return.pgi = FALSE, df.geom = NULL, geog = FALSE) {
-  
+    
+    ## Convert to sf object while sp available
+    if (!inherits(data.obj, "sf")) data.obj <- sf::st_as_sf(data.obj)
+    
     # auto-geog
     if (geom == "geog") geog <- TRUE
   
@@ -165,14 +171,14 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
     }
     ## Check version for upserts
     if (!is.null(upsert.using)) {
-      ver<-dbVersion(conn)
+      ver <- dbVersion(conn)
       if (ver[1] < 9 | (ver[1] == 9 && ver[2] < 5)) {
         stop("'Upsert' not supported in your PostgreSQL version (",paste(ver,collapse = "."),
              "). Requires version 9.5 or above.")
       }
     }
-    # data.obj class
-    cls <- class(data.obj)[1]
+    # data.obj geometry type
+    cls <- as.character(sf::st_geometry_type(data.obj, by_geometry = FALSE))
     if (cls == "pgi") {
         if (is.null(data.obj$in.table)) {
             stop("Table to insert into not specified (in pgi$in.table). Set this and re-run.")
@@ -193,13 +199,12 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
         force.match <- name
         create.table <- NULL
     }
-    geo.classes <- c("SpatialPoints", "SpatialPointsDataFrame", 
-        "SpatialLines", "SpatialLinesDataFrame", "SpatialPolygons", 
-        "SpatialPolygonsDataFrame")
+    geo.classes <- c("POINT", "LINESTRING", "POLYGON", 
+                     "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON")
     pgi <- NULL
     if (cls %in% geo.classes) {
-      if (geog) data.obj <- sp::spTransform(data.obj, CRS("+proj=longlat +datum=WGS84 +no_defs", doCheckCRSArgs = FALSE))
-        try(suppressMessages(pgSRID(conn, data.obj@proj4string, 
+      if (geog) data.obj <- sf::st_transform(data.obj, sf::st_crs("+proj=longlat +datum=WGS84 +no_defs"))
+        try(suppressMessages(pgSRID(conn, sf::st_crs(data.obj, parameters = TRUE)$proj4string, 
             create.srid = TRUE, new.srid = NULL)), silent = TRUE)
         try(pgi <- pgInsertizeGeom(data.obj, geom, create.table, 
             force.match, conn, new.id, row.names, alter.names, partial.match, df.mode, geog))
@@ -211,7 +216,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
         message("Using previously create pgi object. All arguments except for \"conn\", \"overwrite\", and \"encoding\" will be ignored.")
     } else {
         #dbExecute(conn, "ROLLBACK;")
-        stop("Input data object not of correct class - must be a Spatial*, Spatial*DataFrame, or data frame.")
+        stop("Input data object not of correct class - must be a Spatial*, Spatial*DataFrame, (MULTI)(POINT, LINESTRING, POLYGON) or data frame.")
     }
     if (is.null(pgi)) {
         #dbExecute(conn, "ROLLBACK;")
@@ -262,7 +267,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
     nameque <- dbTableNameFix(conn,name)
     # df with geom add column
     if (!is.null(df.geom)) {
-      if (alter.names) df.geom[1]<-tolower(gsub("[+-.,!@$%^&*();/|<>]", "_", df.geom[1]))
+      if (alter.names) df.geom[1] <- tolower(gsub("[+-.,!@$%^&*();/|<>]", "_", df.geom[1]))
       if (length(df.geom) == 1) df.geom <- list(df.geom, NULL) else df.geom <- as.list(df.geom)
       try(dbExecute(conn, paste0("ALTER TABLE ", nameque[1], 
             ".", nameque[2], " ALTER COLUMN ",dbQuoteIdentifier(conn, df.geom[[1]]),
@@ -295,26 +300,26 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
         }
     }
     #upsert
-    up.query<-NULL
+    up.query <- NULL
     if (is.null(pgi$db.new.table) && !is.null(upsert.using)) {
-      excl<-dbQuoteIdentifier(conn,pgi$db.cols.insert[!pgi$db.cols.insert %in% upsert.using])
-      excl2<-paste(excl, " = excluded.",excl,sep="")
-      excl.q<-paste(excl2,collapse = ", ")
-      up<-dbQuoteIdentifier(conn,upsert.using)
-      if(length(excl) == length(pgi$db.cols.insert)) {
+      excl <- dbQuoteIdentifier(conn,pgi$db.cols.insert[!pgi$db.cols.insert %in% upsert.using])
+      excl2 <- paste(excl, " = excluded.",excl,sep = "")
+      excl.q <- paste(excl2,collapse = ", ")
+      up <- dbQuoteIdentifier(conn,upsert.using)
+      if (length(excl) == length(pgi$db.cols.insert)) {
         message("Upserting using constraint name...")
-        up.query<-paste0(" ON CONFLICT ON CONSTRAINT ",paste(up,collapse = ",")," DO UPDATE SET ",
+        up.query <- paste0(" ON CONFLICT ON CONSTRAINT ",paste(up,collapse = ",")," DO UPDATE SET ",
                        excl.q) 
         } else {
         message("Upserting using column name(s)...")
-        up.query<-paste0(" ON CONFLICT (",paste(up,collapse = ","),") DO UPDATE SET ",
+        up.query <- paste0(" ON CONFLICT (",paste(up,collapse = ","),") DO UPDATE SET ",
                        excl.q)
         }
     }
     cols2 <- paste0("(", paste(dbQuoteIdentifier(conn,cols), collapse = ","), ")")
     quei <- NULL
     ## Send insert query
-    temp.query<-paste0("INSERT INTO ", nameque[1], 
+    temp.query <- paste0("INSERT INTO ", nameque[1], 
         ".", nameque[2], cols2, " VALUES ", values, up.query,";")
     try(quei <- dbExecute(conn, temp.query))
     if (!is.null(quei)) {
