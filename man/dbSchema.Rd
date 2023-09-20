@@ -22,15 +22,15 @@ checks the existence of the schema, but does not create it if
 it does not exists.}
 }
 \value{
-\code{TRUE} if the schema exists (whether it was already
-    available or was just created).
+If \code{exec = TRUE}, returns \code{TRUE} if the schema exists 
+(whether it was already available or was just created).
 }
 \description{
 Checks the existence, and if necessary, creates a schema.
 }
 \examples{
 \dontrun{
-    dbSchema(name = "schema", exec = FALSE)
+    dbSchema(conn, name = "schema", exec = FALSE)
 }
 }
 \seealso{

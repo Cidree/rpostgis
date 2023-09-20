@@ -31,14 +31,15 @@ or \code{"schema"}}
 \code{TRUE}).}
 }
 \value{
-\code{TRUE} if the comment was successfully applied.
+If \code{exec = TRUE}, returns \code{TRUE} if the comment was
+successfully applied.
 }
 \description{
 Comment on a table, a view or a schema.
 }
 \examples{
 ## examples use a dummy connection from DBI package
-conn<-DBI::ANSI()
+conn <- DBI::ANSI()
 dbComment(conn, name = c("schema", "table"), comment = "Comment on a view.",
     type = "view", exec = FALSE)
 dbComment(conn, name = "test_schema", comment = "Comment on a schema.", type = "schema",

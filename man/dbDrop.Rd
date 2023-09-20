@@ -35,15 +35,15 @@ exist. A notice is issued in this case.}
 \code{TRUE}).}
 }
 \value{
-\code{TRUE} if the table/schema/view was successfully
-    dropped.
+If \code{exec = TRUE}, returns \code{TRUE} if the table/schema/view 
+was successfully dropped.
 }
 \description{
 Drop a table, a view or a schema.
 }
 \examples{
 ## examples use a dummy connection from DBI package
-conn<-DBI::ANSI()
+conn <- DBI::ANSI()
 dbDrop(conn, name = c("schema", "view_name"), type = "view", exec = FALSE)
 dbDrop(conn, name = "test_schema", type = "schema", cascade = "TRUE", exec = FALSE)
 }

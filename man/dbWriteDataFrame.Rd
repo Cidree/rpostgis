@@ -61,17 +61,16 @@ For more flexible writing of \code{data.frame}s to the database
 }
 \examples{
 \dontrun{
-library(sp)
-data(meuse)
+library(datasets)
 
-## Write the data.frame to the database:
-dbWriteDataFrame(conn, name = "meuse_data", df = meuse)
+## Write the mtcars data.frame to the database:
+dbWriteDataFrame(conn, name = "mtcars_data", df = mtcars)
 
 ## Reads it back into a different object:
-me2 <- dbReadDataFrame(conn, name = "meuse_data")
+mtcars2 <- dbReadDataFrame(conn, name = "mtcars_data")
 
 ## Check equality:
-all.equal(meuse, me2)
+all.equal(mtcars, mtcars2)
 ## Should return TRUE.
 }
 }

@@ -7,7 +7,7 @@
 \usage{
 pgInsertizeGeom(
   data.obj,
-  geom = "geom",
+  geom = "geometry",
   create.table = NULL,
   force.match = NULL,
   conn = NULL,
@@ -97,8 +97,8 @@ pgi A list containing four character strings: (1)
     \code{pgInsert} function.
 }
 \description{
-These are internal rpostgis functions that take an R \code{sp} object (Spatial* or
-Spatial*DataFrame; for \code{pgInsertizeGeom}) or data frame (for
+These are internal rpostgis functions that take an R \code{sp} or \code{sf} object (Spatial*,
+Spatial*DataFrame or sf; for \code{pgInsertizeGeom}), or data frame (for
 \code{pgInsertize}) and return a \code{pgi} list object, which can
 be used in the function \code{pgInsert} to insert rows of the
 object into the database table. (Note that these functions do not
