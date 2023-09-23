@@ -2,9 +2,10 @@
 
 #' Write/read in data frame mode to/from database table.
 #'
-#' Write \code{data.frame} to database table, with column definitions,
-#' row names, and a new integer primary key column. Read back into R
-#' with \code{dbReadDataFrame}, which recreates original data frame.
+#' Write \code{data.frame} or similar (e.g. \code{tibble}) to database table, 
+#' with column definitions, row names, and a new integer primary key column. 
+#' Read back into R with \code{dbReadDataFrame}, which recreates original 
+#' data as a tibble.
 #'
 #' Writing in data frame mode is only for new database tables (or for
 #' overwriting an existing one). It will save all column names as they
@@ -38,6 +39,7 @@
 #' @param only.defs Logical; if \code{TRUE}, only the table
 #'     definitions will be written.
 #' @author David Bucklin \email{david.bucklin@@gmail.com}
+#' @author Adrián Cidre González \email{adrian.cidre@@gmail.com}
 #' @aliases dbWriteDF
 #' @export
 #' @return \code{TRUE} for successful write with
@@ -63,6 +65,13 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
 
     nameque <- dbTableNameFix(conn, name)
     name <- dbTableNameFix(conn, name, as.identifier = FALSE)
+    
+    ## Extract data frame from spatial objects
+    if ("sf" %in% class(df)) {
+      df <- sf::st_drop_geometry(df)
+    } else if ("SpatVector" %in% class(df)) {
+      df <- as.data.frame(df)
+    }
 
     if (!only.defs) {
         d <- data.frame(df, .R_rownames = attr(df, "row.names"),
@@ -71,6 +80,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
         d <- df
     }
 
+    ## Drop table if it exists
     if (!only.defs) {
         if (dbExistsTable(conn, name, table.only = TRUE)) {
             if (!overwrite) {
@@ -82,7 +92,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
         }
     }
 
-    ## create defs table
+    ## Create defs table if it doesnt exist
     if (!dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
         sql_query <- paste0("CREATE TABLE ", nameque[1], ".\".R_df_defs\" (table_nm character varying, df_def text[]);")
         dbExecute(conn, sql_query)
@@ -179,7 +189,8 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
 dbReadDataFrame <- function(conn, name, df = NULL) {
 
     nameque <- dbTableNameFix(conn, name)
-    name <- dbTableNameFix(conn, name, as.identifier = FALSE)
+    name    <- dbTableNameFix(conn, name, as.identifier = FALSE)
+
 
     if (!dbExistsTable(conn, name)) {
         stop("Table ", paste(name, collapse = "."), " not found.")
@@ -285,7 +296,10 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
         row.names(d) <- d$.R_rownames
         d$.R_rownames <- NULL
         d$.db_pkid <- NULL
+        d <- tidyr::as_tibble(d)
 
         return(d)
     }
 }
+
+

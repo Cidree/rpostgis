@@ -220,8 +220,12 @@ pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
     ## Create and append add geometry field statement. Create
     ## match table
     typematch <- data.frame(
-      sf = c("POINT", "LINESTRING", "POLYGON", "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON"), 
-      pgis = c("Point","LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon"), 
+      sf = c("POINT", "LINESTRING", "POLYGON", "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON",
+             "CURVE", "MULTICURVE", "SURFACE", "MULTISURFACE", "GEOMETRYCOLLECTION",
+             "COMPOUNDCURVE", "CURVEPOLYGON"), 
+      pgis = c("Point","LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon",
+               "Curve, MultiCurve", "Surface", "MultiSurface", "GeometryCollection",
+               "CompoundCurve", "CurvePolygon"), 
       stringsAsFactors = FALSE)
     g.typ <- as.character(sf::st_geometry_type(data.obj, by_geometry = FALSE))
     sptype <- pmatch(typematch$sf, g.typ)

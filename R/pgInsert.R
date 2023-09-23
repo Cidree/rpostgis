@@ -212,7 +212,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
             force.match, conn, new.id, row.names, alter.names, partial.match, df.mode, geog))
     } else if (cls == "data.frame") {
         try(pgi <- pgInsertize(data.obj, create.table, force.match, 
-            conn, new.id, row.names, alter.names, partial.match, df.mode))
+            conn, new.id, row.names, alter.names, partial.match, df.mode = TRUE))
     } else if (cls == "pgi") {
         pgi <- data.obj
         message("Using previously create pgi object. All arguments except for \"conn\", \"overwrite\", and \"encoding\" will be ignored.")
