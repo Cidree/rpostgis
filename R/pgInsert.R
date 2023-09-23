@@ -2,8 +2,8 @@
 
 ##' Inserts data into a PostgreSQL table.
 ##'
-##' This function takes a take an R \code{sf} object, a \code{sp} object (\code{Spatial*} or
-##' \code{Spatial*DataFrame}), or a regular \code{data.frame}, and performs the
+##' This function takes a take an R \code{sf}, a \code{SpatVector} or \code{sp} object (\code{Spatial*} or
+##' \code{Spatial*DataFrame}); or a regular \code{data.frame}, and performs the
 ##' database insert (and table creation, when the table does not exist)
 ##' on the database.
 ##'
@@ -59,7 +59,7 @@
 ##'     partial matches of data frame and database column names, and
 ##'     \code{overwrite} allows for overwriting the existing database
 ##'     table.
-##' @param data.obj A \code{sf}, \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}
+##' @param data.obj A \code{sf},\code{SpatVector}, \code{sp}-class, or \code{data.frame}
 ##' @param geom character string. For \code{Spatial*} datasets, the name of
 ##'     geometry/(geography) column in the database table.  (existing or to be
 ##'     created; defaults to \code{"geom"}). The special name "geog" will
@@ -122,31 +122,35 @@
 ##' \code{FALSE} if failed, or a \code{pgi} object if specified.
 ##' @examples
 ##' \dontrun{
-##' library(sp)
-##' data(meuse)
-##' coords <- SpatialPoints(meuse[, c("x", "y")])
-##' spdf <- SpatialPointsDataFrame(coords, meuse)
+##' library(sf)
+##' pts <- st_sf(a = 1:2, geom = st_sfc(st_point(0:1), st_point(1:2)), crs = 4326)
 ##'
 ##' ## Insert data in new database table
-##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
+##' pgInsert(conn, name = c("public", "my_pts"), data.obj = pts)
 ##'
 ##' ## The same command will insert into already created table (if all R
 ##' ## columns match)
-##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
+##' pgInsert(conn, name = c("public", "my_pts"), data.obj = pts)
 ##'
 ##' ## If not all database columns match, need to use partial.match = TRUE,
 ##' ## where non-matching columns are not inserted
-##' colnames(spdf@data)[4] <- "cu"
-##' pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf,
+##' names(pts)[1] <- "b"
+##' pgInsert(conn, name = c("public", "my_pts"), data.obj = pts,
 ##'     partial.match = TRUE)
 ##' }
 
-pgInsert <- function(conn, name, data.obj, geom = "geometry", df.mode = FALSE, partial.match = FALSE, 
+pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, partial.match = FALSE, 
     overwrite = FALSE, new.id = NULL, row.names = FALSE, upsert.using = NULL,
     alter.names = FALSE, encoding = NULL, return.pgi = FALSE, df.geom = NULL, geog = FALSE) {
     
-    ## Convert to sf object while sp available
-    if (!inherits(data.obj, "sf")) data.obj <- sf::st_as_sf(data.obj)
+    dbConnCheck(conn)
+    ## Check if PostGIS installed
+    if (!suppressMessages(pgPostGIS(conn))) {
+      stop("PostGIS is not enabled on this database.")
+    }
+  
+    ## Convert to sf object (terra and sp)
+    if (!inherits(data.obj, "sf") & !inherits(data.obj, "data.frame")) data.obj <- sf::st_as_sf(data.obj)
     
     # auto-geog
     if (geom == "geog") geog <- TRUE
@@ -164,11 +168,6 @@ pgInsert <- function(conn, name, data.obj, geom = "geometry", df.mode = FALSE, p
       }
     }
   
-    dbConnCheck(conn)
-    ## Check if PostGIS installed
-    if (!suppressMessages(pgPostGIS(conn))) {
-        stop("PostGIS is not enabled on this database.")
-    }
     ## Check version for upserts
     if (!is.null(upsert.using)) {
       ver <- dbVersion(conn)
@@ -177,8 +176,10 @@ pgInsert <- function(conn, name, data.obj, geom = "geometry", df.mode = FALSE, p
              "). Requires version 9.5 or above.")
       }
     }
-    # data.obj geometry type
-    cls <- as.character(sf::st_geometry_type(data.obj, by_geometry = FALSE))
+    
+    # data.obj geometry type or class
+    cls <- class(data.obj)[1]
+    
     if (cls == "pgi") {
         if (is.null(data.obj$in.table)) {
             stop("Table to insert into not specified (in pgi$in.table). Set this and re-run.")
@@ -186,6 +187,7 @@ pgInsert <- function(conn, name, data.obj, geom = "geometry", df.mode = FALSE, p
             name <- data.obj$in.table
         }
     }
+    
     ## Check for existing table
     exists.t <- dbExistsTable(conn, name, table.only = TRUE)
     if (!exists.t) {
@@ -199,10 +201,10 @@ pgInsert <- function(conn, name, data.obj, geom = "geometry", df.mode = FALSE, p
         force.match <- name
         create.table <- NULL
     }
-    geo.classes <- c("POINT", "LINESTRING", "POLYGON", 
-                     "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON")
+
+    
     pgi <- NULL
-    if (cls %in% geo.classes) {
+    if (cls == "sf") {
       if (geog) data.obj <- sf::st_transform(data.obj, sf::st_crs("+proj=longlat +datum=WGS84 +no_defs"))
         try(suppressMessages(pgSRID(conn, sf::st_crs(data.obj, parameters = TRUE)$proj4string, 
             create.srid = TRUE, new.srid = NULL)), silent = TRUE)

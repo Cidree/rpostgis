@@ -74,7 +74,7 @@
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @keywords internal
 ##' @importFrom stats na.omit
-##' @import sf
+##' @importFrom sf st_geometry_type st_as_sf st_drop_geometry st_crs st_as_text st_as_binary st_geometry
 ##' @importFrom DBI dbDriver
 ##' @return pgi A list containing four character strings: (1)
 ##'     in.table, the table name which will be created or inserted
