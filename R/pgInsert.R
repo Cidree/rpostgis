@@ -143,206 +143,226 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
     overwrite = FALSE, new.id = NULL, row.names = FALSE, upsert.using = NULL,
     alter.names = FALSE, encoding = NULL, return.pgi = FALSE, df.geom = NULL, geog = FALSE) {
     
-    dbConnCheck(conn)
-    ## Check if PostGIS installed
-    if (!suppressMessages(pgPostGIS(conn))) {
-      stop("PostGIS is not enabled on this database.")
-    }
+  ## Check if connection exists, and PostGIS extension
+  dbConnCheck(conn)
+  if (!suppressMessages(pgPostGIS(conn))) {
+    stop("PostGIS is not enabled on this database.")
+  }
   
-    ## Convert to sf object (terra and sp)
-    if (!inherits(data.obj, "sf") & !inherits(data.obj, "data.frame")) data.obj <- sf::st_as_sf(data.obj)
-    
-    # auto-geog
-    if (geom == "geog") geog <- TRUE
+  ## Convert to sf object (terra and sp) -> exclude data frame and pgi
+  if (!inherits(data.obj, "sf") 
+      & !inherits(data.obj, "data.frame") 
+      & !inherits(data.obj, "pgi")) data.obj <- sf::st_as_sf(data.obj)
   
-    if (df.mode) {
-      if (!dbExistsTable(conn,name, table.only = TRUE) | overwrite) {
-        # set necessary argument values
-        partial.match <- FALSE
-        new.id <- ".db_pkid"
-        row.names <- TRUE
-        upsert.using <- NULL
-        alter.names <- FALSE
-      } else if (!overwrite & dbExistsTable(conn,name, table.only = TRUE)) {
-        stop("df.mode = TRUE only allowed for new tables or with overwrite = TRUE.")
-      }
-    }
+  # If name of geometry is "geog", it should be geography object
+  if (geom == "geog") geog <- TRUE
   
-    ## Check version for upserts
-    if (!is.null(upsert.using)) {
-      ver <- dbVersion(conn)
-      if (ver[1] < 9 | (ver[1] == 9 && ver[2] < 5)) {
-        stop("'Upsert' not supported in your PostgreSQL version (",paste(ver,collapse = "."),
-             "). Requires version 9.5 or above.")
-      }
+  ## For data frame mode, we need some parameters
+  ## Data frame mode will create new tables or overwrite
+  if (df.mode) {
+    if (!dbExistsTable(conn, name, table.only = TRUE) | overwrite) {
+      partial.match <- FALSE
+      new.id        <- ".db_pkid"
+      row.names     <- TRUE
+      upsert.using  <- NULL
+      alter.names   <- FALSE
+    } else if (!overwrite & dbExistsTable(conn,name, table.only = TRUE)) {
+      stop("df.mode = TRUE only allowed for new tables or with overwrite = TRUE.")
     }
-    
-    # data.obj geometry type or class
-    cls <- class(data.obj)[1]
-    
-    if (cls == "pgi") {
-        if (is.null(data.obj$in.table)) {
-            stop("Table to insert into not specified (in pgi$in.table). Set this and re-run.")
+  }
+  
+  ## Check version for upserts
+  if (!is.null(upsert.using)) {
+    ver <- dbVersion(conn)
+    if (ver[1] < 9 | (ver[1] == 9 && ver[2] < 5)) {
+      stop("'Upsert' not supported in your PostgreSQL version (",paste(ver,collapse = "."),
+           "). Requires version 9.5 or above.")
+    }
+  }
+  
+  ## Check data class of table to insert
+  cls <- class(data.obj)[1]
+  
+  ## If class is "pgi", it needs a table in pgi$in.table
+  if (cls == "pgi") {
+    if (is.null(data.obj$in.table)) {
+      stop("Table to insert into not specified (in pgi$in.table). Set this and re-run.")
+    } else {
+      name <- data.obj$in.table
+    }
+  }
+  
+  ## Check for existing table
+  exists.t <- dbExistsTable(conn, name, table.only = TRUE)
+  if (!exists.t) {
+    message("Creating new table...")
+    create.table <- name
+    force.match  <- NULL
+  } else if (exists.t & overwrite & !partial.match) {
+    create.table <- name
+    force.match  <- NULL
+  } else {
+    force.match  <- name
+    create.table <- NULL
+  }
+  
+  ## Prepare pgi with insertize functions. Set to NULL before attempting
+  ## Pgi will be prepared depending on data object
+  pgi <- NULL
+  if (cls == "sf") {
+    if (geog) data.obj <- sf::st_transform(data.obj, sf::st_crs("+proj=longlat +datum=WGS84 +no_defs"))
+    try(suppressMessages(pgSRID(conn, sf::st_crs(data.obj), 
+                                create.srid = TRUE, new.srid = NULL)), silent = TRUE)
+    try(pgi <- pgInsertizeGeom(data.obj, geom, create.table, force.match, conn, 
+                               new.id, row.names, alter.names, partial.match, df.mode,
+                               geog), silent = TRUE)
+  } else if (cls == "data.frame") {
+    try(pgi <- pgInsertize(data.obj, create.table, force.match, conn, new.id, row.names, 
+                           alter.names, partial.match, df.mode = TRUE), silent = TRUE)
+  } else if (cls == "pgi") {
+    pgi <- data.obj
+    message("Using previously created pgi object. All arguments except for \"conn\", \"overwrite\", and \"encoding\" will be ignored.")
+  } else {
+    #dbExecute(conn, "ROLLBACK;")
+    stop("Input data object not of correct class - must be a Spatial*, Spatial*DataFrame, (MULTI)(POINT, LINESTRING, POLYGON) or data frame.")
+  }
+  
+  ## If pgi is still NULL, return error (no changes detected)
+  if (is.null(pgi)) {
+    #dbExecute(conn, "ROLLBACK;")
+    stop("Table preparation failed. No changes made to database.")
+  }
+  
+  ## Begin transanction to ensure data consistency
+  dbExecute(conn, "BEGIN TRANSACTION;")
+  
+  ## Change encoding if specified
+  if (!is.null(encoding)) {
+    pgi$insert.data <- iconv(pgi$insert.data, encoding[1], encoding[2])
+  }
+  
+  ## Create table if specified
+  if (!is.null(pgi$db.new.table)) {
+    if (overwrite & exists.t) {
+      over.t <- dbDrop(conn, name = name, type = "table", 
+                       ifexists = TRUE)
+      if (!over.t) {
+        dbExecute(conn, "ROLLBACK;")
+        message("Could not drop existing table. No changes made to database.")
+        if (return.pgi) {
+          return(pgi)
         } else {
-            name <- data.obj$in.table
+          return(FALSE)
         }
+      }
     }
-    
-    ## Check for existing table
-    exists.t <- dbExistsTable(conn, name, table.only = TRUE)
-    if (!exists.t) {
-        message("Creating new table...")
-        create.table <- name
-        force.match <- NULL
-    } else if (exists.t & overwrite & !partial.match) {
-        create.table <- name
-        force.match <- NULL
-    } else {
-        force.match <- name
-        create.table <- NULL
+    quet <- NULL
+    try({
+      for (q in pgi$db.new.table) quet <- dbExecute(conn, q)
+    })
+    if (is.null(quet)) {
+      dbExecute(conn, "ROLLBACK;")
+      message("Table creation failed. No changes made to database.")
+      if (return.pgi) {
+        return(pgi)
+      } else {
+        return(FALSE)
+      }
     }
-
-    
-    pgi <- NULL
-    if (cls == "sf") {
-      if (geog) data.obj <- sf::st_transform(data.obj, sf::st_crs("+proj=longlat +datum=WGS84 +no_defs"))
-        try(suppressMessages(pgSRID(conn, sf::st_crs(data.obj, parameters = TRUE)$proj4string, 
-            create.srid = TRUE, new.srid = NULL)), silent = TRUE)
-        try(pgi <- pgInsertizeGeom(data.obj, geom, create.table, 
-            force.match, conn, new.id, row.names, alter.names, partial.match, df.mode, geog))
-    } else if (cls == "data.frame") {
-        try(pgi <- pgInsertize(data.obj, create.table, force.match, 
-            conn, new.id, row.names, alter.names, partial.match, df.mode = TRUE))
-    } else if (cls == "pgi") {
-        pgi <- data.obj
-        message("Using previously create pgi object. All arguments except for \"conn\", \"overwrite\", and \"encoding\" will be ignored.")
-    } else {
-        #dbExecute(conn, "ROLLBACK;")
-        stop("Input data object not of correct class - must be a Spatial*, Spatial*DataFrame, (MULTI)(POINT, LINESTRING, POLYGON) or data frame.")
-    }
-    if (is.null(pgi)) {
-        #dbExecute(conn, "ROLLBACK;")
-        stop("Table preparation failed. No changes made to database.")
-    }
-    
-    dbExecute(conn, "BEGIN TRANSACTION;")
-    ## Change encoding if specified
-    if (!is.null(encoding)) {
-        pgi$insert.data <- iconv(pgi$insert.data, encoding[1], 
-            encoding[2])
-    }
-    ## Create table if specified
-    if (!is.null(pgi$db.new.table)) {
-        if (overwrite & exists.t) {
-            over.t <- dbDrop(conn, name = name, type = "table", 
-                ifexists = TRUE)
-            if (!over.t) {
-                dbExecute(conn, "ROLLBACK;")
-                message("Could not drop existing table. No changes made to database.")
-                if (return.pgi) {
-                  return(pgi)
-                } else {
-                  return(FALSE)
-                }
-            }
-        }
-        quet <- NULL
-        try({
-          for (q in pgi$db.new.table) quet <- dbExecute(conn, q)
-          })
-        if (is.null(quet)) {
-            dbExecute(conn, "ROLLBACK;")
-            message("Table creation failed. No changes made to database.")
-            if (return.pgi) {
-                return(pgi)
-            } else {
-                return(FALSE)
-            }
-        }
-    } else if (is.null(pgi$db.new.table) & overwrite) {
-        message("No create table definition in pgi object (pgi$db.new.table);
+  } else if (is.null(pgi$db.new.table) & overwrite) {
+    message("No create table definition in pgi object (pgi$db.new.table);
               not dropping existing table...")
-    }
-    
-    ## Set name of table
-    name <- pgi$in.table
-    nameque <- dbTableNameFix(conn,name)
-    # df with geom add column
-    if (!is.null(df.geom)) {
-      if (alter.names) df.geom[1] <- tolower(gsub("[+-.,!@$%^&*();/|<>]", "_", df.geom[1]))
-      if (length(df.geom) == 1) df.geom <- list(df.geom, NULL) else df.geom <- as.list(df.geom)
-      try(dbExecute(conn, paste0("ALTER TABLE ", nameque[1], 
-            ".", nameque[2], " ALTER COLUMN ",dbQuoteIdentifier(conn, df.geom[[1]]),
-            " TYPE GEOMETRY",df.geom[[2]],";")))
-    }
-    # end df.geom
-    cols <- pgi$db.cols.insert
-    values <- pgi$insert.data
-    db.cols <- dbTableInfo(conn, name = name)$column_name
-    if (is.null(db.cols)) {
-        dbExecute(conn, "ROLLBACK;")
-        message(paste0("Database table ", paste(name, collapse = "."), 
-            " not found; No changes made to database."))
-        if (return.pgi) {
-            return(pgi)
-        } else {
-            return(FALSE)
-        }
-    }
-    test <- match(cols, db.cols)
-    unmatched <- cols[is.na(test)]
-    if (length(unmatched) > 0) {
-        dbExecute(conn, "ROLLBACK;")
-        message(paste0("The column(s) (", paste(unmatched, collapse = ","), 
-            ") are not in the database table. No changes made to database."))
-        if (return.pgi) {
-            return(pgi)
-        } else {
-            return(FALSE)
-        }
-    }
-    #upsert
-    up.query <- NULL
-    if (is.null(pgi$db.new.table) && !is.null(upsert.using)) {
-      excl <- dbQuoteIdentifier(conn,pgi$db.cols.insert[!pgi$db.cols.insert %in% upsert.using])
-      excl2 <- paste(excl, " = excluded.",excl,sep = "")
-      excl.q <- paste(excl2,collapse = ", ")
-      up <- dbQuoteIdentifier(conn,upsert.using)
-      if (length(excl) == length(pgi$db.cols.insert)) {
-        message("Upserting using constraint name...")
-        up.query <- paste0(" ON CONFLICT ON CONSTRAINT ",paste(up,collapse = ",")," DO UPDATE SET ",
-                       excl.q) 
-        } else {
-        message("Upserting using column name(s)...")
-        up.query <- paste0(" ON CONFLICT (",paste(up,collapse = ","),") DO UPDATE SET ",
-                       excl.q)
-        }
-    }
-    cols2 <- paste0("(", paste(dbQuoteIdentifier(conn,cols), collapse = ","), ")")
-    quei <- NULL
-    ## Send insert query
-    temp.query <- paste0("INSERT INTO ", nameque[1], 
-        ".", nameque[2], cols2, " VALUES ", values, up.query,";")
-    try(quei <- dbExecute(conn, temp.query))
-    if (!is.null(quei)) {
-        if (df.mode) {suppressMessages(dbAddKey(conn, name, colname = ".db_pkid", type = "primary"))}
-        dbExecute(conn, "COMMIT;")
-        message(paste0("Data inserted into table ",nameque[1],".",nameque[2]))
-        ## Return TRUE
-        if (return.pgi) {
-            return(pgi)
-        } else {
-            return(TRUE)
-        }
+  }
+  
+  ## Set name of table
+  name <- pgi$in.table
+  nameque <- dbTableNameFix(conn,name)
+  
+  # df with geom add column
+  if (!is.null(df.geom)) {
+    if (alter.names) df.geom[1] <- tolower(gsub("[+-.,!@$%^&*();/|<>]", "_", df.geom[1]))
+    if (length(df.geom) == 1) df.geom <- list(df.geom, NULL) else df.geom <- as.list(df.geom)
+    try(dbExecute(conn, paste0("ALTER TABLE ", nameque[1], 
+                               ".", nameque[2], " ALTER COLUMN ",dbQuoteIdentifier(conn, df.geom[[1]]),
+                               " TYPE GEOMETRY",df.geom[[2]],";")))
+  }
+  
+  # Columns and values for PostgreSQL
+  cols   <- pgi$db.cols.insert
+  values <- pgi$insert.data
+  db.cols <- dbTableInfo(conn, name = name)$column_name
+  
+  ## Return error if database table not found, and return pgi when specified
+  if (is.null(db.cols)) {
+    dbExecute(conn, "ROLLBACK;")
+    message(paste0("Database table ", paste(name, collapse = "."), 
+                   " not found; No changes made to database."))
+    if (return.pgi) {
+      return(pgi)
     } else {
-        dbExecute(conn, "ROLLBACK;")
-        message("Insert failed. No changes made to database.")
-        if (return.pgi) {
-            return(pgi)
-        } else {
-            return(FALSE)
-        }
+      return(FALSE)
     }
+  }
+  
+  ## Check that R and PostgreSQL database columns are the same
+  test <- match(cols, db.cols)
+  unmatched <- cols[is.na(test)]
+  if (length(unmatched) > 0) {
+    dbExecute(conn, "ROLLBACK;")
+    message(paste0("The column(s) (", paste(unmatched, collapse = ","), 
+                   ") are not in the database table. No changes made to database."))
+    if (return.pgi) {
+      return(pgi)
+    } else {
+      return(FALSE)
+    }
+  }
+  
+  ## Upsert data
+  up.query <- NULL
+  if (is.null(pgi$db.new.table) && !is.null(upsert.using)) {
+    excl   <- dbQuoteIdentifier(conn,pgi$db.cols.insert[!pgi$db.cols.insert %in% upsert.using])
+    excl2  <- paste(excl, " = excluded.",excl,sep = "")
+    excl.q <- paste(excl2,collapse = ", ")
+    up     <- dbQuoteIdentifier(conn,upsert.using)
+    if (length(excl) == length(pgi$db.cols.insert)) {
+      message("Upserting using constraint name...")
+      up.query <- paste0(" ON CONFLICT ON CONSTRAINT ",paste(up,collapse = ",")," DO UPDATE SET ",
+                         excl.q) 
+    } else {
+      message("Upserting using column name(s)...")
+      up.query <- paste0(" ON CONFLICT (",paste(up,collapse = ","),") DO UPDATE SET ",
+                         excl.q)
+    }
+  }
+  
+  ## Column names in SQL quote format
+  cols2 <- paste0("(", paste(dbQuoteIdentifier(conn,cols), collapse = ","), ")")
+  quei  <- NULL
+  ## Send insert query
+  temp.query <- paste0("INSERT INTO ", nameque[1], 
+                       ".", nameque[2], cols2, " VALUES ", values, up.query,";")
+  try(quei <- dbExecute(conn, temp.query))
+  if (!is.null(quei)) {
+    ## In df mode set .db_pkid as primary key
+    if (df.mode) {suppressMessages(dbAddKey(conn, name, colname = ".db_pkid", type = "primary"))}
+    dbExecute(conn, "COMMIT;")
+    message(paste0("Data inserted into table ",nameque[1],".",nameque[2]))
+    ## Return TRUE
+    if (return.pgi) {
+      return(pgi)
+    } else {
+      return(TRUE)
+    }
+  } else {
+    dbExecute(conn, "ROLLBACK;")
+    message("Insert failed. No changes made to database.")
+    if (return.pgi) {
+      return(pgi)
+    } else {
+      return(FALSE)
+    }
+  }
 }
 
 ## print.pgi
