@@ -20,41 +20,53 @@ pgGetRast(
 table/view name holding the geometry (e.g., \code{name =
 c("schema","table")})}
 
-\item{rast}{Name of the column in \code{name} holding the raster object}
+\item{rast}{Name of the column in \code{name} holding the raster object. 
+Defaults to "rast".}
 
 \item{bands}{Index number(s) for the band(s) to retrieve (defaults to 1).
-The special case (\code{bands = TRUE}) returns all bands in the raster.}
+The special case (\code{bands = TRUE}) returns all bands in the raster. See
+also 'Details'}
 
-\item{boundary}{\code{sp} object or numeric. A Spatial* object,
-whose bounding box will be used to select the part of the
-raster to import. Alternatively, four numbers
-(e.g. \code{c([top], [bottom], [right], [left])}) indicating the
-projection-specific limits with which to clip the raster. \code{boundary = NULL}
-(default) will return the full raster.}
+\item{boundary}{\code{sf} object, \code{SpatVector} object, or numeric. If a spatial object
+is provided, its bounding box will be used to select the part of the raster
+to import. Alternatively, a numeric vector (\code{c([xmin], [ymin], [xmax], [ymax])}) 
+indicating the projection-specific limits with which to clip the raster. If
+not value is provided, the default \code{boundary = NULL} will return the 
+full raster.}
 
 \item{clauses}{character, optional SQL to append to modify select
 query from table. Must begin with 'WHERE'.}
 }
 \value{
-RasterLayer
+A \code{terra SpatRaster} object
 }
 \description{
-Retrieve rasters from a PostGIS table.
+Retrieve rasters from a PostGIS table into a \code{terra SpatRaster} object
 }
 \details{
-Default is to return a \code{raster}-class object
-\code{RasterLayer} for one-band, \code{RasterBrick} for
-multiple bands. \code{sp}-class rasters (\code{SpatialGrid*}s or
-\code{SpatialPixels*}) written using \code{pgWriteRast} will
-attempt to re-import as the same data class.
+Since version 1.5, this function retrieve SpatRaster objects from \code{terra} 
+package. If you write \code{raster}-class objects using 
+\code{"\link[rpostgis]{pgWriteRast}"}, this function will
+return a \code{terra} object instead. 
+
+The argument \code{bands} can take as argument:
+
+* The index of the desirable band (e.g. bands = 2 will fetch the second band
+ot the raster).
+
+* More than one index for several bands (e.g. bands = c(2,4) will return a
+\code{SpatRaster} with two bands).
+
+* All bands in the raster (bands = TRUE).
 }
 \examples{
 \dontrun{
 pgGetRast(conn, c("schema", "tablename"))
-pgGetRast(conn, c("schema", "DEM"), boundary = c(55,
-    50, 17, 12))
+pgGetRast(conn, c("schema", "DEM"), boundary = c(12,
+    50, 17, 55))
 }
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com}
+David Bucklin \email{david.bucklin@gmail.com} and Adrián Cidre
+González \email{adrian.cidre@gmail.com}
 }

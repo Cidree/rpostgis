@@ -39,7 +39,7 @@ partial matches of data frame and database column names, and
 \code{overwrite} allows for overwriting the existing database
 table.}
 
-\item{data.obj}{A \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}}
+\item{data.obj}{A \code{sf},\code{SpatVector}, \code{sp}-class, or \code{data.frame}}
 
 \item{geom}{character string. For \code{Spatial*} datasets, the name of
 geometry/(geography) column in the database table.  (existing or to be
@@ -116,21 +116,21 @@ Returns \code{TRUE} if the insertion was successful,
 \code{FALSE} if failed, or a \code{pgi} object if specified.
 }
 \description{
-This function takes a take an R \code{sp} object (\code{Spatial*} or
-\code{Spatial*DataFrame}), or a regular \code{data.frame}, and performs the
+This function takes a take an R \code{sf}, a \code{SpatVector} or \code{sp} object (\code{Spatial*} or
+\code{Spatial*DataFrame}); or a regular \code{data.frame}, and performs the
 database insert (and table creation, when the table does not exist)
 on the database.
 }
 \details{
 If \code{new.id} is specified, a new sequential integer field is
-added to the data frame for insert. For \code{Spatial*}-only
+added to the data frame for insert. For \code{spatial}-only
 objects (no data frame), a new ID column is created by default with name
 \code{"gid"}.
 
-If the R package \code{wkb} is installed, this function will use
-\code{\link[wkb]{writeWKB}} for certain datasets (non-Multi types,
-non-Linestring), which is faster for large datasets.  In all other
-cases the \code{rgeos} function \code{\link[rgeos]{writeWKT}} is used.
+This function will use \code{\link[sf]{st_as_binary}} for certain datasets
+(non-Multi types, non-Linestring), which is faster for large datasets.  In 
+all other cases the \code{sf} function \code{\link[sf]{st_as_text}} is used
+to extract the Well-known Text (WKT) representation.
 
 In the event of function or database error, the database uses
 ROLLBACK to revert to the previous state. 
@@ -147,12 +147,13 @@ tables or databases). If \code{return.pgi = FALSE}
 \code{FALSE} for failed inserts.
 
 Use this function with code{df.mode = TRUE} to save data frames from
-\code{Spatial*}-class objects to the database in "data frame mode". Along with normal 
+\code{spatial}-class objects to the database in "data frame mode". Along with normal 
 \code{dbwriteDataFrame} operation, the proj4string of the spatial 
 data will also be saved, and re-attached to the data when using 
 \code{pgGetGeom} to import the data. Note that other attributes
-of \code{Spatial*} objects are \strong{not} saved (e.g., \code{coords.nrs},
-which is used to specify the column index of x/y columns in \code{SpatialPoints*}).
+of \code{spatial} objects are \strong{not} saved (e.g., \code{coords.nrs},
+which is used to specify the column index of x/y columns in \code{*POINT} and
+ \code{SpatialPoints*}).
 
 pgi objects are a list containing four character strings: (1)
 in.table, the table name which will be created or inserted
@@ -163,25 +164,24 @@ of the data to insert.
 }
 \examples{
 \dontrun{
-library(sp)
-data(meuse)
-coords <- SpatialPoints(meuse[, c("x", "y")])
-spdf <- SpatialPointsDataFrame(coords, meuse)
+library(sf)
+pts <- st_sf(a = 1:2, geom = st_sfc(st_point(0:1), st_point(1:2)), crs = 4326)
 
 ## Insert data in new database table
-pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
+pgInsert(conn, name = c("public", "my_pts"), data.obj = pts)
 
 ## The same command will insert into already created table (if all R
 ## columns match)
-pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf)
+pgInsert(conn, name = c("public", "my_pts"), data.obj = pts)
 
 ## If not all database columns match, need to use partial.match = TRUE,
 ## where non-matching columns are not inserted
-colnames(spdf@data)[4] <- "cu"
-pgInsert(conn, name = c("public", "meuse_data"), data.obj = spdf,
+names(pts)[1] <- "b"
+pgInsert(conn, name = c("public", "my_pts"), data.obj = pts,
     partial.match = TRUE)
 }
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com}
+David Bucklin \email{david.bucklin@gmail.com} and Adrián Cidre
+González \email{adrian.cidre@gmail.com}
 }

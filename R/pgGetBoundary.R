@@ -3,7 +3,7 @@
 ##' Retrieve bounding envelope of geometries or rasters.
 ##'
 ##' Retrieve bounding envelope (rectangle) of all geometries or
-##' rasters in a PostGIS table.
+##' rasters in a PostGIS table as a \code{sfc} object.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and

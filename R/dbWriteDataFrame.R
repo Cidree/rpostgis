@@ -5,7 +5,7 @@
 #' Write \code{data.frame} or similar (e.g. \code{tibble}) to database table, 
 #' with column definitions, row names, and a new integer primary key column. 
 #' Read back into R with \code{dbReadDataFrame}, which recreates original 
-#' data as a tibble.
+#' data.
 #'
 #' Writing in data frame mode is only for new database tables (or for
 #' overwriting an existing one). It will save all column names as they
@@ -297,9 +297,9 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
     }
     
     ## Get rownames back, and eliminate columns .R_rownames and .db_pkid
-    row.names(d) <- d$.R_rownames
+    row.names(d)  <- d$.R_rownames
     d$.R_rownames <- NULL
-    d$.db_pkid <- NULL
+    d$.db_pkid    <- NULL
     
     return(d)
     

@@ -9,7 +9,7 @@ pgGetGeom(
   name,
   geom = "geom",
   gid = NULL,
-  other.cols = TRUE,
+  cols = TRUE,
   clauses = NULL,
   boundary = NULL,
   query = NULL
@@ -26,67 +26,59 @@ c("schema","table")})}
 
 \item{gid}{Name of the column in \code{name} holding the IDs. Should be
 unique for each record to return. \code{gid=NULL} (default) automatically creates a
-new unique ID for each row in the \code{sp} object.}
+new unique ID for each row in the \code{sf} object.}
 
-\item{other.cols}{Names of specific columns in the table to
-retrieve, in a character vector (e.g. \code{other.cols=c("col1","col2")}.)
-The default (\code{other.cols = TRUE}) is to attach
-all columns in a Spatial*DataFrame. Setting
-\code{other.cols=FALSE} will return a Spatial-only object (no
-data frame).}
+\item{cols}{Names of specific columns in the table to
+retrieve, in a character vector (e.g. \code{cols=c("col1","col2")}.)
+The default (\code{cols = TRUE}) is to attach
+all columns. Setting \code{cols=FALSE} will return a Spatial-only 
+object without attributes (no data frame).}
 
 \item{clauses}{character, additional SQL to append to modify select
 query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 "ORDER BY ...", "LIMIT ..."); see below for examples.}
 
-\item{boundary}{\code{sp} object or numeric. A Spatial* object,
-whose bounding box will be used to select geometries
-to import. Alternatively, four numbers
-(e.g. \code{c([top], [bottom], [right], [left])}) indicating the
-projection-specific limits with which to subset spatial data. \code{boundary = NULL}
-(default) will not subset by spatial extent.
-Note this is not a true 'clip'- all features intersecting the
-bounding box with be returned unmodified.}
+\item{boundary}{\code{sf}, \code{SpatVector} or \code{sp} object; or numeric. 
+If a spatial object is provided, its bounding box will be used to select
+geometries to import. Alternatively, a numeric vector (\code{c([xmin], 
+[ymin], [xmax], [ymax])}) indicating the projection-specific limits with
+ which to subset the spatial data. If not value is provided, the default
+\code{boundary = NULL} will not apply any boundary subset.}
 
 \item{query}{character, a full SQL query including a geometry column. 
 For use with query mode only (see details).}
 }
 \value{
-sp-class (SpatialPoints*, SpatialMultiPoints*, SpatialLines*, or SpatialPolygons*)
+sf object
 }
 \description{
 Retrieve point, linestring, or polygon geometries from a PostGIS
-table/view/query, and convert it to an R \code{sp} object (\code{Spatial*} or
-\code{Spatial*DataFrame}).
+table/view/query, and convert it to an R \code{sf} object.
 }
 \details{
+The features of the table to retrieve must have the same geometry type. 
 The query mode version of \code{pgGetGeom} allows the user to enter a
 complete SQL query (\code{query}) that returns a Geometry column, and save the query
 as a new view (\code{name}) if desired. If (\code{name}) is not specified,
 a temporary view with name ".rpostgis_TEMPview" is used only
 within the function execution. In this mode, the other arguments can be used 
 normally to modify the Spatial* object returned from the query.
-
-Definitions for tables written in "data frame mode" are automatically
-applied using this function, including proj4strings of the \code{Spatial*}-class
-object. Note that if the proj4string of the original dataset is not found to 
-be equivalent to the database proj4string (using \code{pgSRID}), it will not be applied.
 }
 \examples{
 \dontrun{
-## Retrieve a Spatial*DataFrame with all data from table
+## Retrieve a sf with all data from table
 ## 'schema.tablename', with geometry in the column 'geom'
 pgGetGeom(conn, c("schema", "tablename"))
-## Return a Spatial*DataFrame with columns c1 & c2 as data
-pgGetGeom(conn, c("schema", "tablename"), other.cols = c("c1","c2"))
-## Return a Spatial*-only (no data frame), 
+## Return a sf with columns c1 & c2 as data
+pgGetGeom(conn, c("schema", "tablename"), cols = c("c1","c2"))
+## Return a spatial-only (no data frame), 
 ## retaining id from table as rownames
 pgGetGeom(conn, c("schema", "tablename"), gid = "table_id",
-  other.cols = FALSE)
-## Return a Spatial*-only (no data frame), 
+  cols = FALSE)
+## Return a spatial-only (no data frame), 
 ## retaining id from table as rownames and with a subset of the data
 pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
-    other.cols = FALSE, clauses  = "WHERE road_type = 'highway'")
+    cols = FALSE, clauses  = "WHERE road_type = 'highway'")
 ## Query mode
 pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom 
                            FROM
@@ -100,4 +92,6 @@ pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom
 David Bucklin \email{david.bucklin@gmail.com}
 
 Mathieu Basille \email{basille@ufl.edu}
+
+Adrián Cidre González \email{adrian.cidre@gmail.com}
 }

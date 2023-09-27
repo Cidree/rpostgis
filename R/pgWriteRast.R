@@ -40,12 +40,14 @@
 ##' @param append Whether to append to the existing table (\code{name}).
 ##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrián Cidre 
 ##' González \email{adrian.cidre@@gmail.com}
-##' @importFrom terra crs res blocks ext t values nlyr as.matrix
+##' @importFrom terra crs res blocks ext t values values<- nlyr as.matrix
+##' @importFrom sp SpatialPixelsDataFrame
 ##' @importFrom sf st_crs
 ##' @importFrom methods as
 ##' @importFrom purrr pmap
 ##' @importFrom dplyr group_by mutate ungroup %>%
-##' @importFrom tidyr cross
+##' @importFrom tidyr crossing
+##' @importFrom rlang .data
 ##' @export
 ##' @return TRUE for successful import.
 ##' 
@@ -147,14 +149,20 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
   bnds <- dbQuoteString(conn, paste0("{{",paste(names(r1),collapse = "},{"),"}}"))
   
   srid <- 0
-  try(srid <- suppressMessages(pgSRID(conn, sf::st_crs(terra::crs(r1, proj = TRUE)), create.srid = TRUE)))
+  try(srid <- suppressMessages(pgSRID(conn, sf::st_crs(terra::crs(r1, proj = TRUE)), create.srid = TRUE)),
+      silent = TRUE)
+  
+  # Warning about no CRS
+  if (length(srid) == 1) {
+    if (srid == 0) warning("The raster has no CRS specified.")
+  }
   
   # Grid with all band/block combinations
   rgrid <- tidyr::crossing(band = 1:terra::nlyr(r1), 
                            trn  = 1:tr$n, 
                            crn  = 1:cr$n) %>% 
-    dplyr::group_by(band) %>% 
-    dplyr::mutate(n = seq(from = n.base + 1, to = length(band), by = 1)) %>% 
+    dplyr::group_by(.data$band) %>% 
+    dplyr::mutate(n = seq(from = n.base + 1, by = 1, length.out = dplyr::n())) %>% 
     dplyr::ungroup() 
   
   # Function to export a block

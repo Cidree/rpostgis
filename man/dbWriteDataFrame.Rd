@@ -33,16 +33,17 @@ definitions will be written.}
     \code{dbReadDataFrame}
 }
 \description{
-Write \code{data.frame} to database table, with column definitions,
-row names, and a new integer primary key column. Read back into R
-with \code{dbReadDataFrame}, which recreates original data frame.
+Write \code{data.frame} or similar (e.g. \code{tibble}) to database table, 
+with column definitions, row names, and a new integer primary key column. 
+Read back into R with \code{dbReadDataFrame}, which recreates original 
+data as a tibble.
 }
 \details{
 Writing in data frame mode is only for new database tables (or for
 overwriting an existing one). It will save all column names as they
-appear in R, along with column data types and attributes.  This is
+appear in R, along with column data types and attributes. This is
 done by adding metadata to a lookup table in the table's schema
-named ".R_df_defs" (will be created if not present).  It also adds
+named ".R_df_defs" (will be created if not present). It also adds
 two fields with fixed names to the database table: ".R_rownames"
 (storing the row.names of the data frame), and ".db_pkid", which is
 a new integer primary key. Existing columns in the data.frame
@@ -54,7 +55,7 @@ created in data frame mode to recreate a data.frame in R, if it is
 available. Otherwise, it will be imported using default
 \code{RPostgreSQL::dbGetQuery} methods.
 
-All \code{Spatial*DataFrame}s must be written with \code{\link[rpostgis]{pgInsert}}.
+All spatial objects must be written with \code{\link[rpostgis]{pgInsert}}.
 For more flexible writing of \code{data.frame}s to the database
 (including all writing into existing database tables), use
 \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
@@ -76,4 +77,6 @@ all.equal(mtcars, mtcars2)
 }
 \author{
 David Bucklin \email{david.bucklin@gmail.com}
+
+Adrián Cidre González \email{adrian.cidre@gmail.com}
 }

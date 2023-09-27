@@ -26,18 +26,21 @@ Depends:
     DBI (>= 0.5)
 Imports:
     methods,
-    raster,
-    rgeos,
     sp,
     stats,
     terra,
-    sf
+    dplyr,
+    purrr,
+    tidyr,
+    sf,
+    glue,
+    rlang
 Suggests:
     RPostgres,
-    rgdal,
-    wkb
+    testthat (>= 3.0.0)
 License: GPL (>= 3)
 URL: https://mablab.org/rpostgis/, https://github.com/mablab/rpostgis
 BugReports: https://github.com/mablab/rpostgis/issues
 RoxygenNote: 7.2.3
 Encoding: UTF-8
+Config/testthat/edition: 3

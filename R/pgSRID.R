@@ -51,7 +51,7 @@ pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
         stop("Object is not of class crs.")
     }
     ## extract p4s
-    p4s <- crs$input
+    p4s <- crs$proj4string
     ## if crs is undefined (NA), return 0
     if (is.na(p4s)) {
         srid <- 0

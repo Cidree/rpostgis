@@ -121,11 +121,11 @@ pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
   # if (!inherits(data.obj, "sf")) data.obj <- sf::st_as_sf(data.obj)
   
   ## Check if geometry is simple or multi
-  # if (grepl("^MULTI", as.character(sf::st_geometry_type(data.obj, by_geometry = FALSE)))) {
-  #   multi <- TRUE
-  # } else {
-  #   multi <- FALSE
-  # }
+  if (grepl("^MULTI", as.character(sf::st_geometry_type(data.obj, by_geometry = FALSE)))) {
+    multi <- TRUE
+  } else {
+    multi <- FALSE
+  }
   
   ## Extract data frame 
   try(dat <- sf::st_drop_geometry(data.obj), silent = TRUE)
