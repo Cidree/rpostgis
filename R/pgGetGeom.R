@@ -32,8 +32,8 @@
 ##'     "ORDER BY ...", "LIMIT ..."); see below for examples.
 ##' @param boundary \code{sf}, \code{SpatVector} or \code{sp} object; or numeric. 
 ##'     If a spatial object is provided, its bounding box will be used to select
-##'     geometries to import. Alternatively, a numeric vector (\code{c([xmin], 
-##'     [ymin], [xmax], [ymax])}) indicating the projection-specific limits with
+##'     geometries to import. Alternatively, a numeric vector (\code{c([top], 
+##'     [bottom], [right], [left])}) indicating the projection-specific limits with
 ##'      which to subset the spatial data. If not value is provided, the default
 ##'     \code{boundary = NULL} will not apply any boundary subset.
 ##' @param query character, a full SQL query including a geometry column. 
@@ -101,12 +101,14 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
       ## Manage sp and terra object
       if (!inherits(boundary, "sf")) boundary <- sf::st_as_sf(boundary)
       boundary <- sf::st_bbox(boundary)
+      ## Standardize to top-bottom-right-left
+      boundary <-  c(boundary[4], boundary[2], boundary[3], boundary[1])
     }
     b.clause <- paste0(" AND ST_Intersects(",
-                       geomque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[1],
-                       " ", boundary[4], ",", boundary[1], " ", boundary[2],
+                       geomque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+                       " ", boundary[1], ",", boundary[4], " ", boundary[2],
                        ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
-                       " ", boundary[4], ",", boundary[1], " ", boundary[4],
+                       " ", boundary[1], ",", boundary[4], " ", boundary[1],
                        "))'),", srid[1], "))")
   } else {
     b.clause <- NULL

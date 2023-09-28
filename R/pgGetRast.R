@@ -32,12 +32,13 @@
 ##' @param bands Index number(s) for the band(s) to retrieve (defaults to 1).
 ##' The special case (\code{bands = TRUE}) returns all bands in the raster. See
 ##' also 'Details'
-##' @param boundary \code{sf} object, \code{SpatVector} object, or numeric. If a spatial object
-##' is provided, its bounding box will be used to select the part of the raster
-##' to import. Alternatively, a numeric vector (\code{c([xmin], [ymin], [xmax], [ymax])}) 
-##' indicating the projection-specific limits with which to clip the raster. If
-##' not value is provided, the default \code{boundary = NULL} will return the 
-##' full raster.
+##' @param boundary \code{sf} object, \code{SpatVector} object, or numeric. If a
+##'     spatial object is provided, its bounding box will be used to select
+##'     the part of the raster to import. Alternatively, a numeric vector
+##'     (\code{c([top], [bottom], [right], [left])}) indicating the 
+##'     projection-specific limits with which to clip the raster. If not value 
+##'     is provided, the default \code{boundary = NULL} will return the 
+##'     full raster.
 ##'      
 ##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrián Cidre
 ##' González \email{adrian.cidre@@gmail.com}
@@ -48,8 +49,8 @@
 ##' @examples
 ##' \dontrun{
 ##' pgGetRast(conn, c("schema", "tablename"))
-##' pgGetRast(conn, c("schema", "DEM"), boundary = c(12,
-##'     50, 17, 55))
+##' pgGetRast(conn, c("schema", "DEM"), boundary = c(55,
+##'     50, 17, 12))
 ##' }
 
 pgGetRast <- function(conn, name, rast = "rast", bands = 1,
@@ -173,13 +174,14 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
     ## Bbox of terra and sf objects
     if (inherits(boundary, "sf")) {
       boundary <- sf::st_bbox(boundary)
+      boundary <- c(boundary[4], boundary[2], boundary[3], boundary[1])
     } else if (inherits(boundary, "SpatVector")) {
-      boundary <- c(terra::ext(boundary)[1], terra::ext(boundary)[3],
-                    terra::ext(boundary)[2], terra::ext(boundary)[4])
+      boundary <- c(terra::ext(boundary)[4], terra::ext(boundary)[3],
+                    terra::ext(boundary)[2], terra::ext(boundary)[1])
     }
     
     ## Extent to clip the Rast
-    extclip <- terra::ext(boundary[1], boundary[3], boundary[2], boundary[4])
+    extclip <- terra::ext(boundary[4], boundary[3], boundary[2], boundary[1])
     
     for (b in bands) {
       info <- dbGetQuery(conn, paste0("select 
