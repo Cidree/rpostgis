@@ -134,12 +134,11 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
     aq <- NULL
   }
   
-  ## Get raster
-  if (is.null(boundary)) {
+  ## Get band function
+  get_band <- function(band) {
     
-    for (b in bands) {
-      ## Get raster information (bbox, rows, cols)
-      info <- dbGetQuery(conn, paste0("select 
+    ## Get raster information (bbox, rows, cols)
+    info <- dbGetQuery(conn, paste0("select 
             st_xmax(st_envelope(rast)) as xmax,
             st_xmin(st_envelope(rast)) as xmin,
             st_ymax(st_envelope(rast)) as ymax,
@@ -147,27 +146,68 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
             st_width(rast) as cols,
             st_height(rast) as rows
             from
-            (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque," ", clauses,") as a;"))
-      ## Retrieve values of the cells
-      vals <- dbGetQuery(conn, paste0("select
+            (select st_union(",aq[1],rastque,",",aq[2],aq[3],band,") rast from ",nameque," ", clauses,") as a;"))
+    ## Retrieve values of the cells
+    vals <- dbGetQuery(conn, paste0("select
           unnest(st_dumpvalues(rast, 1)) as vals 
           from
-          (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque," ", clauses,") as a;"))$vals
-      
-      rout <- terra::rast(nrows = info$rows, ncols = info$cols, xmin = info$xmin, 
-                          xmax = info$xmax, ymin = info$ymin, ymax = info$ymax,
-                          crs = p4s, vals = vals)
-      
-      if (length(bands) > 1) {
-        if (b == bands[1]) {
-          rb <- rout
-        } else {
-          rb <- c(rb, rout)
-        }
-      } else {
-        rb <- rout
-      }
-    } # end for
+          (select st_union(",aq[1],rastque,",",aq[2],aq[3],band,") rast from ",nameque," ", clauses,") as a;"))$vals
+    
+    rout <- terra::rast(nrows = info$rows, ncols = info$cols, xmin = info$xmin, 
+                        xmax = info$xmax, ymin = info$ymin, ymax = info$ymax,
+                        crs = p4s, vals = vals)
+    
+    return(rout)
+    
+  }
+  
+  ## Get band with boundary function
+  get_band_boundary <- function(band) {
+    
+    ## Get info
+    info <- dbGetQuery(conn, paste0("select 
+            st_xmax(st_envelope(rast)) as xmx,
+            st_xmin(st_envelope(rast)) as xmn,
+            st_ymax(st_envelope(rast)) as ymx,
+            st_ymin(st_envelope(rast)) as ymn,
+            st_width(rast) as cols,
+            st_height(rast) as rows
+            from
+            (select st_union(",aq[1],rastque,",",aq[2],aq[3],band,") rast from ",nameque, "\n
+            WHERE ST_Intersects(",
+            rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[1],
+            " ", boundary[4], ",", boundary[1], " ", boundary[3],
+            ",\n  ", boundary[2], " ", boundary[3], ",", boundary[2],
+            " ", boundary[4], ",", boundary[1], " ", boundary[4],
+            "))'),", srid, "))", clauses2,") as a;"))
+    if (is.na(info$cols) & is.na(info$rows)) {
+      stop("No data found within geographic subset defined by 'boundary'.")
+    }
+    
+    vals <- dbGetQuery(conn,paste0("select
+          unnest(st_dumpvalues(rast, 1)) as vals 
+          from
+          (select st_union(",aq[1],rastque,",",aq[2],aq[3],band,") rast from ",nameque, "\n
+            WHERE ST_Intersects(",
+          rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[1],
+          " ", boundary[4], ",", boundary[1], " ", boundary[3],
+          ",\n  ", boundary[2], " ", boundary[3], ",", boundary[2],
+          " ", boundary[4], ",", boundary[1], " ", boundary[4],
+          "))'),", srid, "))", clauses2,") as a;"))$vals  
+    
+    rout <- terra::rast(nrows = info$rows, ncols = info$cols, 
+                        xmin = info$xmn, xmax = info$xmx, ymin = info$ymn, ymax = info$ymx,
+                        crs = p4s, vals = vals)
+    
+    return(rout)
+  }
+  
+  ## Get raster
+  if (is.null(boundary)) {
+    ## Get bands
+    rout <- purrr::map(bands, get_band, .progress = "Reading bands")
+    rb   <- terra::rast(rout)
+    
     ## Else: when boundary is provided
   } else {
     
@@ -183,54 +223,10 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
     ## Extent to clip the Rast
     extclip <- terra::ext(boundary[4], boundary[3], boundary[2], boundary[1])
     
-    for (b in bands) {
-      info <- dbGetQuery(conn, paste0("select 
-            st_xmax(st_envelope(rast)) as xmx,
-            st_xmin(st_envelope(rast)) as xmn,
-            st_ymax(st_envelope(rast)) as ymx,
-            st_ymin(st_envelope(rast)) as ymn,
-            st_width(rast) as cols,
-            st_height(rast) as rows
-            from
-            (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque, "\n
-            WHERE ST_Intersects(",
-            rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[1],
-            " ", boundary[4], ",", boundary[1], " ", boundary[3],
-            ",\n  ", boundary[2], " ", boundary[3], ",", boundary[2],
-            " ", boundary[4], ",", boundary[1], " ", boundary[4],
-            "))'),", srid, "))", clauses2,") as a;"))
-      if (is.na(info$cols) & is.na(info$rows)) {
-        stop("No data found within geographic subset defined by 'boundary'.")
-      }
-      
-      vals <- dbGetQuery(conn,paste0("select
-          unnest(st_dumpvalues(rast, 1)) as vals 
-          from
-          (select st_union(",aq[1],rastque,",",aq[2],aq[3],b,") rast from ",nameque, "\n
-            WHERE ST_Intersects(",
-          rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[1],
-          " ", boundary[4], ",", boundary[1], " ", boundary[3],
-          ",\n  ", boundary[2], " ", boundary[3], ",", boundary[2],
-          " ", boundary[4], ",", boundary[1], " ", boundary[4],
-          "))'),", srid, "))", clauses2,") as a;"))$vals  
-      
-      rout <- terra::rast(nrows = info$rows, ncols = info$cols, 
-                          xmin = info$xmn, xmax = info$xmx, ymin = info$ymn, ymax = info$ymx,
-                          crs = p4s, vals = vals)
-      
-      if (length(bands) > 1) {
-        if (b == bands[1]) {
-          rb <- rout
-        } else {
-          rb <- c(rb, rout)
-        }
-      } else {
-        rb <- rout
-      }
-    }
-    
+    ## Get bands
+    rout <- purrr::map(bands, get_band_boundary, .progress = "Reading bands")
+    rb   <- terra::rast(rout)
   }
-  
   
   ## Set layer names
   if ("band_names" %in% dbTableInfo(conn,name)$column_name) {
@@ -249,21 +245,6 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   if (!is.null(boundary)) {
     rb2 <- terra::crop(rb, extclip)
   }
-  
-  # get/set proj4 -----> covered previously)
-  # r_crs <- NULL
-  # if ("r_proj4" %in% dbTableInfo(conn, name)$column_name) {
-  #   try({
-  #     r_crs <- dbGetQuery(conn, paste0("SELECT DISTINCT r_proj4 FROM ",
-  #                                      nameque," WHERE ", rastque ," IS NOT NULL ", clauses2,";"))[,1]
-  #     if (length(r_crs) == 1 & !is.null(r_crs) & !is.na(r_crs)) {
-  #       r_crs <- sf::st_crs(r_crs)
-  #       suppressMessages(suppressWarnings(
-  #         if (any(pgSRID(conn, sf::st_crs(terra::crs(rb))) %in% pgSRID(conn, r_crs))) terra::crs(rb) <- r_crs
-  #       ))
-  #     }
-  #   }, silent = TRUE)
-  # }
   
   return(rb)
   
