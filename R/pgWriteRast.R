@@ -65,7 +65,8 @@
 ##' }
 
 pgWriteRast <- function(conn, name, raster, bit.depth = NULL, 
-                        blocks = NULL, constraints = TRUE, overwrite = FALSE, append = FALSE) {
+                        blocks = NULL, constraints = TRUE, 
+                        overwrite = FALSE, append = FALSE) {
   
   dbConnCheck(conn)
   if (!suppressMessages(pgPostGIS(conn))) {
@@ -91,7 +92,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
   }
   
   # crs
-  r_crs <- dbQuoteString(conn, terra::crs(raster, proj = TRUE))
+  r_crs <- dbQuoteString(conn, terra::crs(raster))
   
   nameq <- dbTableNameFix(conn, name)
   namef <- dbTableNameFix(conn, name, as.identifier = FALSE)
@@ -104,7 +105,17 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
     # 1. create raster table
     tmp.query <- paste0("CREATE TABLE ", paste(nameq, collapse = "."), 
                         " (rid serial primary key, band_names text[], r_class character varying, r_proj4 character varying, rast raster);")
-    dbExecute(conn, tmp.query)
+    ## If the execute fails, postgis.raster extension is not installed?
+    tryCatch(
+      {
+        dbExecute(conn, tmp.query)
+      },
+      error = function(e) {
+        stop('Check if postgis.raster extension is created in the database.')
+        print(e)
+      }
+    )
+  
     n.base <- 0
     append <- F
   } else {
@@ -149,7 +160,7 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
   bnds <- dbQuoteString(conn, paste0("{{",paste(names(r1),collapse = "},{"),"}}"))
   
   srid <- 0
-  try(srid <- suppressMessages(pgSRID(conn, sf::st_crs(terra::crs(r1, proj = TRUE)), create.srid = TRUE)),
+  try(srid <- suppressMessages(pgSRID(conn, sf::st_crs(terra::crs(r1)), create.srid = TRUE)),
       silent = TRUE)
   
   # Warning about no CRS
