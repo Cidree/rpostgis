@@ -36,7 +36,7 @@
 ##'     'geom').
 ##' @param create.table character, schema and table of the PostgreSQL
 ##'     table to create (actual table creation will be done in later
-##'     in pgInsert().) Column names will be converted to
+##'     in pgWriteGeom().) Column names will be converted to
 ##'     PostgreSQL-compliant names. Default is \code{NULL} (no new
 ##'     table created).
 ##' @param force.match character, schema and table of the PostgreSQL
@@ -100,7 +100,7 @@
 ##' ## Insert data in database table (note that an error will be given if
 ##' ## all insert columns do not have exactly matching database table
 ##' ## columns)
-##' pgInsert(conn = conn, data.obj = pgi.new)
+##' pgWriteGeom(conn = conn, data.obj = pgi.new)
 ##'
 ##' ## Inserting into existing table
 ##' pgi.existing <- pgInsertizeGeom(spdf, geom = "point_geom", force.match = c("schema",
@@ -110,7 +110,7 @@
 ##' ## make name DB-compliant). All other columns are prepared for insert.
 ##' print(pgi.existing)
 ##'
-##' pgInsert(conn = conn, data.obj = pgi.existing)
+##' pgWriteGeom(conn = conn, data.obj = pgi.existing)
 ##' }
 
 pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
@@ -205,10 +205,10 @@ pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
     typematch <- data.frame(
       sf = c("POINT", "LINESTRING", "POLYGON", "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON",
              "CURVE", "MULTICURVE", "SURFACE", "MULTISURFACE", "GEOMETRYCOLLECTION",
-             "COMPOUNDCURVE", "CURVEPOLYGON"), 
+             "COMPOUNDCURVE", "CURVEPOLYGON", "GEOMETRY"), 
       pgis = c("Point","LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon",
                "Curve", "MultiCurve", "Surface", "MultiSurface", "GeometryCollection",
-               "CompoundCurve", "CurvePolygon"), 
+               "CompoundCurve", "CurvePolygon", "Geometry"), 
       stringsAsFactors = FALSE)
     g.typ <- as.character(sf::st_geometry_type(data.obj, by_geometry = FALSE))
     sptype <- pmatch(typematch$sf, g.typ)
@@ -289,57 +289,108 @@ pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
   close <- "',"
   
   ## Conversion of geometries -------------- TRY ALL
-  # point ok
-  # Multipolygon ok
-  # multiline and line ok
-  if (geog) cast <- "::geography" else cast <- NULL
-  
-  ## Get geometry in WKT format
-  geom.1 <- sf::st_as_text(sf::st_geometry(data.obj))
-  
-  ## Get data frame ready for database
-  if (length(colnames(dat)) == 0) {
-    df    <- data.frame(geom.1)
-    open  <- NULL
-    close <- NULL
-  } else {
-    df    <- cbind(dat, geom.1)
-  }
-  df[] <- lapply(df, as.character)
-  
-  ## Set all NA to NULL
-  df[is.na(df)] <- "NULL"
-  ## Double all single ' to escape. Format rows of data frame
-  if (!is.na(proj[1])) {
-    if (multi == TRUE) {
-      d1 <- apply(df, 1, function(x) paste0("(", open,
-                                            toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
-                                                                               1], fixed = TRUE), collapse = "','")), close,
-                                            "ST_Multi(ST_GeomFromText('", x[length(colnames(df))],
-                                            "',", proj[1], "))", cast, ")"))
+  if ((multi & !as.character(sf::st_geometry_type(data.obj, 
+                                                 by_geometry = FALSE)) %in% c("MULTILINESTRING")) | geog ) {
+    ## wkt conversion, multipolygons not handled correctly by wkb
+    ## at this time, and wkb only outputs MULTILINESTRINGS (so all
+    ## linestrings are sent using WKT)
+    if (geog) cast <- "::geography" else cast <- NULL
+    
+    ## Get geometry in WKT format
+    geom.1 <- sf::st_as_text(sf::st_geometry(data.obj))
+    
+    ## Get data frame ready for database
+    if (length(colnames(dat)) == 0) {
+      df    <- data.frame(geom.1)
+      open  <- NULL
+      close <- NULL
     } else {
-      d1 <- apply(df, 1, function(x) paste0("(", open,
-                                            toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
-                                                                               1], fixed = TRUE), collapse = "','")), close,
-                                            "ST_GeomFromText('", x[length(colnames(df))],
-                                            "',", proj[1], ")", cast, ")"))
+      df    <- cbind(dat, geom.1)
+    }
+    df[] <- lapply(df, as.character)
+    
+    ## Set all NA to NULL
+    df[is.na(df)] <- "NULL"
+    ## Double all single ' to escape. Format rows of data frame
+    if (!is.na(proj[1])) {
+      if (multi == TRUE) {
+        d1 <- apply(df, 1, function(x) paste0("(", open,
+                                              toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
+                                                                                 1], fixed = TRUE), collapse = "','")), close,
+                                              "ST_Multi(ST_GeomFromText('", x[length(colnames(df))],
+                                              "',", proj[1], "))", cast, ")"))
+      } else {
+        d1 <- apply(df, 1, function(x) paste0("(", open,
+                                              toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
+                                                                                 1], fixed = TRUE), collapse = "','")), close,
+                                              "ST_GeomFromText('", x[length(colnames(df))],
+                                              "',", proj[1], ")", cast, ")"))
+      }
+    } else {
+      warning("Spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0).")
+      if (multi == TRUE) {
+        d1 <- apply(df, 1, function(x) paste0("(", open,
+                                              toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
+                                                                                 1], fixed = TRUE), collapse = "','")), close,
+                                              "ST_Multi(ST_GeomFromText('", x[length(colnames(df))],
+                                              "'))", cast, ")"))
+      } else {
+        d1 <- apply(df, 1, function(x) paste0("(", open,
+                                              toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
+                                                                                 1], fixed = TRUE), collapse = "','")), close,
+                                              "ST_GeomFromText('", x[length(colnames(df))],
+                                              "')", cast, ")"))
+      }
     }
   } else {
-    warning("Spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0).")
-    if (multi == TRUE) {
-      d1 <- apply(df, 1, function(x) paste0("(", open,
-                                            toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
-                                                                               1], fixed = TRUE), collapse = "','")), close,
-                                            "ST_Multi(ST_GeomFromText('", x[length(colnames(df))],
-                                            "'))", cast, ")"))
+    ## binary conversion
+    message("Using st_as_binary from sf package...")
+    geom.1 <- unlist(lapply(sf::st_as_binary(sf::st_geometry(data.obj)), function(x) {
+      paste(x, collapse = "")
+    }))
+    if (length(colnames(dat)) == 0) {
+      df <- data.frame(geom.1)
+      open <- NULL
+      close <- NULL
     } else {
-      d1 <- apply(df, 1, function(x) paste0("(", open,
-                                            toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
-                                                                               1], fixed = TRUE), collapse = "','")), close,
-                                            "ST_GeomFromText('", x[length(colnames(df))],
-                                            "')", cast, ")"))
+      df <- cbind(dat, geom.1)
+    }
+    df[] <- lapply(df, as.character)
+    
+    ## Set all NA to NULL
+    df[is.na(df)] <- "NULL"
+    
+    ## Double all single quotes to escape. Format rows of data frame.
+    if (!is.na(proj[1])) {
+      if (multi == TRUE) {
+        d1 <- apply(df, 1, function(x) paste0("(", open,
+                                              toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
+                                                                                 1], fixed = TRUE), collapse = "','")), close,
+                                              "ST_Multi(ST_SetSRID('", x[length(colnames(df))],
+                                              "'::geometry,", proj[1], ")))"))
+      } else {
+        d1 <- apply(df, 1, function(x) paste0("(", open,
+                                              toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
+                                                                                 1], fixed = TRUE), collapse = "','")), close,
+                                              "ST_SetSRID('", x[length(colnames(df))], "'::geometry,",
+                                              proj[1], "))"))
+      }
+    } else {
+      warning("Spatial projection is unknown/unsupported and will be NA in insert object (SRID = 0).")
+      if (multi == TRUE) {
+        d1 <- apply(df, 1, function(x) paste0("(", open,
+                                              toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
+                                                                                 1], fixed = TRUE), collapse = "','")), close,
+                                              "ST_Multi('", x[length(colnames(df))], "'))"))
+      } else {
+        d1 <- apply(df, 1, function(x) paste0("(", open,
+                                              toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
+                                                                                 1], fixed = TRUE), collapse = "','")), close,
+                                              "'", x[length(colnames(df))], "')"))
+      }
     }
   }
+ 
   
   ## Fix NULLs, collapse with commas, and generate the pgi object
   d1 <- gsub("'NULL'", "NULL", d1)
@@ -366,13 +417,13 @@ pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
 ##'
 ##' ## Insert data in database table (note that an error will be given if
 ##' ## all insert columns do not match exactly to database table columns)
-##' pgInsert(conn, data.obj = values, name = c("schema", "table"))
+##' pgWriteGeom(conn, data.obj = values, name = c("schema", "table"))
 ##'
 ##' ## Run with forced matching of database table column names
 ##' values <- pgInsertize(data.obj = data, force.match = c("schema",
 ##'     "table"), conn = conn)
 ##'
-##' pgInsert(conn, data.obj = values)
+##' pgWriteGeom(conn, data.obj = values)
 ##' }
 
 pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL, 
