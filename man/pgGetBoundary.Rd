@@ -4,7 +4,7 @@
 \alias{pgGetBoundary}
 \title{Retrieve bounding envelope of geometries or rasters.}
 \usage{
-pgGetBoundary(conn, name, geom = "geom", clauses = NULL)
+pgGetBoundary(conn, name, geom = "geom", clauses = NULL, returnclass = "sf")
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -20,13 +20,17 @@ you will need to change the default value}
 \item{clauses}{character, additional SQL to append to modify select
 query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.}
+
+\item{returnclass}{'sf' by default; 'terra' for \code{SpatVector}; 
+or 'sp' for \code{sp} objects.}
 }
 \value{
-object of class \code{sfc} (list-column with geometries)
+object of class sfc (list-column with geometries); 
+    SpatVector or sp object
 }
 \description{
 Retrieve bounding envelope (rectangle) of all geometries or
-rasters in a PostGIS table.
+rasters in a PostGIS table as a \code{sfc} object.
 }
 \examples{
 \dontrun{

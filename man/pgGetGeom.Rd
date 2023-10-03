@@ -9,10 +9,11 @@ pgGetGeom(
   name,
   geom = "geom",
   gid = NULL,
-  cols = TRUE,
+  other.cols = TRUE,
   clauses = NULL,
   boundary = NULL,
-  query = NULL
+  query = NULL,
+  returnclass = "sf"
 )
 }
 \arguments{
@@ -25,13 +26,13 @@ c("schema","table")})}
 \item{geom}{The name of the geometry/(geography) column. (Default = \code{"geom"})}
 
 \item{gid}{Name of the column in \code{name} holding the IDs. Should be
-unique for each record to return. \code{gid=NULL} (default) automatically creates a
-new unique ID for each row in the \code{sf} object.}
+unique for each record to return. \code{gid=NULL} (default) automatically
+creates a new unique ID for each row in the \code{sf} object.}
 
-\item{cols}{Names of specific columns in the table to
-retrieve, in a character vector (e.g. \code{cols=c("col1","col2")}.)
-The default (\code{cols = TRUE}) is to attach
-all columns. Setting \code{cols=FALSE} will return a Spatial-only 
+\item{other.cols}{Names of specific columns in the table to
+retrieve, in a character vector (e.g. \code{other.cols.=c("col1","col2")}.)
+The default (\code{other.cols = TRUE}) is to attach
+all columns. Setting \code{other.cols=FALSE} will return a Spatial-only 
 object without attributes (no data frame).}
 
 \item{clauses}{character, additional SQL to append to modify select
@@ -40,27 +41,30 @@ query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 
 \item{boundary}{\code{sf}, \code{SpatVector} or \code{sp} object; or numeric. 
 If a spatial object is provided, its bounding box will be used to select
-geometries to import. Alternatively, a numeric vector (\code{c([xmin], 
-[ymin], [xmax], [ymax])}) indicating the projection-specific limits with
+geometries to import. Alternatively, a numeric vector (\code{c([top], 
+[bottom], [right], [left])}) indicating the projection-specific limits with
  which to subset the spatial data. If not value is provided, the default
 \code{boundary = NULL} will not apply any boundary subset.}
 
 \item{query}{character, a full SQL query including a geometry column. 
 For use with query mode only (see details).}
+
+\item{returnclass}{'sf' by default; 'terra' for \code{SpatVector}; 
+or 'sp' for \code{sp} objects.}
 }
 \value{
-sf object
+sf, SpatVector or sp object
 }
 \description{
-Retrieve point, linestring, or polygon geometries from a PostGIS
-table/view/query, and convert it to an R \code{sf} object.
+Retrieve geometries from a PostGIS table/view/query, and convert 
+it to an R \code{sf} object.
 }
 \details{
 The features of the table to retrieve must have the same geometry type. 
 The query mode version of \code{pgGetGeom} allows the user to enter a
-complete SQL query (\code{query}) that returns a Geometry column, and save the query
-as a new view (\code{name}) if desired. If (\code{name}) is not specified,
-a temporary view with name ".rpostgis_TEMPview" is used only
+complete SQL query (\code{query}) that returns a Geometry column, and save 
+the query as a new view (\code{name}) if desired. If (\code{name}) is not
+specified, a temporary view with name ".rpostgis_TEMPview" is used only
 within the function execution. In this mode, the other arguments can be used 
 normally to modify the Spatial* object returned from the query.
 }
@@ -70,15 +74,15 @@ normally to modify the Spatial* object returned from the query.
 ## 'schema.tablename', with geometry in the column 'geom'
 pgGetGeom(conn, c("schema", "tablename"))
 ## Return a sf with columns c1 & c2 as data
-pgGetGeom(conn, c("schema", "tablename"), cols = c("c1","c2"))
+pgGetGeom(conn, c("schema", "tablename"), other.cols = c("c1","c2"))
 ## Return a spatial-only (no data frame), 
 ## retaining id from table as rownames
 pgGetGeom(conn, c("schema", "tablename"), gid = "table_id",
-  cols = FALSE)
+  other.cols = FALSE)
 ## Return a spatial-only (no data frame), 
 ## retaining id from table as rownames and with a subset of the data
 pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
-    cols = FALSE, clauses  = "WHERE road_type = 'highway'")
+    other.cols = FALSE, clauses  = "WHERE road_type = 'highway'")
 ## Query mode
 pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom 
                            FROM

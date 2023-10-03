@@ -7,11 +7,15 @@ OVERALL CHAGNES
 
 * Transition of `rpostgis` to the `sf`/`terra` ecosystem.
 
-* `pgGetBoundary`: now returns a `sfc` object (i.e. a list-column with geometries).
+* The functions `pgGet*` have a new argument `returnclass`, and a function message to inform about the output class.
 
-* `pgGetGeom`: the argument `boundary` now accepts also `sf` and `SpatVector` objects. The object returned by this function has changed to a `sf` object.
+* The function `pgInsert` has been deprecated in favour of `pgWriteGeom`. The reason of this change is to keep naming consistency with other functions of the package. We added a function message to inform about the deprecation.
 
-* `pgGetRast`: added details about the functioning of the argument `bands`; allow `sf` and `SpatVector` objects in the argument `boundary`; the output of this function is now a `terra SpatRaster`.
+* `pgGetBoundary`: now returns a `sfc` object (i.e. a list-column with geometries) by default, and the new argument `returnclass` allows to choose also `terra` for `SpatVector` objects, or `sp` for `Spatial*` objects.
+
+* `pgGetGeom`: the argument `boundary` now accepts also `sf` and `SpatVector` objects. The object returned by this function has changed to a `sf` object by default, and the new argument `returnclass` allows to choose also `terra` for `SpatVector` objects, or `sp` for `Spatial*` objects.
+
+* `pgGetRast`: added details about the functioning of the argument `bands`; allow `sf` and `SpatVector` objects in the argument `boundary`; the output of this function is now a `terra SpatRaster` by default, but `raster` objects can be specified by the new argument `returnclass`. Add a progress bar to measure the progress of the import.
 
 * `pgInsert`: now it is possible to insert `sf` and `SpatVector` objects in the argument `data.obj`. It is also possible to insert any geometry type existing for `sf` objects (i.e. simple and multi point, linestring, polygon, curve, surface; and other complex geometries such as compound curve, curve polygon and geometrycollection). 
 

@@ -34,7 +34,8 @@ Imports:
     tidyr,
     sf,
     glue,
-    rlang
+    rlang,
+    raster
 Suggests:
     RPostgres,
     testthat (>= 3.0.0)

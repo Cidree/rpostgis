@@ -36,7 +36,7 @@ definitions will be written.}
 Write \code{data.frame} or similar (e.g. \code{tibble}) to database table, 
 with column definitions, row names, and a new integer primary key column. 
 Read back into R with \code{dbReadDataFrame}, which recreates original 
-data as a tibble.
+data.
 }
 \details{
 Writing in data frame mode is only for new database tables (or for
@@ -55,10 +55,10 @@ created in data frame mode to recreate a data.frame in R, if it is
 available. Otherwise, it will be imported using default
 \code{RPostgreSQL::dbGetQuery} methods.
 
-All spatial objects must be written with \code{\link[rpostgis]{pgInsert}}.
+All spatial objects must be written with \code{\link[rpostgis]{pgWriteGeom}}.
 For more flexible writing of \code{data.frame}s to the database
 (including all writing into existing database tables), use
-\code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
+\code{\link[rpostgis]{pgWriteGeom}} with \code{df.mode = FALSE}.
 }
 \examples{
 \dontrun{

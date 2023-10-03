@@ -2,7 +2,7 @@
 % Please edit documentation in R/pgGetRast.R
 \name{pgGetRast}
 \alias{pgGetRast}
-\title{Load raster from PostGIS database.}
+\title{Load raster from PostGIS database into R.}
 \usage{
 pgGetRast(
   conn,
@@ -10,7 +10,8 @@ pgGetRast(
   rast = "rast",
   bands = 1,
   boundary = NULL,
-  clauses = NULL
+  clauses = NULL,
+  returnclass = "terra"
 )
 }
 \arguments{
@@ -27,32 +28,34 @@ Defaults to "rast".}
 The special case (\code{bands = TRUE}) returns all bands in the raster. See
 also 'Details'}
 
-\item{boundary}{\code{sf} object, \code{SpatVector} object, or numeric. If a spatial object
-is provided, its bounding box will be used to select the part of the raster
-to import. Alternatively, a numeric vector (\code{c([xmin], [ymin], [xmax], [ymax])}) 
-indicating the projection-specific limits with which to clip the raster. If
-not value is provided, the default \code{boundary = NULL} will return the 
+\item{boundary}{\code{sf} object, \code{SpatVector} object, or numeric. If a
+spatial object is provided, its bounding box will be used to select
+the part of the raster to import. Alternatively, a numeric vector
+(\code{c([top], [bottom], [right], [left])}) indicating the 
+projection-specific limits with which to clip the raster. If not value 
+is provided, the default \code{boundary = NULL} will return the 
 full raster.}
 
 \item{clauses}{character, optional SQL to append to modify select
 query from table. Must begin with 'WHERE'.}
+
+\item{returnclass}{'terra' by default; or 'raster' for \code{raster} objects.}
 }
 \value{
-A \code{terra SpatRaster} object
+\code{SpatRaster}; \code{raster}; or \code{RasterStack} object
 }
 \description{
 Retrieve rasters from a PostGIS table into a \code{terra SpatRaster} object
 }
 \details{
-Since version 1.5, this function retrieve SpatRaster objects from \code{terra} 
-package. If you write \code{raster}-class objects using 
-\code{"\link[rpostgis]{pgWriteRast}"}, this function will
-return a \code{terra} object instead. 
+Since version 1.5, this function retrieve SpatRaster objects from 
+\code{terra} package by default. The argument \code{returnclass} can be 
+used to return \code{raster} objects instead.
 
 The argument \code{bands} can take as argument:
 
 * The index of the desirable band (e.g. bands = 2 will fetch the second band
-ot the raster).
+of the raster).
 
 * More than one index for several bands (e.g. bands = c(2,4) will return a
 \code{SpatRaster} with two bands).
@@ -62,8 +65,8 @@ ot the raster).
 \examples{
 \dontrun{
 pgGetRast(conn, c("schema", "tablename"))
-pgGetRast(conn, c("schema", "DEM"), boundary = c(12,
-    50, 17, 55))
+pgGetRast(conn, c("schema", "DEM"), boundary = c(55,
+    50, 17, 12))
 }
 }
 \author{
