@@ -23,10 +23,10 @@
 #' available. Otherwise, it will be imported using default
 #' \code{RPostgreSQL::dbGetQuery} methods.
 #' 
-#' All spatial objects must be written with \code{\link[rpostgis]{pgInsert}}.
+#' All spatial objects must be written with \code{\link[rpostgis]{pgWriteGeom}}.
 #' For more flexible writing of \code{data.frame}s to the database
 #' (including all writing into existing database tables), use
-#' \code{\link[rpostgis]{pgInsert}} with \code{df.mode = FALSE}.
+#' \code{\link[rpostgis]{pgWriteGeom}} with \code{df.mode = FALSE}.
 #'
 #' @param conn A connection object to a PostgreSQL database
 #' @param name Character, schema and table of the PostgreSQL table
@@ -136,7 +136,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
   attr2[!fact == "/*//*/"] <- fact[!fact == "/*//*/"]
   ## end factor
   
-  ## handle spatial p4s (found using .rpostgis.geom. in column name, from pgInsert)
+  ## handle spatial p4s (found using .rpostgis.geom. in column name, from pgWriteGeom)
   sp.index <- grep(".rpostgis.geom.",names(d))
   if (length(sp.index) > 0) {
     types[sp.index] <- "Spatial"
@@ -160,7 +160,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
   
   ## Insert table definitions in .R_df_defs
   suppressMessages({
-    pgInsert(conn, c(name[1], ".R_df_defs"), defs2, 
+    pgWriteGeom(conn, c(name[1], ".R_df_defs"), defs2, 
              upsert.using = "table_nm", row.names = FALSE)
   })
   
@@ -170,7 +170,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
       ## Create ".db_pkid" -> unique ID as primary key
       d <- data.frame(.db_pkid = 1:length(d[, 1]), d)
       # dbWriteTable(conn, name, d, row.names = FALSE) # doesn't work w/ RPostgres
-      pgInsert(conn, name, data.obj = d)
+      pgWriteGeom(conn, name, data.obj = d)
       dbAddKey(conn, name, colname = ".db_pkid", type = "primary")
     })
     message("Data frame written to table ", 
