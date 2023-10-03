@@ -289,8 +289,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
   close <- "',"
   
   ## Conversion of geometries -------------- TRY ALL
-  if ((multi & !as.character(sf::st_geometry_type(data.obj, 
-                                                 by_geometry = FALSE)) %in% c("MULTILINESTRING")) | geog ) {
+  if (geog) {
     ## wkt conversion, multipolygons not handled correctly by wkb
     ## at this time, and wkb only outputs MULTILINESTRINGS (so all
     ## linestrings are sent using WKT)
