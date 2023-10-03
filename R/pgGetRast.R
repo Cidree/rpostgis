@@ -5,10 +5,9 @@
 ##' Retrieve rasters from a PostGIS table into a \code{terra SpatRaster} object
 ##' 
 ##' 
-##' Since version 1.5, this function retrieve SpatRaster objects from \code{terra} 
-##' package. If you write \code{raster}-class objects using 
-##' \code{"\link[rpostgis]{pgWriteRast}"}, this function will
-##' return a \code{terra} object instead. 
+##' Since version 1.5, this function retrieve SpatRaster objects from 
+##' \code{terra} package by default. The argument \code{returnclass} can be 
+##' used to return \code{raster} objects instead.
 ##' 
 ##' The argument \code{bands} can take as argument:
 ##' 
@@ -39,13 +38,15 @@
 ##'     projection-specific limits with which to clip the raster. If not value 
 ##'     is provided, the default \code{boundary = NULL} will return the 
 ##'     full raster.
+##' @param returnclass 'terra' by default; or 'raster' for \code{raster} objects.
 ##'      
 ##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrián Cidre
 ##' González \email{adrian.cidre@@gmail.com}
 ##' @importFrom terra rast ext crs crop
 ##' @importFrom sf st_crs st_bbox
+##' @importFrom raster raster stack
 ##' @export
-##' @return A \code{terra SpatRaster} object
+##' @return \code{SpatRaster}; \code{raster}; or \code{RasterStack} object
 ##' @examples
 ##' \dontrun{
 ##' pgGetRast(conn, c("schema", "tablename"))
@@ -54,8 +55,11 @@
 ##' }
 
 pgGetRast <- function(conn, name, rast = "rast", bands = 1,
-    boundary = NULL, clauses = NULL) {
- 
+    boundary = NULL, clauses = NULL, returnclass = "terra") {
+  
+  ## Message
+  message("Since version 1.5 this function outputs SpatRaster objects by default. Use returnclass = 'raster' to return raster objects.")
+  
   ## Check connection and PostGIS extension
   dbConnCheck(conn)
   if (!suppressMessages(pgPostGIS(conn))) {
@@ -107,11 +111,12 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   }
   ## Retrieve the proj4string
   p4s <- NA
-  tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
-                      srid$st_srid, ";")
+  # tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
+  #                     srid$st_srid, ";")
+  tmp.query <- glue::glue("SELECT r_proj4 AS p4s FROM {nameque};")
   db.proj4 <- dbGetQuery(conn, tmp.query)$p4s
   if (!is.null(db.proj4)) {
-    try(p4s <- sf::st_crs(db.proj4)$proj4string, silent = TRUE)
+    try(p4s <- terra::crs(db.proj4), silent = TRUE)
   }
   if (is.na(p4s)) {
     warning("Table SRID not found. Projection will be undefined (NA)")
@@ -243,9 +248,24 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   
   # precise cropping
   if (!is.null(boundary)) {
-    rb2 <- terra::crop(rb, extclip)
+    rb_final <- terra::crop(rb, extclip)
+  } else {
+    rb_final <- rb
   }
   
-  return(rb)
+  # Output terra or raster
+  if (returnclass == "terra") {
+    return(rb_final)
+  } else if (returnclass == "raster") {
+    if (terra::nlyr(rb_final) == 1) {
+      return(raster::raster(rb_final))
+    } else {
+      return(raster::stack(rb_final))
+    }
+  } else {
+    stop("returnclass must be one of 'terra' or 'raster'")
+  }
+  
+  
   
 }

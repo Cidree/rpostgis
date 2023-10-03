@@ -38,7 +38,9 @@
 ##'     \code{boundary = NULL} will not apply any boundary subset.
 ##' @param query character, a full SQL query including a geometry column. 
 ##'     For use with query mode only (see details).
-##' @return sf object
+##' @param returnclass 'sf' by default; 'terra' for \code{SpatVector}; 
+##'     or 'sp' for \code{sp} objects.
+##' @return sf, SpatVector or sp object
 ##' @importFrom sf st_crs st_as_sf
 ##' @importFrom dplyr rename
 ##' @export
@@ -72,7 +74,10 @@
 ##' }
 
 pgGetGeom <- function(conn, name, geom = "geom", gid = NULL, 
-         other.cols = TRUE, clauses = NULL, boundary = NULL, query = NULL) {
+         other.cols = TRUE, clauses = NULL, boundary = NULL, query = NULL,
+         returnclass = "sf") {
+
+  
   ## Check connection and PostGIS extension
   dbConnCheck(conn)
   if (!suppressMessages(pgPostGIS(conn))) {
@@ -130,7 +135,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
                   collapse = ",")
   } else {
     ## Else -> TRUE all columns, FALSE only geometry
-    if (cols & sum(!dbTableInfo(conn,
+    if (other.cols & sum(!dbTableInfo(conn,
                                 name)$column_name %in% c(".R_rownames",".db_pkid", gid, geom)) > 0) {
       cols <- "*"
     } else {
@@ -215,8 +220,8 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     
     # Fix columns
     if (!is.null(cols)) {
-      cols <- colnames(dbData)[3:length(colnames(dbData))]
-      cols <- cols[!(cols %in% c(geom))]
+      cols <- colnames(dbData)
+      cols <- cols[!(cols %in% c("wkt", geom))]
       dfr  <- dbData[cols]
       if (gid == "\".R_rownames\"") suppressMessages(dfr <- dbReadDataFrame(conn, name, df = dfr))
       cname      <- c(names(dfr), geom)
@@ -233,7 +238,16 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     
   }
   
-  return(sp)
+  # Return class
+  if (returnclass == "sf") {
+    return(sp)
+  } else if (returnclass == "sp") {
+    return(sf::as_Spatial(sp)) 
+  } else if (returnclass == "terra") {
+    return(terra::vect(sp))
+  } else {
+    stop("returnclass must be 'sf' or 'sp'")
+  }
   
 }
 
