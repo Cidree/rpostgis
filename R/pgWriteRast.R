@@ -45,9 +45,6 @@
 ##' @importFrom sf st_crs
 ##' @importFrom methods as
 ##' @importFrom purrr pmap
-##' @importFrom dplyr group_by mutate ungroup %>%
-##' @importFrom tidyr crossing
-##' @importFrom rlang .data
 ##' @export
 ##' @return TRUE for successful import.
 ##' 
@@ -169,12 +166,16 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
   }
   
   # Grid with all band/block combinations
-  rgrid <- tidyr::crossing(band = 1:terra::nlyr(r1), 
-                           trn  = 1:tr$n, 
-                           crn  = 1:cr$n) %>% 
-    dplyr::group_by(.data$band) %>% 
-    dplyr::mutate(n = seq(from = n.base + 1, by = 1, length.out = dplyr::n())) %>% 
-    dplyr::ungroup() 
+  crossed_df <- expand.grid(trn = 1:tr$n, 
+                            crn = 1:cr$n,
+                            band = 1:terra::nlyr(r1))
+  
+  n <- unlist(tapply(crossed_df$band, 
+                     crossed_df$band,
+                     function(x) seq(from = n.base + 1, by = 1, length.out = length(x))))
+  
+  rgrid <- cbind(crossed_df, n = n)
+  
   
   # Function to export a block
   export_block <- function(band, trn, crn, n) {

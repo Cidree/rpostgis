@@ -42,7 +42,6 @@
 ##'     or 'sp' for \code{sp} objects.
 ##' @return sf, SpatVector or sp object
 ##' @importFrom sf st_crs st_as_sf
-##' @importFrom dplyr rename
 ##' @export
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
@@ -230,7 +229,8 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
       
     } else { 
       if (geom %in% names(dbData)) try(dbData <- dbData[, -which(names(dbData) == geom)], silent = TRUE)
-      dfr <- dplyr::rename(dbData, geom = "wkt")
+      names(dbData)[names(dbData) == "wkt"] <- "geom"
+      dfr <- dbData
     }
     
     ## Create sf object

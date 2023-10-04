@@ -1,5 +1,5 @@
 Package: rpostgis
-Version: 1.4.4
+Version: 1.5
 Date: 2023-05-06
 Title: R Interface to a 'PostGIS' Database
 Description: Provides an interface between R and 'PostGIS'-enabled
@@ -29,12 +29,9 @@ Imports:
     sp,
     stats,
     terra,
-    dplyr,
     purrr,
-    tidyr,
     sf,
     glue,
-    rlang,
     raster
 Suggests:
     RPostgres,
