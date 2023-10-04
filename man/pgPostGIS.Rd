@@ -35,7 +35,7 @@ extension.}
 \code{TRUE}).}
 }
 \value{
-\code{TRUE} if PostGIS is installed.
+If \code{exec = TRUE}, returns \code{TRUE} if PostGIS is installed.
 }
 \description{
 The function checks for the availability of the PostGIS extension,

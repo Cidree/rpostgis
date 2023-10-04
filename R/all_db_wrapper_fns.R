@@ -25,7 +25,7 @@
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return \code{TRUE} if the key was successfully added.
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the key was successfully added.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
@@ -170,8 +170,8 @@ dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return \code{TRUE} if the column was successfully added or
-##'     removed.
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the column was 
+##' successfully added or removed.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
@@ -190,7 +190,7 @@ dbColumn <- function(conn, name, colname, action = c("add", "drop"),
     ## Check and prepare the schema.name
     name <- dbTableNameFix(conn,name)
     nameque <- paste(name, collapse = ".")
-    colname<-DBI::dbQuoteIdentifier(conn,colname)
+    colname <- DBI::dbQuoteIdentifier(conn,colname)
     ## Check and translate to upper case the action
     action <- toupper(match.arg(action))
     ## 'args' for the coltype or cascade
@@ -211,7 +211,7 @@ dbColumn <- function(conn, name, colname, action = c("add", "drop"),
         dbExecute(conn, tmp.query)
     }
     ## Return TRUE
-    if(exec) return(TRUE)
+    if (exec) return(TRUE)
 }
 
 ## dbComment
@@ -230,14 +230,15 @@ dbColumn <- function(conn, name, colname, action = c("add", "drop"),
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return \code{TRUE} if the comment was successfully applied.
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the comment was
+##' successfully applied.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-comment.html}
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' ## examples use a dummy connection from DBI package
-##' conn<-DBI::ANSI()
+##' conn <- DBI::ANSI()
 ##' dbComment(conn, name = c("schema", "table"), comment = "Comment on a view.",
 ##'     type = "view", exec = FALSE)
 ##' dbComment(conn, name = "test_schema", comment = "Comment on a schema.", type = "schema",
@@ -253,10 +254,10 @@ dbComment <- function(conn, name, comment, type = c("table",
       nameque <- paste(name, collapse = ".")
     } else {
       if (length(name) > 1) {stop("Schemas should be a character of length = 1.")}
-      nameque<-DBI::dbQuoteIdentifier(conn,name)
+      nameque <- DBI::dbQuoteIdentifier(conn,name)
     }
     ## Escape single "'"
-    comment<-gsub("'","''",comment)
+    comment <- gsub("'","''",comment)
     ## Build the query
     tmp.query <- paste0("COMMENT ON ", type, " ", nameque, " IS '",
         comment, "';")
@@ -272,7 +273,7 @@ dbComment <- function(conn, name, comment, type = c("table",
         dbExecute(conn, tmp.query)
     }
     ## Return true
-    if(exec) return(TRUE)
+    if (exec) return(TRUE)
 }
 
 ## dbDrop
@@ -293,8 +294,8 @@ dbComment <- function(conn, name, comment, type = c("table",
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return \code{TRUE} if the table/schema/view was successfully
-##'     dropped.
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the table/schema/view 
+##' was successfully dropped.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-droptable.html},
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-dropview.html},
@@ -303,7 +304,7 @@ dbComment <- function(conn, name, comment, type = c("table",
 ##' @export
 ##' @examples
 ##' ## examples use a dummy connection from DBI package
-##' conn<-DBI::ANSI()
+##' conn <- DBI::ANSI()
 ##' dbDrop(conn, name = c("schema", "view_name"), type = "view", exec = FALSE)
 ##' dbDrop(conn, name = "test_schema", type = "schema", cascade = "TRUE", exec = FALSE)
 
@@ -316,7 +317,7 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
       nameque <- paste(name, collapse = ".")
     } else {
       if (length(name) > 1) {stop("Schemas should be a character of length = 1.")}
-      nameque<-DBI::dbQuoteIdentifier(conn,name)
+      nameque <- DBI::dbQuoteIdentifier(conn,name)
     }
     ## Argument IF EXISTS
     ifexists <- ifelse(ifexists, " IF EXISTS ", " ")
@@ -337,7 +338,7 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
         dbExecute(conn, tmp.query)
     }
     ## Return true
-    if(exec) return(TRUE)
+    if (exec) return(TRUE)
 }
 
 
@@ -372,7 +373,8 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return \code{TRUE} if the index was successfully created.
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the index was 
+##' successfully created.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-createindex.html};
 ##'     the PostGIS documentation for GiST indexes:
@@ -446,13 +448,13 @@ dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
 ##'     it does not exists.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
-##' @return \code{TRUE} if the schema exists (whether it was already
-##'     available or was just created).
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the schema exists 
+##' (whether it was already available or was just created).
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' \dontrun{
-##'     dbSchema(name = "schema", exec = FALSE)
+##'     dbSchema(conn, name = "schema", exec = FALSE)
 ##' }
 
 dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
@@ -461,8 +463,8 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
     if (length(name) != 1)
         stop("The schema name should be of length 1.")
     ## make schema name
-    namechar<-DBI::dbQuoteString(conn,name)
-    nameque<-DBI::dbQuoteIdentifier(conn,name)
+    namechar <- DBI::dbQuoteString(conn,name)
+    nameque <- DBI::dbQuoteIdentifier(conn,name)
     ## Check existence of the schema
     tmp.query <- paste0("SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = ",
         namechar, ");")
@@ -483,7 +485,7 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
         if (exec)
             dbExecute(conn, tmp.query)
         ## Return true
-        if(exec) return(TRUE)
+        if (exec) return(TRUE)
     }
 }
 
@@ -511,7 +513,7 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
 dbTableInfo <- function(conn, name, allinfo = FALSE) {
     dbConnCheck(conn)
     ## only check if valid (error if not)
-    name <- dbTableNameFix(conn,name,as.identifier=FALSE)
+    name <- dbTableNameFix(conn, name, as.identifier = FALSE)
     if (allinfo) {
         cols <- "*"
     } else {
@@ -545,12 +547,12 @@ dbTableInfo <- function(conn, name, allinfo = FALSE) {
 ##'     \code{TRUE}).
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
-##' @return TRUE if query is successfully executed.
+##' @return If \code{exec = TRUE}, returns TRUE if query is successfully executed.
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
 ##' ## examples use a dummy connection from DBI package
-##' conn<-DBI::ANSI()
+##' conn <- DBI::ANSI()
 ##' dbVacuum(conn, name = c("schema", "table"), full = TRUE, exec = FALSE)
 
 dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
@@ -579,5 +581,5 @@ dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
         dbExecute(conn, tmp.query)
     }
     ## Return true
-    if(exec) return(TRUE)
+    if (exec) return(TRUE)
 }

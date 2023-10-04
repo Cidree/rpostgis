@@ -4,7 +4,7 @@
 \alias{pgGetBoundary}
 \title{Retrieve bounding envelope of geometries or rasters.}
 \usage{
-pgGetBoundary(conn, name, geom = "geom", clauses = NULL)
+pgGetBoundary(conn, name, geom = "geom", clauses = NULL, returnclass = "sf")
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database}
@@ -13,26 +13,32 @@ pgGetBoundary(conn, name, geom = "geom", clauses = NULL)
 table/view name holding the geometry (e.g., \code{name =
 c("schema","table")})}
 
-\item{geom}{character, Name of the column in \code{name} holding the
-geometry/(geography) or raster object (Default = \code{"geom"})}
+\item{geom}{A character string specifying the name of the geometry column
+in the table \code{name} (Default = \code{"geom"}). Note that for raster objects
+you will need to change the default value}
 
 \item{clauses}{character, additional SQL to append to modify select
 query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.}
+
+\item{returnclass}{'sf' by default; 'terra' for \code{SpatVector}; 
+or 'sp' for \code{sp} objects.}
 }
 \value{
-SpatialPolygon
+object of class sfc (list-column with geometries); 
+    SpatVector or sp object
 }
 \description{
 Retrieve bounding envelope (rectangle) of all geometries or
-rasters in a PostGIS table.
+rasters in a PostGIS table as a \code{sfc} object.
 }
 \examples{
 \dontrun{
-pgGetBoundary(conn, c("schema", "polys"), geom = "polygon")
+pgGetBoundary(conn, c("schema", "polys"), geom = "geom")
 pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 }
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com}
+David Bucklin \email{david.bucklin@gmail.com} and Adrian Cidre 
+González \email{adrian.cidre@gmail.com}
 }

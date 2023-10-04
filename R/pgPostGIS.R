@@ -21,7 +21,7 @@
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return \code{TRUE} if PostGIS is installed.
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if PostGIS is installed.
 ##' @author Mathieu Basille \email{basille@@ufl.edu}
 ##' @export
 ##' @examples
@@ -132,39 +132,39 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
     if (tiger) {
         ## Check if Tiger Geocoder is available:
         tiger_exts <- c("fuzzystrmatch", "postgis_tiger_geocoder", 
-            "address_standardizer", "address_standardizer_data_us")
+                        "address_standardizer", "address_standardizer_data_us")
         if (!all(tiger_exts %in% ext$name)) 
             message("PostGIS Tiger Geocoder extension not available.") else {
-            ## Extract it and check if installed; if not, install it:
-            tiger <- subset(ext, ((ext$name %in% tiger_exts) & 
-                is.na(ext$installed_version)))
-            if (length(tiger$name) > 0) {
-                ## Build the query
-                for (i in order(tiger[1])) {
-                  message(paste0("Installing ", tiger$name[i], 
-                    " extension version ", tiger$default_version[i]), 
-                    ":")
-                  query <- paste0("CREATE EXTENSION ", tiger$name[i], 
-                    ";")
-                  ## Display the query
-                  if (display) {
-                    message(paste0("Query ", ifelse(exec, "", 
-                      "not "), "executed:"))
-                    message(query)
-                    message("--")
-                  }
-                  ## Execute the query
-                  if (exec) 
-                    dbSendQuery(conn, query)
+                ## Extract it and check if installed; if not, install it:
+                tiger <- subset(ext, ((ext$name %in% tiger_exts) & 
+                                          is.na(ext$installed_version)))
+                if (length(tiger$name) > 0) {
+                    ## Build the query
+                    for (i in order(tiger$name)) {
+                        message(paste0("Installing ", tiger$name[i], 
+                                       " extension version ", tiger$default_version[i]), 
+                                ":")
+                        query <- paste0("CREATE EXTENSION ", tiger$name[i], 
+                                        ";")
+                        ## Display the query
+                        if (display) {
+                            message(paste0("Query ", ifelse(exec, "", 
+                                                            "not "), "executed:"))
+                            message(query)
+                            message("--")
+                        }
+                        ## Execute the query
+                        if (exec) 
+                            dbSendQuery(conn, query)
+                    }
                 }
+                ## Should now be installed; print a message if not:
+                ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
+                tiger <- subset(ext, ext$name == "postgis_tiger_geocoder")
+                if (is.na(tiger$installed_version)) 
+                    message("PostGIS Tiger Geocoder extension not installed.") else message(paste0("PostGIS Tiger Geocoder extension version ", 
+                                                                                                   tiger$installed_version, " installed."))
             }
-            ## Should now be installed; print a message if not:
-            ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
-            tiger <- subset(ext, ext$name == "postgis_tiger_geocoder")
-            if (is.na(tiger$installed_version)) 
-                message("PostGIS Tiger Geocoder extension not installed.") else message(paste0("PostGIS Tiger Geocoder extension version ", 
-                tiger$installed_version, " installed."))
-        }
     }
     ## SFCGAL extension
     if (sfcgal) {

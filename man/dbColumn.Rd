@@ -39,8 +39,8 @@ other tables, if \code{action = "drop"}.}
 \code{TRUE}).}
 }
 \value{
-\code{TRUE} if the column was successfully added or
-    removed.
+If \code{exec = TRUE}, returns \code{TRUE} if the column was 
+successfully added or removed.
 }
 \description{
 Add or remove a column to/from a table.

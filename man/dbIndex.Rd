@@ -50,7 +50,8 @@ raster).}
 \code{TRUE}).}
 }
 \value{
-\code{TRUE} if the index was successfully created.
+If \code{exec = TRUE}, returns \code{TRUE} if the index was 
+successfully created.
 }
 \description{
 Defines a new index on a PostgreSQL table.

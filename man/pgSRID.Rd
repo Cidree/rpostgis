@@ -9,8 +9,8 @@ pgSRID(conn, crs, create.srid = FALSE, new.srid = NULL)
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database.}
 
-\item{crs}{CRS object, created through a call to
-\code{\link[sp]{CRS}}.}
+\item{crs}{crs object, created through a call to
+\code{\link[sf]{st_crs}}.}
 
 \item{create.srid}{Logical. If no matching SRID is found, should a new
 SRID be created? User must have write access on
@@ -25,7 +25,7 @@ SRID. If left NULL (default), the next open value of
 SRID code (integer).
 }
 \description{
-This function takes \code{\link[sp]{CRS}}-class object and a
+This function takes \code{\link[sf]{st_crs}}-class object and a
 PostgreSQL database connection (with PostGIS extension), and
 returns the matching SRID(s) for that CRS. If a match is not
 found, a new entry can be created in the PostgreSQL
@@ -39,9 +39,9 @@ between 880001-889999 (a different SRID value can be entered if desired.)
 drv <- dbDriver("PostgreSQL")
 conn <- dbConnect(drv, dbname = "dbname", host = "host", port = "5432",
     user = "user", password = "password")
-(crs <- CRS("+proj=longlat"))
+(crs <- sf::st_crs("+proj=longlat"))
 pgSRID(conn, crs)
-(crs2 <- CRS(paste("+proj=stere", "+lat_0=52.15616055555555 +lon_0=5.38763888888889",
+(crs2 <- sf::st_crs(paste("+proj=stere", "+lat_0=52.15616055555555 +lon_0=5.38763888888889",
     "+k=0.999908 +x_0=155000 +y_0=463000", "+ellps=bessel",
     "+towgs84=565.237,50.0087,465.658,-0.406857,0.350733,-1.87035,4.0812",
     "+units=m")))
@@ -49,5 +49,6 @@ pgSRID(conn, crs2, create.srid = TRUE)
 }
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com}
+David Bucklin \email{david.bucklin@gmail.com} and Adrián Cidre 
+González \email{adrian.cidre@gmail.com}
 }

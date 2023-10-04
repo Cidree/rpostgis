@@ -7,7 +7,7 @@
 \usage{
 pgInsertizeGeom(
   data.obj,
-  geom = "geom",
+  geom = "geometry",
   create.table = NULL,
   force.match = NULL,
   conn = NULL,
@@ -41,7 +41,7 @@ database table. (existing or to be created; defaults to
 
 \item{create.table}{character, schema and table of the PostgreSQL
 table to create (actual table creation will be done in later
-in pgInsert().) Column names will be converted to
+in pgWriteGeom().) Column names will be converted to
 PostgreSQL-compliant names. Default is \code{NULL} (no new
 table created).}
 
@@ -97,8 +97,8 @@ pgi A list containing four character strings: (1)
     \code{pgInsert} function.
 }
 \description{
-These are internal rpostgis functions that take an R \code{sp} object (Spatial* or
-Spatial*DataFrame; for \code{pgInsertizeGeom}) or data frame (for
+These are internal rpostgis functions that take an R \code{sp} or \code{sf} object (Spatial*,
+Spatial*DataFrame or sf; for \code{pgInsertizeGeom}), or data frame (for
 \code{pgInsertize}) and return a \code{pgi} list object, which can
 be used in the function \code{pgInsert} to insert rows of the
 object into the database table. (Note that these functions do not
@@ -139,7 +139,7 @@ print(pgi.new)
 ## Insert data in database table (note that an error will be given if
 ## all insert columns do not have exactly matching database table
 ## columns)
-pgInsert(conn = conn, data.obj = pgi.new)
+pgWriteGeom(conn = conn, data.obj = pgi.new)
 
 ## Inserting into existing table
 pgi.existing <- pgInsertizeGeom(spdf, geom = "point_geom", force.match = c("schema",
@@ -149,7 +149,7 @@ pgi.existing <- pgInsertizeGeom(spdf, geom = "point_geom", force.match = c("sche
 ## make name DB-compliant). All other columns are prepared for insert.
 print(pgi.existing)
 
-pgInsert(conn = conn, data.obj = pgi.existing)
+pgWriteGeom(conn = conn, data.obj = pgi.existing)
 }
 \dontrun{
 ## Format regular (non-spatial) data frame for insert using
@@ -162,13 +162,13 @@ values <- pgInsertize(data.obj = data)
 
 ## Insert data in database table (note that an error will be given if
 ## all insert columns do not match exactly to database table columns)
-pgInsert(conn, data.obj = values, name = c("schema", "table"))
+pgWriteGeom(conn, data.obj = values, name = c("schema", "table"))
 
 ## Run with forced matching of database table column names
 values <- pgInsertize(data.obj = data, force.match = c("schema",
     "table"), conn = conn)
 
-pgInsert(conn, data.obj = values)
+pgWriteGeom(conn, data.obj = values)
 }
 }
 \author{

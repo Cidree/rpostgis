@@ -1,5 +1,5 @@
 Package: rpostgis
-Version: 1.4.4
+Version: 1.5
 Date: 2023-05-06
 Title: R Interface to a 'PostGIS' Database
 Description: Provides an interface between R and 'PostGIS'-enabled
@@ -8,10 +8,16 @@ Description: Provides an interface between R and 'PostGIS'-enabled
     supported in read and write modes. Also provides convenience
     functions to execute common procedures in 'PostgreSQL/PostGIS'.
 Authors@R: c(
-    person("Mathieu", "Basille", email = "basille@ufl.edu", role =
-           c("aut"), comment = c(ORCID = "0000-0001-9366-7127")),
-    person("David", "Bucklin", email = "david.bucklin@gmail.com", role =
-           c("aut", "cre")) )
+    person("Mathieu", "Basille", email = "basille@ufl.edu", 
+    role = c("aut"), 
+    comment = c(ORCID = "0000-0001-9366-7127")),
+    person("David", "Bucklin", 
+    email = "david.bucklin@gmail.com", 
+    role = c("aut")),
+    person("Adrián", "Cidre González", 
+    email = "adrian.cidre@gmail.com", 
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-3310-3052")))
 SystemRequirements:
     'PostgreSQL' with 'PostGIS' extension
 Depends:
@@ -20,16 +26,19 @@ Depends:
     DBI (>= 0.5)
 Imports:
     methods,
-    raster,
-    rgeos,
     sp,
-    stats
+    stats,
+    terra,
+    purrr,
+    sf,
+    glue,
+    raster
 Suggests:
     RPostgres,
-    rgdal,
-    wkb
+    testthat (>= 3.0.0)
 License: GPL (>= 3)
 URL: https://mablab.org/rpostgis/, https://github.com/mablab/rpostgis
 BugReports: https://github.com/mablab/rpostgis/issues
 RoxygenNote: 7.2.3
 Encoding: UTF-8
+Config/testthat/edition: 3
