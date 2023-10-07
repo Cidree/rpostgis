@@ -12,7 +12,7 @@ conn <- dbConnect(
 # 2. Create schema --------------------------------------------------------
 
 ## Create schema
-try(dbDrop(conn, "pg", "schema"), silent = TRUE)
+try(dbDrop(conn, "pg", "schema", cascade = TRUE), silent = TRUE)
 dbSchema(conn, name = "pg")
 
 ## Create postgis extension
@@ -132,16 +132,16 @@ test_that("test_id exists", {
 })
 
 ## Test that different geometries are exported/imported correctly
-buowl_habitat_2 <- select(buowl_habitat_2, -test_id)
+buowl_habitat_2 <- buowl_habitat_2[,-which(names(buowl_habitat_2) == "test_id")]
 test_that("Geometries are imported/exported correctly", {
-  expect_equal(arrange(linear_projects, postgis_fi),
-               arrange(linear_projects_2, postgis_fi))
+  expect_equal(dplyr::arrange(linear_projects, postgis_fi),
+               dplyr::arrange(linear_projects_2, postgis_fi))
   expect_equal(linear_dissolve_type,
                linear_dissolve_type_2)
-  expect_equal(arrange(buowl_habitat, postgis_fi),
-               arrange(buowl_habitat_2, postgis_fi))
-  expect_equal(arrange(roads, denominaci),
-               arrange(roads_2, denominaci))
+  expect_equal(dplyr::arrange(buowl_habitat, postgis_fi),
+               dplyr::arrange(buowl_habitat_2, postgis_fi))
+  expect_equal(dplyr::arrange(roads, denominaci),
+               dplyr::arrange(roads_2, denominaci))
 })
 
 # 4.5. Data frame mode ----------------------------------------------------
@@ -153,8 +153,8 @@ linear_projects_3 <- pgGetGeom(conn, c("pg", "second_linear_projects"))
 
 ## Test equal
 test_that("Export/Import DF with pgWriteGeom works", {
-  expect_equal(arrange(linear_projects, postgis_fi),
-               arrange(linear_projects_3, postgis_fi))
+  expect_equal(dplyr::arrange(linear_projects, postgis_fi),
+               dplyr::arrange(linear_projects_3, postgis_fi))
 })
 
 
@@ -228,6 +228,129 @@ test_that("Return raster class works", {
 
 # 5.3. Multi-band raster --------------------------------------------------
 
+## Read stack
+terrain_sr <- rast("test_data_1_5/terrain_stack.tif")
+
+## Write stack
+pgWriteRast(conn, c("pg", "first_terrain"), terrain_sr)
+
+## Read stack back into R
+terrain_sr_2 <- pgGetRast(conn, c("pg", "first_terrain"), bands = TRUE)
+
+## Test equal
+test_that("Extent and CRS are the same after export/import", {
+  expect_equal(terra::crs(terrain_sr), terra::crs(terrain_sr_2))
+  expect_equal(as.vector(terra::ext(terrain_sr)), 
+               as.vector(terra::ext(terrain_sr_2)),
+               tolerance = 0.001)
+  expect_equal(terra::nlyr(terrain_sr), terra::nlyr(terrain_sr_2))
+})
+
+# 5.4. Get only some bands ------------------------------------------------
+
+## Read stack
+terrain_sr_3 <- pgGetRast(conn, 
+                          c("pg", "first_terrain"), 
+                          bands = c(1, 3))
+
+## Test equal
+test_that("Extent and CRS are the same after export/import", {
+  expect_equal(terra::crs(terrain_sr[[c(1,3)]]), 
+               terra::crs(terrain_sr_3))
+  
+  expect_equal(as.vector(terra::ext(terrain_sr[[c(1,3)]])), 
+               as.vector(terra::ext(terrain_sr_3)),
+               
+               tolerance = 0.001)
+  expect_equal(terra::nlyr(terrain_sr[[c(1,3)]]), 
+               terra::nlyr(terrain_sr_3))
+})
+
+# 6. Get Boundary ---------------------------------------------------------
+
+# 6.1. Vectorial data -----------------------------------------------------
+
+## Get boundary
+roads_boundary <- pgGetBoundary(conn, c("pg", "first_roads"))
+
+## Test equal
+## Direction of polygon may be different
+test_that("Boundary is the same", {
+  expect_equal(sf::st_bbox(roads_boundary), sf::st_bbox(roads))
+})
+
+# 6.2. Raster data --------------------------------------------------------
+
+## Get boundary
+dem_boundary <- pgGetBoundary(conn, c("pg", "first_dem"), geom = "rast")
+dem
+## Test equal
+test_that("Boundary is the same", {
+  expect_equal(as.vector(sf::st_bbox(dem_boundary)), 
+               as.vector(sf::st_bbox(terra::ext(dem))))
+})
+
+# 7. List geometries ------------------------------------------------------
+
+pgListGeom(conn)
+pgListRast(conn)
+
+# 8. pgSRID ---------------------------------------------------------------
+
+## Existing CRS
+crs <- sf::st_crs("+proj=longlat")
+srid_1 <- pgSRID(conn, crs)
+
+test_that("Retrieving existing CRS works", {
+  expect_equal(srid_1[1], 4326)
+})
+
+## Non-existing CRS
+crs2 <- sf::st_crs(paste("+proj=stere", "+lat_0=52.15616055555555 +lon_0=5.38763888888889",
+                          "+k=0.999908 +x_0=155000 +y_0=463000", "+ellps=bessel",
+                          "+towgs84=565.237,50.0087,465.658,-0.406857,0.350733,-1.87035,4.0812",
+                          "+units=m"))
+srid_2 <- pgSRID(conn, crs2, create.srid = TRUE)
+
+test_that("Creating non-existing CRS works", {
+  expect_equal(srid_2, 880001)
+})
+
+# 9. Wrappers -------------------------------------------------------------
+
+
+# 9.1. Drop a table -------------------------------------------------------
+
+dbDrop(conn, c("pg", "first_mtcars"), "table")
+
+test_that("Drop table works", {
+  expect_error(dbReadDataFrame(conn, c("pg", "first_mtcars")))
+})
+
+# 9.2. Create a schema ----------------------------------------------------
+
+dbSchema(conn, "pgtest")
+dbWriteDataFrame(conn, c("pgtest", "mtcars"), mtcars)
+
+test_that("Creating schema works", {
+  expect_true(dbExistsTable(conn, c("pgtest", "mtcars")))
+})
+
+# 9.3. Drop a schema ------------------------------------------------------
+
+dbDrop(conn, "pgtest", "schema", cascade = TRUE)
+
+test_that("Deleting schema works", {
+  expect_false(dbExistsTable(conn, c("pgtest", "mtcars")))
+})
+
+# 9.4. Others -------------------------------------------------------------
+
+dbTableInfo(conn, c("pg", "first_baea_nests"))
+
+test_that("Function works", {
+  expect_true(dbVacuum(conn, c("pg", "first_baea_nests"), full = TRUE))
+})
 
 
 
@@ -239,39 +362,3 @@ test_that("Return raster class works", {
 
 
 
-conn
-name <- "second_roards"
-data.obj <- roads
-geom = "geom"
-df.mode = FALSE
-partial.match = FALSE
-
-overwrite = FALSE
-new.id = NULL
-row.names = FALSE
-upsert.using = NULL
-alter.names = FALSE
-encoding = NULL
-return.pgi = FALSE
-df.geom = NULL
-geog = FALSE
-
-
-## pg write rast
-conn
-name <- c("pg", "first_dem")
-raster <- dem
-bit.depth = NULL
-blocks = NULL
-constraints = TRUE
-overwrite = FALSE
-append = FALSE
-
-## pg get rast
-conn
-name <- c("pg", "first_dem")
-rast = "rast"
-bands = 1
-boundary = NULL
-clauses = NULL
-returnclass = "terra"
