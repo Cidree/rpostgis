@@ -34,6 +34,8 @@ Imports:
     glue,
     raster
 Suggests:
+    dplyr,
+    keyring,
     RPostgres,
     testthat (>= 3.0.0)
 License: GPL (>= 3)
