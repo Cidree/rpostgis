@@ -389,7 +389,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
       }
     }
   }
- 
+  
   
   ## Fix NULLs, collapse with commas, and generate the pgi object
   d1 <- gsub("'NULL'", "NULL", d1)
@@ -511,13 +511,14 @@ pgInsertize <- function(data.obj, create.table = NULL, force.match = NULL,
     ## stop if colnames do not all match and partial.match = FALSE
     if (!(length(colnames(data.obj)) == length(rcols)) & 
         !partial.match) {
-      stop(glue::glue("{length(rcols - length(colnames(data.obj)))} column(s) in data frame are missing in
-           database table ({paste(rcols[is.na(match(rcols, colnames(data.obj)))], collapse = ', ')}).
-           Rename data frame columns or set partial.match = TRUE to only insert the matching columns."))
+      stop(paste0((length(rcols) - length(colnames(data.obj))),
+                  " column(s) in data frame are missing in database table (",
+                  paste(rcols[is.na(match(rcols,colnames(data.obj)))],collapse=", "),"). Rename data frame columns 
+            or set partial.match = TRUE to only insert to matching columns."))
+      
     }
-    
-    message(glue::glue("{length(colnames(data.obj))} out of {length(rcols)} columns of the data frame match database table columns
-           and will be formatted for database insert."))
+    message(paste0(length(colnames(data.obj)), " out of ", length(rcols),
+                   " columns of the data frame match database table columns and will be formatted for database insert."))
   } else {
     db.cols.insert <- colnames(data.obj)
   }

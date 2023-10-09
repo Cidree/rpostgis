@@ -55,7 +55,7 @@
 ##' }
 
 pgGetRast <- function(conn, name, rast = "rast", bands = 1,
-    boundary = NULL, clauses = NULL, returnclass = "terra") {
+                      boundary = NULL, clauses = NULL, returnclass = "terra") {
   
   ## Message
   message("Since version 1.5 this function outputs SpatRaster objects by default. Use returnclass = 'raster' to return raster objects.")
@@ -90,18 +90,18 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   }
   
   ## Check bands
-  tmp.query <- glue::glue("SELECT st_numbands({rastque}) FROM
-                        {nameque} WHERE {rastque} IS NOT NULL LIMIT 1;")
+  tmp.query <- paste0("SELECT st_numbands(", rastque, ") FROM ", nameque, " WHERE ", rastque, " IS NOT NULL LIMIT 1;")
+  
   nbs <- 1:dbGetQuery(conn, tmp.query)[1,1]
   if (isTRUE(bands)) {
     bands <- nbs
   } else if (!all(bands %in% nbs)) {
-    stop(glue::glue("Selected band(s) do not exist in PostGIS raster: choose bands numbers between {min(nbs)} and  {max(nbs)}."))
+    stop(paste0("Selected band(s) do not exist in PostGIS raster: choose band numbers between ", min(nbs), " and ", max(nbs), "."))
   }
   
   ## Retrieve the SRID
-  tmp.query <- glue::glue("SELECT DISTINCT(ST_SRID({rastque})) FROM 
-                        {nameque} WHERE {rastque} IS NOT NULL;")
+  tmp.query <- paste0("SELECT DISTINCT(ST_SRID(", rastque, ")) FROM ", nameque, " WHERE ", rastque, " IS NOT NULL;")
+  
   srid      <- dbGetQuery(conn, tmp.query)
   ## Check if the SRID is unique, otherwise throw an error
   if (nrow(srid) > 1) {
@@ -113,7 +113,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   p4s <- NA
   # tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
   #                     srid$st_srid, ";")
-  tmp.query <- glue::glue("SELECT r_proj4 AS p4s FROM {nameque};")
+  tmp.query <- paste0("SELECT r_proj4 AS p4s FROM ", nameque, ";")
   db.proj4 <- dbGetQuery(conn, tmp.query)$p4s
   if (!is.null(db.proj4)) {
     try(p4s <- terra::crs(db.proj4), silent = TRUE)
@@ -123,16 +123,14 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   }
   
   ## Check alignment of raster
-  tmp.query <- glue::glue("SELECT ST_SameAlignment({rastque}) FROM {nameque};")
+  tmp.query <- paste0("SELECT ST_SameAlignment(", rastque, ") FROM ", nameque, ";")
   # needs postgis version 2.1+, so just try
   al <- FALSE
   try(al <- dbGetQuery(conn, tmp.query)[1,1])
   if (!al) {
     # get alignment from upper left pixel of all raster tiles
-    tmp.query <- glue::glue("SELECT
-                          min(ST_UpperLeftX({rastque})) ux,
-                          max(ST_UpperLeftY({rastque})) uy
-                          FROM {nameque};")
+    tmp.query <-  paste0("SELECT min(ST_UpperLeftX(", rastque, ")) ux, max(ST_UpperLeftY(", rastque, ")) uy FROM ", nameque, ";")
+    
     aligner <- dbGetQuery(conn, tmp.query)
     aq <- c("ST_SnapToGrid(", paste0(aligner[1,1],","), paste0(aligner[1,2],"),"))
   } else {

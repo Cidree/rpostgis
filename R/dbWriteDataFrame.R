@@ -42,7 +42,6 @@
 #' @author Adrián Cidre González \email{adrian.cidre@@gmail.com}
 #' @aliases dbWriteDF
 #' @export
-#' @importFrom glue glue
 #' @return \code{TRUE} for successful write with
 #'     \code{dbWriteDataFrame}, \code{data.frame} for
 #'     \code{dbReadDataFrame}
@@ -62,8 +61,8 @@
 #' }
 
 dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
-    only.defs = FALSE) {
-
+                             only.defs = FALSE) {
+  
   ## Get table name
   nameque <- dbTableNameFix(conn, name)
   name    <- dbTableNameFix(conn, name, as.identifier = FALSE)
@@ -97,7 +96,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
   
   ## Create defs table if it doesnt exist
   if (!dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
-    sql_query <- glue::glue("CREATE TABLE {nameque[1]}.\".R_df_defs\" (table_nm character varying, df_def text[]);")
+    sql_query <- paste0("CREATE TABLE ", nameque[1], ".\".R_df_defs\" (table_nm character varying, df_def text[]);")
     dbExecute(conn, sql_query)
     
     ## Add prmary key and comment to new df definitions table
@@ -106,7 +105,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
       dbComment(conn, c(name[1], ".R_df_defs"), comment = "Table holding R data frame column definitions
                 (for import/export using rpostgis::db(Read/Write)DataFrame).")
     })
-    message(glue::glue("New R data frame definitions table created ({nameque[1]}.\".R_df_defs\")."))
+    message(paste0("New R data frame definitions table created (", nameque[1], ".\".R_df_defs\")."))
   }
   
   
@@ -148,10 +147,9 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
   ## END MODULAR HANDING ---------------------------------------------------
   
   # Create array of column names, data type, and attributes
-  defs <- glue::glue("{{<paste(names(d), collapse = ',')>},
-                   {<paste(types, collapse = ',')>},
-                   {<paste(attr2, collapse = ',')>}}", 
-                   .open = "<", .close = ">")
+  defs <- paste0("{{", paste(names(d), collapse = ","), "},{",
+                 paste(as.character(types), collapse = ","), "},{", paste(as.character(attr2),
+                                                                          collapse = ","), "}}")
   
   ## Data frame with table name and definitions
   defs2 <- data.frame(table_nm = name[2], df_def = defs)
@@ -161,7 +159,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
   ## Insert table definitions in .R_df_defs
   suppressMessages({
     pgWriteGeom(conn, c(name[1], ".R_df_defs"), defs2, 
-             upsert.using = "table_nm", row.names = FALSE)
+                upsert.using = "table_nm", row.names = FALSE)
   })
   
   ## Send data to PostgreSQL database (if only defs, do not send)
@@ -190,7 +188,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
 #' @export
 
 dbReadDataFrame <- function(conn, name, df = NULL) {
-
+  
   ## Get table name
   nameque <- dbTableNameFix(conn, name)
   name    <- dbTableNameFix(conn, name, as.identifier = FALSE)

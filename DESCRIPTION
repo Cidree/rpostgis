@@ -31,7 +31,6 @@ Imports:
     terra,
     purrr,
     sf,
-    glue,
     raster
 Suggests:
     dplyr,
