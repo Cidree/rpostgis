@@ -1,8 +1,5 @@
 ## IMPORTANT
-`rpostgis` is no longer actively maintained and is planning to retire in September 2023, due to 
-retirement of `rgeos` later in 2023. This release adds a startup message to inform users 
-of this. Unless new maintainers are found, we expect `rpostgis 1.4.4` to be the final 
-CRAN release, and will request that CRAN archive the package before the end of September 2023.
+`rpostgis` is under new maintenance, and development will be moving to a new location soon! For more information, see: [https://github.com/mablab/rpostgis/issues/28](https://github.com/mablab/rpostgis/issues/28)
 
 ## Test environments
 * local Ubuntu 18.04.6 LTS, R 4.3.0
