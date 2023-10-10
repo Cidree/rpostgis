@@ -119,7 +119,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   tmp.query <- paste0("SELECT r_proj4 AS p4s FROM ", nameque, ";")
   db.proj4 <- dbGetQuery(conn, tmp.query)$p4s
   if (!is.null(db.proj4)) {
-    try(p4s <- terra::crs(db.proj4), silent = TRUE)
+    try(p4s <- terra::crs(db.proj4[1]), silent = TRUE)
   }
   if (is.na(p4s)) {
     warning("Table SRID not found. Projection will be undefined (NA)")
@@ -181,10 +181,10 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
             from
             (select st_union(",aq[1],rastque,",",aq[2],aq[3],band,") rast from ",nameque, "\n
             WHERE ST_Intersects(",
-            rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[1],
-            " ", boundary[4], ",", boundary[1], " ", boundary[3],
-            ",\n  ", boundary[2], " ", boundary[3], ",", boundary[2],
-            " ", boundary[4], ",", boundary[1], " ", boundary[4],
+            rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+            " ", boundary[1], ",", boundary[4], " ", boundary[2],
+            ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
+            " ", boundary[1], ",", boundary[4], " ", boundary[1],
             "))'),", srid, "))", clauses2,") as a;"))
     if (is.na(info$cols) & is.na(info$rows)) {
       stop("No data found within geographic subset defined by 'boundary'.")
@@ -195,10 +195,10 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
           from
           (select st_union(",aq[1],rastque,",",aq[2],aq[3],band,") rast from ",nameque, "\n
             WHERE ST_Intersects(",
-          rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[1],
-          " ", boundary[4], ",", boundary[1], " ", boundary[3],
-          ",\n  ", boundary[2], " ", boundary[3], ",", boundary[2],
-          " ", boundary[4], ",", boundary[1], " ", boundary[4],
+          rastque, ",ST_SetSRID(ST_GeomFromText('POLYGON((", boundary[4],
+          " ", boundary[1], ",", boundary[4], " ", boundary[2],
+          ",\n  ", boundary[3], " ", boundary[2], ",", boundary[3],
+          " ", boundary[1], ",", boundary[4], " ", boundary[1],
           "))'),", srid, "))", clauses2,") as a;"))$vals  
     
     rout <- terra::rast(nrows = info$rows, ncols = info$cols, 
