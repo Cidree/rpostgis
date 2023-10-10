@@ -38,6 +38,9 @@
 ##'     depending on the PostgreSQL server settings.
 ##' @param overwrite Whether to overwrite the existing table (\code{name}).
 ##' @param append Whether to append to the existing table (\code{name}).
+##' @param progress whether to show a progress bar (TRUE by default). The progress
+##'     bar mark the progress of writing blocks into the database.
+##'     
 ##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrián Cidre 
 ##' González \email{adrian.cidre@@gmail.com}
 ##' @importFrom terra crs res blocks ext t values values<- nlyr as.matrix
@@ -55,15 +58,15 @@
 ##' pgWriteRast(conn, c("schema", "tablename"), raster_name)
 ##'
 ##' # basic test
-##' r <- raster::raster(nrows=180, ncols=360, xmn=-180, xmx=180,
-##'     ymn=-90, ymx=90, vals=1)
+##' r <- terra::rast(nrows=180, ncols=360, xmin=-180, xmax=180,
+##'     ymin=-90, ymax=90, vals=1)
 ##' pgWriteRast(conn, c("schema", "test"), raster = r,
 ##'     bit.depth = "2BUI", overwrite = TRUE)
 ##' }
 
-pgWriteRast <- function(conn, name, raster, bit.depth = NULL, 
-                        blocks = NULL, constraints = TRUE, 
-                        overwrite = FALSE, append = FALSE) {
+pgWriteRast <- function(conn, name, raster, bit.depth = NULL, blocks = NULL, 
+                        constraints = TRUE, overwrite = FALSE, append = FALSE,
+                        progress = TRUE) {
   
   dbConnCheck(conn)
   if (!suppressMessages(pgPostGIS(conn))) {
@@ -249,8 +252,13 @@ pgWriteRast <- function(conn, name, raster, bit.depth = NULL,
   }
   
   # Iterate over the blocks and show progress
-  purrr::pmap(list(rgrid$band, rgrid$trn, rgrid$crn, rgrid$n), export_block, 
-              .progress = "Writing blocks")
+  if (progress) {
+    purrr::pmap(list(rgrid$band, rgrid$trn, rgrid$crn, rgrid$n), export_block, 
+                .progress = "Writing blocks")
+  } else {
+    purrr::pmap(list(rgrid$band, rgrid$trn, rgrid$crn, rgrid$n), export_block)
+  }
+  
   
   # Create index
   if (append) {

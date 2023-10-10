@@ -39,6 +39,8 @@
 ##'     is provided, the default \code{boundary = NULL} will return the 
 ##'     full raster.
 ##' @param returnclass 'terra' by default; or 'raster' for \code{raster} objects.
+##' @param progress whether to show a progress bar (TRUE by default). The progress
+##'     bar mark the progress of reading bands from the database.
 ##'      
 ##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrián Cidre
 ##' González \email{adrian.cidre@@gmail.com}
@@ -55,7 +57,8 @@
 ##' }
 
 pgGetRast <- function(conn, name, rast = "rast", bands = 1,
-                      boundary = NULL, clauses = NULL, returnclass = "terra") {
+                      boundary = NULL, clauses = NULL, 
+                      returnclass = "terra", progress = TRUE) {
   
   ## Message
   message("Since version 1.5 this function outputs SpatRaster objects by default. Use returnclass = 'raster' to return raster objects.")
@@ -208,7 +211,12 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   ## Get raster
   if (is.null(boundary)) {
     ## Get bands
-    rout <- purrr::map(bands, get_band, .progress = "Reading bands")
+    if (progress) {
+      rout <- purrr::map(bands, get_band, .progress = "Reading bands")
+    } else {
+      rout <- purrr::map(bands, get_band)
+    }
+    
     rb   <- terra::rast(rout)
     
     ## Else: when boundary is provided
