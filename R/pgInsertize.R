@@ -118,7 +118,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
                             alter.names = FALSE, partial.match = FALSE, df.mode = FALSE, geog = FALSE) {
   
   ## Convert to sf object while sp available
-  # if (!inherits(data.obj, "sf")) data.obj <- sf::st_as_sf(data.obj)
+  if (!inherits(data.obj, "sf")) data.obj <- sf::st_as_sf(data.obj)
   
   ## Check if geometry is simple or multi
   if (grepl("^MULTI", as.character(sf::st_geometry_type(data.obj, by_geometry = FALSE)))) {

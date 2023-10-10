@@ -223,7 +223,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
       cols <- cols[!(cols %in% c("wkt", geom))]
       dfr  <- dbData[cols]
       if (gid == "\".R_rownames\"") suppressMessages(dfr <- dbReadDataFrame(conn, name, df = dfr))
-      cname      <- c(names(dfr), geom)
+      cname      <- c(names(dfr), "geom")
       dfr        <- cbind(dfr, dbData[,"wkt"])
       names(dfr) <- cname
       
