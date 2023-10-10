@@ -12,10 +12,8 @@
 ##' objects (no data frame), a new ID column is created by default with name
 ##' \code{"gid"}.
 ##'
-##' This function will use \code{\link[sf]{st_as_binary}} for certain datasets
-##' (non-Multi types, non-Linestring), which is faster for large datasets.  In 
-##' all other cases the \code{sf} function \code{\link[sf]{st_as_text}} is used
-##' to extract the Well-known Text (WKT) representation.
+##' This function will use \code{\link[sf]{st_as_text}} for geography types, and
+##' \code{\link[sf]{st_as_binary}} for geometry types.
 ##'
 ##' In the event of function or database error, the database uses
 ##' ROLLBACK to revert to the previous state. 

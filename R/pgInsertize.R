@@ -312,7 +312,7 @@ pgInsertizeGeom <- function(data.obj, geom = "geometry", create.table = NULL,
     df[is.na(df)] <- "NULL"
     ## Double all single ' to escape. Format rows of data frame
     if (!is.na(proj[1])) {
-      if (multi == TRUE) {
+      if (multi) {
         d1 <- apply(df, 1, function(x) paste0("(", open,
                                               toString(paste(gsub("'", "''", x[1:length(colnames(df)) -
                                                                                  1], fixed = TRUE), collapse = "','")), close,
