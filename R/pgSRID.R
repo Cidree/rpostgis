@@ -79,21 +79,19 @@ pgSRID <- function(conn, crs, create.srid = FALSE, new.srid = NULL) {
     if (length(srid) > 0) {
         return(srid)
     }
-    ## check for matching EPSG with st_crs (sf dependency)
-    if (suppressPackageStartupMessages(requireNamespace("sf", 
-                                                        quietly = TRUE))) {
-        message("Using function 'sf::st_crs' to look for a match.")
-        epsg <- NA
-        try(epsg <- sf::st_crs(p4s)$epsg)
-        if (!is.na(epsg)) {
-            temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE auth_name = 'EPSG' AND auth_srid = ", 
-                                 epsg, ";")
-            srid <- dbGetQuery(conn, temp.query)$srid
-            if (length(srid) > 0) {
-                return(srid)
-            }
+    ## check for matching EPSG with st_crs
+    message("Using function 'sf::st_crs' to look for a match.")
+    epsg <- NA
+    try(epsg <- sf::st_crs(p4s)$epsg)
+    if (!is.na(epsg)) {
+        temp.query <- paste0("SELECT srid FROM spatial_ref_sys WHERE auth_name = 'EPSG' AND auth_srid = ", 
+                             epsg, ";")
+        srid <- dbGetQuery(conn, temp.query)$srid
+        if (length(srid) > 0) {
+            return(srid)
         }
     }
+    
     if (!create.srid) {
         stop("No SRID matches found. Re-run with 'create.srid = TRUE' to create new SRID entry in spatial_ref_sys.")
     }
