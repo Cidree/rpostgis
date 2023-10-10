@@ -11,7 +11,8 @@ pgGetRast(
   bands = 1,
   boundary = NULL,
   clauses = NULL,
-  returnclass = "terra"
+  returnclass = "terra",
+  progress = TRUE
 )
 }
 \arguments{
@@ -40,6 +41,9 @@ full raster.}
 query from table. Must begin with 'WHERE'.}
 
 \item{returnclass}{'terra' by default; or 'raster' for \code{raster} objects.}
+
+\item{progress}{whether to show a progress bar (TRUE by default). The progress
+bar mark the progress of reading bands from the database.}
 }
 \value{
 \code{SpatRaster}; \code{raster}; or \code{RasterStack} object

@@ -17,6 +17,8 @@ dbSchema(conn, name = "pg")
 
 ## Create postgis extension
 pgPostGIS(conn, topology = TRUE, tiger = TRUE, sfcgal = TRUE)
+pgPostGIS(conn, sf = TRUE, exec = FALSE)
+pgPostGIS(conn, display = TRUE)
 
 ## List elements
 pgListGeom(conn)
@@ -27,6 +29,7 @@ pgListGeom(conn)
 
 ## Write data frame
 my_data <- mtcars
+my_data$cyl <- as.factor(my_data$cyl)
 dbWriteDataFrame(conn, c("pg", "first_mtcars"), my_data)
 
 ## Read it back into R
@@ -63,6 +66,16 @@ test_that("Export DF with pgWriteGeom works", {
   expect_equal(my_data, my_data_3)
 })
 
+# 3.4. Only defs ----------------------------------------------------------
+
+## Write data frame
+my_data_4 <- dbWriteDataFrame(conn, c("pg", "third_mtcars"), my_data, only.defs = TRUE)
+
+## Test equal
+test_that("Only defs works", {
+  expect_equal(my_data, my_data_4)
+})
+
 # 4. Vectorial data -------------------------------------------------------
 
 # 4.1. Normal export ------------------------------------------------------
@@ -80,6 +93,19 @@ baea_nests_2 <- pgGetGeom(conn, c("pg", "first_baea_nests"))
 test_that("Export/Import point data works", {
   expect_equal(baea_nests, baea_nests_2, tolerance = 0.0001)
 })
+
+## Without CRS
+baea_nests_nocrs <- baea_nests
+sf::st_crs(baea_nests_nocrs) <- NA
+pgWriteGeom(conn, c("pg", "second_baea_nests"), baea_nests_nocrs)
+baea_nests_nocrs_2 <- pgGetGeom(conn, c("pg", "second_baea_nests"))
+
+test_that("Export/Import point data works", {
+  expect_equal(baea_nests_nocrs, baea_nests_nocrs_2, tolerance = 0.0001)
+})
+
+## Write as geography
+pgWriteGeom(conn, c("pg", "third_baea_nests"), baea_nests, geog = TRUE, overwrite = TRUE)
 
 # 4.2. Terra format -------------------------------------------------------
 
@@ -195,6 +221,50 @@ test_that("Query works", {
   expect_equal(unique(buowl_query$recentstat), "REMOVED")
 })
 
+# 4.8. Export only df -----------------------------------------------------
+
+## Write vectorial data
+dbWriteDataFrame(conn, c("pg", "second_roads"), roads)
+dbWriteDataFrame(conn, c("pg", "third_roads"), terra::vect(roads))
+
+# 4.9. Insert function ----------------------------------------------------
+
+## Convert to sp
+roads_sp <- as(roads, "Spatial")
+
+## Insert function
+pgInsert(conn, c("pg", "fourth_roads"), roads_sp)
+pgInsert(conn, c("pg", "fourth_roads"), roads_sp, overwrite = TRUE)
+pgInsert(conn, c("pg", "fourth_roads"), roads_sp, df.mode = TRUE, overwrite = TRUE)
+
+# 4.10. Insert into existing table ----------------------------------------
+
+roads <- readRDS("test_data_1_5/roads.rds")
+
+## Insert data twice
+pgWriteGeom(conn, c("pg", "fifth_roads"), roads)
+pgitest <- pgWriteGeom(conn, c("pg", "fifth_roads"), roads, return.pgi = TRUE)
+
+## Get data
+roads_5 <- pgGetGeom(conn,  c("pg", "fifth_roads"))
+
+## Test equal
+test_that("Geometry was imported twice", {
+  expect_equal(nrow(roads_5), 2 * nrow(roads))
+  expect_s3_class(pgitest, "pgi")
+})
+
+## Insert with pgi
+pgWriteGeom(conn, c("pg", "sixth_roads"), pgitest)
+
+# 4.11. Insert df geom ----------------------------------------------------
+
+## Create data
+roads_df <- data.frame(roads)
+roads_df$geom <- sf::st_as_text(roads_df$geom)
+pgWriteGeom(conn, c("pg", "seventh_roads"), roads_df, df.geom = "geom")
+roads_6 <- pgGetGeom(conn,  c("pg", "seventh_roads"))
+
 # 5. Raster ---------------------------------------------------------------
 
 # 5.1. Normal import/export -----------------------------------------------
@@ -203,11 +273,11 @@ test_that("Query works", {
 dem <- rast("test_data_1_5/dem_esp.tif")
 
 ## Write raster
-pgWriteRast(conn, c("pg", "first_dem"), dem)
-pgWriteRast(conn, c("pg", "first_dem"), dem, overwrite = TRUE)
+pgWriteRast(conn, c("pg", "first_dem"), dem, progress = FALSE)
+pgWriteRast(conn, c("pg", "first_dem"), dem, overwrite = TRUE, bit.depth = "64BF")
 
 ## Read raster back into R
-dem_2 <- pgGetRast(conn, c("pg", "first_dem"))
+dem_2 <- pgGetRast(conn, c("pg", "first_dem"), rast = "rast")
 
 ## Test equal
 test_that("Extent and CRS are the same after export/import", {
@@ -232,7 +302,7 @@ test_that("Return raster class works", {
 terrain_sr <- rast("test_data_1_5/terrain_stack.tif")
 
 ## Write stack
-pgWriteRast(conn, c("pg", "first_terrain"), terrain_sr)
+pgWriteRast(conn, c("pg", "first_terrain"), terrain_sr, blocks = c(5, 5))
 
 ## Read stack back into R
 terrain_sr_2 <- pgGetRast(conn, c("pg", "first_terrain"), bands = TRUE)
@@ -266,6 +336,20 @@ test_that("Extent and CRS are the same after export/import", {
                terra::nlyr(terrain_sr_3))
 })
 
+# 5.5. Use boundary -------------------------------------------------------
+
+## Boundary
+myboundary <- c(42, 40, 3, -2)
+
+## Read raster
+dem_boundary <- pgGetRast(conn, c("pg", "first_dem"), boundary = myboundary)
+
+## Test equal
+test_that("Extent is correct", {
+  expect_equal(as.numeric(as.vector(terra::ext(dem_boundary))), 
+               c(myboundary[4],myboundary[3],myboundary[2],myboundary[1]))
+})
+
 # 6. Get Boundary ---------------------------------------------------------
 
 # 6.1. Vectorial data -----------------------------------------------------
@@ -289,6 +373,22 @@ test_that("Boundary is the same", {
   expect_equal(as.vector(sf::st_bbox(dem_boundary)), 
                as.vector(sf::st_bbox(terra::ext(dem))))
 })
+
+# 6.3. Other classes ------------------------------------------------------
+
+## sp
+roads_boundary_sp    <- pgGetBoundary(conn, c("pg", "first_roads"), returnclass = "sp")
+roads_boundary_terra <- pgGetBoundary(conn, c("pg", "first_roads"), returnclass = "terra")
+
+test_that("Classes are correct", {
+  expect_s4_class(roads_boundary_sp, "SpatialPolygons")
+  expect_s4_class(roads_boundary_terra, "SpatVector")
+})
+
+# 6.4. Clauses ------------------------------------------------------------
+
+roads_boundary_cl <- pgGetBoundary(conn, c("pg", "first_roads"),
+                                   clauses = "WHERE tipo_via = 'Vereda'")
 
 # 7. List geometries ------------------------------------------------------
 
@@ -314,6 +414,16 @@ srid_2 <- pgSRID(conn, crs2, create.srid = TRUE)
 
 test_that("Creating non-existing CRS works", {
   expect_equal(srid_2, 880001)
+})
+
+## NA and non-existing CRS
+crs3 <- sf::st_crs(NA)
+srid_3 <- pgSRID(conn, crs3)
+srid_4 <- pgSRID(conn, sf::st_crs("ESRI:37220"), 
+                 create.srid = TRUE, new.srid = 37220)
+
+test_that("SRID is 0", {
+  expect_equal(srid_3, 0)
 })
 
 # 9. Wrappers -------------------------------------------------------------
@@ -352,7 +462,41 @@ test_that("Function works", {
   expect_true(dbVacuum(conn, c("pg", "first_baea_nests"), full = TRUE))
 })
 
+# 9.5 Add/rm column -------------------------------------------------------
 
+# Remove column
+dbColumn(conn, c("pg", "first_baea_nests"), "nest_id", "drop")
+
+# Add column
+dbColumn(conn, c("pg", "first_baea_nests"), "nest_id", "add")
+
+# 9.6. Index --------------------------------------------------------------
+
+dbIndex(conn, c("pg", "first_baea_nests"),
+        colname = "geom",
+        method = "gist")
+
+dbIndex(conn, c("pg", "first_baea_nests"), colname = "status")
+
+# 9.7 Points --------------------------------------------------------------
+
+# Baea nests coordinates as columns
+baea_nests_tbl <- sf::st_drop_geometry(baea_nests)
+
+# Insert without geometry
+dbWriteDataFrame(conn, c("pg", "fourth_baea_nests"), baea_nests_tbl, overwrite = TRUE)
+
+# Create points column
+pgMakePts(conn, name = c("pg", "fourth_baea_nests"), colname = "pts_geom",
+     x = "long_x_dd", y = "lat_y_dd", srid = 4326, exec = TRUE)
+
+# Read third baea nest
+baea_nests_3 <- pgGetGeom(conn, c("pg", "fourth_baea_nests"), geom = "pts_geom")
+
+# Test equal
+test_that("Creating point column works", {
+  expect_equal(baea_nests, baea_nests_3, tolerance = .01)
+})
 
 
 

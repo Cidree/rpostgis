@@ -12,7 +12,8 @@ pgWriteRast(
   blocks = NULL,
   constraints = TRUE,
   overwrite = FALSE,
-  append = FALSE
+  append = FALSE,
+  progress = TRUE
 )
 }
 \arguments{
@@ -44,6 +45,9 @@ depending on the PostgreSQL server settings.}
 \item{overwrite}{Whether to overwrite the existing table (\code{name}).}
 
 \item{append}{Whether to append to the existing table (\code{name}).}
+
+\item{progress}{whether to show a progress bar (TRUE by default). The progress
+bar mark the progress of writing blocks into the database.}
 }
 \value{
 TRUE for successful import.
@@ -70,8 +74,8 @@ write times.
 pgWriteRast(conn, c("schema", "tablename"), raster_name)
 
 # basic test
-r <- raster::raster(nrows=180, ncols=360, xmn=-180, xmx=180,
-    ymn=-90, ymx=90, vals=1)
+r <- terra::rast(nrows=180, ncols=360, xmin=-180, xmax=180,
+    ymin=-90, ymax=90, vals=1)
 pgWriteRast(conn, c("schema", "test"), raster = r,
     bit.depth = "2BUI", overwrite = TRUE)
 }

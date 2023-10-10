@@ -1,9 +1,11 @@
 rpostgis 1.5
 ==============
 
-Remove startup message about upcoming retirement.
+Remove startup message about upcoming retirement. New startup message informs
+about the `sf`/`terra` transition, and the new maintenance of the package which
+will be switched in the next update of the package.
 
-OVERALL CHAGNES
+OVERALL CHANGES
 
 * Transition of `rpostgis` to the `sf`/`terra` ecosystem.
 
@@ -15,11 +17,11 @@ OVERALL CHAGNES
 
 * `pgGetGeom`: the argument `boundary` now accepts also `sf` and `SpatVector` objects. The object returned by this function has changed to a `sf` object by default, and the new argument `returnclass` allows to choose also `terra` for `SpatVector` objects, or `sp` for `Spatial*` objects.
 
-* `pgGetRast`: added details about the functioning of the argument `bands`; allow `sf` and `SpatVector` objects in the argument `boundary`; the output of this function is now a `terra SpatRaster` by default, but `raster` objects can be specified by the new argument `returnclass`. Add a progress bar to measure the progress of the import.
+* `pgGetRast`: added details about the functioning of the argument `bands`; allow `sf` and `SpatVector` objects in the argument `boundary`; the output of this function is now a `terra SpatRaster` by default, but `raster` objects can be specified by the new argument `returnclass`. Add an optional progress bar to measure the progress of the import.
 
 * `pgInsert`: now it is possible to insert `sf` and `SpatVector` objects in the argument `data.obj`. It is also possible to insert any geometry type existing for `sf` objects (i.e. simple and multi point, linestring, polygon, curve, surface; and other complex geometries such as compound curve, curve polygon and geometrycollection). 
 
-* `pgWriteRast`: the argument `raster` now accepts `SpatRaster` objects. The default value of the `blocks` argument works slightly different now. It uses the function `blocks` of the `terra` package, which uses the number of copies of the data that may be in memory at any time. Since big rasters can take some time to write, a progress bar was added to this function.
+* `pgWriteRast`: the argument `raster` now accepts `SpatRaster` objects. The default value of the `blocks` argument works slightly different now. It uses the function `blocks` of the `terra` package, which uses the number of copies of the data that may be in memory at any time. Since big rasters can take some time to write, an optional progress bar was added to this function.
 
 rpostgis 1.4.4
 ==============
