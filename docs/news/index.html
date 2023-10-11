@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rpostgis</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.0</span>
       </span>
     </div>
 
@@ -62,44 +62,63 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.4.4" id="rpostgis-1-4-4">rpostgis 1.4.4<a class="anchor" aria-label="anchor" href="#rpostgis-1-4-4"></a></h2>
+<h2 class="page-header" data-toc-text="1.5.0" id="rpostgis-150">rpostgis 1.5.0<a class="anchor" aria-label="anchor" href="#rpostgis-150"></a></h2>
+<p>Remove startup message about upcoming retirement. New startup message informs about the <code>sf</code>/<code>terra</code> transition, and the new maintenance of the package which will be switched in the next update of the package.</p>
+<p>OVERALL CHANGES</p>
+<ul><li><p>Transition of <code>rpostgis</code> to the <code>sf</code>/<code>terra</code> ecosystem.</p></li>
+<li><p>The functions <code>pgGet*</code> have a new argument <code>returnclass</code>, and a function message to inform about the output class.</p></li>
+<li><p>The function <code>pgInsert</code> has been deprecated in favour of <code>pgWriteGeom</code>. The reason of this change is to keep naming consistency with other functions of the package. We added a function message to inform about the deprecation.</p></li>
+<li><p><code>pgGetBoundary</code>: now returns a <code>sfc</code> object (i.e. a list-column with geometries) by default, and the new argument <code>returnclass</code> allows to choose also <code>terra</code> for <code>SpatVector</code> objects, or <code>sp</code> for <code>Spatial*</code> objects.</p></li>
+<li><p><code>pgGetGeom</code>: the argument <code>boundary</code> now accepts also <code>sf</code> and <code>SpatVector</code> objects. The object returned by this function has changed to a <code>sf</code> object by default, and the new argument <code>returnclass</code> allows to choose also <code>terra</code> for <code>SpatVector</code> objects, or <code>sp</code> for <code>Spatial*</code> objects.</p></li>
+<li><p><code>pgGetRast</code>: added details about the functioning of the argument <code>bands</code>; allow <code>sf</code> and <code>SpatVector</code> objects in the argument <code>boundary</code>; the output of this function is now a <code>terra SpatRaster</code> by default, but <code>raster</code> objects can be specified by the new argument <code>returnclass</code>. Add an optional progress bar to measure the progress of the import.</p></li>
+<li><p><code>pgInsert</code>: now it is possible to insert <code>sf</code> and <code>SpatVector</code> objects in the argument <code>data.obj</code>. It is also possible to insert any geometry type existing for <code>sf</code> objects (i.e. simple and multi point, linestring, polygon, curve, surface; and other complex geometries such as compound curve, curve polygon and geometrycollection).</p></li>
+<li><p><code>pgWriteRast</code>: the argument <code>raster</code> now accepts <code>SpatRaster</code> objects. The default value of the <code>blocks</code> argument works slightly different now. It uses the function <code>blocks</code> of the <code>terra</code> package, which uses the number of copies of the data that may be in memory at any time. Since big rasters can take some time to write, an optional progress bar was added to this function.</p></li>
+<li><p><code>pgPostGIS</code>: added a new argument <code>raster</code> to install the postgis_raster extension.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.4.4" id="rpostgis-144">rpostgis 1.4.4<small>2023-05-06</small><a class="anchor" aria-label="anchor" href="#rpostgis-144"></a></h2>
 <p>Added startup message to display message about upcoming package retirement in September 2023.</p>
 </div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.4.3" id="rpostgis-1-4-3">rpostgis 1.4.3<small>2019-11-20</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-4-3"></a></h2>
+<h2 class="page-header" data-toc-text="1.4.3" id="rpostgis-143">rpostgis 1.4.3<small>2019-11-20</small><a class="anchor" aria-label="anchor" href="#rpostgis-143"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>The <code><a href="https://rpostgres.r-dbi.org/reference/Postgres.html" class="external-link">RPostgres::Postgres()</a></code> driver can now be used as a connection. While <code>rpostgis</code> is functional with the driver, it should be considered experimental and may not function as expected in all cases. The default <code><a href="https://rdrr.io/pkg/RPostgreSQL/man/PostgreSQL.html" class="external-link">RPostgreSQL::PostgreSQL()</a></code> driver is recommended for most use cases.</li></ul><p>NEW FEATURES</p>
+<ul><li>The <code><a href="https://rpostgres.r-dbi.org/reference/Postgres.html" class="external-link">RPostgres::Postgres()</a></code> driver can now be used as a connection. While <code>rpostgis</code> is functional with the driver, it should be considered experimental and may not function as expected in all cases. The default <code><a href="https://rdrr.io/pkg/RPostgreSQL/man/PostgreSQL.html" class="external-link">RPostgreSQL::PostgreSQL()</a></code> driver is recommended for most use cases.</li>
+</ul><p>NEW FEATURES</p>
 <ul><li><p><code>pgWriteRast</code>: Now allows insert with <code>append = TRUE</code> to an existing PostGIS raster table. Note that any existing constraints are dropped for the insert, but re-created after insert (if <code>constraints = TRUE</code>). This allows more than one raster to be entered into a table. It is recommended to alter the raster names (<code>names(raster) &lt;-</code>) prior to import to ensure each raster in a table has a unique entry in the <code>band_names</code> column. See <code>pgGetRast</code>’s new <code>clauses</code> argument for importing subsets of a raster table.</p></li>
-<li><p><code>pgGetRast</code>: A <code>clauses</code> argument allows to specify additional SQL (e.g. <code>clauses = "WHERE band_names = '{{landcover_2010}}'"</code>) to select a specific subset of a raster table to import.</p></li>
+<li><p><code>pgGetRast</code>: A <code>clauses</code> argument allows to specify additional SQL (e.g. <code>clauses = "WHERE band_names = '{{landcover_2010}}'"</code>) to select a specific subset of a raster table to import.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.4.2" id="rpostgis-1-4-2">rpostgis 1.4.2<small>2018-11-12</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-4-2"></a></h2>
+<h2 class="page-header" data-toc-text="1.4.2" id="rpostgis-142">rpostgis 1.4.2<small>2018-11-12</small><a class="anchor" aria-label="anchor" href="#rpostgis-142"></a></h2>
 <p>BUG FIXES</p>
 <ul><li><p>fixed bug affecting <code>pgWriteRast</code>, affecting rasters with irregular x/y resolutions.</p></li>
 <li><p>fixed bug affecting <code>pgInsert</code>, where single-part polygons with holes were counted as MultiPolygons, causing the geometry column to be defined as MultiPolygon. This did not affect import into the database, but caused an error when single-part polygons (without holes) were attempted to be inserted into the existing table.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.4.1" id="rpostgis-1-4-1">rpostgis 1.4.1<small>2018-08-17</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-4-1"></a></h2>
+<h2 class="page-header" data-toc-text="1.4.1" id="rpostgis-141">rpostgis 1.4.1<small>2018-08-17</small><a class="anchor" aria-label="anchor" href="#rpostgis-141"></a></h2>
 <p>DOCUMENTATION</p>
 <ul><li><p><code>rpostgis</code> now has a new home: <a href="https://mablab.org/rpostgis/" class="uri">https://mablab.org/rpostgis/</a></p></li>
 <li><p>Documentation prepared using <code>pkgdown</code>.</p></li>
 </ul><p>BUG FIXES</p>
-<ul><li>Fixed bug affecting <code>dbReadDataFrame</code>, where datetimes were assigned the PostgreSQL time zone instead of the system timezone. This resulted in incorrect time assignments when the PostgreSQL time zone setting did not match the system’s time zone setting. Tables in PostgreSQL written by <code>dbWriteDataFrame</code> were not affected and have the correct time assigned.</li></ul></div>
+<ul><li>Fixed bug affecting <code>dbReadDataFrame</code>, where datetimes were assigned the PostgreSQL time zone instead of the system timezone. This resulted in incorrect time assignments when the PostgreSQL time zone setting did not match the system’s time zone setting. Tables in PostgreSQL written by <code>dbWriteDataFrame</code> were not affected and have the correct time assigned.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.4.0" id="rpostgis-1-4-0">rpostgis 1.4.0<small>2017-12-10</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-4-0"></a></h2>
+<h2 class="page-header" data-toc-text="1.4.0" id="rpostgis-140">rpostgis 1.4.0<small>2017-12-10</small><a class="anchor" aria-label="anchor" href="#rpostgis-140"></a></h2>
 <p>NEW FEATURES</p>
 <ul><li><p><code>dbAddKey</code> and <code>dbIndex</code>: support added for keys and indexes referencing multiple columns.</p></li>
 <li><p><code>pgWriteRast</code>: new <code>blocks</code> argument to specify exact number of desired blocks for the new raster in PostGIS table. Default block size (<code>blocks = NULL</code>) will retain previous functionality, though the minimum block size (rows or columns) was increased to 100 (previously 80).</p></li>
 </ul><p>BUG FIXES</p>
 <ul><li>
-<code>pgWriteRast</code>: fixed alignment issue affecting high-precision (generally decimal-degree unit) based raster writing, where PostGIS was not able to add a same alignment constraint to all tiles in the newly-created raster.</li></ul></div>
+<code>pgWriteRast</code>: fixed alignment issue affecting high-precision (generally decimal-degree unit) based raster writing, where PostGIS was not able to add a same alignment constraint to all tiles in the newly-created raster.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.3.0" id="rpostgis-1-3-0">rpostgis 1.3.0<small>2017-06-30</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-3-0"></a></h2>
+<h2 class="page-header" data-toc-text="1.3.0" id="rpostgis-130">rpostgis 1.3.0<small>2017-06-30</small><a class="anchor" aria-label="anchor" href="#rpostgis-130"></a></h2>
 <p>OVERALL CHANGES</p>
 <ul><li>Example data removed, now part of extension package <code>rpostgisLT</code>
-</li></ul><p>NEW FUNCTIONS</p>
+</li>
+</ul><p>NEW FUNCTIONS</p>
 <ul><li>
-<code>pgListRast</code> to list all raster columns in a PostGIS database</li></ul><p>NEW FEATURES</p>
+<code>pgListRast</code> to list all raster columns in a PostGIS database</li>
+</ul><p>NEW FEATURES</p>
 <ul><li><p><code>pgGetRast</code>: re-written for faster reading of rasters from the database. Multi-band raster import is now supported (<code>band</code> argument changed to <code>bands</code>, and can be given a vector of integers, or TRUE to return all bands). Default is still to import the first band (1) of the raster. Multi-band rasters imported as <code>RasterBrick</code>-class objects. When raster blocks have imperfect alignment, PostGIS function <code>ST_SnapToGrid</code> is applied to register the raster according to the upper left pixel of the full raster dataset.</p></li>
 <li><p><code>pgGetRast</code>/<code>pgWriteRast</code>: now support sp-class <code>SpatialGrid*</code> and <code>SpatialPixels*</code> type objects. The class of the raster written in pgWriteRast is saved in a database column, and re-applied to the raster during import with <code>pgGetRast</code>.</p></li>
 <li><p>“Data frame mode” for Spatial* objects: now saves proj4string of Spatial* objects in data frame mode writing with <code>pgInsert</code>. It is then re-imported using <code>pgGetGeom</code>, if the saved proj4string and the database proj4string (defined by the column’s SRID) are equivalent. Otherwise, the database proj4string is used.</p></li>
@@ -108,7 +127,7 @@
 <li><p><code>pgGetBoundary</code>: now includes <code>clauses</code> parameter, with same usage as in <code>pgGetGeom</code></p></li>
 </ul><p>UPDATES</p>
 <ul><li><p><code>pgWriteRast</code>: now attempts to write a new SRID to <code>spatial_ref_sys</code>, if one cannot be resolved from the raster’s proj4string.</p></li>
-<li><p>All query-constructor functions (e.g. <code>dbDrop</code>) now return nothing (previously returned TRUE) if <code>exec = FALSE</code>.</p></li>
+<li><p>All query-constructor functions (e.g. <code>dbDrop</code>) now return nothing (previously returned TRUE) if <code>exec = FALSE</code>.</p></li>
 <li><p><code>pgGetGeom</code>: <code>other.cols = FALSE</code> now not necessary when reading only a geometry column (e.g., in query mode or from a one-column table).</p></li>
 </ul><p>BUG FIXES</p>
 <ul><li><p><code>pgWriteRast</code>: fixed bug affecting imported raster’s metadata regarding the upper left pixel location (returned by PostGIS function <code>ST_UpperLeftX</code>/<code>ST_UpperLeftY(rast)</code>). Previously, <code>pgWriteRast</code> was erroneously applying the lower left pixel location for this value. This did not affect the actual data of the raster, or their usage within PostGIS, however it could have affected export of this raster to external files, or viewing in a GIS.</p></li>
@@ -117,31 +136,35 @@
 <li><p><code>dbReadDataFrame</code>: infolocs columns of type <code>POSIXlt</code> now re-import time zone attribute correctly (previously just used database time zone).</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.2.1" id="rpostgis-1-2-1">rpostgis 1.2.1<small>2017-05-07</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-2-1"></a></h2>
+<h2 class="page-header" data-toc-text="1.2.1" id="rpostgis-121">rpostgis 1.2.1<small>2017-05-07</small><a class="anchor" aria-label="anchor" href="#rpostgis-121"></a></h2>
 <p>NEW FEATURES</p>
-<ul><li>Support for PostGIS <code>GEOGRAPHY</code> types added, in <code>pgGetGeom</code>, <code>pgListGeom</code>, <code>pgGetBoundary</code>, <code>pgInsert</code>. With <code>pgInsert</code>, a <code>Spatial*</code> object can be uploaded to PostGIS as a geography using <code>geog = TRUE</code>.</li></ul><p>BUG FIXES</p>
+<ul><li>Support for PostGIS <code>GEOGRAPHY</code> types added, in <code>pgGetGeom</code>, <code>pgListGeom</code>, <code>pgGetBoundary</code>, <code>pgInsert</code>. With <code>pgInsert</code>, a <code>Spatial*</code> object can be uploaded to PostGIS as a geography using <code>geog = TRUE</code>.</li>
+</ul><p>BUG FIXES</p>
 <ul><li><p><code>pgInsert</code> and <code>pgWriteRast</code>: fixed bug causing failed uploads when multiple PostGIS SRIDs found with <code>pgSRID</code> for a spatial object, now uses the first one returned.</p></li>
 <li><p><code>pgGetGeom</code>: fixed bug when loading non-spatial columns with names ‘x’ or ‘y’ for point geometries.</p></li>
 </ul><p>UPDATES</p>
 <ul><li>
-<code>pgGetRast</code>: <code>digits</code> argument default lowered to 5 (same as <code><a href="https://rdrr.io/pkg/raster/man/rasterFromXYZ.html" class="external-link">raster::rasterFromXYZ</a></code>). Resolution of the raster is now determined using PostGIS functions and directly applied to the R raster. This allows (in some cases) for faster recognition of uneven cell sizes, which result in an error.</li></ul></div>
+<code>pgGetRast</code>: <code>digits</code> argument default lowered to 5 (same as <code><a href="https://rdrr.io/pkg/raster/man/rasterFromXYZ.html" class="external-link">raster::rasterFromXYZ</a></code>). Resolution of the raster is now determined using PostGIS functions and directly applied to the R raster. This allows (in some cases) for faster recognition of uneven cell sizes, which result in an error.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.2.0" id="rpostgis-1-2-0">rpostgis 1.2.0<small>2017-03-14</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-2-0"></a></h2>
+<h2 class="page-header" data-toc-text="1.2.0" id="rpostgis-120">rpostgis 1.2.0<small>2017-03-14</small><a class="anchor" aria-label="anchor" href="#rpostgis-120"></a></h2>
 <p>NEW FEATURES</p>
 <ul><li><p><code>pgGetGeom</code>: new <code>query</code> argument allows <code>pgGetGeom</code> to specify a full SQL query which returns a GEOMETRY instead of an existing table/view. If desired, the query can be saved in the database as a new view using the <code>name</code> argument.</p></li>
 <li><p><code>pgInsert</code>: now can insert geometries stored as character in <code>data.frame</code>s using <code>df.geom</code> argument.</p></li>
 </ul><p>BUG FIXES</p>
-<ul><li>Add support for materialized views (read geometries with <code>pgGetGeom</code>, drop with <code>dbDrop</code>).</li></ul></div>
+<ul><li>Add support for materialized views (read geometries with <code>pgGetGeom</code>, drop with <code>dbDrop</code>).</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.1.1" id="rpostgis-1-1-1">rpostgis 1.1.1<small>2017-01-18</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-1-1"></a></h2>
+<h2 class="page-header" data-toc-text="1.1.1" id="rpostgis-111">rpostgis 1.1.1<small>2017-01-18</small><a class="anchor" aria-label="anchor" href="#rpostgis-111"></a></h2>
 <p>BUG FIXES</p>
 <ul><li><p><code>pgGetGeom</code>: fixed bug causing failed imports for views due to usage of <code>RPostgreSQL::dbListFields</code> (changed to <code><a href="../reference/dbTableInfo.html">rpostgis::dbTableInfo</a></code>).</p></li>
 <li><p>fixed bug for data frame mode writing (e.g., <code>pgInsert(...,df.mode =   TRUE)</code> and <code>dbWriteDataFrame</code>) where factor names included a comma.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.1.0" id="rpostgis-1-1-0">rpostgis 1.1.0<small>2017-01-06</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-1-0"></a></h2>
+<h2 class="page-header" data-toc-text="1.1.0" id="rpostgis-110">rpostgis 1.1.0<small>2017-01-06</small><a class="anchor" aria-label="anchor" href="#rpostgis-110"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>Added four example datasets (all have prefix <code>roe_</code>).</li></ul><p>NEW FUNCTIONS</p>
+<ul><li>Added four example datasets (all have prefix <code>roe_</code>).</li>
+</ul><p>NEW FUNCTIONS</p>
 <ul><li><p><code>pgWriteRast</code> to upload R Raster* datasets to PostGIS database tables.</p></li>
 <li><p><code>dbWriteDataFrame</code>/<code>dbReadDataFrame</code>: Write/read in data frame mode to/from database table (see below).</p></li>
 </ul><p>NEW FEATURES</p>
@@ -151,105 +174,126 @@
 <li><p><code>pgGetRast</code> now has a <code>band</code> argument to select which band in the database raster to import.</p></li>
 </ul><p>BUG FIXES</p>
 <ul><li>
-<code>pgGetGeom</code>: Fix bug affecting one-column selections with <code>other.cols</code> argument for line and polygon imports.</li></ul><p>ABOUT DATA FRAME MODE</p>
+<code>pgGetGeom</code>: Fix bug affecting one-column selections with <code>other.cols</code> argument for line and polygon imports.</li>
+</ul><p>ABOUT DATA FRAME MODE</p>
 <p>Writing in data frame mode is only for new database tables (or for overwriting an existing one). It will save all column names as they appear in R, along with column data types and attributes. This is done by adding metadata to a lookup table in the table’s schema named ‘.R_df_defs’ (will be created if not present). It also adds two field with fixed names to the database table: ‘.R_rownames’ (storing the <code>row.names</code> of the data frame), and ‘.db_pkid’, which is a new integer primary key. Existing columns in the <code>data.frame</code> matching these names will be automatically changed.</p>
 <p>All <code>Spatial*DataFrame</code>s writing should continue to use <code>pgInsert</code>, which can write in data frame mode when <code>df.mode = TRUE</code>. For more flexible writing of <code>Spatial*DataFrame</code>s and <code>data.frame</code>s to the database (including all inserts into existing database tables), use <code>pgInsert</code> with <code>df.mode = FALSE</code> (default).</p>
 </div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.0.4" id="rpostgis-1-0-4">rpostgis 1.0.4<a class="anchor" aria-label="anchor" href="#rpostgis-1-0-4"></a></h2>
+<h2 class="page-header" data-toc-text="1.0.4" id="rpostgis-104">rpostgis 1.0.4<a class="anchor" aria-label="anchor" href="#rpostgis-104"></a></h2>
 <p>OVERALL CHANGE</p>
-<ul><li>Add package tests to repository.</li></ul><p>BUG FIXES</p>
+<ul><li>Add package tests to repository.</li>
+</ul><p>BUG FIXES</p>
 <ul><li>
-<code>pgGetGeom</code>: Fix bug which was causing errors when using ‘ORDER BY …’ statements in the <code>clauses</code> argument.</li></ul></div>
+<code>pgGetGeom</code>: Fix bug which was causing errors when using ‘ORDER BY …’ statements in the <code>clauses</code> argument.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.0.3" id="rpostgis-1-0-3">rpostgis 1.0.3<small>2016-10-29</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-0-3"></a></h2>
+<h2 class="page-header" data-toc-text="1.0.3" id="rpostgis-103">rpostgis 1.0.3<small>2016-10-29</small><a class="anchor" aria-label="anchor" href="#rpostgis-103"></a></h2>
 <p>OVERALL CHANGE</p>
-<ul><li>Only allow <postgresqlconnection> for executed queries.</postgresqlconnection></li></ul><p>NEW FUNCTIONS</p>
+<ul><li>Only allow <postgresqlconnection> for executed queries.</postgresqlconnection></li>
+</ul><p>NEW FUNCTIONS</p>
 <ul><li><p><code>dbBuildTableQuery</code> (internal): Builds CREATE TABLE query for a data frame object.</p></li>
 <li><p><code>dbExistsTable</code> (internal): Check if a PostgreSQL table exists.</p></li>
 <li><p><code>dbConnCheck</code> (internal): Check if a supported PostgreSQL connection.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.0.2" id="rpostgis-1-0-2">rpostgis 1.0.2<small>2016-09-26</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-0-2"></a></h2>
+<h2 class="page-header" data-toc-text="1.0.2" id="rpostgis-102">rpostgis 1.0.2<small>2016-09-26</small><a class="anchor" aria-label="anchor" href="#rpostgis-102"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>Updated to use current search path schema as default in all functions (in previous versions default schema was fixed to ‘public’).</li></ul><p>NEW FUNCTIONS</p>
+<ul><li>Updated to use current search path schema as default in all functions (in previous versions default schema was fixed to ‘public’).</li>
+</ul><p>NEW FUNCTIONS</p>
 <ul><li>
-<code>dbVersion</code> (internal): PostgreSQL version checking.</li></ul><p>NEW FEATURES</p>
+<code>dbVersion</code> (internal): PostgreSQL version checking.</li>
+</ul><p>NEW FEATURES</p>
 <ul><li>
-<code>pgInsert</code> now provides ‘upsert’ functionality (INSERT ON CONFLICT UPDATE) with the ‘upsert.using’ argument. Requires PostgreSQL version 9.5+.</li></ul></div>
+<code>pgInsert</code> now provides ‘upsert’ functionality (INSERT ON CONFLICT UPDATE) with the ‘upsert.using’ argument. Requires PostgreSQL version 9.5+.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.0.1" id="rpostgis-1-0-1">rpostgis 1.0.1<a class="anchor" aria-label="anchor" href="#rpostgis-1-0-1"></a></h2>
+<h2 class="page-header" data-toc-text="1.0.1" id="rpostgis-101">rpostgis 1.0.1<a class="anchor" aria-label="anchor" href="#rpostgis-101"></a></h2>
 <p>NEW FEATURES</p>
 <ul><li>
-<code>pgPostGIS</code> now returns TRUE for non-standard installs.</li></ul></div>
+<code>pgPostGIS</code> now returns TRUE for non-standard installs.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.0.0" id="rpostgis-1-0-0">rpostgis 1.0.0<small>2016-08-20</small><a class="anchor" aria-label="anchor" href="#rpostgis-1-0-0"></a></h2>
+<h2 class="page-header" data-toc-text="1.0.0" id="rpostgis-100">rpostgis 1.0.0<small>2016-08-20</small><a class="anchor" aria-label="anchor" href="#rpostgis-100"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>Initial release to CRAN.</li></ul><p>NEW FEATURES</p>
+<ul><li>Initial release to CRAN.</li>
+</ul><p>NEW FEATURES</p>
 <ul><li>
-<code>pgGetGeom</code> now handles all regular PostGIS Geometry data table imports.</li></ul></div>
+<code>pgGetGeom</code> now handles all regular PostGIS Geometry data table imports.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.10" id="rpostgis-0-10">rpostgis 0.10<a class="anchor" aria-label="anchor" href="#rpostgis-0-10"></a></h2>
+<h2 class="page-header" data-toc-text="0.10" id="rpostgis-010">rpostgis 0.10<a class="anchor" aria-label="anchor" href="#rpostgis-010"></a></h2>
 <p>OVERALL CHANGES</p>
 <ul><li><p>Big package cleaning.</p></li>
 <li><p>Changed all non-PostGIS related functions to <code>db-</code> instead of <code>pg-</code>.</p></li>
 <li><p>All functions not returning an actual object now returns <code>TRUE</code> if successful.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.8.3" id="rpostgis-0-8-3">rpostgis 0.8.3<a class="anchor" aria-label="anchor" href="#rpostgis-0-8-3"></a></h2>
+<h2 class="page-header" data-toc-text="0.8.3" id="rpostgis-083">rpostgis 0.8.3<a class="anchor" aria-label="anchor" href="#rpostgis-083"></a></h2>
 <p>OVERALL CHANGE</p>
 <ul><li><p>Change ‘str’ to ‘query’</p></li>
 <li><p>Now uses <code>messages</code> instead of <code>cat</code> to print SQL code.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.8.2" id="rpostgis-0-8-2">rpostgis 0.8.2<a class="anchor" aria-label="anchor" href="#rpostgis-0-8-2"></a></h2>
+<h2 class="page-header" data-toc-text="0.8.2" id="rpostgis-082">rpostgis 0.8.2<a class="anchor" aria-label="anchor" href="#rpostgis-082"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>Changed file extension to .R.</li></ul></div>
+<ul><li>Changed file extension to .R.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.8.1" id="rpostgis-0-8-1">rpostgis 0.8.1<a class="anchor" aria-label="anchor" href="#rpostgis-0-8-1"></a></h2>
+<h2 class="page-header" data-toc-text="0.8.1" id="rpostgis-081">rpostgis 0.8.1<a class="anchor" aria-label="anchor" href="#rpostgis-081"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>Fixed dependencies (DESCRIPTION, namespace, ::).</li></ul></div>
+<ul><li>Fixed dependencies (DESCRIPTION, namespace, ::).</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.8" id="rpostgis-0-8">rpostgis 0.8<a class="anchor" aria-label="anchor" href="#rpostgis-0-8"></a></h2>
+<h2 class="page-header" data-toc-text="0.8" id="rpostgis-08">rpostgis 0.8<a class="anchor" aria-label="anchor" href="#rpostgis-08"></a></h2>
 <p>NEW FUNCTIONS</p>
 <ul><li>
-<code>pgPostGIS</code>: Check and create PostGIS extension.</li></ul><p>NEW FEATURES</p>
+<code>pgPostGIS</code>: Check and create PostGIS extension.</li>
+</ul><p>NEW FEATURES</p>
 <ul><li>
-<code>pgSchema</code>: Now returns TRUE if the schema exists (whether it was already available or was just created).</li></ul></div>
+<code>pgSchema</code>: Now returns TRUE if the schema exists (whether it was already available or was just created).</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.7" id="rpostgis-0-7">rpostgis 0.7<a class="anchor" aria-label="anchor" href="#rpostgis-0-7"></a></h2>
+<h2 class="page-header" data-toc-text="0.7" id="rpostgis-07">rpostgis 0.7<a class="anchor" aria-label="anchor" href="#rpostgis-07"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>Initial merge with <code>pgis2r</code> package, incorporating support for loading geometry/raster objects stored in PostgreSQL databases in R.</li></ul><p>NEW FUNCTIONS</p>
+<ul><li>Initial merge with <code>pgis2r</code> package, incorporating support for loading geometry/raster objects stored in PostgreSQL databases in R.</li>
+</ul><p>NEW FUNCTIONS</p>
 <ul><li><p><code>pgGetRast</code>: Load raster from PostGIS database.</p></li>
 <li><p><code>pgGetLines</code>: Load a PostGIS linestring geometry from a PostgreSQL table/view into R.</p></li>
 <li><p><code>pgGetPolys</code>: Load a PostGIS polygon geometry from a PostgreSQL table/view into R.</p></li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.6.1" id="rpostgis-0-6-1">rpostgis 0.6.1<a class="anchor" aria-label="anchor" href="#rpostgis-0-6-1"></a></h2>
+<h2 class="page-header" data-toc-text="0.6.1" id="rpostgis-061">rpostgis 0.6.1<a class="anchor" aria-label="anchor" href="#rpostgis-061"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>Update for roxygen2 4.0.</li></ul></div>
+<ul><li>Update for roxygen2 4.0.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.6" id="rpostgis-0-6">rpostgis 0.6<a class="anchor" aria-label="anchor" href="#rpostgis-0-6"></a></h2>
+<h2 class="page-header" data-toc-text="0.6" id="rpostgis-06">rpostgis 0.6<a class="anchor" aria-label="anchor" href="#rpostgis-06"></a></h2>
 <p>NEW FUNCTIONS</p>
 <ul><li>
-<code>pgGetPts</code>: Retrieve point geometries.</li></ul></div>
+<code>pgGetPts</code>: Retrieve point geometries.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.5" id="rpostgis-0-5">rpostgis 0.5<a class="anchor" aria-label="anchor" href="#rpostgis-0-5"></a></h2>
+<h2 class="page-header" data-toc-text="0.5" id="rpostgis-05">rpostgis 0.5<a class="anchor" aria-label="anchor" href="#rpostgis-05"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>Code completely commented and cleaned.</li></ul><p>NEW FUNCTIONS</p>
+<ul><li>Code completely commented and cleaned.</li>
+</ul><p>NEW FUNCTIONS</p>
 <ul><li>
-<code>pgColumn</code>: Add or remove a column (replaces <code>pgDropColumn</code>).</li></ul></div>
+<code>pgColumn</code>: Add or remove a column (replaces <code>pgDropColumn</code>).</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.4" id="rpostgis-0-4">rpostgis 0.4<a class="anchor" aria-label="anchor" href="#rpostgis-0-4"></a></h2>
+<h2 class="page-header" data-toc-text="0.4" id="rpostgis-04">rpostgis 0.4<a class="anchor" aria-label="anchor" href="#rpostgis-04"></a></h2>
 <p>NEW FUNCTIONS</p>
 <ul><li>
-<code>pgMakePts</code> and <code>pgMakeStp</code>: Add a POINT or LINESTRING geometry field.</li></ul></div>
+<code>pgMakePts</code> and <code>pgMakeStp</code>: Add a POINT or LINESTRING geometry field.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.3.1" id="rpostgis-0-3-1">rpostgis 0.3.1<a class="anchor" aria-label="anchor" href="#rpostgis-0-3-1"></a></h2>
+<h2 class="page-header" data-toc-text="0.3.1" id="rpostgis-031">rpostgis 0.3.1<a class="anchor" aria-label="anchor" href="#rpostgis-031"></a></h2>
 <p>OVERALL CHANGES</p>
-<ul><li>Global change for <code>display = TRUE</code> to print the executed or non-executed query.</li></ul></div>
+<ul><li>Global change for <code>display = TRUE</code> to print the executed or non-executed query.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.3" id="rpostgis-0-3">rpostgis 0.3<a class="anchor" aria-label="anchor" href="#rpostgis-0-3"></a></h2>
+<h2 class="page-header" data-toc-text="0.3" id="rpostgis-03">rpostgis 0.3<a class="anchor" aria-label="anchor" href="#rpostgis-03"></a></h2>
 <p>OVERALL CHANGES</p>
 <ul><li><p>Non executed examples added for each function.</p></li>
 <li><p><code>display = TRUE</code> by defaults for all functions.</p></li>
@@ -259,9 +303,10 @@
 <li><p><code>pgSchema</code>: Create schema.</p></li>
 </ul><p>NEW FEATURES</p>
 <ul><li>
-<code>pgComment</code>: Allows comments on schemas.</li></ul></div>
+<code>pgComment</code>: Allows comments on schemas.</li>
+</ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.2" id="rpostgis-0-2">rpostgis 0.2<a class="anchor" aria-label="anchor" href="#rpostgis-0-2"></a></h2>
+<h2 class="page-header" data-toc-text="0.2" id="rpostgis-02">rpostgis 0.2<a class="anchor" aria-label="anchor" href="#rpostgis-02"></a></h2>
 <p>OVERALL CHANGES</p>
 <ul><li><p>Change the package name to <code>rpostgis</code>.</p></li>
 <li><p>Change every <code>db</code>- function to <code>pg</code>- function, in order to avoid confusion with standard <code>DBI</code> or <code>RPostgreSQL</code> functions.</p></li>
@@ -276,7 +321,7 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://mablab.org" class="external-link">Mathieu Basille</a>, <a href="https://mablab.org/people/david-bucklin/" class="external-link">David Bucklin</a>.</p>
+  <p></p><p>Developed by <a href="https://mablab.org" class="external-link">Mathieu Basille</a>, <a href="https://mablab.org/people/david-bucklin/" class="external-link">David Bucklin</a>, <a href="https://adrian-cidre.com/" class="external-link">Adrián Cidre González</a>.</p>
 </div>
 
 <div class="pkgdown">

@@ -9,6 +9,7 @@ pgPostGIS(
   topology = FALSE,
   tiger = FALSE,
   sfcgal = FALSE,
+  raster = FALSE,
   display = TRUE,
   exec = TRUE
 )
@@ -28,6 +29,8 @@ all are available.}
 \item{sfcgal}{Logical. Whether to check/install the SFCGAL
 extension.}
 
+\item{raster}{Logical. Whether to check/install the Raster extension}
+
 \item{display}{Logical. Whether to display the query (defaults to
 \code{TRUE}).}
 
@@ -35,13 +38,13 @@ extension.}
 \code{TRUE}).}
 }
 \value{
-\code{TRUE} if PostGIS is installed.
+If \code{exec = TRUE}, returns \code{TRUE} if PostGIS is installed.
 }
 \description{
 The function checks for the availability of the PostGIS extension,
 and if it is available, but not installed, install
-it. Additionally, can also install Topology, Tiger Geocoder and
-SFCGAL extensions.
+it. Additionally, can also install Topology, Tiger Geocoder,
+SFCGAL and Raster extensions.
 }
 \examples{
 ## 'exec = FALSE' does not install any extension, but nevertheless
@@ -52,5 +55,6 @@ SFCGAL extensions.
 }
 }
 \author{
-Mathieu Basille \email{basille@ufl.edu}
+Mathieu Basille \email{basille@ufl.edu} and
+        Adrián Cidre González \email{adrian.cidre@gmail.com}
 }

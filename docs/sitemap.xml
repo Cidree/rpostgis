@@ -112,6 +112,9 @@
     <loc>https://mablab.org/rpostgis/reference/pgSRID.html</loc>
   </url>
   <url>
+    <loc>https://mablab.org/rpostgis/reference/pgWriteGeom.html</loc>
+  </url>
+  <url>
     <loc>https://mablab.org/rpostgis/reference/pgWriteRast.html</loc>
   </url>
   <url>

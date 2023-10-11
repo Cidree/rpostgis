@@ -36,8 +36,7 @@ rhub::check(platform = "windows-x86_64-devel")
 
 # install()
 # test code coverage
-source("tests/tests_basic.R")
-print(ae.all) # all.equal test results (returns all TRUE except for one)
+source("tests/testthat/tests_1_5.R") # no errors
 
 # check code coverage
 library(covr)

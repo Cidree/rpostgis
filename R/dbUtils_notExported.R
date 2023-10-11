@@ -14,8 +14,7 @@
 ##' @return character vector of length 2. Each character element is in
 ##'     (escaped) double-quotes when as.identifier = TRUE.
 ##' @keywords internal
-##' @importFrom DBI dbQuoteIdentifier
-##' @importFrom DBI dbQuoteString
+##' @importFrom DBI dbQuoteIdentifier dbQuoteString
 ##' @examples
 ##' \dontrun{
 ##' name <- c("schema", "table")
@@ -32,18 +31,18 @@
 ##' dbTableNameFix(conn, name)
 ##' }
 
-dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
+dbTableNameFix <- function(conn = NULL, t.nm, as.identifier = TRUE) {
     ## case of no schema provided
       if (length(t.nm) == 1 && !is.null(conn) && !inherits(conn, what = "AnsiConnection")) {
-        schemalist<-dbGetQuery(conn,"select nspname as s from pg_catalog.pg_namespace;")$s
-        user<-dbGetQuery(conn,"SELECT current_user as user;")$user
-        schema<-dbGetQuery(conn,"SHOW search_path;")$search_path
-        schema<-gsub(" ","",unlist(strsplit(schema,",",fixed=TRUE)),fixed=TRUE)
+        schemalist <- dbGetQuery(conn,"select nspname as s from pg_catalog.pg_namespace;")$s
+        user <- dbGetQuery(conn,"SELECT current_user as user;")$user
+        schema <- dbGetQuery(conn,"SHOW search_path;")$search_path
+        schema <- gsub(" ","",unlist(strsplit(schema,",",fixed = TRUE)),fixed = TRUE)
         # use user schema if available
         if ("\"$user\"" == schema[1] && user %in% schemalist) {
-          sch<-user
+          sch <- user
         } else {
-          sch<-schema[!schema=="\"$user\""][1]
+          sch <- schema[!schema == "\"$user\""][1]
         }
         t.nm <- c(sch, t.nm)
       }
@@ -51,9 +50,9 @@ dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
       {
         stop("Invalid PostgreSQL table/view name. Must be provided as one ('table') or two-length c('schema','table') character vector.")
       }
-    if (is.null(conn)) {conn<-DBI::ANSI()}
+    if (is.null(conn)) {conn <- DBI::ANSI()}
     if (!as.identifier) {return(t.nm)} else {
-    t.nm<-DBI::dbQuoteIdentifier(conn, t.nm)
+    t.nm <- DBI::dbQuoteIdentifier(conn, t.nm)
     return(t.nm)
     }
 }
@@ -66,9 +65,9 @@ dbTableNameFix <- function(conn=NULL, t.nm, as.identifier = TRUE) {
 ##' @return numeric vector of length 3 of major,minor,bug version.
 ##' @keywords internal
 
-dbVersion<- function (conn) {
-      pv<-dbGetQuery(conn,"SHOW server_version;")$server_version
-      nv<-unlist(strsplit(pv,".",fixed=TRUE))
+dbVersion <- function(conn) {
+      pv <- dbGetQuery(conn,"SHOW server_version;")$server_version
+      nv <- unlist(strsplit(pv,".",fixed = TRUE))
       return(as.numeric(nv))
 }
 
@@ -85,12 +84,12 @@ dbVersion<- function (conn) {
 ##' @note Adapted from RPostgreSQL::postgresqlBuildTableDefinition
 ##' @keywords internal
 
-dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.names = FALSE) {
+dbBuildTableQuery <- function(conn = NULL, name, obj, field.types = NULL, row.names = FALSE) {
     if (is.null(conn)) {
       conn <- DBI::ANSI()
       nameque <- dbQuoteIdentifier(conn,name)
     } else {
-      nameque<-paste(dbTableNameFix(conn, name),collapse = ".")
+      nameque <- paste(dbTableNameFix(conn, name),collapse = ".")
     }
 
     if (!is.data.frame(obj))
@@ -119,32 +118,32 @@ dbBuildTableQuery <- function (conn = NULL, name, obj, field.types = NULL, row.n
 ##'
 ##' @keywords internal
 
-dbExistsTable <- function (conn, name, table.only = FALSE) {
-    if (!table.only) to<-NULL else to<-" AND table_type = 'BASE TABLE'"
-    full.name<-dbTableNameFix(conn,name, as.identifier = FALSE)
-    chk<-dbGetQuery(conn, paste0("SELECT 1 FROM information_schema.tables
+dbExistsTable <- function(conn, name, table.only = FALSE) {
+    if (!table.only) to <- NULL else to <- " AND table_type = 'BASE TABLE'"
+    full.name <- dbTableNameFix(conn,name, as.identifier = FALSE)
+    chk <- dbGetQuery(conn, paste0("SELECT 1 FROM information_schema.tables
                WHERE table_schema = ",dbQuoteString(conn,full.name[1]),
                " AND table_name = ",dbQuoteString(conn,full.name[2]),to,";"))[1,1]
     if (length(chk) == 1 && is.na(chk)) chk <- NULL
     if (is.null(chk)) {
       exists.t <- FALSE
       # check version (matviews >= 9.3)
-      ver<-dbVersion(conn)
+      ver <- dbVersion(conn)
       if (!table.only & !(ver[1] < 9 | (ver[1] == 9 && ver[2] < 3))) {
         # matview case - not in information_schema
-        chk2<-dbGetQuery(conn, paste0("SELECT oid::regclass::text, relname
+        chk2 <- dbGetQuery(conn, paste0("SELECT oid::regclass::text, relname
                 FROM pg_class
                 WHERE relkind = 'm'
                 AND relname = ",dbQuoteString(conn,full.name[2]),";"))
         if (length(names(chk2)) > 0) {
-          sch<-gsub(paste0(".",chk2[1,2]),"",chk2[,1])
-          if (full.name[1] %in% sch) exists.t<-TRUE else exists.t<-FALSE
+          sch <- gsub(paste0(".",chk2[1,2]),"",chk2[,1])
+          if (full.name[1] %in% sch) exists.t <- TRUE else exists.t <- FALSE
         } else {
-          exists.t<-FALSE
+          exists.t <- FALSE
         }
       }
     } else {
-    exists.t<-TRUE
+    exists.t <- TRUE
     }
   return(exists.t)
 }
@@ -197,7 +196,7 @@ dbGetDefs <- function(conn, name) {
 ##' and return the column name for use in a query.
 ##'
 ##' @param conn A PostgreSQL connection
-##' @param namechar A table name formatted for use in a query
+##' @param name A table name formatted for use in a query
 ##' @param geom a geometry or geography column name
 ##'
 ##' @keywords internal
@@ -263,10 +262,10 @@ pgGetSRID <- function(conn, name, geom) {
 ## bs
 ##' Return indexes for an exact number of blocks for a raster
 ##'
-##' @param r a raster
+##' @param r a RasterLayer or SpatRaster object
 ##' @param blocks Number of desired blocks (columns, rows)
 ##'
-##' @importFrom raster nrow ncol
+##' @importFrom terra nrow ncol rast
 ##' @keywords internal
 
 bs <- function(r, blocks) {
@@ -278,47 +277,57 @@ bs <- function(r, blocks) {
 
   cr <- list()
   tr <- list()
+  
+  # Manage RasterLayer
+  if (class(r)[1] == "RasterLayer") {
+    r <- terra::rast(r)
+  }
+  
+  if (class(r)[1] == "SpatRaster") {
+    n.c <- terra::ncol(r)
+    n.r <- terra::nrow(r)
+  } else {
+    stop("Invalid input: 'r' must be either a RasterLayer or SpatRaster object.")
+  }
 
   # cr
   b <- blocks[1]
-  n.r <- raster::ncol(r)
   if (b == 1) {
     cr$row <- 1
-    cr$nrows <- n.r
+    cr$nrows <- n.c
     cr$n <- 1
   } else {
-    if (b >= n.r) b <- n.r
-    if (n.r%%b == 0) {
-      by <- n.r/b
-      cr$row <- seq(1, to = n.r, by = by)
+    if (b >= n.c) b <- n.c
+    if (n.c %% b == 0) {
+      by <- n.c/b
+      cr$row <- seq(1, to = n.c, by = by)
       cr$nrows <- rep(by, b)
       cr$n <- length(cr$row)
     } else {
-      by <- floor(n.r/b)
-      cr$row <- c(1,seq(1+by+(n.r%%b), to = n.r, by = by))
-      cr$nrows <- c(cr$row[2:length(cr$row)], n.r+1) - cr$row
+      by <- floor(n.c/b)
+      cr$row <- c(1,seq(1 + by + (n.c %% b), to = n.c, by = by))
+      cr$nrows <- c(cr$row[2:length(cr$row)], n.c + 1) - cr$row
       cr$n <- length(cr$row)
     }
   }
 
   # tr
   b <- blocks[2]
-  n.r <- raster::nrow(r)
   if (b == 1) {
     tr$row <- 1
     tr$nrows <- n.r
     tr$n <- 1
   } else {
     if (b >= n.r) b <- n.r
-    if (n.r%%b == 0) {
+    if (n.r %% b == 0) {
       by <- n.r/b
       tr$row <- seq(1, to = n.r, by = by)
       tr$nrows <- rep(by, b)
       tr$n <- length(tr$row)
     } else {
       by <- floor(n.r/b)
-      tr$row <- c(1,seq(1+by+(n.r%%b), to = n.r, by = by))
-      tr$nrows <- c(tr$row[2:length(tr$row)], n.r+1) - tr$row
+      tr$row <- c(1,seq(1 + by + (n.r %% b), to = n.r, by = by))
+      tr$nrows <- c(tr$row[2:length(tr$row)], n.r + 1) - tr$row
       tr$n <- length(tr$row)
     }
   }

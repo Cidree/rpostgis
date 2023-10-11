@@ -12,27 +12,29 @@ pgWriteRast(
   blocks = NULL,
   constraints = TRUE,
   overwrite = FALSE,
-  append = FALSE
+  append = FALSE,
+  progress = TRUE
 )
 }
 \arguments{
-\item{conn}{A connection object to a PostgreSQL database}
+\item{conn}{A connection object to a PostgreSQL database.}
 
-\item{name}{A character string specifying a PostgreSQL schema (if
-necessary) and table name to hold the
-raster (e.g., \code{name = c("schema","table")})}
+\item{name}{A character string specifying a PostgreSQL schema in the
+database (if necessary) and table name to hold the raster (e.g., 
+\code{name = c("schema","table")}).}
 
-\item{raster}{An R \code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack} from 
-raster package; a \code{SpatialGrid*} or \code{SpatialPixels*} from sp package}
+\item{raster}{An terra \code{SpatRaster}; objects from the raster
+package (\code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack}); 
+a \code{SpatialGrid*} or \code{SpatialPixels*} from sp package.}
 
 \item{bit.depth}{The bit depth of the raster. Will be set to 32-bit
 (unsigned int, signed int, or float, depending on the data)
 if left null, but can be specified (as character) as one of the
-PostGIS pixel types (see \url{http://postgis.net/docs/RT_ST_BandPixelType.html})}
+PostGIS pixel types (see \url{http://postgis.net/docs/RT_ST_BandPixelType.html}).}
 
 \item{blocks}{Optional desired number of blocks (tiles) to split the raster
 into in the resulting PostGIS table. This should be specified as a
-one or two-length (columns, rows) integer vector.}
+one or two-length (columns, rows) integer vector. See also 'Details'.}
 
 \item{constraints}{Whether to create constraints from raster data. Recommended
 to leave \code{TRUE} unless applying constraints manually (see
@@ -43,6 +45,9 @@ depending on the PostgreSQL server settings.}
 \item{overwrite}{Whether to overwrite the existing table (\code{name}).}
 
 \item{append}{Whether to append to the existing table (\code{name}).}
+
+\item{progress}{whether to show a progress bar (TRUE by default). The progress
+bar mark the progress of writing blocks into the database.}
 }
 \value{
 TRUE for successful import.
@@ -51,26 +56,26 @@ TRUE for successful import.
 Sends R raster to a PostGIS database table.
 }
 \details{
-RasterLayer names will be stored in an array in the column
+SpatRaster band names will be stored in an array in the column
 "band_names", which will be restored in R when imported with the function
 \code{\link[rpostgis]{pgGetRast}}.
 
-Rasters from the \code{sp} package are converted to \code{raster}
-package objects prior to insert.
+Rasters from the \code{sp} and \code{raster} packages are converted to 
+\code{terra} objects prior to insert.
 
-If \code{blocks = NULL} the attempted block size will be around
-10,000 pixels in size (100 x 100 cells), so number of blocks will
-vary by raster size. If a specified number of blocks is desired,
-set blocks to a one or two-length integer vector. Note that fewer, larger
-blocks generally results in faster write times.
+If \code{blocks = NULL}, the number of block will vary by raster size, with
+a default value of 100 copies of the data in the memory at any point in time.
+If a specified number of blocks is desired, set blocks to a one or two-length 
+integer vector. Note that fewer, larger blocks generally results in faster
+write times.
 }
 \examples{
 \dontrun{
 pgWriteRast(conn, c("schema", "tablename"), raster_name)
 
 # basic test
-r <- raster::raster(nrows=180, ncols=360, xmn=-180, xmx=180,
-    ymn=-90, ymx=90, vals=1)
+r <- terra::rast(nrows=180, ncols=360, xmin=-180, xmax=180,
+    ymin=-90, ymax=90, vals=1)
 pgWriteRast(conn, c("schema", "test"), raster = r,
     bit.depth = "2BUI", overwrite = TRUE)
 }
@@ -80,5 +85,6 @@ Function follows process from
 \url{http://postgis.net/docs/using_raster_dataman.html#RT_Creating_Rasters}.
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com}
+David Bucklin \email{david.bucklin@gmail.com} and Adrián Cidre 
+González \email{adrian.cidre@gmail.com}
 }

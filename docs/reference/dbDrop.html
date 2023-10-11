@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rpostgis</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.0</span>
       </span>
     </div>
 
@@ -117,8 +117,8 @@ exist. A notice is issued in this case.</p></dd>
     <h2>Value</h2>
     
 
-<p><code>TRUE</code> if the table/schema/view was successfully
-    dropped.</p>
+<p>If <code>exec = TRUE</code>, returns <code>TRUE</code> if the table/schema/view 
+was successfully dropped.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -135,7 +135,7 @@ exist. A notice is issued in this case.</p></dd>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## examples use a dummy connection from DBI package</span></span></span>
-<span class="r-in"><span><span class="va">conn</span><span class="op">&lt;-</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/ANSI.html" class="external-link">ANSI</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/ANSI.html" class="external-link">ANSI</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">dbDrop</span><span class="op">(</span><span class="va">conn</span>, name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"schema"</span>, <span class="st">"view_name"</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"view"</span>, exec <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Query not executed:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DROP VIEW "schema"."view_name";</span>
@@ -152,7 +152,7 @@ exist. A notice is issued in this case.</p></dd>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://mablab.org" class="external-link">Mathieu Basille</a>, <a href="https://mablab.org/people/david-bucklin/" class="external-link">David Bucklin</a>.</p>
+  <p></p><p>Developed by <a href="https://mablab.org" class="external-link">Mathieu Basille</a>, <a href="https://mablab.org/people/david-bucklin/" class="external-link">David Bucklin</a>, <a href="https://adrian-cidre.com/" class="external-link">Adrián Cidre González</a>.</p>
 </div>
 
 <div class="pkgdown">

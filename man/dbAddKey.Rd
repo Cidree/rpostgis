@@ -46,7 +46,7 @@ the name of the columns for keys spanning more than one column
 \code{TRUE}).}
 }
 \value{
-\code{TRUE} if the key was successfully added.
+If \code{exec = TRUE}, returns \code{TRUE} if the key was successfully added.
 }
 \description{
 Add a primary or foreign key to a table column.

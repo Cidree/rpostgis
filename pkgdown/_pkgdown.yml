@@ -28,6 +28,8 @@ authors:
     href: https://mablab.org
   David Bucklin:
     href: https://mablab.org/people/david-bucklin/
+  Adrián Cidre González:
+    href: https://adrian-cidre.com/
 
 reference:
 - title: "PostGIS management"
@@ -40,6 +42,7 @@ reference:
   contents:
   - pgInsert
   - pgGetGeom
+  - pgWriteGeom
   - pgWriteRast
   - pgGetRast
 - title: "Other spatial functions"
