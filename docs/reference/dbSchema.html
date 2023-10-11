@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rpostgis</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.0</span>
       </span>
     </div>
 
@@ -98,8 +98,8 @@ it does not exists.</p></dd>
     <h2>Value</h2>
     
 
-<p><code>TRUE</code> if the schema exists (whether it was already
-    available or was just created).</p>
+<p>If <code>exec = TRUE</code>, returns <code>TRUE</code> if the schema exists 
+(whether it was already available or was just created).</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -114,7 +114,7 @@ it does not exists.</p></dd>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>    <span class="fu">dbSchema</span><span class="op">(</span>name <span class="op">=</span> <span class="st">"schema"</span>, exec <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">dbSchema</span><span class="op">(</span><span class="va">conn</span>, name <span class="op">=</span> <span class="st">"schema"</span>, exec <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
@@ -126,7 +126,7 @@ it does not exists.</p></dd>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://mablab.org" class="external-link">Mathieu Basille</a>, <a href="https://mablab.org/people/david-bucklin/" class="external-link">David Bucklin</a>.</p>
+  <p></p><p>Developed by <a href="https://mablab.org" class="external-link">Mathieu Basille</a>, <a href="https://mablab.org/people/david-bucklin/" class="external-link">David Bucklin</a>, <a href="https://adrian-cidre.com/" class="external-link">Adrián Cidre González</a>.</p>
 </div>
 
 <div class="pkgdown">

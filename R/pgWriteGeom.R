@@ -410,10 +410,8 @@ print.pgi <- function(x, ...) {
 ##' objects (no data frame), a new ID column is created by default with name
 ##' \code{"gid"}.
 ##'
-##' If the R package \code{wkb} is installed, this function will use
-##' \code{\link[wkb]{writeWKB}} for certain datasets (non-Multi types,
-##' non-Linestring), which is faster for large datasets.  In all other
-##' cases the \code{rgeos} function \code{\link[rgeos]{writeWKT}} is used.
+##' This function will use \code{\link[sf]{st_as_text}} for geography types, and
+##' \code{\link[sf]{st_as_binary}} for geometry types.
 ##'
 ##' In the event of function or database error, the database uses
 ##' ROLLBACK to revert to the previous state. 
@@ -542,8 +540,8 @@ pgInsert <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, parti
                      alter.names = FALSE, encoding = NULL, return.pgi = FALSE, df.geom = NULL, geog = FALSE) {
   
   # Startup message
-  message("This function has been deprecated. We highly encourage you to switch
-          to the new function 'pgWriteGeom' for writing spatial data to PostGIS.")
+  message("This function has been deprecated in version 1.5.0.
+          Please use `pgWriteGeom` instead.")
   
   # auto-geog
   if (geom == "geog") geog <- TRUE

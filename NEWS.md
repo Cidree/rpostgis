@@ -23,6 +23,8 @@ OVERALL CHANGES
 
 * `pgWriteRast`: the argument `raster` now accepts `SpatRaster` objects. The default value of the `blocks` argument works slightly different now. It uses the function `blocks` of the `terra` package, which uses the number of copies of the data that may be in memory at any time. Since big rasters can take some time to write, an optional progress bar was added to this function.
 
+* `pgPostGIS`: added a new argument `raster` to install the postgis_raster extension.
+
 rpostgis 1.4.4
 ==============
 

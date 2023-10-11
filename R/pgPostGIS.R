@@ -4,8 +4,8 @@
 ##'
 ##' The function checks for the availability of the PostGIS extension,
 ##' and if it is available, but not installed, install
-##' it. Additionally, can also install Topology, Tiger Geocoder and
-##' SFCGAL extensions.
+##' it. Additionally, can also install Topology, Tiger Geocoder,
+##' SFCGAL and Raster extensions.
 ##'
 ##' @param conn A connection object (required, even if \code{exec =
 ##'     FALSE}).
@@ -17,12 +17,14 @@
 ##'     all are available.
 ##' @param sfcgal Logical. Whether to check/install the SFCGAL
 ##'     extension.
+##' @param raster Logical. Whether to check/install the Raster extension
 ##' @param display Logical. Whether to display the query (defaults to
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
 ##' @return If \code{exec = TRUE}, returns \code{TRUE} if PostGIS is installed.
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{basille@@ufl.edu} and
+##'         Adrián Cidre González \email{adrian.cidre@@gmail.com}
 ##' @export
 ##' @examples
 ##' ## 'exec = FALSE' does not install any extension, but nevertheless
@@ -33,7 +35,7 @@
 ##' }
 
 pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE, 
-    sfcgal = FALSE, display = TRUE, exec = TRUE) {
+    sfcgal = FALSE, raster = FALSE, display = TRUE, exec = TRUE) {
     dbConnCheck(conn)
     ## Get the list of extensions from PostgreSQL
     ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
@@ -198,6 +200,40 @@ pgPostGIS <- function(conn, topology = FALSE, tiger = FALSE,
                 sfc$installed_version, " installed."))
         }
     }
+    
+    ## Raster extension
+    if (raster) {
+        ## Check if Topology is available:
+        if (!("postgis_raster" %in% ext$name)) 
+            message("PostGIS Topology extension not available.") else {
+                ## Extract it and check if installed; if not, install it:
+                rast.ext <- subset(ext, ext$name == "postgis_raster")
+                if (is.na(rast.ext$installed_version)) {
+                    ## Print message:
+                    message(paste0("Installing PostGIS Raster extension version ", 
+                                   rast.ext$default_version), ":")
+                    ## Build the query
+                    query <- paste0("CREATE EXTENSION postgis_raster;")
+                    ## Display the query
+                    if (display) {
+                        message(paste0("Query ", ifelse(exec, "", "not "), 
+                                       "executed:"))
+                        message(query)
+                        message("--")
+                    }
+                    ## Execute the query
+                    if (exec) 
+                        dbSendQuery(conn, query)
+                }
+                ## Should now be installed; print a message if not:
+                ext <- dbGetQuery(conn, "SELECT * FROM pg_available_extensions;")
+                rast.ext <- subset(ext, ext$name == "postgis_raster")
+                if (is.na(rast.ext$installed_version)) 
+                    message("PostGIS Raster extension not installed.") else message(paste0("PostGIS Raster extension version ", 
+                                                                                           rast.ext$installed_version, " installed."))
+            }
+    }
+    
     ## Return TRUE
     if (exec) return(TRUE)
 }

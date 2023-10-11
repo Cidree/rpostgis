@@ -124,10 +124,8 @@ added to the data frame for insert. For \code{Spatial*}-only
 objects (no data frame), a new ID column is created by default with name
 \code{"gid"}.
 
-If the R package \code{wkb} is installed, this function will use
-\code{\link[wkb]{writeWKB}} for certain datasets (non-Multi types,
-non-Linestring), which is faster for large datasets.  In all other
-cases the \code{rgeos} function \code{\link[rgeos]{writeWKT}} is used.
+This function will use \code{\link[sf]{st_as_text}} for geography types, and
+\code{\link[sf]{st_as_binary}} for geometry types.
 
 In the event of function or database error, the database uses
 ROLLBACK to revert to the previous state. 

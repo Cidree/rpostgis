@@ -42,6 +42,7 @@ reference:
   contents:
   - pgInsert
   - pgGetGeom
+  - pgWriteGeom
   - pgWriteRast
   - pgGetRast
 - title: "Other spatial functions"

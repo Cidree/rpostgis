@@ -16,7 +16,7 @@ try(dbDrop(conn, "pg", "schema", cascade = TRUE), silent = TRUE)
 dbSchema(conn, name = "pg")
 
 ## Create postgis extension
-pgPostGIS(conn, topology = TRUE, tiger = TRUE, sfcgal = TRUE)
+pgPostGIS(conn, topology = TRUE, tiger = TRUE, sfcgal = TRUE, raster = TRUE)
 pgPostGIS(conn, sf = TRUE, exec = FALSE)
 pgPostGIS(conn, display = TRUE)
 
