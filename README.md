@@ -2,19 +2,17 @@
 
 <!-- badges: start -->
 
-```{=html}
 <center>
   <a href="https://CRAN.R-project.org/package=rpostgis"><img src="http://www.r-pkg.org/badges/version/rpostgis" alt="CRAN Status"></a>
   <a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active- The project has reached a stable
 state."></a>
 </center>
-```
-```{=html}
+
 <center>
   <a href="https://cran.r-project.org/package=badger"><img src="http://cranlogs.r-pkg.org/badges/grand-total/badger?color=blue" alt="Total Downloads"></a>
   <a href="https://cran.r-project.org/package=badger"><img src="http://cranlogs.r-pkg.org/badges/last-month/badger?color=green" alt="Last Month Downloads."></a>
 </center>
-```
+
 <br>
 
 <!-- badges: end -->
