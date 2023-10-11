@@ -5,7 +5,7 @@
 ##' Retrieve rasters from a PostGIS table into a \code{terra SpatRaster} object
 ##' 
 ##' 
-##' Since version 1.5, this function retrieve SpatRaster objects from 
+##' Since version 1.5.0, this function retrieve SpatRaster objects from 
 ##' \code{terra} package by default. The argument \code{returnclass} can be 
 ##' used to return \code{raster} objects instead.
 ##' 

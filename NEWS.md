@@ -1,4 +1,4 @@
-rpostgis 1.5
+rpostgis 1.5.0
 ==============
 
 Remove startup message about upcoming retirement. New startup message informs
