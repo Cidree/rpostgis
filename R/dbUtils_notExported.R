@@ -196,7 +196,7 @@ dbGetDefs <- function(conn, name) {
 ##' and return the column name for use in a query.
 ##'
 ##' @param conn A PostgreSQL connection
-##' @param namechar A table name formatted for use in a query
+##' @param name A table name formatted for use in a query
 ##' @param geom a geometry or geography column name
 ##'
 ##' @keywords internal
