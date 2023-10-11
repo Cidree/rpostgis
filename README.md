@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # rpostgis <img src="man/figures/rpostgis-1024-white.png" align="right" width="200px"/>
 
 <!-- badges: start -->
