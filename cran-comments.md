@@ -3,7 +3,7 @@
 
 ## Test environments
 * local Windows 11 Pro 22H2, 64 bit, R 4.3.1
-* R Under development (unstable) (2023-10-10 r85312 ucrt)
+* R Under development (unstable) (2023-10-11 r85316 ucrt)
 * R-devel on Windows Server 2022, R-devel, 64 bit, with rhub::check()
 
 ## R CMD check results

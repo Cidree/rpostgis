@@ -18,7 +18,7 @@ use_build_ignore("pkgdown")
 document()
 
 # write manual
-manual(overwrite=TRUE)
+manual(overwrite=TRUE, path = "D:/R_Projects/R_packages/mablab_rpostgis/")
 
 # run examples and spell check
 # run_examples() # not using

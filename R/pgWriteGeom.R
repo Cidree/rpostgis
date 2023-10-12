@@ -29,7 +29,7 @@
 ##' (default), the function will return \code{TRUE} for successful insert and
 ##' \code{FALSE} for failed inserts.
 ##' 
-##' Use this function with code{df.mode = TRUE} to save data frames from
+##' Use this function with \code{df.mode = TRUE} to save data frames from
 ##' \code{spatial}-class objects to the database in "data frame mode". Along with normal 
 ##' \code{dbwriteDataFrame} operation, the proj4string of the spatial 
 ##' data will also be saved, and re-attached to the data when using 
@@ -427,7 +427,7 @@ print.pgi <- function(x, ...) {
 ##' (default), the function will return \code{TRUE} for successful insert and
 ##' \code{FALSE} for failed inserts.
 ##' 
-##' Use this function with code{df.mode = TRUE} to save data frames from
+##' Use this function with \code{df.mode = TRUE} to save data frames from
 ##' \code{Spatial*}-class objects to the database in "data frame mode". Along with normal 
 ##' \code{dbwriteDataFrame} operation, the proj4string of the spatial 
 ##' data will also be saved, and re-attached to the data when using 

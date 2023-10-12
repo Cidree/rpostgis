@@ -10,9 +10,9 @@ pgCheckGeom(conn, name, geom)
 \arguments{
 \item{conn}{A PostgreSQL connection}
 
-\item{geom}{a geometry or geography column name}
+\item{name}{A table name formatted for use in a query}
 
-\item{namechar}{A table name formatted for use in a query}
+\item{geom}{a geometry or geography column name}
 }
 \description{
 Check if geometry or geography column exists in a table,
