@@ -1,5 +1,5 @@
 Package: rpostgis
-Version: 1.5.0
+Version: 1.5.0.900
 Date: 2023-10-12
 Title: R Interface to a 'PostGIS' Database
 Description: Provides an interface between R and 'PostGIS'-enabled
