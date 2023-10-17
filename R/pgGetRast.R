@@ -116,10 +116,15 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   p4s <- NA
   # tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
   #                     srid$st_srid, ";")
-  try(tmp.query.sr <- paste0("SELECT r_proj4 AS p4s FROM ", nameque, ";"))
-  if (!exists("tmp.query.sr")) tmp.query.sr <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
-                                                srid$st_srid, ";")
-  db.proj4 <- dbGetQuery(conn, tmp.query.sr)$p4s
+  tmp.query.sr <- paste0("SELECT r_proj4 AS p4s FROM ", nameque, ";")
+  try(db.proj4 <- dbGetQuery(conn, tmp.query.sr)$p4s, silent = TRUE)
+  
+  # if db.proj4 doesnt exist (error because raster was not loaded using rpostgis)
+  if (!exists("db.proj4")) {
+    tmp.query.sr <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
+                           srid$st_srid, ";")
+    db.proj4 <- dbGetQuery(conn, tmp.query.sr)$p4s
+  }
   if (!is.null(db.proj4)) {
     try(p4s <- terra::crs(db.proj4[1]), silent = TRUE)
   }

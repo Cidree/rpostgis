@@ -1,3 +1,8 @@
+rpostgis 1.5.1
+==============
+* Fix an error in `pgGetRast` that was provoking an error when the raster
+was not imported using `rpostgis`.
+
 rpostgis 1.5.0
 ==============
 
