@@ -116,7 +116,7 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
   p4s <- NA
   # tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
   #                     srid$st_srid, ";")
-  tmp.query.sr <- try(paste0("SELECT r_proj4 AS p4s FROM ", nameque, ";"))
+  try(tmp.query.sr <- paste0("SELECT r_proj4 AS p4s FROM ", nameque, ";"))
   if (!exists("tmp.query.sr")) tmp.query.sr <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
                                                 srid$st_srid, ";")
   db.proj4 <- dbGetQuery(conn, tmp.query.sr)$p4s
