@@ -38,18 +38,18 @@ version.
 ## Installation of the development versions
 
 A stable version of the package is always available on the project's
-[GitHub page](https://github.com/mablab/rpostgis), and may be ahead of
+[GitHub page](https://github.com/Cidree/rpostgis), and may be ahead of
 the CRAN version. To install it, use the
 [`remotes`](https://CRAN.R-project.org/package=remotes):
 
 ``` r
-remotes::install_github("mablab/rpostgis")
+remotes::install_github("Cidree/rpostgis")
 ```
 
 For the latest (possibly unstable) development version, use:
 
 ``` r
-remotes::install_github("mablab/rpostgis", ref = "dev")
+remotes::install_github("Cidree/rpostgis", ref = "dev")
 ```
 
 ## Getting started
@@ -91,4 +91,4 @@ RPostgreSQL::dbDisconnect(conn)
 ## Documentation
 
 Full documentation with the complete list of functions of the package
-can be found on `rpostgis` [homepage](https://mablab.org/rpostgis/).
+can be found on `rpostgis` [homepage](http://cidree.github.io/rpostgis/).

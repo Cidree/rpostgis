@@ -3,6 +3,8 @@ rpostgis 1.5.1
 * Fix an error in `pgGetRast` that was provoking an error when the raster
 was not imported using `rpostgis`.
 
+* The website of the package is now located at [http://cidree.github.io/rpostgis/](http://cidree.github.io/rpostgis/)
+
 rpostgis 1.5.0
 ==============
 
