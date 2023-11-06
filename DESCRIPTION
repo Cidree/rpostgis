@@ -8,7 +8,7 @@ Description: Provides an interface between R and 'PostGIS'-enabled
     supported in read and write modes. Also provides convenience
     functions to execute common procedures in 'PostgreSQL/PostGIS'.
 Authors@R: c(
-    person("Mathieu", "Basille", email = "basille@ufl.edu", 
+    person("Mathieu", "Basille", email = "mathiue@basille.org", 
     role = c("aut"), 
     comment = c(ORCID = "0000-0001-9366-7127")),
     person("David", "Bucklin", 

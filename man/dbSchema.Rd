@@ -22,7 +22,7 @@ checks the existence of the schema, but does not create it if
 it does not exists.}
 }
 \value{
-If \code{exec = TRUE}, returns \code{TRUE} if the schema exists 
+If \code{exec = TRUE}, returns \code{TRUE} if the schema exists
 (whether it was already available or was just created).
 }
 \description{
@@ -38,5 +38,5 @@ The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
 }
 \author{
-Mathieu Basille \email{basille@ufl.edu}
+Mathieu Basille \email{mathiue@basille.org}
 }

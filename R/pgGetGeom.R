@@ -2,17 +2,17 @@
 
 ##' Load a PostGIS geometry from a PostgreSQL table/view/query into R.
 ##'
-##' Retrieve geometries from a PostGIS table/view/query, and convert 
+##' Retrieve geometries from a PostGIS table/view/query, and convert
 ##' it to an R \code{sf} object.
-##' 
-##' The features of the table to retrieve must have the same geometry type. 
+##'
+##' The features of the table to retrieve must have the same geometry type.
 ##' The query mode version of \code{pgGetGeom} allows the user to enter a
-##' complete SQL query (\code{query}) that returns a Geometry column, and save 
+##' complete SQL query (\code{query}) that returns a Geometry column, and save
 ##' the query as a new view (\code{name}) if desired. If (\code{name}) is not
 ##' specified, a temporary view with name ".rpostgis_TEMPview" is used only
-##' within the function execution. In this mode, the other arguments can be used 
+##' within the function execution. In this mode, the other arguments can be used
 ##' normally to modify the Spatial* object returned from the query.
-##' 
+##'
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
@@ -25,29 +25,29 @@
 ##' @param other.cols Names of specific columns in the table to
 ##'     retrieve, in a character vector (e.g. \code{other.cols.=c("col1","col2")}.)
 ##'     The default (\code{other.cols = TRUE}) is to attach
-##'     all columns. Setting \code{other.cols=FALSE} will return a Spatial-only 
+##'     all columns. Setting \code{other.cols=FALSE} will return a Spatial-only
 ##'     object without attributes (no data frame).
 ##' @param clauses character, additional SQL to append to modify select
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); see below for examples.
-##' @param boundary \code{sf}, \code{SpatVector} or \code{sp} object; or numeric. 
+##' @param boundary \code{sf}, \code{SpatVector} or \code{sp} object; or numeric.
 ##'     If a spatial object is provided, its bounding box will be used to select
-##'     geometries to import. Alternatively, a numeric vector (\code{c([top], 
+##'     geometries to import. Alternatively, a numeric vector (\code{c([top],
 ##'     [bottom], [right], [left])}) indicating the projection-specific limits with
 ##'      which to subset the spatial data. If not value is provided, the default
 ##'     \code{boundary = NULL} will not apply any boundary subset.
-##' @param query character, a full SQL query including a geometry column. 
+##' @param query character, a full SQL query including a geometry column.
 ##'     For use with query mode only (see details).
-##' @param returnclass 'sf' by default; 'terra' for \code{SpatVector}; 
+##' @param returnclass 'sf' by default; 'terra' for \code{SpatVector};
 ##'     or 'sp' for \code{sp} objects.
 ##' @return sf, SpatVector or sp object
 ##' @importFrom sf st_crs st_as_sf
 ##' @export
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{mathiue@@basille.org}
 ##' @author Adrián Cidre González \email{adrian.cidre@@gmail.com}
-##' 
-##' 
+##'
+##'
 ##' @examples
 ##' \dontrun{
 ##' ## Retrieve a sf with all data from table
@@ -55,48 +55,48 @@
 ##' pgGetGeom(conn, c("schema", "tablename"))
 ##' ## Return a sf with columns c1 & c2 as data
 ##' pgGetGeom(conn, c("schema", "tablename"), other.cols = c("c1","c2"))
-##' ## Return a spatial-only (no data frame), 
+##' ## Return a spatial-only (no data frame),
 ##' ## retaining id from table as rownames
 ##' pgGetGeom(conn, c("schema", "tablename"), gid = "table_id",
 ##'   other.cols = FALSE)
-##' ## Return a spatial-only (no data frame), 
+##' ## Return a spatial-only (no data frame),
 ##' ## retaining id from table as rownames and with a subset of the data
 ##' pgGetGeom(conn, c("schema", "roads"), geom = "roadgeom", gid = "road_ID",
 ##'     other.cols = FALSE, clauses  = "WHERE road_type = 'highway'")
 ##' ## Query mode
-##' pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom 
+##' pgGetGeom(conn, query = "SELECT r.gid as id, ST_Buffer(r.geom, 100) as geom
 ##'                            FROM
 ##'                              schema.roads r,
 ##'                              schema.adm_boundaries b
-##'                            WHERE 
+##'                            WHERE
 ##'                              ST_Intersects(r.geom, b.geom);")
 ##' }
 
-pgGetGeom <- function(conn, name, geom = "geom", gid = NULL, 
+pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
          other.cols = TRUE, clauses = NULL, boundary = NULL, query = NULL,
          returnclass = "sf") {
 
-  
+
   ## Check connection and PostGIS extension
   dbConnCheck(conn)
   if (!suppressMessages(pgPostGIS(conn))) {
     stop("PostGIS is not enabled on this database.")
   }
-  
+
   ## If a Query is provided, execute it and return the value
   ## Using pgGetGeomQ
   if (!is.null(query)) {
     if (missing(name)) name <- NULL
-    ret <- pgGetGeomQ(conn, query = query, name = name, geom = geom, gid = gid, 
+    ret <- pgGetGeomQ(conn, query = query, name = name, geom = geom, gid = gid,
                       other.cols = other.cols, clauses = clauses, boundary = boundary)
     if (is.null(ret)) stop("Query retrieval failed.", call. = FALSE) else return(ret)
   }
-  
+
   ## Check and prepare the schema.name
   name1   <- dbTableNameFix(conn,name)
   nameque <- paste(name1, collapse = ".")
   geomque <- pgCheckGeom(conn, name, geom)
-  
+
   ## Get boundary clause if specified
   if (!is.null(boundary)) {
     ## get srid for boundary box - could be incorrect only if clauses are used to specify a subset by SRID
@@ -117,20 +117,20 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
   } else {
     b.clause <- NULL
   }
-  
+
   ## Prepare clauses (boundary + user clauses)
   if (!is.null(clauses) | !is.null(b.clause)) {
     clauses <- paste(b.clause, sub("^where", "AND", sub(";$","", sub("\\s+$","",clauses)),
-                                   ignore.case = TRUE),collapse = "\n") 
+                                   ignore.case = TRUE),collapse = "\n")
   } else {
     if (".db_pkid" %in% dbTableInfo(conn,name)$column_name) {
       clauses <- "ORDER BY \".db_pkid\""
     }
   }
-  
+
   ## Prepare other.cols. If its not logical, user set cols
   if (!is.logical(other.cols)) {
-    cols <- paste(DBI::dbQuoteIdentifier(conn, ), 
+    cols <- paste(DBI::dbQuoteIdentifier(conn, ),
                   collapse = ",")
   } else {
     ## Else -> TRUE all columns, FALSE only geometry
@@ -141,14 +141,14 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
       cols <- NULL
     }
   }
-  
+
   ## Check PostGIS table geometry type
-  tmp.query <- paste0("SELECT DISTINCT a.geo AS type 
-                        FROM (SELECT ST_GeometryType(", geomque, 
-                      ") as geo FROM ", nameque, " WHERE ", geomque, " IS NOT NULL ", 
+  tmp.query <- paste0("SELECT DISTINCT a.geo AS type
+                        FROM (SELECT ST_GeometryType(", geomque,
+                      ") as geo FROM ", nameque, " WHERE ", geomque, " IS NOT NULL ",
                       clauses, ") a;")
   typ <- dbGetQuery(conn, tmp.query)$type
-  
+
   ## Get the geometry object if length typ = 1 (1 geometry type)
   if (length(typ) == 0) {
     stop("No geometries found.")
@@ -160,10 +160,10 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     } else {
       message(paste0("Returning PostGIS object into sf object with multiple geometry types"))
     }
-    
+
     ## Prepare additional clauses
     clauses <- sub("^where", "AND", clauses, ignore.case = TRUE)
-    
+
     ## If ID not specified, set it to generate row numbers
     if (is.null(gid)) {
       if (".R_rownames" %in% dbTableInfo(conn,name)$column_name) {
@@ -174,20 +174,20 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     } else {
       gid <- DBI::dbQuoteIdentifier(conn, gid)
     }
-    
+
     ## Retrieve the SRID
     tmp.query <- paste0("SELECT DISTINCT a.s as st_srid FROM
                         (SELECT ST_SRID(", geomque, ") as s FROM ",
                         nameque, " WHERE ", geomque, " IS NOT NULL ", clauses , ") a;")
     srid <- dbGetQuery(conn, tmp.query)
-    
+
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
       stop("Multiple SRIDs in the point geometry")
     } else if (nrow(srid) < 1) {
       stop("Database table is empty.")
     }
-    
+
     ## Get SRID
     proj4 <- sf::st_crs(as.character(NA))
     tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
@@ -196,12 +196,12 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     if (!is.null(db.proj4)) {
       try(proj4 <- sf::st_crs(db.proj4), silent = TRUE)
     }
-    
+
     ## If SRID was not found, warn about it
     if (is.na(proj4$input)) {
       warning("Table SRID not found. Projection will be undefined (NA)")
     }
-    
+
     ## Query the table
     if (is.null(cols)) {
       tmp.query <- paste0("SELECT ", gid, " AS tgid,st_astext(",
@@ -212,11 +212,11 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
                           geomque, ") AS wkt,", cols, " FROM ", nameque,
                           " WHERE ", geomque, " IS NOT NULL ", clauses , ";")
     }
-    
+
     ## Read the table in R
     dbData <- suppressWarnings(dbGetQuery(conn, tmp.query))
     dbData <- data.frame(dbData, row.names = "tgid")
-    
+
     # Fix columns
     if (!is.null(cols)) {
       cols <- colnames(dbData)
@@ -226,39 +226,39 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
       cname      <- c(names(dfr), "geom")
       dfr        <- cbind(dfr, dbData[,"wkt"])
       names(dfr) <- cname
-      
-    } else { 
+
+    } else {
       if (geom %in% names(dbData)) try(dbData <- dbData[, -which(names(dbData) == geom)], silent = TRUE)
       names(dbData)[names(dbData) == "wkt"] <- "geom"
       dfr <- dbData
     }
-    
+
     ## Create sf object
     sp <- sf::st_as_sf(dfr, wkt = "geom", crs = proj4$input)
-    
+
   }
-  
+
   # Return class
   if (returnclass == "sf") {
     return(sp)
   } else if (returnclass == "sp") {
-    return(sf::as_Spatial(sp)) 
+    return(sf::as_Spatial(sp))
   } else if (returnclass == "terra") {
     return(terra::vect(sp))
   } else {
     stop("returnclass must be 'sf' or 'sp'")
   }
-  
+
 }
 
 
 # pgGetGeomQ
 
 #' Load geometries from a full query and return a Spatial* object
-#' 
-#' @param query character, a full SQL query including a geometry column. 
+#'
+#' @param query character, a full SQL query including a geometry column.
 #' @param name optional character string specifying
-#'     a PostgreSQL schema and view name (e.g., \code{name = c("schema","view")}) 
+#'     a PostgreSQL schema and view name (e.g., \code{name = c("schema","view")})
 #'     to save the query as. If NULL, a temporary view ".rpostgis_TEMPview" is used
 #'     temporarily (only within the function scope).
 #' @param ... For \code{pgGetGeomQ}, other arguments as in \code{pgGetGeom}
@@ -277,9 +277,9 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     # try to create view and retrieve geometries
     geo <- NULL
     try({
-        prequery <- paste0("CREATE OR REPLACE VIEW ", paste(dbQuoteIdentifier(conn, 
+        prequery <- paste0("CREATE OR REPLACE VIEW ", paste(dbQuoteIdentifier(conn,
             name), collapse = "."), " AS ")
-        if (sub(".*(?=.$)", "", sub("\\s+$", "", query), perl = TRUE) == 
+        if (sub(".*(?=.$)", "", sub("\\s+$", "", query), perl = TRUE) ==
             ";") {
             post <- NULL
         } else {
@@ -288,7 +288,7 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
         q <- paste0(prequery, query, post)
         dbExecute(conn, q)
         geo <- pgGetGeom(conn, name = name, ...)
-        
+
     })
     # rollback on failed/not saving view, else commit
     if (is.null(geo)) {
@@ -296,7 +296,7 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     } else {
         if (!keep) { dbExecute(conn, "ROLLBACK;") } else {
           dbExecute(conn, "COMMIT;")
-          message(paste0("Created view ",paste(dbQuoteIdentifier(conn, 
+          message(paste0("Created view ",paste(dbQuoteIdentifier(conn,
             name), collapse = "."),"."))
         }
     }

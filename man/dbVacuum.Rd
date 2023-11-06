@@ -53,5 +53,5 @@ The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
 }
 \author{
-Mathieu Basille \email{basille@ufl.edu}
+Mathieu Basille \email{mathiue@basille.org}
 }

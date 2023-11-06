@@ -41,6 +41,6 @@
 ##' @import DBI
 ##' @importFrom methods slot "slot<-"
 ##' @keywords internal
-##' @author Mathieu Basille (\email{basille@@ufl.edu}) and David
+##' @author Mathieu Basille (\email{mathiue@@basille.org}) and David
 ##'     Bucklin (\email{david.bucklin@@gmail.com})
 NULL

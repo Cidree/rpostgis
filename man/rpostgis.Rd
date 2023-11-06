@@ -40,7 +40,7 @@ the database should be closed:
     dbDisconnect(con)
 }
 \author{
-Mathieu Basille (\email{basille@ufl.edu}) and David
+Mathieu Basille (\email{mathiue@basille.org}) and David
     Bucklin (\email{david.bucklin@gmail.com})
 }
 \keyword{internal}

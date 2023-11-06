@@ -50,7 +50,7 @@ raster).}
 \code{TRUE}).}
 }
 \value{
-If \code{exec = TRUE}, returns \code{TRUE} if the index was 
+If \code{exec = TRUE}, returns \code{TRUE} if the index was
 successfully created.
 }
 \description{
@@ -75,5 +75,5 @@ The PostgreSQL documentation:
     \url{http://postgis.net/docs/using_postgis_dbmanagement.html#id541286}
 }
 \author{
-Mathieu Basille \email{basille@ufl.edu}
+Mathieu Basille \email{mathiue@basille.org}
 }

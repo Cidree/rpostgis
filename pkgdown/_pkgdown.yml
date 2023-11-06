@@ -17,11 +17,9 @@ navbar:
       href: reference/index.html
     - text: "News"
       href: news/index.html
-    - icon: fa-github
-      href: https://github.com/mablab/rpostgis
   right:
-    - text: "MabLab"
-      href: https://mablab.org/
+    - icon: fa-github
+      href: https://github.com/Cidree/rpostgis
 
 authors:
   Mathieu Basille:
@@ -51,7 +49,7 @@ reference:
   - pgMakePts
   - pgMakeStp
 - title: "Storing R data.frame's in PostgreSQL"
-  contents: 
+  contents:
   - dbWriteDataFrame
   - dbReadDataFrame
 - title: "SQL wrappers for database management"

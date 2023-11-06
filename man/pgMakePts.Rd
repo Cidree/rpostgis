@@ -89,5 +89,5 @@ The PostGIS documentation for \code{ST_MakePoint}:
     main functions of the call.
 }
 \author{
-Mathieu Basille \email{basille@ufl.edu}
+Mathieu Basille \email{mathiue@basille.org}
 }

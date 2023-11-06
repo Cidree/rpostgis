@@ -28,7 +28,7 @@
 ##' @return If \code{exec = TRUE}, returns \code{TRUE} if the key was successfully added.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{mathiue@@basille.org}
 ##' @export
 ##' @examples
 ##' ## Examples use a dummy connection from DBI package
@@ -107,7 +107,7 @@ dbAddKey <- function(conn, name, colname, type = c("primary",
 ##'     conversion was successful.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/datatype-datetime.html}
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{mathiue@@basille.org}
 ##' @export
 ##' @examples
 ##' ## Example uses a dummy connection from DBI package
@@ -170,11 +170,11 @@ dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the column was 
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the column was
 ##' successfully added or removed.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{mathiue@@basille.org}
 ##' @export
 ##' @examples
 ##' ## examples use a dummy connection from DBI package
@@ -234,7 +234,7 @@ dbColumn <- function(conn, name, colname, action = c("add", "drop"),
 ##' successfully applied.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-comment.html}
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{mathiue@@basille.org}
 ##' @export
 ##' @examples
 ##' ## examples use a dummy connection from DBI package
@@ -294,13 +294,13 @@ dbComment <- function(conn, name, comment, type = c("table",
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the table/schema/view 
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the table/schema/view
 ##' was successfully dropped.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-droptable.html},
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-dropview.html},
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-dropschema.html}
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{mathiue@@basille.org}
 ##' @export
 ##' @examples
 ##' ## examples use a dummy connection from DBI package
@@ -373,13 +373,13 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the index was 
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the index was
 ##' successfully created.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-createindex.html};
 ##'     the PostGIS documentation for GiST indexes:
 ##'     \url{http://postgis.net/docs/using_postgis_dbmanagement.html#id541286}
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{mathiue@@basille.org}
 ##' @export
 ##' @examples
 ##' ## Examples use a dummy connection from DBI package
@@ -448,9 +448,9 @@ dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
 ##'     it does not exists.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the schema exists 
+##' @return If \code{exec = TRUE}, returns \code{TRUE} if the schema exists
 ##' (whether it was already available or was just created).
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{mathiue@@basille.org}
 ##' @export
 ##' @examples
 ##' \dontrun{
@@ -548,7 +548,7 @@ dbTableInfo <- function(conn, name, allinfo = FALSE) {
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
 ##' @return If \code{exec = TRUE}, returns TRUE if query is successfully executed.
-##' @author Mathieu Basille \email{basille@@ufl.edu}
+##' @author Mathieu Basille \email{mathiue@@basille.org}
 ##' @export
 ##' @examples
 ##' ## examples use a dummy connection from DBI package

@@ -4,6 +4,6 @@ pkgdown_sha: ~
 articles: {}
 last_built: 2023-10-30T08:48Z
 urls:
-  reference: https://mablab.org/rpostgis/reference
-  article: https://mablab.org/rpostgis/articles
+  reference: https://cidree.github.io/rpostgis/reference/index.html
+  article: https://adrian-cidre.com/posts/002-rpostgis_back/
 

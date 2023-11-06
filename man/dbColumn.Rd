@@ -39,7 +39,7 @@ other tables, if \code{action = "drop"}.}
 \code{TRUE}).}
 }
 \value{
-If \code{exec = TRUE}, returns \code{TRUE} if the column was 
+If \code{exec = TRUE}, returns \code{TRUE} if the column was
 successfully added or removed.
 }
 \description{
@@ -59,5 +59,5 @@ The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 }
 \author{
-Mathieu Basille \email{basille@ufl.edu}
+Mathieu Basille \email{mathiue@basille.org}
 }

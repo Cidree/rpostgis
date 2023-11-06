@@ -10,7 +10,7 @@ pgGetGeomQ(conn, query, name = NULL, ...)
 \item{query}{character, a full SQL query including a geometry column.}
 
 \item{name}{optional character string specifying
-a PostgreSQL schema and view name (e.g., \code{name = c("schema","view")}) 
+a PostgreSQL schema and view name (e.g., \code{name = c("schema","view")})
 to save the query as. If NULL, a temporary view ".rpostgis_TEMPview" is used
 temporarily (only within the function scope).}
 
