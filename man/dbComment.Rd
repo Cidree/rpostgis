@@ -50,5 +50,5 @@ The PostgreSQL documentation:
     \url{http://www.postgresql.org/docs/current/static/sql-comment.html}
 }
 \author{
-Mathieu Basille \email{mathiue@basille.org}
+Mathieu Basille \email{mathieu@basille.org}
 }

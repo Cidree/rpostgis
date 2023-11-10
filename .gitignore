@@ -4,3 +4,4 @@ rpostgis.Rproj
 .RData
 .Rhistory
 revdep/*
+inst/doc

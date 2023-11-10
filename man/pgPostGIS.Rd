@@ -55,6 +55,6 @@ SFCGAL and Raster extensions.
 }
 }
 \author{
-Mathieu Basille \email{mathiue@basille.org} and
+Mathieu Basille \email{mathieu@basille.org} and
         Adrián Cidre González \email{adrian.cidre@gmail.com}
 }

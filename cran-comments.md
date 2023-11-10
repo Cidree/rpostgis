@@ -1,7 +1,5 @@
 ## IMPORTANT
-`rpostgis` is under new maintenance, and development will be moving to a new location soon! For more information, see: [https://github.com/mablab/rpostgis/issues/28](https://github.com/mablab/rpostgis/issues/28)
-
-As for `rpostgis` 1.5.1, the new site is [https://github.com/Cidree/rpostgis](https://github.com/Cidree/rpostgis)
+`rpostgis` is under new maintenance,and development have been moved to  [https://github.com/Cidree/rpostgis](https://github.com/Cidree/rpostgis)
 
 ## Test environments
 * local Windows 11 Pro 22H2, 64 bit, R 4.3.1

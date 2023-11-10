@@ -1,7 +1,16 @@
-rpostgis 1.5.0.900 (pre-release)
+rpostgis 1.5.1
 ==============
+
+BUG FIXES
+
 * Fix an error in `pgGetRast` that was provoking an error when the raster
 was not imported using `rpostgis`.
+
+* Now its required `terra` version >= 1.6.7.
+
+OTHER CHANGES
+
+* The repository of `rpostgis` has been transfered to a new location: [https://github.com/Cidree/rpostgis](https://github.com/Cidree/rpostgis)
 
 * The website of the package is now located at [http://cidree.github.io/rpostgis/](http://cidree.github.io/rpostgis/)
 

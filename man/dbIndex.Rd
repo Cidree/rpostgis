@@ -75,5 +75,5 @@ The PostgreSQL documentation:
     \url{http://postgis.net/docs/using_postgis_dbmanagement.html#id541286}
 }
 \author{
-Mathieu Basille \email{mathiue@basille.org}
+Mathieu Basille \email{mathieu@basille.org}
 }

@@ -44,7 +44,7 @@
 ##' @importFrom sf st_crs st_as_sf
 ##' @export
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
-##' @author Mathieu Basille \email{mathiue@@basille.org}
+##' @author Mathieu Basille \email{mathieu@@basille.org}
 ##' @author Adrián Cidre González \email{adrian.cidre@@gmail.com}
 ##'
 ##'

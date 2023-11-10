@@ -23,7 +23,7 @@
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
 ##' @return If \code{exec = TRUE}, returns \code{TRUE} if PostGIS is installed.
-##' @author Mathieu Basille \email{mathiue@@basille.org} and
+##' @author Mathieu Basille \email{mathieu@@basille.org} and
 ##'         Adrián Cidre González \email{adrian.cidre@@gmail.com}
 ##' @export
 ##' @examples

@@ -25,7 +25,7 @@
 ##'     \code{ST_MakeLine}:
 ##'     \url{http://postgis.net/docs/ST_MakeLine.html}, which are the
 ##'     main functions of the call.
-##' @author Mathieu Basille \email{mathiue@@basille.org}
+##' @author Mathieu Basille \email{mathieu@@basille.org}
 ##' @export
 ##' @examples
 ##' ## Examples use a dummy connection from DBI package
