@@ -2,21 +2,21 @@
   "index_name": "rpostgis",
   "start_urls": [
     {
-      "url": "https://mablab.org/rpostgis/index.html",
+      "url": "https://cidree.github.io/rpostgis/index.html",
       "selectors_key": "homepage",
       "tags": [
         "homepage"
       ]
     },
     {
-      "url": "https://mablab.org/rpostgis/reference",
+      "url": "https://cidree.github.io/rpostgis/reference",
       "selectors_key": "reference",
       "tags": [
         "reference"
       ]
     },
     {
-      "url": "https://mablab.org/rpostgis/articles",
+      "url": "https://cidree.github.io/rpostgis/articles",
       "selectors_key": "articles",
       "tags": [
         "articles"
@@ -30,7 +30,7 @@
     "/articles/index.html"
   ],
   "sitemap_urls": [
-    "https://mablab.org/rpostgis/sitemap.xml"
+    "https://cidree.github.io/rpostgis/sitemap.xml"
   ],
   "selectors": {
     "homepage": {

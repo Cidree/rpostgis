@@ -1,123 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://mablab.org/rpostgis/404.html</loc>
+    <loc>https://cidree.github.io/rpostgis/404.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/authors.html</loc>
+    <loc>https://cidree.github.io/rpostgis/authors.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/index.html</loc>
+    <loc>https://cidree.github.io/rpostgis/index.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/news/index.html</loc>
+    <loc>https://cidree.github.io/rpostgis/news/index.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/bs.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/bs.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbAddKey.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbAddKey.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbAsDate.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbAsDate.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbBuildTableQuery.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbBuildTableQuery.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbColumn.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbColumn.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbComment.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbComment.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbConnCheck.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbConnCheck.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbDrop.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbDrop.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbExistsTable.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbExistsTable.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbGetDefs.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbGetDefs.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbIndex.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbIndex.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbSchema.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbSchema.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbTableInfo.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbTableInfo.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbTableNameFix.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbTableNameFix.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbVacuum.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbVacuum.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbVersion.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbVersion.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/dbWriteDataFrame.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/dbWriteDataFrame.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/index.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgCheckGeom.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgCheckGeom.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgGetBoundary.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgGetBoundary.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgGetGeom.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgGetGeom.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgGetGeomQ.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgGetGeomQ.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgGetLines.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgGetLines.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgGetPolys.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgGetPolys.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgGetPts.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgGetPts.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgGetRast.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgGetRast.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgGetSRID.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgGetSRID.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgInsert.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgInsert.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgInsertizeGeom.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgInsertizeGeom.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgListGeom.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgListGeom.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgMakePts.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgMakePts.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgPostGIS.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgPostGIS.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgSRID.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgSRID.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgWriteGeom.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgWriteGeom.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/pgWriteRast.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/pgWriteRast.html</loc>
   </url>
   <url>
-    <loc>https://mablab.org/rpostgis/reference/rpostgis.html</loc>
+    <loc>https://cidree.github.io/rpostgis/reference/rpostgis.html</loc>
   </url>
 </urlset>
