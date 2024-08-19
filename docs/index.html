@@ -88,7 +88,7 @@
 <code class="sourceCode R"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu">RPostgreSQL</span><span class="fu">::</span><span class="fu">dbConnect</span><span class="op">(</span><span class="st">"PostgreSQL"</span>, host <span class="op">=</span> <span class="st">"localhost"</span>,</span>
 <span>    dbname <span class="op">=</span> <span class="st">"&lt;DB_NAME&gt;"</span>, user <span class="op">=</span> <span class="st">"&lt;USER&gt;"</span>, password <span class="op">=</span> <span class="st">"&lt;PASSWORD&gt;"</span><span class="op">)</span></span></code></pre></div>
 <blockquote>
-<p>Note: as of <code>rpostgis 1.4.3</code> the <code>RPostgres::Postgres()</code> driver is also allowed for connection objects; however, this should be considered experimental and is not recommended for most use cases.</p>
+<p>Note: as of <code>rpostgis 1.4.3</code> the <code><a href="https://rpostgres.r-dbi.org/reference/Postgres.html" class="external-link">RPostgres::Postgres()</a></code> driver is also allowed for connection objects; however, this should be considered experimental and is not recommended for most use cases.</p>
 </blockquote>
 <p>Once the connection is established, the first step is to check if the database has <code>PostGIS</code> already installed (and install it if it’s not the case):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
