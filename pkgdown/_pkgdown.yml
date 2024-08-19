@@ -1,6 +1,7 @@
 url: https://cidree.github.io/rpostgis/
 
 template:
+  bootstrap: 5
   params:
     bootswatch: cosmo
     docsearch:
@@ -9,7 +10,6 @@ template:
 
 navbar:
   title: "rpostgis"
-  # type: inverse
   left:
     - icon: fa-home
       href: index.html
