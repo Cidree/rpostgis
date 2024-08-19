@@ -1,16 +1,23 @@
+rpostgis 1.5.2 (pre-release)
+==============
+
+BUG FIXES
+
+* Fix an error in `dbWriteDataFrame` that was causing data frames with `dttm` columns to be unable to be written to the database.
+
+
 rpostgis 1.5.1
 ==============
 
 BUG FIXES
 
-* Fix an error in `pgGetRast` that was provoking an error when the raster
-was not imported using `rpostgis`.
+* Fix an error in `pgGetRast` that was provoking an error when the raster was not imported using `rpostgis`.
 
 * Now its required `terra` version >= 1.6.7.
 
 OTHER CHANGES
 
-* The repository of `rpostgis` has been transfered to a new location: [https://github.com/Cidree/rpostgis](https://github.com/Cidree/rpostgis)
+* The repository of `rpostgis` has been transferred to a new location: [https://github.com/Cidree/rpostgis](https://github.com/Cidree/rpostgis)
 
 * The website of the package is now located at [http://cidree.github.io/rpostgis/](http://cidree.github.io/rpostgis/)
 
