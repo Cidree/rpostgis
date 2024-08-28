@@ -1,5 +1,3 @@
-## IMPORTANT
-`rpostgis` is under new maintenance,and development have been moved to  [https://github.com/Cidree/rpostgis](https://github.com/Cidree/rpostgis)
 
 ## Test environments
 * local Windows 11 Pro 22H2, 64 bit, R 4.3.1

@@ -1,6 +1,6 @@
 Package: rpostgis
-Version: 1.5.1
-Date: 2023-11-20
+Version: 1.5.1.900
+Date: 2024-08-28
 Title: R Interface to a 'PostGIS' Database
 Description: Provides an interface between R and 'PostGIS'-enabled
     'PostgreSQL' databases to transparently transfer spatial
@@ -8,16 +8,16 @@ Description: Provides an interface between R and 'PostGIS'-enabled
     supported in read and write modes. Also provides convenience
     functions to execute common procedures in 'PostgreSQL/PostGIS'.
 Authors@R: c(
+    person("Adrián", "Cidre González", 
+    email = "adrian.cidre@gmail.com", 
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-3310-3052")),
     person("Mathieu", "Basille", email = "mathieu@basille.org", 
     role = c("aut"), 
     comment = c(ORCID = "0000-0001-9366-7127")),
     person("David", "Bucklin", 
     email = "david.bucklin@gmail.com", 
-    role = c("aut")),
-    person("Adrián", "Cidre González", 
-    email = "adrian.cidre@gmail.com", 
-    role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0002-3310-3052")))
+    role = c("aut")))
 SystemRequirements:
     'PostgreSQL' with 'PostGIS' extension
 Depends:

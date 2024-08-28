@@ -5,6 +5,10 @@ BUG FIXES
 
 * Fix an error in `dbWriteDataFrame` that was causing data frames with `dttm` columns to be unable to be written to the database.
 
+OTHER CHANGES
+
+* Update website
+
 
 rpostgis 1.5.1
 ==============
