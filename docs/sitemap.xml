@@ -25,9 +25,6 @@
 <url><loc>https://cidree.github.io/rpostgis/reference/pgGetBoundary.html</loc></url>
 <url><loc>https://cidree.github.io/rpostgis/reference/pgGetGeom.html</loc></url>
 <url><loc>https://cidree.github.io/rpostgis/reference/pgGetGeomQ.html</loc></url>
-<url><loc>https://cidree.github.io/rpostgis/reference/pgGetLines.html</loc></url>
-<url><loc>https://cidree.github.io/rpostgis/reference/pgGetPolys.html</loc></url>
-<url><loc>https://cidree.github.io/rpostgis/reference/pgGetPts.html</loc></url>
 <url><loc>https://cidree.github.io/rpostgis/reference/pgGetRast.html</loc></url>
 <url><loc>https://cidree.github.io/rpostgis/reference/pgGetSRID.html</loc></url>
 <url><loc>https://cidree.github.io/rpostgis/reference/pgInsert.html</loc></url>

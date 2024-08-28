@@ -2,14 +2,20 @@ url: https://cidree.github.io/rpostgis/
 
 template:
   bootstrap: 5
-  params:
-    bootswatch: cosmo
-    docsearch:
-      api_key: "91afe5231e730105b1d4b94b1f9ad15b"
-      index_name: "rpostgis"
+  bslib:
+    bg: "#F5F7FA"       # page background
+    fg: "#202123"       # foreground (text colour)
+    primary: "#333C4A"  # link colour, translucent color
+    secondary: "#ff5733"
+    pkgdown-nav-height: 75px
+    base_font: {google: "Roboto"}
+    heading_font: {google: "Merriweather"}
+    code_font: {google: "Source Code Pro"}
+  theme: pygments
 
 navbar:
   title: "rpostgis"
+  bg: dark
   left:
     - icon: fa-home
       href: index.html
@@ -22,12 +28,12 @@ navbar:
       href: https://github.com/Cidree/rpostgis
 
 authors:
+  Adrián Cidre González:
+    href: https://adrian-cidre.com/
   Mathieu Basille:
     href: https://mablab.org
   David Bucklin:
     href: https://mablab.org/people/david-bucklin/
-  Adrián Cidre González:
-    href: https://adrian-cidre.com/
 
 reference:
 - title: "PostGIS management"
