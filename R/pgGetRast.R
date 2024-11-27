@@ -61,7 +61,9 @@ pgGetRast <- function(conn, name, rast = "rast", bands = 1,
                       returnclass = "terra", progress = TRUE) {
   
   ## Message
-  message("Since version 1.5 this function outputs SpatRaster objects by default. Use returnclass = 'raster' to return raster objects.")
+  if (returnclass != "terra") {
+    message("Since version 1.5 this function outputs SpatRaster objects by default. Use returnclass = 'raster' to return raster objects.")
+  }
   
   ## Check connection and PostGIS extension
   dbConnCheck(conn)
