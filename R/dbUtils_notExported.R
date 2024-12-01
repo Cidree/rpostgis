@@ -78,8 +78,8 @@ dbVersion <- function(conn) {
 ##' @param conn A PostgreSQL connection
 ##' @param name Table name string, length 1-2.
 ##' @param obj A data frame object.
-##' @param field.types optional named list of the types for each field in \code{obj}
-##' @param row.names logical, should row.name of \code{obj} be exported as a row_names field? Default is FALSE
+##' @param field.types optional named list of the types for each field in `obj`
+##' @param row.names logical, should row.name of `obj` be exported as a row_names field? Default is FALSE
 ##'
 ##' @note Adapted from RPostgreSQL::postgresqlBuildTableDefinition
 ##' @keywords internal

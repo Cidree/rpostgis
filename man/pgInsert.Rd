@@ -36,9 +36,9 @@ partial matches of data frame and database column names, and
 \code{overwrite} allows for overwriting the existing database
 table.}
 
-\item{data.obj}{A \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}}
+\item{data.obj}{A \verb{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}}
 
-\item{geom}{character string. For \code{Spatial*} datasets, the name of
+\item{geom}{character string. For \verb{Spatial*} datasets, the name of
 geometry/(geography) column in the database table.  (existing or to be
 created; defaults to \code{"geom"}). The special name "geog" will
 automatically set \code{geog} to TRUE.}
@@ -58,13 +58,12 @@ database table.}
 
 \item{overwrite}{Logical; if true, a new table (\code{name}) will
 overwrite the existing table (\code{name}) in the database. Note:
-overwriting a view must be done manually (e.g., with \link[rpostgis]{dbDrop}).}
+overwriting a view must be done manually (e.g., with \link[=dbDrop]{dbDrop}).}
 
 \item{new.id}{Character, name of a new sequential integer ID
 column to be added to the table for insert (for spatial objects without
 data frames, this column is created even if left \code{NULL}
-and defaults to the name \code{"gid"}). If \code{partial.match
-= TRUE} and the column does not exist in the database table,
+and defaults to the name \code{"gid"}). If \code{partial.match = TRUE} and the column does not exist in the database table,
 it will be discarded.}
 
 \item{row.names}{Whether to add the data frame row names to the
@@ -83,7 +82,7 @@ with non-standard names in an existing database table.)}
 
 \item{encoding}{Character vector of length 2, containing the
 from/to encodings for the data (as in the function
-\code{\link[base]{iconv}}). For example, if the dataset contain certain
+\code{\link[base:iconv]{base::iconv()}}). For example, if the dataset contain certain
 latin characters (e.g., accent marks), and the database is in
 UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
 \code{NULL}, no conversion will be done.}
@@ -109,23 +108,23 @@ Returns \code{TRUE} if the insertion was successful,
 \code{FALSE} if failed, or a \code{pgi} object if specified.
 }
 \description{
-`r lifecycle::badge("deprecated")`
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
-This function has been deprecated in favour of [pgWriteGeom()] and will be
+This function has been deprecated in favour of \code{\link[=pgWriteGeom]{pgWriteGeom()}} and will be
 removed in a future release.
 
-This function takes a take an R \code{sp} object (\code{Spatial*} or
+This function takes a take an R \code{sp} object (\verb{Spatial*} or
 \code{Spatial*DataFrame}), or a regular \code{data.frame}, and performs the
 database insert (and table creation, when the table does not exist)
 on the database.
 
 If \code{new.id} is specified, a new sequential integer field is
-added to the data frame for insert. For \code{Spatial*}-only
+added to the data frame for insert. For \verb{Spatial*}-only
 objects (no data frame), a new ID column is created by default with name
 \code{"gid"}.
 
-This function will use \link[sf]{st_as_text} for geography types, and
-\link[sf]{st_as_binary} for geometry types.
+This function will use \link[sf:st_as_text]{st_as_text} for geography types, and
+\link[sf:st_as_binary]{st_as_binary} for geometry types.
 
 In the event of function or database error, the database uses
 ROLLBACK to revert to the previous state.
@@ -142,12 +141,12 @@ tables or databases). If \code{return.pgi = FALSE}
 \code{FALSE} for failed inserts.
 
 Use this function with \code{df.mode = TRUE} to save data frames from
-\code{Spatial*}-class objects to the database in "data frame mode". Along with normal
+\verb{Spatial*}-class objects to the database in "data frame mode". Along with normal
 \code{dbwriteDataFrame} operation, the proj4string of the spatial
 data will also be saved, and re-attached to the data when using
 \code{pgGetGeom} to import the data. Note that other attributes
-of \code{Spatial*} objects are \strong{not} saved (e.g., \code{coords.nrs},
-which is used to specify the column index of x/y columns in \code{SpatialPoints*}).
+of \verb{Spatial*} objects are \strong{not} saved (e.g., \code{coords.nrs},
+which is used to specify the column index of x/y columns in \verb{SpatialPoints*}).
 
 pgi objects are a list containing four character strings: (1)
 in.table, the table name which will be created or inserted

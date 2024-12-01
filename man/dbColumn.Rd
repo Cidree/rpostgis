@@ -56,7 +56,7 @@ dbColumn(conn, name = c("schema", "table"), colname = "field", action = "drop",
 }
 \seealso{
 The PostgreSQL documentation:
-    \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
+\url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 }
 \author{
 Mathieu Basille \email{mathieu@basille.org}

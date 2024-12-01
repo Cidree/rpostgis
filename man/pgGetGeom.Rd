@@ -20,8 +20,7 @@ pgGetGeom(
 \item{conn}{A connection object to a PostgreSQL database}
 
 \item{name}{A character string specifying a PostgreSQL schema and
-table/view name holding the geometry (e.g., \code{name =
-c("schema","table")})}
+table/view name holding the geometry (e.g., \code{name = c("schema","table")})}
 
 \item{geom}{The name of the geometry/(geography) column. (Default = \code{"geom"})}
 
@@ -41,9 +40,8 @@ query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 
 \item{boundary}{\code{sf}, \code{SpatVector} or \code{sp} object; or numeric.
 If a spatial object is provided, its bounding box will be used to select
-geometries to import. Alternatively, a numeric vector (\code{c([top],
-[bottom], [right], [left])}) indicating the projection-specific limits with
- which to subset the spatial data. If not value is provided, the default
+geometries to import. Alternatively, a numeric vector (\verb{c([top], [bottom], [right], [left])}) indicating the projection-specific limits with
+which to subset the spatial data. If not value is provided, the default
 \code{boundary = NULL} will not apply any boundary subset.}
 
 \item{query}{character, a full SQL query including a geometry column.

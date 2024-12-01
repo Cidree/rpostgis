@@ -2,41 +2,41 @@
 
 ##' Inserts data into a PostgreSQL table.
 ##'
-##' This function takes a take an R \code{sf}, a \code{SpatVector} or \code{sp} object (\code{Spatial*} or
-##' \code{Spatial*DataFrame}); or a regular \code{data.frame}, and performs the
+##' This function takes a take an R `sf`, a `SpatVector` or `sp` object (`Spatial*` or
+##' `Spatial*DataFrame`); or a regular `data.frame`, and performs the
 ##' database insert (and table creation, when the table does not exist)
 ##' on the database.
 ##'
-##' If \code{new.id} is specified, a new sequential integer field is
-##' added to the data frame for insert. For \code{spatial}-only
+##' If `new.id` is specified, a new sequential integer field is
+##' added to the data frame for insert. For `spatial`-only
 ##' objects (no data frame), a new ID column is created by default with name
-##' \code{"gid"}.
+##' `"gid"`.
 ##'
-##' This function will use \code{\link[sf]{st_as_text}} for geography types, and
-##' \code{\link[sf]{st_as_binary}} for geometry types.
+##' This function will use [sf::st_as_text()] for geography types, and
+##' [sf::st_as_binary()] for geometry types.
 ##'
 ##' In the event of function or database error, the database uses
 ##' ROLLBACK to revert to the previous state.
 ##'
-##' If the user specifies \code{return.pgi = TRUE}, and data preparation is
+##' If the user specifies `return.pgi = TRUE`, and data preparation is
 ##' successful, the function will return
-##' a \code{pgi} object (see next paragraph), regardless of whether the
+##' a `pgi` object (see next paragraph), regardless of whether the
 ##' insert was successful or not. This object can be useful for debugging,
-##' or re-used as the \code{data.obj} in \code{pgWriteGeom};
+##' or re-used as the `data.obj` in `pgWriteGeom`;
 ##' (e.g., when data preparation is slow, and the exact same data
 ##' needs to be inserted into tables in two separate
-##' tables or databases). If \code{return.pgi = FALSE}
-##' (default), the function will return \code{TRUE} for successful insert and
-##' \code{FALSE} for failed inserts.
+##' tables or databases). If `return.pgi = FALSE`
+##' (default), the function will return `TRUE` for successful insert and
+##' `FALSE` for failed inserts.
 ##'
-##' Use this function with \code{df.mode = TRUE} to save data frames from
-##' \code{spatial}-class objects to the database in "data frame mode". Along with normal
-##' \code{dbwriteDataFrame} operation, the proj4string of the spatial
+##' Use this function with `df.mode = TRUE` to save data frames from
+##' `spatial`-class objects to the database in "data frame mode". Along with normal
+##' `dbwriteDataFrame` operation, the proj4string of the spatial
 ##' data will also be saved, and re-attached to the data when using
-##' \code{pgGetGeom} to import the data. Note that other attributes
-##' of \code{spatial} objects are \strong{not} saved (e.g., \code{coords.nrs},
-##' which is used to specify the column index of x/y columns in \code{*POINT} and
-##'  \code{SpatialPoints*}).
+##' `pgGetGeom` to import the data. Note that other attributes
+##' of `spatial` objects are **not** saved (e.g., `coords.nrs`,
+##' which is used to specify the column index of x/y columns in `*POINT` and
+##'  `SpatialPoints*`).
 ##'
 ##' pgi objects are a list containing four character strings: (1)
 ##' in.table, the table name which will be created or inserted
@@ -48,39 +48,39 @@
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
-##'     table name (e.g., \code{name = c("schema","table")}).
+##'     table name (e.g., `name = c("schema","table")`).
 ##'     If not already existing, the table will be
 ##'     created. If the table already exists, the function will check
 ##'     if all R data frame columns match database columns, and if so,
 ##'     do the insert. If not, the insert will be aborted. The
-##'     argument \code{partial.match} allows for inserts with only
+##'     argument `partial.match` allows for inserts with only
 ##'     partial matches of data frame and database column names, and
-##'     \code{overwrite} allows for overwriting the existing database
+##'     `overwrite` allows for overwriting the existing database
 ##'     table.
-##' @param data.obj A \code{sf},\code{SpatVector}, \code{sp}-class, or \code{data.frame}
-##' @param geom character string. For \code{Spatial*} datasets, the name of
+##' @param data.obj A `sf`,`SpatVector`, `sp`-class, or `data.frame`
+##' @param geom character string. For `Spatial*` datasets, the name of
 ##'     geometry/(geography) column in the database table.  (existing or to be
-##'     created; defaults to \code{"geom"}). The special name "geog" will
-##'     automatically set \code{geog} to TRUE.
+##'     created; defaults to `"geom"`). The special name "geog" will
+##'     automatically set `geog` to TRUE.
 ##' @param df.mode Logical; Whether to write the (Spatial) data frame in data frame mode
 ##'     (preserving data frame column attributes and row.names).
 ##'     A new table must be created with this mode (or overwrite set to TRUE),
-##'     and the \code{row.names}, \code{alter.names}, and \code{new.id} arguments will
-##'     be ignored (see \link{dbWriteDataFrame} for more information).
+##'     and the `row.names`, `alter.names`, and `new.id` arguments will
+##'     be ignored (see [dbWriteDataFrame] for more information).
 ##' @param partial.match Logical; allow insert on partial column
-##'     matches between data frame and database table. If \code{TRUE},
+##'     matches between data frame and database table. If `TRUE`,
 ##'     columns in R data frame will be compared with the existing
-##'     database table \code{name}.  Columns in the data frame that
+##'     database table `name`.  Columns in the data frame that
 ##'     exactly match the database table will be inserted into the
 ##'     database table.
-##' @param overwrite Logical; if true, a new table (\code{name}) will
-##'     overwrite the existing table (\code{name}) in the database. Note:
-##'     overwriting a view must be done manually (e.g., with \link{dbDrop}).
+##' @param overwrite Logical; if true, a new table (`name`) will
+##'     overwrite the existing table (`name`) in the database. Note:
+##'     overwriting a view must be done manually (e.g., with [dbDrop]).
 ##' @param new.id Character, name of a new sequential integer ID
 ##'     column to be added to the table for insert (for spatial objects without
-##'     data frames, this column is created even if left \code{NULL}
-##'     and defaults to the name \code{"gid"}). If \code{partial.match
-##'     = TRUE} and the column does not exist in the database table,
+##'     data frames, this column is created even if left `NULL`
+##'     and defaults to the name `"gid"`). If `partial.match
+##'     = TRUE` and the column does not exist in the database table,
 ##'     it will be discarded.
 ##' @param row.names Whether to add the data frame row names to the
 ##'     database table. Column name will be '.R_rownames'.
@@ -91,32 +91,32 @@
 ##'     Requires PostgreSQL 9.5+.
 ##' @param alter.names Logical, whether to make database column names
 ##'     DB-compliant (remove special characters/capitalization). Default is
-##'     \code{FALSE}.  (This must be set to \code{FALSE} to match
+##'     `FALSE`.  (This must be set to `FALSE` to match
 ##'     with non-standard names in an existing database table.)
 ##' @param encoding Character vector of length 2, containing the
 ##'     from/to encodings for the data (as in the function
-##'     \link[base]{iconv}. For example, if the dataset contain certain
+##'     [iconv][base::iconv]. For example, if the dataset contain certain
 ##'     latin characters (e.g., accent marks), and the database is in
-##'     UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
-##'     \code{NULL}, no conversion will be done.
+##'     UTF-8, use `encoding = c("latin1", "UTF-8")`. Left
+##'     `NULL`, no conversion will be done.
 ##' @param return.pgi Whether to return a formatted list of insert parameters
-##'     (i.e., a \code{pgi} object; see function details.)
+##'     (i.e., a `pgi` object; see function details.)
 ##' @param df.geom Character vector, name of a character column in an R data.frame
 ##'     storing PostGIS geometries, this argument can be used to insert a geometry
 ##'     stored as character type in a data.frame (do not use with Spatial* data types).
-##'     If only the column name is used (e.g., \code{df.geom = "geom"}),
+##'     If only the column name is used (e.g., `df.geom = "geom"`),
 ##'     the column type will be a generic (GEOMETRY); use a two-length character vector
-##'     (e.g., \code{df.geom = c("geom", "(POINT,4326)")} to also specify a
+##'     (e.g., `df.geom = c("geom", "(POINT,4326)")` to also specify a
 ##'     specific PostGIS geometry type and SRID for the column. Only recommended for
 ##'     for new tables/overwrites, since this method will change the
 ##'     existing column type.
 ##' @param geog Logical; Whether to write the spatial data as a PostGIS
-##'     'GEOGRAPHY' type. By default, FALSE, unless \code{geom = "geog"}.
+##'     'GEOGRAPHY' type. By default, FALSE, unless `geom = "geog"`.
 ##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrián Cidre
 ##' González \email{adrian.cidre@@gmail.com}
 ##' @export
-##' @return Returns \code{TRUE} if the insertion was successful,
-##' \code{FALSE} if failed, or a \code{pgi} object if specified.
+##' @return Returns `TRUE` if the insertion was successful,
+##' `FALSE` if failed, or a `pgi` object if specified.
 ##' @examples
 ##' \dontrun{
 ##' library(sf)
@@ -374,7 +374,7 @@ pgWriteGeom <- function(conn, name, data.obj, geom = "geom", df.mode = FALSE, pa
 ## print.pgi
 
 ##' @rdname pgWriteGeom
-##' @param x A list of class \code{pgi}
+##' @param x A list of class `pgi`
 ##' @param ... Further arguments not used.
 ##' @export
 print.pgi <- function(x, ...) {
@@ -408,40 +408,40 @@ print.pgi <- function(x, ...) {
 ##' This function has been deprecated in favour of [pgWriteGeom()] and will be
 ##' removed in a future release.
 ##'
-##' This function takes a take an R \code{sp} object (\code{Spatial*} or
-##' \code{Spatial*DataFrame}), or a regular \code{data.frame}, and performs the
+##' This function takes a take an R `sp` object (`Spatial*` or
+##' `Spatial*DataFrame`), or a regular `data.frame`, and performs the
 ##' database insert (and table creation, when the table does not exist)
 ##' on the database.
 ##'
-##' If \code{new.id} is specified, a new sequential integer field is
-##' added to the data frame for insert. For \code{Spatial*}-only
+##' If `new.id` is specified, a new sequential integer field is
+##' added to the data frame for insert. For `Spatial*`-only
 ##' objects (no data frame), a new ID column is created by default with name
-##' \code{"gid"}.
+##' `"gid"`.
 ##'
-##' This function will use \link[sf]{st_as_text} for geography types, and
-##' \link[sf]{st_as_binary} for geometry types.
+##' This function will use [st_as_text][sf::st_as_text] for geography types, and
+##' [st_as_binary][sf::st_as_binary] for geometry types.
 ##'
 ##' In the event of function or database error, the database uses
 ##' ROLLBACK to revert to the previous state.
 ##'
-##' If the user specifies \code{return.pgi = TRUE}, and data preparation is
+##' If the user specifies `return.pgi = TRUE`, and data preparation is
 ##' successful, the function will return
-##' a \code{pgi} object (see next paragraph), regardless of whether the
+##' a `pgi` object (see next paragraph), regardless of whether the
 ##' insert was successful or not. This object can be useful for debugging,
-##' or re-used as the \code{data.obj} in \code{pgInsert};
+##' or re-used as the `data.obj` in `pgInsert`;
 ##' (e.g., when data preparation is slow, and the exact same data
 ##' needs to be inserted into tables in two separate
-##' tables or databases). If \code{return.pgi = FALSE}
-##' (default), the function will return \code{TRUE} for successful insert and
-##' \code{FALSE} for failed inserts.
+##' tables or databases). If `return.pgi = FALSE`
+##' (default), the function will return `TRUE` for successful insert and
+##' `FALSE` for failed inserts.
 ##'
-##' Use this function with \code{df.mode = TRUE} to save data frames from
-##' \code{Spatial*}-class objects to the database in "data frame mode". Along with normal
-##' \code{dbwriteDataFrame} operation, the proj4string of the spatial
+##' Use this function with `df.mode = TRUE` to save data frames from
+##' `Spatial*`-class objects to the database in "data frame mode". Along with normal
+##' `dbwriteDataFrame` operation, the proj4string of the spatial
 ##' data will also be saved, and re-attached to the data when using
-##' \code{pgGetGeom} to import the data. Note that other attributes
-##' of \code{Spatial*} objects are \strong{not} saved (e.g., \code{coords.nrs},
-##' which is used to specify the column index of x/y columns in \code{SpatialPoints*}).
+##' `pgGetGeom` to import the data. Note that other attributes
+##' of `Spatial*` objects are **not** saved (e.g., `coords.nrs`,
+##' which is used to specify the column index of x/y columns in `SpatialPoints*`).
 ##'
 ##' pgi objects are a list containing four character strings: (1)
 ##' in.table, the table name which will be created or inserted
@@ -453,39 +453,39 @@ print.pgi <- function(x, ...) {
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
-##'     table name (e.g., \code{name = c("schema","table")}).
+##'     table name (e.g., `name = c("schema","table")`).
 ##'     If not already existing, the table will be
 ##'     created. If the table already exists, the function will check
 ##'     if all R data frame columns match database columns, and if so,
 ##'     do the insert. If not, the insert will be aborted. The
-##'     argument \code{partial.match} allows for inserts with only
+##'     argument `partial.match` allows for inserts with only
 ##'     partial matches of data frame and database column names, and
-##'     \code{overwrite} allows for overwriting the existing database
+##'     `overwrite` allows for overwriting the existing database
 ##'     table.
-##' @param data.obj A \code{Spatial*} or \code{Spatial*DataFrame}, or \code{data.frame}
-##' @param geom character string. For \code{Spatial*} datasets, the name of
+##' @param data.obj A `Spatial*` or `Spatial*DataFrame`, or `data.frame`
+##' @param geom character string. For `Spatial*` datasets, the name of
 ##'     geometry/(geography) column in the database table.  (existing or to be
-##'     created; defaults to \code{"geom"}). The special name "geog" will
-##'     automatically set \code{geog} to TRUE.
+##'     created; defaults to `"geom"`). The special name "geog" will
+##'     automatically set `geog` to TRUE.
 ##' @param df.mode Logical; Whether to write the (Spatial) data frame in data frame mode
 ##'     (preserving data frame column attributes and row.names).
 ##'     A new table must be created with this mode (or overwrite set to TRUE),
-##'     and the \code{row.names}, \code{alter.names}, and \code{new.id} arguments will
-##'     be ignored (see \link{dbWriteDataFrame} for more information).
+##'     and the `row.names`, `alter.names`, and `new.id` arguments will
+##'     be ignored (see [dbWriteDataFrame] for more information).
 ##' @param partial.match Logical; allow insert on partial column
-##'     matches between data frame and database table. If \code{TRUE},
+##'     matches between data frame and database table. If `TRUE`,
 ##'     columns in R data frame will be compared with the existing
-##'     database table \code{name}.  Columns in the data frame that
+##'     database table `name`.  Columns in the data frame that
 ##'     exactly match the database table will be inserted into the
 ##'     database table.
-##' @param overwrite Logical; if true, a new table (\code{name}) will
-##'     overwrite the existing table (\code{name}) in the database. Note:
-##'     overwriting a view must be done manually (e.g., with \link[rpostgis]{dbDrop}).
+##' @param overwrite Logical; if true, a new table (`name`) will
+##'     overwrite the existing table (`name`) in the database. Note:
+##'     overwriting a view must be done manually (e.g., with [dbDrop][rpostgis::dbDrop]).
 ##' @param new.id Character, name of a new sequential integer ID
 ##'     column to be added to the table for insert (for spatial objects without
-##'     data frames, this column is created even if left \code{NULL}
-##'     and defaults to the name \code{"gid"}). If \code{partial.match
-##'     = TRUE} and the column does not exist in the database table,
+##'     data frames, this column is created even if left `NULL`
+##'     and defaults to the name `"gid"`). If `partial.match
+##'     = TRUE` and the column does not exist in the database table,
 ##'     it will be discarded.
 ##' @param row.names Whether to add the data frame row names to the
 ##'     database table. Column name will be '.R_rownames'.
@@ -496,31 +496,31 @@ print.pgi <- function(x, ...) {
 ##'     Requires PostgreSQL 9.5+.
 ##' @param alter.names Logical, whether to make database column names
 ##'     DB-compliant (remove special characters/capitalization). Default is
-##'     \code{FALSE}.  (This must be set to \code{FALSE} to match
+##'     `FALSE`.  (This must be set to `FALSE` to match
 ##'     with non-standard names in an existing database table.)
 ##' @param encoding Character vector of length 2, containing the
 ##'     from/to encodings for the data (as in the function
-##'     \code{\link[base]{iconv}}). For example, if the dataset contain certain
+##'     [base::iconv()]). For example, if the dataset contain certain
 ##'     latin characters (e.g., accent marks), and the database is in
-##'     UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
-##'     \code{NULL}, no conversion will be done.
+##'     UTF-8, use `encoding = c("latin1", "UTF-8")`. Left
+##'     `NULL`, no conversion will be done.
 ##' @param return.pgi Whether to return a formatted list of insert parameters
-##'     (i.e., a \code{pgi} object; see function details.)
+##'     (i.e., a `pgi` object; see function details.)
 ##' @param df.geom Character vector, name of a character column in an R data.frame
 ##'     storing PostGIS geometries, this argument can be used to insert a geometry
 ##'     stored as character type in a data.frame (do not use with Spatial* data types).
-##'     If only the column name is used (e.g., \code{df.geom = "geom"}),
+##'     If only the column name is used (e.g., `df.geom = "geom"`),
 ##'     the column type will be a generic (GEOMETRY); use a two-length character vector
-##'     (e.g., \code{df.geom = c("geom", "(POINT,4326)")} to also specify a
+##'     (e.g., `df.geom = c("geom", "(POINT,4326)")` to also specify a
 ##'     specific PostGIS geometry type and SRID for the column. Only recommended for
 ##'     for new tables/overwrites, since this method will change the
 ##'     existing column type.
 ##' @param geog Logical; Whether to write the spatial data as a PostGIS
-##'     'GEOGRAPHY' type. By default, FALSE, unless \code{geom = "geog"}.
+##'     'GEOGRAPHY' type. By default, FALSE, unless `geom = "geog"`.
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @export
-##' @return Returns \code{TRUE} if the insertion was successful,
-##' \code{FALSE} if failed, or a \code{pgi} object if specified.
+##' @return Returns `TRUE` if the insertion was successful,
+##' `FALSE` if failed, or a `pgi` object if specified.
 ##' @examples
 ##' \dontrun{
 ##' library(sp)

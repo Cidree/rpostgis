@@ -41,7 +41,7 @@ table.}
 
 \item{data.obj}{A \code{sf},\code{SpatVector}, \code{sp}-class, or \code{data.frame}}
 
-\item{geom}{character string. For \code{Spatial*} datasets, the name of
+\item{geom}{character string. For \verb{Spatial*} datasets, the name of
 geometry/(geography) column in the database table.  (existing or to be
 created; defaults to \code{"geom"}). The special name "geog" will
 automatically set \code{geog} to TRUE.}
@@ -66,8 +66,7 @@ overwriting a view must be done manually (e.g., with \link{dbDrop}).}
 \item{new.id}{Character, name of a new sequential integer ID
 column to be added to the table for insert (for spatial objects without
 data frames, this column is created even if left \code{NULL}
-and defaults to the name \code{"gid"}). If \code{partial.match
-= TRUE} and the column does not exist in the database table,
+and defaults to the name \code{"gid"}). If \code{partial.match = TRUE} and the column does not exist in the database table,
 it will be discarded.}
 
 \item{row.names}{Whether to add the data frame row names to the
@@ -86,7 +85,7 @@ with non-standard names in an existing database table.)}
 
 \item{encoding}{Character vector of length 2, containing the
 from/to encodings for the data (as in the function
-\link[base]{iconv}. For example, if the dataset contain certain
+\link[base:iconv]{iconv}. For example, if the dataset contain certain
 latin characters (e.g., accent marks), and the database is in
 UTF-8, use \code{encoding = c("latin1", "UTF-8")}. Left
 \code{NULL}, no conversion will be done.}
@@ -116,7 +115,7 @@ Returns \code{TRUE} if the insertion was successful,
 \code{FALSE} if failed, or a \code{pgi} object if specified.
 }
 \description{
-This function takes a take an R \code{sf}, a \code{SpatVector} or \code{sp} object (\code{Spatial*} or
+This function takes a take an R \code{sf}, a \code{SpatVector} or \code{sp} object (\verb{Spatial*} or
 \code{Spatial*DataFrame}); or a regular \code{data.frame}, and performs the
 database insert (and table creation, when the table does not exist)
 on the database.
@@ -127,8 +126,8 @@ added to the data frame for insert. For \code{spatial}-only
 objects (no data frame), a new ID column is created by default with name
 \code{"gid"}.
 
-This function will use \code{\link[sf]{st_as_text}} for geography types, and
-\code{\link[sf]{st_as_binary}} for geometry types.
+This function will use \code{\link[sf:st_as_text]{sf::st_as_text()}} for geography types, and
+\code{\link[sf:st_as_binary]{sf::st_as_binary()}} for geometry types.
 
 In the event of function or database error, the database uses
 ROLLBACK to revert to the previous state.
@@ -150,8 +149,8 @@ Use this function with \code{df.mode = TRUE} to save data frames from
 data will also be saved, and re-attached to the data when using
 \code{pgGetGeom} to import the data. Note that other attributes
 of \code{spatial} objects are \strong{not} saved (e.g., \code{coords.nrs},
-which is used to specify the column index of x/y columns in \code{*POINT} and
- \code{SpatialPoints*}).
+which is used to specify the column index of x/y columns in \verb{*POINT} and
+\verb{SpatialPoints*}).
 
 pgi objects are a list containing four character strings: (1)
 in.table, the table name which will be created or inserted

@@ -50,7 +50,7 @@ dbVacuum(conn, name = c("schema", "table"), full = TRUE, exec = FALSE)
 }
 \seealso{
 The PostgreSQL documentation:
-    \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
+\url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
 }
 \author{
 Mathieu Basille \email{mathieu@basille.org}

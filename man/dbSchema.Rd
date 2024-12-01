@@ -7,8 +7,7 @@
 dbSchema(conn, name, display = TRUE, exec = TRUE)
 }
 \arguments{
-\item{conn}{A connection object (required, even if \code{exec =
-FALSE}).}
+\item{conn}{A connection object (required, even if \code{exec = FALSE}).}
 
 \item{name}{A character string specifying a PostgreSQL schema
 name.}
@@ -35,7 +34,7 @@ Checks the existence, and if necessary, creates a schema.
 }
 \seealso{
 The PostgreSQL documentation:
-    \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
+\url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
 }
 \author{
 Mathieu Basille \email{mathieu@basille.org}

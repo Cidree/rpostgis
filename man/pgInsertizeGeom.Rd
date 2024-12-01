@@ -87,14 +87,14 @@ be ignored (see \code{dbWriteDataFrame} for more information.}
 }
 \value{
 pgi A list containing four character strings: (1)
-    in.table, the table name which will be created or inserted
-    into, if specified by either create.table or force.match (else
-    NULL) (2) db.new.table, the SQL statement to create the new
-    table, if specified in create.table (else NULL), (3)
-    db.cols.insert, a character string of the database column
-    names to insert into, and (4) insert.data, a character string
-    of the data to insert. See examples for usage within the
-    \code{pgInsert} function.
+in.table, the table name which will be created or inserted
+into, if specified by either create.table or force.match (else
+NULL) (2) db.new.table, the SQL statement to create the new
+table, if specified in create.table (else NULL), (3)
+db.cols.insert, a character string of the database column
+names to insert into, and (4) insert.data, a character string
+of the data to insert. See examples for usage within the
+\code{pgInsert} function.
 }
 \description{
 These are internal rpostgis functions that take an R \code{sp} or \code{sf} object (Spatial*,
@@ -104,7 +104,7 @@ be used in the function \code{pgInsert} to insert rows of the
 object into the database table. (Note that these functions do not
 do any modification of the database, it only prepares the data for
 insert.) The function \code{pgInsert} is a wrapper around these
-functions, so \code{pgInsertize*} should only be used in
+functions, so \verb{pgInsertize*} should only be used in
 situations where data preparation and insert need to be separated.
 }
 \details{
@@ -117,7 +117,7 @@ exact matches are formatted to be inserted.
 A new database table can also be prepared to be created using the
 \code{create.table} argument.  If \code{new.id} is specified, a
 new sequential integer field is added to the data frame.  For
-\code{Spatial*}-only objects (no data frame), a new.id is created
+\verb{Spatial*}-only objects (no data frame), a new.id is created
 by default with name \code{gid}.  For \code{pgInsertizeGeom}, if
 the R package \code{wkb} is installed, this function uses
 \code{writeWKB} to translate the geometries for some spatial types

@@ -6,7 +6,7 @@
 ##'
 ##' @param conn A connection object.
 ##' @param name A character string specifying a PostgreSQL schema and
-##'     table name (e.g., \code{name = c("schema","table")})
+##'     table name (e.g., `name = c("schema","table")`)
 ##' @param colname A character string specifying the name of the new
 ##'     geometry column.
 ##' @param x The name of the x/longitude field.
@@ -15,15 +15,15 @@
 ##' @param index Logical. Whether to create an index on the new
 ##'     geometry.
 ##' @param display Logical. Whether to display the query (defaults to
-##'     \code{TRUE}).
+##'     `TRUE`).
 ##' @param exec Logical. Whether to execute the query (defaults to
-##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the geometry
+##'     `TRUE`).
+##' @return If `exec = TRUE`, returns `TRUE` if the geometry
 ##'     field was successfully created.
-##' @seealso The PostGIS documentation for \code{ST_MakePoint}:
-##'     \url{http://postgis.net/docs/ST_MakePoint.html}, and for
-##'     \code{ST_MakeLine}:
-##'     \url{http://postgis.net/docs/ST_MakeLine.html}, which are the
+##' @seealso The PostGIS documentation for `ST_MakePoint`:
+##'     <http://postgis.net/docs/ST_MakePoint.html>, and for
+##'     `ST_MakeLine`:
+##'     <http://postgis.net/docs/ST_MakeLine.html>, which are the
 ##'     main functions of the call.
 ##' @author Mathieu Basille \email{mathieu@@basille.org} and Adrián Cidre
 ##' González \email{adrian.cidre@@gmail.com}

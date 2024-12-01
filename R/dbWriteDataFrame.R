@@ -2,9 +2,9 @@
 
 #' Write/read in data frame mode to/from database table.
 #'
-#' Write \code{data.frame} or similar (e.g. \code{tibble}) to database table,
+#' Write `data.frame` or similar (e.g. `tibble`) to database table,
 #' with column definitions, row names, and a new integer primary key column.
-#' Read back into R with \code{dbReadDataFrame}, which recreates original
+#' Read back into R with `dbReadDataFrame`, which recreates original
 #' data.
 #'
 #' Writing in data frame mode is only for new database tables (or for
@@ -17,34 +17,34 @@
 #' a new integer primary key. Existing columns in the data.frame
 #' matching these names will be automatically changed.
 #'
-#' The \code{rpostgis} database table read functions
-#' \code{dbReadDataFrame} and \code{pgGetGeom} will use the metadata
+#' The `rpostgis` database table read functions
+#' `dbReadDataFrame` and `pgGetGeom` will use the metadata
 #' created in data frame mode to recreate a data.frame in R, if it is
 #' available. Otherwise, it will be imported using default
-#' \code{RPostgreSQL::dbGetQuery} methods.
+#' `RPostgreSQL::dbGetQuery` methods.
 #'
-#' All spatial objects must be written with \code{\link[rpostgis]{pgWriteGeom}}.
-#' For more flexible writing of \code{data.frame}s to the database
+#' All spatial objects must be written with [rpostgis::pgWriteGeom()].
+#' For more flexible writing of `data.frame`s to the database
 #' (including all writing into existing database tables), use
-#' \code{\link[rpostgis]{pgWriteGeom}} with \code{df.mode = FALSE}.
+#' [rpostgis::pgWriteGeom()] with `df.mode = FALSE`.
 #'
 #' @param conn A connection object to a PostgreSQL database
 #' @param name Character, schema and table of the PostgreSQL table
-#' @param df The data frame to write (for \code{dbReadDataFrame}, this
-#'     allows to update an existing \code{data.frame} with definitions
+#' @param df The data frame to write (for `dbReadDataFrame`, this
+#'     allows to update an existing `data.frame` with definitions
 #'     stored in the database)
-#' @param overwrite Logical; if TRUE, a new table (\code{name}) will
-#'     overwrite the existing table (\code{name}) in the database. Note:
-#'     overwriting a view must be done manually (e.g., with \code{\link[rpostgis]{dbDrop}}).
-#' @param only.defs Logical; if \code{TRUE}, only the table
+#' @param overwrite Logical; if TRUE, a new table (`name`) will
+#'     overwrite the existing table (`name`) in the database. Note:
+#'     overwriting a view must be done manually (e.g., with [rpostgis::dbDrop()]).
+#' @param only.defs Logical; if `TRUE`, only the table
 #'     definitions will be written.
 #' @author David Bucklin \email{david.bucklin@@gmail.com}
 #' @author Adrián Cidre González \email{adrian.cidre@@gmail.com}
 #' @aliases dbWriteDF
 #' @export
-#' @return invisible \code{TRUE} for successful write with
-#'     \code{dbWriteDataFrame}, \code{data.frame} for
-#'     \code{dbReadDataFrame}
+#' @return invisible `TRUE` for successful write with
+#'     `dbWriteDataFrame`, `data.frame` for
+#'     `dbReadDataFrame`
 #' @examples
 #' \dontrun{
 #' library(datasets)

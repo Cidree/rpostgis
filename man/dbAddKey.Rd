@@ -73,7 +73,7 @@ dbAddKey(conn, name = c("sch1", "tbl1"), colname = c("id1", "id2"),
 }
 \seealso{
 The PostgreSQL documentation:
-    \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
+\url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 }
 \author{
 Mathieu Basille \email{mathieu@basille.org}

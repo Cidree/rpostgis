@@ -25,7 +25,7 @@ dbAsDate(conn, name, date = "date", tz = NULL, display = TRUE, exec = TRUE)
 }
 \value{
 If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the
-    conversion was successful.
+conversion was successful.
 }
 \description{
 Convert a date field to a timestamp with or without time zone.
@@ -38,7 +38,7 @@ dbAsDate(conn, name = c("schema", "table"), date = "date", tz = "GMT",
 }
 \seealso{
 The PostgreSQL documentation:
-    \url{http://www.postgresql.org/docs/current/static/datatype-datetime.html}
+\url{http://www.postgresql.org/docs/current/static/datatype-datetime.html}
 }
 \author{
 Mathieu Basille \email{mathieu@basille.org}

@@ -3,12 +3,12 @@
 ##' Load a PostGIS geometry from a PostgreSQL table/view/query into R.
 ##'
 ##' Retrieve geometries from a PostGIS table/view/query, and convert
-##' it to an R \code{sf} object.
+##' it to an R `sf` object.
 ##'
 ##' The features of the table to retrieve must have the same geometry type.
-##' The query mode version of \code{pgGetGeom} allows the user to enter a
-##' complete SQL query (\code{query}) that returns a Geometry column, and save
-##' the query as a new view (\code{name}) if desired. If (\code{name}) is not
+##' The query mode version of `pgGetGeom` allows the user to enter a
+##' complete SQL query (`query`) that returns a Geometry column, and save
+##' the query as a new view (`name`) if desired. If (`name`) is not
 ##' specified, a temporary view with name ".rpostgis_TEMPview" is used only
 ##' within the function execution. In this mode, the other arguments can be used
 ##' normally to modify the Spatial* object returned from the query.
@@ -16,30 +16,30 @@
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
-##'     table/view name holding the geometry (e.g., \code{name =
-##'     c("schema","table")})
-##' @param geom The name of the geometry/(geography) column. (Default = \code{"geom"})
-##' @param gid Name of the column in \code{name} holding the IDs. Should be
-##'     unique for each record to return. \code{gid=NULL} (default) automatically
-##'     creates a new unique ID for each row in the \code{sf} object.
+##'     table/view name holding the geometry (e.g., `name =
+##'     c("schema","table")`)
+##' @param geom The name of the geometry/(geography) column. (Default = `"geom"`)
+##' @param gid Name of the column in `name` holding the IDs. Should be
+##'     unique for each record to return. `gid=NULL` (default) automatically
+##'     creates a new unique ID for each row in the `sf` object.
 ##' @param other.cols Names of specific columns in the table to
-##'     retrieve, in a character vector (e.g. \code{other.cols.=c("col1","col2")}.)
-##'     The default (\code{other.cols = TRUE}) is to attach
-##'     all columns. Setting \code{other.cols=FALSE} will return a Spatial-only
+##'     retrieve, in a character vector (e.g. `other.cols.=c("col1","col2")`.)
+##'     The default (`other.cols = TRUE`) is to attach
+##'     all columns. Setting `other.cols=FALSE` will return a Spatial-only
 ##'     object without attributes (no data frame).
 ##' @param clauses character, additional SQL to append to modify select
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 ##'     "ORDER BY ...", "LIMIT ..."); see below for examples.
-##' @param boundary \code{sf}, \code{SpatVector} or \code{sp} object; or numeric.
+##' @param boundary `sf`, `SpatVector` or `sp` object; or numeric.
 ##'     If a spatial object is provided, its bounding box will be used to select
-##'     geometries to import. Alternatively, a numeric vector (\code{c([top],
-##'     [bottom], [right], [left])}) indicating the projection-specific limits with
+##'     geometries to import. Alternatively, a numeric vector (`c([top],
+##'     [bottom], [right], [left])`) indicating the projection-specific limits with
 ##'      which to subset the spatial data. If not value is provided, the default
-##'     \code{boundary = NULL} will not apply any boundary subset.
+##'     `boundary = NULL` will not apply any boundary subset.
 ##' @param query character, a full SQL query including a geometry column.
 ##'     For use with query mode only (see details).
-##' @param returnclass 'sf' by default; 'terra' for \code{SpatVector};
-##'     or 'sp' for \code{sp} objects.
+##' @param returnclass 'sf' by default; 'terra' for `SpatVector`;
+##'     or 'sp' for `sp` objects.
 ##' @return sf, SpatVector or sp object
 ##' @export
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
@@ -275,10 +275,10 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
 #'
 #' @param query character, a full SQL query including a geometry column.
 #' @param name optional character string specifying
-#'     a PostgreSQL schema and view name (e.g., \code{name = c("schema","view")})
+#'     a PostgreSQL schema and view name (e.g., `name = c("schema","view")`)
 #'     to save the query as. If NULL, a temporary view ".rpostgis_TEMPview" is used
 #'     temporarily (only within the function scope).
-#' @param ... For \code{pgGetGeomQ}, other arguments as in \code{pgGetGeom}
+#' @param ... For `pgGetGeomQ`, other arguments as in `pgGetGeom`
 #' @keywords internal
 
 pgGetGeomQ <- function(conn, query, name = NULL, ...) {

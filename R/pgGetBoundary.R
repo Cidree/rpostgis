@@ -3,20 +3,20 @@
 ##' Retrieve bounding envelope of geometries or rasters.
 ##'
 ##' Retrieve bounding envelope (rectangle) of all geometries or
-##' rasters in a PostGIS table as a \code{sfc} object.
+##' rasters in a PostGIS table as a `sfc` object.
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
-##'     table/view name holding the geometry (e.g., \code{name =
-##'     c("schema","table")})
+##'     table/view name holding the geometry (e.g., `name =
+##'     c("schema","table")`)
 ##' @param geom A character string specifying the name of the geometry column
-##' in the table \code{name} (Default = \code{"geom"}). Note that for raster objects
+##' in the table `name` (Default = `"geom"`). Note that for raster objects
 ##' you will need to change the default value
 ##' @param clauses character, additional SQL to append to modify select
 ##'     query from table. Must begin with an SQL clause (e.g., "WHERE ...",
-##'     "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.
-##' @param returnclass 'sf' by default; 'terra' for \code{SpatVector};
-##'     or 'sp' for \code{sp} objects.
+##'     "ORDER BY ...", "LIMIT ..."); same usage as in `pgGetGeom`.
+##' @param returnclass 'sf' by default; 'terra' for `SpatVector`;
+##'     or 'sp' for `sp` objects.
 ##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrian Cidre
 ##' González \email{adrian.cidre@@gmail.com}
 ##' @export

@@ -28,7 +28,7 @@ name of the columns to build the index.}
 \item{idxname}{A character string specifying the name of the index
 to be created. By default, this uses the name of the table
 (without the schema) and the name of the columns as follows:
-\code{<table_name>_<column_names>_idx}.}
+\verb{<table_name>_<column_names>_idx}.}
 
 \item{unique}{Logical. Causes the system to check for duplicate
 values in the table when the index is created (if data already
@@ -70,9 +70,9 @@ dbIndex(conn, name = c("sch", "tbl"), colname = c("col1", "col2",
 }
 \seealso{
 The PostgreSQL documentation:
-    \url{http://www.postgresql.org/docs/current/static/sql-createindex.html};
-    the PostGIS documentation for GiST indexes:
-    \url{http://postgis.net/docs/using_postgis_dbmanagement.html#id541286}
+\url{http://www.postgresql.org/docs/current/static/sql-createindex.html};
+the PostGIS documentation for GiST indexes:
+\url{http://postgis.net/docs/using_postgis_dbmanagement.html#id541286}
 }
 \author{
 Mathieu Basille \email{mathieu@basille.org}

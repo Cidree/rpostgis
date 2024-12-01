@@ -2,73 +2,73 @@
 
 ##' Format R data objects for insert into a PostgreSQL table.
 ##'
-##' These are internal rpostgis functions that take an R \code{sp} or \code{sf} object (Spatial*,
-##' Spatial*DataFrame or sf; for \code{pgInsertizeGeom}), or data frame (for
-##' \code{pgInsertize}) and return a \code{pgi} list object, which can
-##' be used in the function \code{pgInsert} to insert rows of the
+##' These are internal rpostgis functions that take an R `sp` or `sf` object (Spatial*,
+##' Spatial*DataFrame or sf; for `pgInsertizeGeom`), or data frame (for
+##' `pgInsertize`) and return a `pgi` list object, which can
+##' be used in the function `pgInsert` to insert rows of the
 ##' object into the database table. (Note that these functions do not
 ##' do any modification of the database, it only prepares the data for
-##' insert.) The function \code{pgInsert} is a wrapper around these
-##' functions, so \code{pgInsertize*} should only be used in
+##' insert.) The function `pgInsert` is a wrapper around these
+##' functions, so `pgInsertize*` should only be used in
 ##' situations where data preparation and insert need to be separated.
 ##'
 ##' The entire data frame is prepared by default, unless
-##' \code{force.match} specifies a database table (along with a
-##' database connection \code{conn}), in which case the R column names
-##' are compared to the \code{force.match} column names, and only
+##' `force.match` specifies a database table (along with a
+##' database connection `conn`), in which case the R column names
+##' are compared to the `force.match` column names, and only
 ##' exact matches are formatted to be inserted.
 ##'
 ##' A new database table can also be prepared to be created using the
-##' \code{create.table} argument.  If \code{new.id} is specified, a
+##' `create.table` argument.  If `new.id` is specified, a
 ##' new sequential integer field is added to the data frame.  For
-##' \code{Spatial*}-only objects (no data frame), a new.id is created
-##' by default with name \code{gid}.  For \code{pgInsertizeGeom}, if
-##' the R package \code{wkb} is installed, this function uses
-##' \code{writeWKB} to translate the geometries for some spatial types
-##' (faster with large datasets), otherwise the \code{rgeos} function
-##' \code{writeWKT} is used.
+##' `Spatial*`-only objects (no data frame), a new.id is created
+##' by default with name `gid`.  For `pgInsertizeGeom`, if
+##' the R package `wkb` is installed, this function uses
+##' `writeWKB` to translate the geometries for some spatial types
+##' (faster with large datasets), otherwise the `rgeos` function
+##' `writeWKT` is used.
 ##'
 ##'
 ##' @param data.obj A Spatial* or Spatial*DataFrame, or data frame for
-##'     \code{pgInsertize}.
+##'     `pgInsertize`.
 ##' @param geom character string, the name of geometry column in the
 ##'     database table. (existing or to be created; defaults to
 ##'     'geom').
 ##' @param create.table character, schema and table of the PostgreSQL
 ##'     table to create (actual table creation will be done in later
 ##'     in pgWriteGeom().) Column names will be converted to
-##'     PostgreSQL-compliant names. Default is \code{NULL} (no new
+##'     PostgreSQL-compliant names. Default is `NULL` (no new
 ##'     table created).
 ##' @param force.match character, schema and table of the PostgreSQL
 ##'     table to compare columns of data frame with.  If specified with
-##'     \code{partial.match = TRUE}
+##'     `partial.match = TRUE`
 ##'     only columns in the data frame that exactly match the database
 ##'     table will be kept, and reordered to match the database
-##'     table. If \code{NULL}, all columns will be kept in the same
+##'     table. If `NULL`, all columns will be kept in the same
 ##'     order given in the data frame.
 ##' @param conn A database connection (if a table is given in for
 ##'     "force.match" parameter)
 ##' @param new.id character, name of a new sequential integer ID
 ##'     column to be added to the table.  (for spatial objects without
-##'     data frames, this column is created even if left \code{NULL}
-##'     and defaults to the name \code{"gid"}).
+##'     data frames, this column is created even if left `NULL`
+##'     and defaults to the name `"gid"`).
 ##' @param row.names Whether to add the data frame row names to the
 ##'     database table. Column name will be '.R_rownames'.
 ##' @param alter.names Logical, whether to make database column names
 ##'     DB-compliant (remove special characters). Default is
-##'     \code{TRUE}.  (This should to be set to \code{FALSE} to match
+##'     `TRUE`.  (This should to be set to `FALSE` to match
 ##'     to non-standard names in an existing database table using the
-##'     \code{force.match} setting.)
+##'     `force.match` setting.)
 ##' @param partial.match Logical; if force.match is set and  true,
 ##'     columns in R data frame will be compared with an the
-##'     existing database table \code{name}. Only columns in the
+##'     existing database table `name`. Only columns in the
 ##'     data frame that exactly match the database
 ##'     table will be inserted into the database table.
 ##' @param df.mode Logical; Whether to write data in data frame mode
 ##'     (preserving data frame column attributes and row.names).
 ##'     A new table must be created with this mode (or overwrite set to TRUE),
 ##'     and the row.names, alter.names, and new.id arguments will
-##'     be ignored (see \code{dbWriteDataFrame} for more information.
+##'     be ignored (see `dbWriteDataFrame` for more information.
 ##' @param geog Logical; Whether to write the spatial data as a PostGIS
 ##' 'GEOGRAPHY' type.
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
@@ -83,7 +83,7 @@
 ##'     db.cols.insert, a character string of the database column
 ##'     names to insert into, and (4) insert.data, a character string
 ##'     of the data to insert. See examples for usage within the
-##'     \code{pgInsert} function.
+##'     `pgInsert` function.
 ##' @examples
 ##' \dontrun{
 ##' library(sp)

@@ -10,8 +10,7 @@ dbTableInfo(conn, name, allinfo = FALSE)
 \item{conn}{A connection object to a PostgreSQL database.}
 
 \item{name}{A character string specifying a PostgreSQL schema (if
-necessary), and table or view name (e.g., \code{name
-= c("schema", "table")}).}
+necessary), and table or view name (e.g., \code{name = c("schema", "table")}).}
 
 \item{allinfo}{Logical, Get all information on table? Default is
 column names, types, nullable, and maximum length of character

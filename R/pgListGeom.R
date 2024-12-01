@@ -7,7 +7,7 @@
 ##' @param conn A PostgreSQL database connection.
 ##' @param geog Logical. For pgListGeom, whether to include PostGIS geography-type 
 ##'     columns stored in the database
-##' @return If \code{exec = TRUE}, a data frame with schema, table,
+##' @return If `exec = TRUE`, a data frame with schema, table,
 ##'     geometry/(geography) or raster (for pgListRast) column, and geometry/(geography) type.
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @export

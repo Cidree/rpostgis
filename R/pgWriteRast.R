@@ -6,12 +6,12 @@
 ##'
 ##' SpatRaster band names will be stored in an array in the column
 ##' "band_names", which will be restored in R when imported with the function
-##' \code{\link[rpostgis]{pgGetRast}}.
+##' [rpostgis::pgGetRast()].
 ##'
-##' Rasters from the \code{sp} and \code{raster} packages are converted to
-##' \code{terra} objects prior to insert.
+##' Rasters from the `sp` and `raster` packages are converted to
+##' `terra` objects prior to insert.
 ##'
-##' If \code{blocks = NULL}, the number of block will vary by raster size, with
+##' If `blocks = NULL`, the number of block will vary by raster size, with
 ##' a default value of 100 copies of the data in the memory at any point in time.
 ##' If a specified number of blocks is desired, set blocks to a one or two-length
 ##' integer vector. Note that fewer, larger blocks generally results in faster
@@ -20,24 +20,24 @@
 ##' @param conn A connection object to a PostgreSQL database.
 ##' @param name A character string specifying a PostgreSQL schema in the
 ##' database (if necessary) and table name to hold the raster (e.g.,
-##' \code{name = c("schema","table")}).
-##' @param raster An terra \code{SpatRaster}; objects from the raster
-##' package (\code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack});
-##' a \code{SpatialGrid*} or \code{SpatialPixels*} from sp package.
+##' `name = c("schema","table")`).
+##' @param raster An terra `SpatRaster`; objects from the raster
+##' package (`RasterLayer`, `RasterBrick`, or `RasterStack`);
+##' a `SpatialGrid*` or `SpatialPixels*` from sp package.
 ##' @param bit.depth The bit depth of the raster. Will be set to 32-bit
 ##'     (unsigned int, signed int, or float, depending on the data)
 ##'     if left null, but can be specified (as character) as one of the
-##'     PostGIS pixel types (see \url{http://postgis.net/docs/RT_ST_BandPixelType.html}).
+##'     PostGIS pixel types (see <http://postgis.net/docs/RT_ST_BandPixelType.html>).
 ##' @param blocks Optional desired number of blocks (tiles) to split the raster
 ##'     into in the resulting PostGIS table. This should be specified as a
 ##'     one or two-length (columns, rows) integer vector. See also 'Details'.
 ##' @param constraints Whether to create constraints from raster data. Recommended
-##'     to leave \code{TRUE} unless applying constraints manually (see
-##'     \url{http://postgis.net/docs/RT_AddRasterConstraints.html}).
+##'     to leave `TRUE` unless applying constraints manually (see
+##'     <http://postgis.net/docs/RT_AddRasterConstraints.html>).
 ##'     Note that constraint notices may print to the console,
 ##'     depending on the PostgreSQL server settings.
-##' @param overwrite Whether to overwrite the existing table (\code{name}).
-##' @param append Whether to append to the existing table (\code{name}).
+##' @param overwrite Whether to overwrite the existing table (`name`).
+##' @param append Whether to append to the existing table (`name`).
 ##'
 ##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrián Cidre
 ##' González \email{adrian.cidre@@gmail.com}
@@ -46,7 +46,7 @@
 ##' @return TRUE (invisibly) for successful import.
 ##'
 ##' @seealso Function follows process from
-##' \url{http://postgis.net/docs/using_raster_dataman.html#RT_Creating_Rasters}.
+##' <http://postgis.net/docs/using_raster_dataman.html#RT_Creating_Rasters>.
 ##' @examples
 ##' \dontrun{
 ##' pgWriteRast(conn, c("schema", "tablename"), raster_name)

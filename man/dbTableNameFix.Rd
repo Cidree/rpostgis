@@ -17,7 +17,7 @@ sanitized identifiers (TRUE) or as regular character (FALSE)}
 }
 \value{
 character vector of length 2. Each character element is in
-    (escaped) double-quotes when as.identifier = TRUE.
+(escaped) double-quotes when as.identifier = TRUE.
 }
 \description{
 Internal rpostgis function to return common (length = 2) schema

@@ -2,24 +2,24 @@
 
 ##' Find (or create) PostGIS SRID based on CRS object.
 ##'
-##' This function takes \code{\link[sf]{st_crs}}-class object and a
+##' This function takes [sf::st_crs()]-class object and a
 ##' PostgreSQL database connection (with PostGIS extension), and
 ##' returns the matching SRID(s) for that CRS. If a match is not
 ##' found, a new entry can be created in the PostgreSQL
-##' \code{spatial_ref_sys} table using the parameters specified by the
-##' CRS. New entries will be created with \code{auth_name =
-##' 'rpostgis_custom'}, with the default value being the next open value
+##' `spatial_ref_sys` table using the parameters specified by the
+##' CRS. New entries will be created with `auth_name =
+##' 'rpostgis_custom'`, with the default value being the next open value
 ##' between 880001-889999 (a different SRID value can be entered if desired.)
 ##'
 ##' @param conn A connection object to a PostgreSQL database.
 ##' @param crs crs object, created through a call to
-##'     \code{\link[sf]{st_crs}}.
+##'     [sf::st_crs()].
 ##' @param create.srid Logical. If no matching SRID is found, should a new
 ##'     SRID be created? User must have write access on
-##'     \code{spatial_ref_sys} table.
+##'     `spatial_ref_sys` table.
 ##' @param new.srid Integer. Optional SRID to give to a newly created
 ##'     SRID. If left NULL (default), the next open value of
-##'     \code{srid} in \code{spatial_ref_sys} between 880001 and
+##'     `srid` in `spatial_ref_sys` between 880001 and
 ##'     889999 will be used.
 ##' @return SRID code (integer).
 ##' @author David Bucklin \email{david.bucklin@@gmail.com} and Adrián Cidre

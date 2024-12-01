@@ -12,12 +12,12 @@ pgListRast(conn)
 \arguments{
 \item{conn}{A PostgreSQL database connection.}
 
-\item{geog}{Logical. For pgListGeom, whether to include PostGIS geography-type 
+\item{geog}{Logical. For pgListGeom, whether to include PostGIS geography-type
 columns stored in the database}
 }
 \value{
 If \code{exec = TRUE}, a data frame with schema, table,
-    geometry/(geography) or raster (for pgListRast) column, and geometry/(geography) type.
+geometry/(geography) or raster (for pgListRast) column, and geometry/(geography) type.
 }
 \description{
 List all geometry/(geography) or raster columns available in a PostGIS database.

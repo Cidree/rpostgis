@@ -24,7 +24,7 @@ database (if necessary) and table name to hold the raster (e.g.,
 
 \item{raster}{An terra \code{SpatRaster}; objects from the raster
 package (\code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack});
-a \code{SpatialGrid*} or \code{SpatialPixels*} from sp package.}
+a \verb{SpatialGrid*} or \verb{SpatialPixels*} from sp package.}
 
 \item{bit.depth}{The bit depth of the raster. Will be set to 32-bit
 (unsigned int, signed int, or float, depending on the data)
@@ -54,7 +54,7 @@ Sends R raster to a PostGIS database table.
 \details{
 SpatRaster band names will be stored in an array in the column
 "band_names", which will be restored in R when imported with the function
-\code{\link[rpostgis]{pgGetRast}}.
+\code{\link[=pgGetRast]{pgGetRast()}}.
 
 Rasters from the \code{sp} and \code{raster} packages are converted to
 \code{terra} objects prior to insert.

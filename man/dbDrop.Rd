@@ -49,9 +49,9 @@ dbDrop(conn, name = "test_schema", type = "schema", cascade = "TRUE", exec = FAL
 }
 \seealso{
 The PostgreSQL documentation:
-    \url{http://www.postgresql.org/docs/current/static/sql-droptable.html},
-    \url{http://www.postgresql.org/docs/current/static/sql-dropview.html},
-    \url{http://www.postgresql.org/docs/current/static/sql-dropschema.html}
+\url{http://www.postgresql.org/docs/current/static/sql-droptable.html},
+\url{http://www.postgresql.org/docs/current/static/sql-dropview.html},
+\url{http://www.postgresql.org/docs/current/static/sql-dropschema.html}
 }
 \author{
 Mathieu Basille \email{mathieu@basille.org}

@@ -22,15 +22,15 @@ stored in the database)}
 
 \item{overwrite}{Logical; if TRUE, a new table (\code{name}) will
 overwrite the existing table (\code{name}) in the database. Note:
-overwriting a view must be done manually (e.g., with \code{\link[rpostgis]{dbDrop}}).}
+overwriting a view must be done manually (e.g., with \code{\link[=dbDrop]{dbDrop()}}).}
 
 \item{only.defs}{Logical; if \code{TRUE}, only the table
 definitions will be written.}
 }
 \value{
 invisible \code{TRUE} for successful write with
-    \code{dbWriteDataFrame}, \code{data.frame} for
-    \code{dbReadDataFrame}
+\code{dbWriteDataFrame}, \code{data.frame} for
+\code{dbReadDataFrame}
 }
 \description{
 Write \code{data.frame} or similar (e.g. \code{tibble}) to database table,
@@ -55,10 +55,10 @@ created in data frame mode to recreate a data.frame in R, if it is
 available. Otherwise, it will be imported using default
 \code{RPostgreSQL::dbGetQuery} methods.
 
-All spatial objects must be written with \code{\link[rpostgis]{pgWriteGeom}}.
+All spatial objects must be written with \code{\link[=pgWriteGeom]{pgWriteGeom()}}.
 For more flexible writing of \code{data.frame}s to the database
 (including all writing into existing database tables), use
-\code{\link[rpostgis]{pgWriteGeom}} with \code{df.mode = FALSE}.
+\code{\link[=pgWriteGeom]{pgWriteGeom()}} with \code{df.mode = FALSE}.
 }
 \examples{
 \dontrun{

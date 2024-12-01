@@ -47,7 +47,7 @@ dbComment(conn, name = "test_schema", comment = "Comment on a schema.", type = "
 }
 \seealso{
 The PostgreSQL documentation:
-    \url{http://www.postgresql.org/docs/current/static/sql-comment.html}
+\url{http://www.postgresql.org/docs/current/static/sql-comment.html}
 }
 \author{
 Mathieu Basille \email{mathieu@basille.org}

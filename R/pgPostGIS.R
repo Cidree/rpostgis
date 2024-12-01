@@ -7,8 +7,8 @@
 ##' it. Additionally, can also install Topology, Tiger Geocoder,
 ##' SFCGAL and Raster extensions.
 ##'
-##' @param conn A connection object (required, even if \code{exec =
-##'     FALSE}).
+##' @param conn A connection object (required, even if `exec =
+##'     FALSE`).
 ##' @param topology Logical. Whether to check/install the Topology
 ##'     extension.
 ##' @param tiger Logical. Whether to check/install the Tiger Geocoder
@@ -19,10 +19,10 @@
 ##'     extension.
 ##' @param raster Logical. Whether to check/install the Raster extension
 ##' @param display Logical. Whether to display the query (defaults to
-##'     \code{TRUE}).
+##'     `TRUE`).
 ##' @param exec Logical. Whether to execute the query (defaults to
-##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if PostGIS is installed.
+##'     `TRUE`).
+##' @return If `exec = TRUE`, returns (invisibly) `TRUE` if PostGIS is installed.
 ##' @author Mathieu Basille \email{mathieu@@basille.org} and
 ##'         Adrián Cidre González \email{adrian.cidre@@gmail.com}
 ##' @export

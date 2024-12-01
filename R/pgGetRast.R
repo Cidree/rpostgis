@@ -2,43 +2,43 @@
 
 ##' Load raster from PostGIS database into R.
 ##'
-##' Retrieve rasters from a PostGIS table into a \code{terra SpatRaster} object
+##' Retrieve rasters from a PostGIS table into a `terra SpatRaster` object
 ##'
 ##'
 ##' Since version 1.5.0, this function retrieve SpatRaster objects from
-##' \code{terra} package by default. The argument \code{returnclass} can be
-##' used to return \code{raster} objects instead.
+##' `terra` package by default. The argument `returnclass` can be
+##' used to return `raster` objects instead.
 ##'
-##' The argument \code{bands} can take as argument:
+##' The argument `bands` can take as argument:
 ##'
 ##' * The index of the desirable band (e.g. bands = 2 will fetch the second band
 ##' of the raster).
 ##'
 ##' * More than one index for several bands (e.g. bands = c(2,4) will return a
-##' \code{SpatRaster} with two bands).
+##' `SpatRaster` with two bands).
 ##'
 ##' * All bands in the raster (bands = TRUE).
 ##'
 ##'
 ##' @param conn A connection object to a PostgreSQL database
 ##' @param name A character string specifying a PostgreSQL schema and
-##'     table/view name holding the geometry (e.g., \code{name =
-##'     c("schema","table")})
-##' @param rast Name of the column in \code{name} holding the raster object.
+##'     table/view name holding the geometry (e.g., `name =
+##'     c("schema","table")`)
+##' @param rast Name of the column in `name` holding the raster object.
 ##' Defaults to "rast".
 ##' @param clauses character, optional SQL to append to modify select
 ##'     query from table. Must begin with 'WHERE'.
 ##' @param bands Index number(s) for the band(s) to retrieve (defaults to 1).
-##' The special case (\code{bands = TRUE}) returns all bands in the raster. See
+##' The special case (`bands = TRUE`) returns all bands in the raster. See
 ##' also 'Details'
-##' @param boundary \code{sf} object, \code{SpatVector} object, or numeric. If a
+##' @param boundary `sf` object, `SpatVector` object, or numeric. If a
 ##'     spatial object is provided, its bounding box will be used to select
 ##'     the part of the raster to import. Alternatively, a numeric vector
-##'     (\code{c([top], [bottom], [right], [left])}) indicating the
+##'     (`c([top], [bottom], [right], [left])`) indicating the
 ##'     projection-specific limits with which to clip the raster. If not value
-##'     is provided, the default \code{boundary = NULL} will return the
+##'     is provided, the default `boundary = NULL` will return the
 ##'     full raster.
-##' @param returnclass 'terra' by default; or 'raster' for \code{raster} objects.
+##' @param returnclass 'terra' by default; or 'raster' for `raster` objects.
 ##' @param progress whether to show a progress bar (TRUE by default). The progress
 ##'     bar mark the progress of reading bands from the database.
 ##'
@@ -47,7 +47,7 @@
 ##' @importFrom terra rast ext crs crop
 ##' @importFrom sf st_crs st_bbox
 ##' @export
-##' @return \code{SpatRaster}; \code{raster}; or \code{RasterStack} object
+##' @return `SpatRaster`; `raster`; or `RasterStack` object
 ##' @examples
 ##' \dontrun{
 ##' pgGetRast(conn, c("schema", "tablename"))

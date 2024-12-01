@@ -19,8 +19,7 @@ pgGetRast(
 \item{conn}{A connection object to a PostgreSQL database}
 
 \item{name}{A character string specifying a PostgreSQL schema and
-table/view name holding the geometry (e.g., \code{name =
-c("schema","table")})}
+table/view name holding the geometry (e.g., \code{name = c("schema","table")})}
 
 \item{rast}{Name of the column in \code{name} holding the raster object.
 Defaults to "rast".}
@@ -32,7 +31,7 @@ also 'Details'}
 \item{boundary}{\code{sf} object, \code{SpatVector} object, or numeric. If a
 spatial object is provided, its bounding box will be used to select
 the part of the raster to import. Alternatively, a numeric vector
-(\code{c([top], [bottom], [right], [left])}) indicating the
+(\verb{c([top], [bottom], [right], [left])}) indicating the
 projection-specific limits with which to clip the raster. If not value
 is provided, the default \code{boundary = NULL} will return the
 full raster.}
@@ -49,7 +48,7 @@ bar mark the progress of reading bands from the database.}
 \code{SpatRaster}; \code{raster}; or \code{RasterStack} object
 }
 \description{
-Retrieve rasters from a PostGIS table into a \code{terra SpatRaster} object
+Retrieve rasters from a PostGIS table into a \verb{terra SpatRaster} object
 }
 \details{
 Since version 1.5.0, this function retrieve SpatRaster objects from
@@ -57,14 +56,13 @@ Since version 1.5.0, this function retrieve SpatRaster objects from
 used to return \code{raster} objects instead.
 
 The argument \code{bands} can take as argument:
-
-* The index of the desirable band (e.g. bands = 2 will fetch the second band
+\itemize{
+\item The index of the desirable band (e.g. bands = 2 will fetch the second band
 of the raster).
-
-* More than one index for several bands (e.g. bands = c(2,4) will return a
+\item More than one index for several bands (e.g. bands = c(2,4) will return a
 \code{SpatRaster} with two bands).
-
-* All bands in the raster (bands = TRUE).
+\item All bands in the raster (bands = TRUE).
+}
 }
 \examples{
 \dontrun{
