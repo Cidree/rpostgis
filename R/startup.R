@@ -1,11 +1,12 @@
 .onAttach <- function(libname, pkgname) {
-  cli::cli_h1("Welcome to rpostgis!")
+  msg <- paste(
+    paste(" Welcome to rpostgis -", sprintf("Version: %s (%s)", utils::packageVersion("rpostgis"), utils::packageDate("rpostgis"))),
+    "- Support for `sp` and `raster` objects is deprecated.",
+    "- These will be removed in a future release.",
+    "- Please use `sf` and `terra` objects with rpostgis.",
+    sep = "\n"
+  )
 
-  cli::cli_alert_info("Version: {utils::packageVersion('rpostgis')} ({utils::packageDate('rpostgis')})")
-
-  cli::cli_rule("Notice")
-
-  cli::cli_alert_warning("Support for `sp` and `raster` objects is deprecated.")
-  cli::cli_alert_danger("These will be removed in a future release.")
-  cli::cli_alert_info("Please use `sf` and `terra` objects with {{rpostgis}}.")
+  packageStartupMessage(msg)
 }
+
