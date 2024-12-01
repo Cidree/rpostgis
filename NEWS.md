@@ -1,9 +1,27 @@
-rpostgis 1.5.2 (pre-release)
+rpostgis 1.6.0 (pre-release)
 ==============
+
+OVERALL CHANGES
+
+* `pgGetGeom()`, `pgGetBoundary()` now use the SRID for defining the CRS instead of the proj4 code.
+
+* `pgWriteRast()`: argument `progress` have been removed.
+
+* `pgWriteGeom()` now throws an error when CRS is undefined.
+
+* Functions that return a `TRUE` value, now return it invisibly (`pgMakePts()`, )
+
+* Use of `cli` for better user feedback
+
+* `raster` and `sp` are now suggested and not imported by `rpostgis`
+
+* Use `lifecycle` warnings to encourage users to use `sf` and `terra`, and don't use `sp` or `raster` anymore in `rpostgis`.
+
+* `pgSRID()`: now throws an error when CRS is undefined
 
 BUG FIXES
 
-* Fix an error in `dbWriteDataFrame` that was causing data frames with `dttm` columns to be unable to be written to the database.
+* Fix an error in `dbWriteDataFrame()` that was causing data frames with `dttm` columns to be unable to be written to the database.
 
 OTHER CHANGES
 

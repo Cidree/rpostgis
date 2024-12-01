@@ -65,3 +65,32 @@ release()
 # [![CRAN Status](http://www.r-pkg.org/badges/version/rpostgis)](https://CRAN.R-project.org/package=rpostgis)
 # [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 # ![](https://cranlogs.r-pkg.org/badges/rpostgis)
+
+
+# 0. CRAN release ---------------------------------------------------------
+
+## Check current CRAN check results
+## - https://cran.rstudio.org/web/checks/check_results_forestdata.html
+
+# --- R Package Checklist ---
+
+# Preparation
+urlchecker::url_check()            # Check for broken URLs
+devtools::document()               # Update documentation
+devtools::build_readme()           # Rebuild README
+# Update cran-comments.md manually
+
+# Run Checks
+devtools::check(cran = TRUE)       # Local CRAN-like check
+devtools::check_win_devel()        # Check on Windows development version
+revdepcheck::revdep_check(num_workers = 4)  # Reverse dependency check
+
+# Submission to CRAN
+usethis::use_version(which = "minor")  # Increment version (patch/minor/major)
+devtools::submit_cran()            # Submit to CRAN
+system("git push")                 # Push changes to Git
+
+# Post-Submission
+pkgdown::build_site()              # Build package website
+usethis::use_github_release()      # Tag GitHub release
+usethis::use_dev_version(push = TRUE)  # Start a new development version

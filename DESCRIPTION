@@ -26,18 +26,20 @@ Depends:
     DBI (>= 0.5)
 Imports:
     methods,
-    sp,
+    sf,
     stats,
     terra (>= 1.6.7),
-    purrr,
-    sf,
-    raster
+    cli,
+    lifecycle
 Suggests:
     RPostgres,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    sp,
+    raster
 License: GPL (>= 3)
 URL: https://cidree.github.io/rpostgis/, https://github.com/Cidree/rpostgis
 BugReports: https://github.com/Cidree/rpostgis/issues
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Encoding: UTF-8
 Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
