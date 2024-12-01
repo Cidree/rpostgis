@@ -1,3 +1,4 @@
+
 rpostgis 1.6.0 (pre-release)
 ==============
 
