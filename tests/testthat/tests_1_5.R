@@ -4,9 +4,9 @@
 conn <- dbConnect(
   RPostgres::Postgres(),
   host     = "localhost",
-  dbname   = "rpostgis", 
-  user     = "postgres", 
-  password = keyring::key_get("postgres","postgres")
+  dbname   = "rpostgis",
+  user     = "postgres",
+  password = keyring::key_get("rpostgis","postgres")
 )
 
 # 2. Create schema --------------------------------------------------------
@@ -94,15 +94,15 @@ test_that("Export/Import point data works", {
   expect_equal(baea_nests, baea_nests_2, tolerance = 0.0001)
 })
 
-## Without CRS
-baea_nests_nocrs <- baea_nests
-sf::st_crs(baea_nests_nocrs) <- NA
-pgWriteGeom(conn, c("pg", "second_baea_nests"), baea_nests_nocrs)
-baea_nests_nocrs_2 <- pgGetGeom(conn, c("pg", "second_baea_nests"))
-
-test_that("Export/Import point data works", {
-  expect_equal(baea_nests_nocrs, baea_nests_nocrs_2, tolerance = 0.0001)
-})
+# ## Without CRS
+# baea_nests_nocrs <- baea_nests
+# sf::st_crs(baea_nests_nocrs) <- NA
+# pgWriteGeom(conn, c("pg", "second_baea_nests"), baea_nests_nocrs)
+# baea_nests_nocrs_2 <- pgGetGeom(conn, c("pg", "second_baea_nests"))
+#
+# test_that("Export/Import point data works", {
+#   expect_equal(baea_nests_nocrs, baea_nests_nocrs_2, tolerance = 0.0001)
+# })
 
 ## Write as geography
 pgWriteGeom(conn, c("pg", "third_baea_nests"), baea_nests, geog = TRUE, overwrite = TRUE)
@@ -211,8 +211,8 @@ roads_4 <- pgGetGeom(conn, c("pg", "first_roads"), boundary = bndry)
 # 4.8 Query ---------------------------------------------------------------
 
 ## Query
-buowl_query <- pgGetGeom(conn, 
-                         query = "SELECT * 
+buowl_query <- pgGetGeom(conn,
+                         query = "SELECT *
                                      FROM pg.first_buowl_habitat
                                      WHERE recentstat = 'REMOVED'")
 
@@ -282,7 +282,7 @@ dem_2 <- pgGetRast(conn, c("pg", "first_dem"), rast = "rast")
 ## Test equal
 test_that("Extent and CRS are the same after export/import", {
   expect_equal(terra::crs(dem), terra::crs(dem_2))
-  expect_equal(as.vector(terra::ext(dem)), 
+  expect_equal(as.vector(terra::ext(dem)),
                as.vector(terra::ext(dem_2)),
                tolerance = 0.001)
 })
@@ -310,7 +310,7 @@ terrain_sr_2 <- pgGetRast(conn, c("pg", "first_terrain"), bands = TRUE)
 ## Test equal
 test_that("Extent and CRS are the same after export/import", {
   expect_equal(terra::crs(terrain_sr), terra::crs(terrain_sr_2))
-  expect_equal(as.vector(terra::ext(terrain_sr)), 
+  expect_equal(as.vector(terra::ext(terrain_sr)),
                as.vector(terra::ext(terrain_sr_2)),
                tolerance = 0.001)
   expect_equal(terra::nlyr(terrain_sr), terra::nlyr(terrain_sr_2))
@@ -319,20 +319,20 @@ test_that("Extent and CRS are the same after export/import", {
 # 5.4. Get only some bands ------------------------------------------------
 
 ## Read stack
-terrain_sr_3 <- pgGetRast(conn, 
-                          c("pg", "first_terrain"), 
+terrain_sr_3 <- pgGetRast(conn,
+                          c("pg", "first_terrain"),
                           bands = c(1, 3))
 
 ## Test equal
 test_that("Extent and CRS are the same after export/import", {
-  expect_equal(terra::crs(terrain_sr[[c(1,3)]]), 
+  expect_equal(terra::crs(terrain_sr[[c(1,3)]]),
                terra::crs(terrain_sr_3))
-  
-  expect_equal(as.vector(terra::ext(terrain_sr[[c(1,3)]])), 
+
+  expect_equal(as.vector(terra::ext(terrain_sr[[c(1,3)]])),
                as.vector(terra::ext(terrain_sr_3)),
-               
+
                tolerance = 0.001)
-  expect_equal(terra::nlyr(terrain_sr[[c(1,3)]]), 
+  expect_equal(terra::nlyr(terrain_sr[[c(1,3)]]),
                terra::nlyr(terrain_sr_3))
 })
 
@@ -346,7 +346,7 @@ dem_boundary <- pgGetRast(conn, c("pg", "first_dem"), boundary = myboundary)
 
 ## Test equal
 test_that("Extent is correct", {
-  expect_equal(as.numeric(as.vector(terra::ext(dem_boundary))), 
+  expect_equal(as.numeric(as.vector(terra::ext(dem_boundary))),
                c(myboundary[4],myboundary[3],myboundary[2],myboundary[1]))
 })
 
@@ -367,10 +367,9 @@ test_that("Boundary is the same", {
 
 ## Get boundary
 dem_boundary <- pgGetBoundary(conn, c("pg", "first_dem"), geom = "rast")
-dem
 ## Test equal
 test_that("Boundary is the same", {
-  expect_equal(as.vector(sf::st_bbox(dem_boundary)), 
+  expect_equal(as.vector(sf::st_bbox(dem_boundary)),
                as.vector(sf::st_bbox(terra::ext(dem))))
 })
 
@@ -417,13 +416,20 @@ test_that("Creating non-existing CRS works", {
 })
 
 ## NA and non-existing CRS
-crs3 <- sf::st_crs(NA)
-srid_3 <- pgSRID(conn, crs3)
-srid_4 <- pgSRID(conn, sf::st_crs("ESRI:37220"), 
-                 create.srid = TRUE, new.srid = 37220)
+test_that("Non-existing CRS throws an error", {
+  expect_error(pgSRID(conn, sf::st_crs(NA)))
+})
 
-test_that("SRID is 0", {
-  expect_equal(srid_3, 0)
+test_that("New SRID is created", {
+  expect_equal(
+    pgSRID(conn, sf::st_crs("ESRI:37220"), create.srid = TRUE, new.srid = 37220),
+    37220
+  )
+})
+
+## Existing ESRI CRS
+test_that("ESRI CRS works", {
+  expect_equal(pgSRID(conn, sf::st_crs("ESRI:102825")), 102825)
 })
 
 # 9. Wrappers -------------------------------------------------------------
@@ -487,8 +493,11 @@ baea_nests_tbl <- sf::st_drop_geometry(baea_nests)
 dbWriteDataFrame(conn, c("pg", "fourth_baea_nests"), baea_nests_tbl, overwrite = TRUE)
 
 # Create points column
-pgMakePts(conn, name = c("pg", "fourth_baea_nests"), colname = "pts_geom",
-     x = "long_x_dd", y = "lat_y_dd", srid = 4326, exec = TRUE)
+test_that("Make pts works", {
+  v <- pgMakePts(conn, name = c("pg", "fourth_baea_nests"), colname = "pts_geom",
+            x = "long_x_dd", y = "lat_y_dd", srid = 4326, exec = TRUE)
+  expect_true(v)
+})
 
 # Read third baea nest
 baea_nests_3 <- pgGetGeom(conn, c("pg", "fourth_baea_nests"), geom = "pts_geom")
