@@ -22,7 +22,7 @@ checks the existence of the schema, but does not create it if
 it does not exists.}
 }
 \value{
-If \code{exec = TRUE}, returns \code{TRUE} if the schema exists
+If \code{exec = TRUE}, returns (invisible) \code{TRUE} if the schema exists
 (whether it was already available or was just created).
 }
 \description{

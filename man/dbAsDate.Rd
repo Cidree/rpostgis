@@ -24,7 +24,7 @@ dbAsDate(conn, name, date = "date", tz = NULL, display = TRUE, exec = TRUE)
 \code{TRUE}).}
 }
 \value{
-If \code{exec = TRUE}, returns \code{TRUE} if the
+If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the
     conversion was successful.
 }
 \description{

@@ -37,7 +37,7 @@ planner to determine the most efficient way to execute a query
 \code{TRUE}).}
 }
 \value{
-If \code{exec = TRUE}, returns TRUE if query is successfully executed.
+If \code{exec = TRUE}, returns (invisibly) TRUE if query is successfully executed.
 }
 \description{
 Performs a VACUUM (garbage-collect and optionally analyze) on a

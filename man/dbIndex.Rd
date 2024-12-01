@@ -50,7 +50,7 @@ raster).}
 \code{TRUE}).}
 }
 \value{
-If \code{exec = TRUE}, returns \code{TRUE} if the index was
+If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the index was
 successfully created.
 }
 \description{

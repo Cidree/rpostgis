@@ -25,7 +25,8 @@
 ##'     \code{ST_MakeLine}:
 ##'     \url{http://postgis.net/docs/ST_MakeLine.html}, which are the
 ##'     main functions of the call.
-##' @author Mathieu Basille \email{mathieu@@basille.org}
+##' @author Mathieu Basille \email{mathieu@@basille.org} and Adrián Cidre
+##' González \email{adrian.cidre@@gmail.com}
 ##' @export
 ##' @examples
 ##' ## Examples use a dummy connection from DBI package
@@ -41,7 +42,7 @@ pgMakePts <- function(conn, name, colname = "geom", x = "x",
     if (exec) {
         dbConnCheck(conn)
         if (!suppressMessages(pgPostGIS(conn))) {
-            stop("PostGIS is not enabled on this database.")
+            cli::cli_abort("PostGIS is not enabled on this database.")
         }
     }
     ## Check and prepare the schema.table name
@@ -52,7 +53,7 @@ pgMakePts <- function(conn, name, colname = "geom", x = "x",
     y <- DBI::dbQuoteIdentifier(conn, y)
     ## Stop if no SRID
     if (missing(srid))
-        stop("A valid SRID should be provided.")
+        cli::cli_abort("A valid SRID should be provided.")
     ## SQL query to add the POINT geometry column
     ## --
     ## ALTER TABLE "<schema>"."<table>" ADD COLUMN "<colname>" geometry(POINT, <srid>);
@@ -91,16 +92,15 @@ pgMakePts <- function(conn, name, colname = "geom", x = "x",
         " = ST_SetSRID(ST_MakePoint(", x, ", ", y, "), ", srid,
         ")\nWHERE ", x, " IS NOT NULL AND ", y, " IS NOT NULL;")
     ## Display the query
-    if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
-        #message("--")
-    }
+    if (display) cli::cli_alert_info(tmp.query)
     ## Execute the query
     if (exec) {
         dbSendQuery(conn, tmp.query)
         ## Return TRUE
-        return(TRUE)
+        cli::cli_alert_success("Query executed")
+        return(invisible(TRUE))
+    } else {
+        cli::cli_alert_danger("Query not executed")
     }
 }
 
@@ -127,7 +127,7 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
     if (exec) {
         dbConnCheck(conn)
         if (!suppressMessages(pgPostGIS(conn))) {
-            stop("PostGIS is not enabled on this database.")
+            cli::cli_abort("PostGIS is not enabled on this database.")
         }
     }
     ## Check and prepare the schema.table name
@@ -140,7 +140,7 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
     dy <- DBI::dbQuoteIdentifier(conn, dy)
     ## Stop if no SRID
     if (missing(srid))
-        stop("A valid SRID should be provided.")
+        cli::cli_abort("A valid SRID should be provided.")
     ## SQL query to add the LINESTRING geometry column
     ## --
     ## ALTER TABLE "<schema>"."<table>" ADD COLUMN "<colname>" geometry(LINESTRING, <srid>);
@@ -149,9 +149,7 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
         colnameque, " geometry(LINESTRING, ", srid, ");")
     ## Display the query
     if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
-        #message("--")
+        cli::cli_alert_info(tmp.query)
     }
     ## Execute the query
     if (exec)
@@ -185,14 +183,15 @@ pgMakeStp <- function(conn, name, colname = "geom", x = "x",
         dx, " IS NOT NULL AND ", dy, " IS NOT NULL;")
     ## Display the query
     if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
-        #message("--")
+        cli::cli_alert_info(tmp.query)
     }
     ## Execute the query
     if (exec) {
         dbSendQuery(conn, tmp.query)
         ## Return TRUE
-        return(TRUE)
+        cli::cli_alert_success("Query executed")
+        return(invisible(TRUE))
+    } else {
+        cli::cli_alert_danger("Query not executed")
     }
 }

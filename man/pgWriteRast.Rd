@@ -12,19 +12,18 @@ pgWriteRast(
   blocks = NULL,
   constraints = TRUE,
   overwrite = FALSE,
-  append = FALSE,
-  progress = TRUE
+  append = FALSE
 )
 }
 \arguments{
 \item{conn}{A connection object to a PostgreSQL database.}
 
 \item{name}{A character string specifying a PostgreSQL schema in the
-database (if necessary) and table name to hold the raster (e.g., 
+database (if necessary) and table name to hold the raster (e.g.,
 \code{name = c("schema","table")}).}
 
 \item{raster}{An terra \code{SpatRaster}; objects from the raster
-package (\code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack}); 
+package (\code{RasterLayer}, \code{RasterBrick}, or \code{RasterStack});
 a \code{SpatialGrid*} or \code{SpatialPixels*} from sp package.}
 
 \item{bit.depth}{The bit depth of the raster. Will be set to 32-bit
@@ -45,12 +44,9 @@ depending on the PostgreSQL server settings.}
 \item{overwrite}{Whether to overwrite the existing table (\code{name}).}
 
 \item{append}{Whether to append to the existing table (\code{name}).}
-
-\item{progress}{whether to show a progress bar (TRUE by default). The progress
-bar mark the progress of writing blocks into the database.}
 }
 \value{
-TRUE for successful import.
+TRUE (invisibly) for successful import.
 }
 \description{
 Sends R raster to a PostGIS database table.
@@ -60,12 +56,12 @@ SpatRaster band names will be stored in an array in the column
 "band_names", which will be restored in R when imported with the function
 \code{\link[rpostgis]{pgGetRast}}.
 
-Rasters from the \code{sp} and \code{raster} packages are converted to 
+Rasters from the \code{sp} and \code{raster} packages are converted to
 \code{terra} objects prior to insert.
 
 If \code{blocks = NULL}, the number of block will vary by raster size, with
 a default value of 100 copies of the data in the memory at any point in time.
-If a specified number of blocks is desired, set blocks to a one or two-length 
+If a specified number of blocks is desired, set blocks to a one or two-length
 integer vector. Note that fewer, larger blocks generally results in faster
 write times.
 }
@@ -81,10 +77,10 @@ pgWriteRast(conn, c("schema", "test"), raster = r,
 }
 }
 \seealso{
-Function follows process from 
+Function follows process from
 \url{http://postgis.net/docs/using_raster_dataman.html#RT_Creating_Rasters}.
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com} and Adrián Cidre 
+David Bucklin \email{david.bucklin@gmail.com} and Adrián Cidre
 González \email{adrian.cidre@gmail.com}
 }

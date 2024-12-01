@@ -21,11 +21,11 @@ you will need to change the default value}
 query from table. Must begin with an SQL clause (e.g., "WHERE ...",
 "ORDER BY ...", "LIMIT ..."); same usage as in \code{pgGetGeom}.}
 
-\item{returnclass}{'sf' by default; 'terra' for \code{SpatVector}; 
+\item{returnclass}{'sf' by default; 'terra' for \code{SpatVector};
 or 'sp' for \code{sp} objects.}
 }
 \value{
-object of class sfc (list-column with geometries); 
+object of class sfc (list-column with geometries);
     SpatVector or sp object
 }
 \description{
@@ -39,6 +39,6 @@ pgGetBoundary(conn, c("schema", "rasters"), geom = "rast")
 }
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com} and Adrian Cidre 
+David Bucklin \email{david.bucklin@gmail.com} and Adrian Cidre
 González \email{adrian.cidre@gmail.com}
 }

@@ -61,7 +61,7 @@ column to be added to the table.  (for spatial objects without
 data frames, this column is created even if left \code{NULL}
 and defaults to the name \code{"gid"}).}
 
-\item{row.names}{Whether to add the data frame row names to the 
+\item{row.names}{Whether to add the data frame row names to the
 database table. Column name will be '.R_rownames'.}
 
 \item{alter.names}{Logical, whether to make database column names
@@ -70,19 +70,19 @@ DB-compliant (remove special characters). Default is
 to non-standard names in an existing database table using the
 \code{force.match} setting.)}
 
-\item{partial.match}{Logical; if force.match is set and  true, 
-columns in R data frame will be compared with an the 
-existing database table \code{name}. Only columns in the 
+\item{partial.match}{Logical; if force.match is set and  true,
+columns in R data frame will be compared with an the
+existing database table \code{name}. Only columns in the
 data frame that exactly match the database
 table will be inserted into the database table.}
 
-\item{df.mode}{Logical; Whether to write data in data frame mode 
+\item{df.mode}{Logical; Whether to write data in data frame mode
 (preserving data frame column attributes and row.names).
 A new table must be created with this mode (or overwrite set to TRUE),
 and the row.names, alter.names, and new.id arguments will
 be ignored (see \code{dbWriteDataFrame} for more information.}
 
-\item{geog}{Logical; Whether to write the spatial data as a PostGIS 
+\item{geog}{Logical; Whether to write the spatial data as a PostGIS
 'GEOGRAPHY' type.}
 }
 \value{

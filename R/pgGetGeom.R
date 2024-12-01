@@ -41,7 +41,6 @@
 ##' @param returnclass 'sf' by default; 'terra' for \code{SpatVector};
 ##'     or 'sp' for \code{sp} objects.
 ##' @return sf, SpatVector or sp object
-##' @importFrom sf st_crs st_as_sf
 ##' @export
 ##' @author David Bucklin \email{david.bucklin@@gmail.com}
 ##' @author Mathieu Basille \email{mathieu@@basille.org}
@@ -76,12 +75,29 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
          other.cols = TRUE, clauses = NULL, boundary = NULL, query = NULL,
          returnclass = "sf") {
 
+  ## warning on `sp` use
+  if (returnclass == "sp") {
+    lifecycle::deprecate_warn(
+      when = "1.6.0",
+      what = "pgGetGeom(returnclass = 'should be a `sf` or `terra` object')",
+      details = c(
+        x = "Support for `sp` will be removed in a future release.",
+        i = "Please, use the `sf` or `terra` packages."
+      )
+    )
+    if (!requireNamespace("sp", quietly = TRUE)) {
+      cli::cli_abort("Package `sp` must be installed when using `sp` data.obj")
+    }
+  }
+
 
   ## Check connection and PostGIS extension
   dbConnCheck(conn)
   if (!suppressMessages(pgPostGIS(conn))) {
-    stop("PostGIS is not enabled on this database.")
+    cli::cli_abort("PostGIS is not enabled on this database.")
   }
+
+  if (!returnclass %in% c("sf", "sp", "terra")) cli::cli_abort("returnclass must be 'sf' or 'sp'")
 
   ## If a Query is provided, execute it and return the value
   ## Using pgGetGeomQ
@@ -89,7 +105,7 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     if (missing(name)) name <- NULL
     ret <- pgGetGeomQ(conn, query = query, name = name, geom = geom, gid = gid,
                       other.cols = other.cols, clauses = clauses, boundary = boundary)
-    if (is.null(ret)) stop("Query retrieval failed.", call. = FALSE) else return(ret)
+    if (is.null(ret)) cli::cli_abort("Query retrieval failed.", call. = FALSE) else return(ret)
   }
 
   ## Check and prepare the schema.name
@@ -151,14 +167,13 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
 
   ## Get the geometry object if length typ = 1 (1 geometry type)
   if (length(typ) == 0) {
-    stop("No geometries found.")
+    cli::cli_abort("No geometries found.")
   } else if (length(typ) >= 1) {
     ## Inform the user about geometry types
     if (length(typ) == 1) {
-      message(paste0("Returning PostGIS ", typ, " object into sf object with ",
-                     toupper(sub("...", "", typ)), " geometry type"))
+      cli::cli_progress_step("Reading table with {toupper(sub('...', '', typ))} geometry type...")
     } else {
-      message(paste0("Returning PostGIS object into sf object with multiple geometry types"))
+      cli::cli_progress_step("Reeading table with multiple geometry types...")
     }
 
     ## Prepare additional clauses
@@ -183,23 +198,26 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
 
     ## Check if the SRID is unique, otherwise throw an error
     if (nrow(srid) > 1) {
-      stop("Multiple SRIDs in the point geometry")
+      cli::cli_abort("Multiple SRIDs in the point geometry")
     } else if (nrow(srid) < 1) {
-      stop("Database table is empty.")
+      cli::cli_abort("Database table is empty.")
     }
 
     ## Get SRID
-    proj4 <- sf::st_crs(as.character(NA))
-    tmp.query <- paste0("SELECT proj4text AS p4s FROM spatial_ref_sys WHERE srid = ",
+    srid_obj <- sf::st_crs(as.character(NA))
+    tmp.query <- paste0("SELECT auth_srid, auth_name FROM spatial_ref_sys WHERE srid = ",
                         srid$st_srid, ";")
-    db.proj4 <- dbGetQuery(conn, tmp.query)$p4s
-    if (!is.null(db.proj4)) {
-      try(proj4 <- sf::st_crs(db.proj4), silent = TRUE)
+    db.srid <- dbGetQuery(conn, tmp.query)
+    if (!is.null(db.srid)) {
+      srid_code <- paste0(db.srid$auth_name, ":", db.srid$auth_srid)
+      try(srid_obj <- sf::st_crs(srid_code), silent = TRUE)
+      ## use only nb if it failed
+      if (is.na(srid_obj$input)) try(srid_obj <- sf::st_crs(db.srid$auth_srid), silent = TRUE)
     }
 
     ## If SRID was not found, warn about it
-    if (is.na(proj4$input)) {
-      warning("Table SRID not found. Projection will be undefined (NA)")
+    if (is.na(srid_obj$input)) {
+      cli::cli_alert_warning("Table SRID not found. Projection will be undefined (NA)")
     }
 
     ## Query the table
@@ -234,19 +252,18 @@ pgGetGeom <- function(conn, name, geom = "geom", gid = NULL,
     }
 
     ## Create sf object
-    sp <- sf::st_as_sf(dfr, wkt = "geom", crs = proj4$input)
+    sp <- sf::st_as_sf(dfr, wkt = "geom", crs = srid_code)
 
   }
-
+  cli::cli_progress_done()
+  cli::cli_alert_success("Data succesfully read.")
   # Return class
   if (returnclass == "sf") {
     return(sp)
   } else if (returnclass == "sp") {
     return(sf::as_Spatial(sp))
-  } else if (returnclass == "terra") {
-    return(terra::vect(sp))
   } else {
-    stop("returnclass must be 'sf' or 'sp'")
+    return(terra::vect(sp))
   }
 
 }
@@ -296,8 +313,7 @@ pgGetGeomQ <- function(conn, query, name = NULL, ...) {
     } else {
         if (!keep) { dbExecute(conn, "ROLLBACK;") } else {
           dbExecute(conn, "COMMIT;")
-          message(paste0("Created view ",paste(dbQuoteIdentifier(conn,
-            name), collapse = "."),"."))
+          cli::cli_alert_info("Created view {paste(dbQuoteIdentifier(conn, name), collapse = '.')}.")
         }
     }
     return(geo)

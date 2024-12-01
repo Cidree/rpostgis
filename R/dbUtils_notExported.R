@@ -48,7 +48,7 @@ dbTableNameFix <- function(conn = NULL, t.nm, as.identifier = TRUE) {
       }
       if (length(t.nm) > 2)
       {
-        stop("Invalid PostgreSQL table/view name. Must be provided as one ('table') or two-length c('schema','table') character vector.")
+        cli::cli_abort("Invalid PostgreSQL table/view name. Must be provided as one ('table') or two-length c('schema','table') character vector.")
       }
     if (is.null(conn)) {conn <- DBI::ANSI()}
     if (!as.identifier) {return(t.nm)} else {
@@ -158,9 +158,9 @@ dbExistsTable <- function(conn, name, table.only = FALSE) {
 
 dbConnCheck <- function(conn) {
   if (inherits(conn, c("PostgreSQLConnection")) | inherits(conn, "PqConnection")) {
-          return(TRUE)
+          return(invisible(TRUE))
       } else {
-        return(stop("'conn' must be connection object: <PostgreSQLConnection> from `RPostgreSQL`, or <PqConnection> from `RPostgres`"))
+        return(cli::cli_abort("'conn' must be connection object: <PostgreSQLConnection> from `RPostgreSQL`, or <PqConnection> from `RPostgres`"))
       }
 }
 
@@ -218,10 +218,9 @@ pgCheckGeom <- function(conn, name, geom) {
     tab.list <- c(tab.list, tab.list.geog)
 
     if (is.null(tab.list)) {
-        stop(paste0("Table/view ", namechar, " is not listed in geometry_columns or geography_columns."))
+        cli::cli_abort("Table/view {namechar} is not listed in geometry_columns or geography_columns.")
     } else if (!geom %in% tab.list) {
-        stop(paste0("Table/view ", namechar, " geometry/geography column not found. Available columns: ",
-            paste(tab.list, collapse = ", ")))
+      cli::cli_abort("Table/view {namechar} geometry/geography column not found. Available columns: {paste(tab.list, collapse = ', ')}")
     }
     ## prepare geom column
     if (geom %in% tab.list.geog) {
@@ -270,24 +269,24 @@ pgGetSRID <- function(conn, name, geom) {
 
 bs <- function(r, blocks) {
   blocks <- as.integer(blocks)
-  if (any(is.na(blocks)) || length(blocks) > 2) stop("blocks must be a 1- or 2-length integer vector.")
-  if (any(blocks == 0)) stop("Invalid number of blocks (0).")
+  if (any(is.na(blocks)) || length(blocks) > 2) cli::cli_abort("blocks must be a 1- or 2-length integer vector.")
+  if (any(blocks == 0)) cli::cli_abort("Invalid number of blocks (0).")
   if (length(blocks) == 1) blocks <- c(blocks, blocks)
   r <- r[[1]]
 
   cr <- list()
   tr <- list()
-  
+
   # Manage RasterLayer
   if (class(r)[1] == "RasterLayer") {
     r <- terra::rast(r)
   }
-  
+
   if (class(r)[1] == "SpatRaster") {
     n.c <- terra::ncol(r)
     n.r <- terra::nrow(r)
   } else {
-    stop("Invalid input: 'r' must be either a RasterLayer or SpatRaster object.")
+    cli::cli_abort("Invalid input: 'r' must be either a RasterLayer or SpatRaster object.")
   }
 
   # cr
@@ -332,4 +331,63 @@ bs <- function(r, blocks) {
     }
   }
   return(list(cr = cr, tr = tr))
+}
+
+## warn_deprecated_sp
+##' Warning for deprecated sp and raster
+##'
+##' @param data dataset
+##' @param what text to show
+##'
+##' @keywords internal
+warn_deprecated_sp <- function(data, what) {
+  sp_classes <- c("SpatialPoints", "SpatialPointsDataFrame",
+                         "SpatialLines", "SpatialLinesDataFrame",
+                         "SpatialPolygons", "SpatialPolygonsDataFrame",
+                         "SpatialGrid", "SpatialGridDataFrame",
+                         "SpatialPixels", "SpatialPixelsDataFrame")
+  raster_classes <- c("RasterLayer", "RasterBrick", "RasterStack")
+  if (inherits(data, c(sp_classes, raster_classes))) {
+    lifecycle::deprecate_warn(
+      when = "1.6.0",
+      what = what,
+      details = c(
+        x = "Support for `sp` and `raster` will be removed in a future release.",
+        i = "Please, use the `sf` and `terra` packages."
+      )
+    )
+    if (!requireNamespace("sp", quietly = TRUE) & inherits(data, sp_classes)) {
+      cli::cli_abort("Package `sp` must be installed for your specifications. However, we recommend to use `sf` package")
+    }
+    if (!requireNamespace("raster", quietly = TRUE) & inherits(data, raster_classes)) {
+      cli::cli_abort("Package `raster` must be installed for your specifications. However, we recommend to use `raster` package")
+    }
+  }
+}
+
+
+## warn_deprecated_rc
+##' Warning for deprecated sp and raster
+##'
+##' @param data dataset
+##' @param what text to show
+##'
+##' @keywords internal
+warn_deprecated_rc <- function(data, what) {
+  if (data %in% c("sp", "raster")) {
+    lifecycle::deprecate_warn(
+      when = "1.6.0",
+      what = what,
+      details = c(
+        x = "Support for `sp` and `raster` will be removed in a future release.",
+        i = "Please, use the `sf` and `terra` packages."
+      )
+    )
+    if (!requireNamespace("sp", quietly = TRUE) & data == "sp") {
+      cli::cli_abort("Package `sp` must be installed for your specifications. However, we recommend to use `sf` package")
+    }
+    if (!requireNamespace("raster", quietly = TRUE) & data == "raster") {
+      cli::cli_abort("Package `raster` must be installed for your specifications. However, we recommend to use `raster` package")
+    }
+  }
 }

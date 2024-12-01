@@ -49,6 +49,6 @@ pgSRID(conn, crs2, create.srid = TRUE)
 }
 }
 \author{
-David Bucklin \email{david.bucklin@gmail.com} and Adrián Cidre 
+David Bucklin \email{david.bucklin@gmail.com} and Adrián Cidre
 González \email{adrian.cidre@gmail.com}
 }

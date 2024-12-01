@@ -39,7 +39,7 @@ other tables, if \code{action = "drop"}.}
 \code{TRUE}).}
 }
 \value{
-If \code{exec = TRUE}, returns \code{TRUE} if the column was
+If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the column was
 successfully added or removed.
 }
 \description{

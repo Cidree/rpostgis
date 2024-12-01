@@ -35,7 +35,7 @@ exist. A notice is issued in this case.}
 \code{TRUE}).}
 }
 \value{
-If \code{exec = TRUE}, returns \code{TRUE} if the table/schema/view
+If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the table/schema/view
 was successfully dropped.
 }
 \description{

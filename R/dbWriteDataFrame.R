@@ -42,7 +42,7 @@
 #' @author Adrián Cidre González \email{adrian.cidre@@gmail.com}
 #' @aliases dbWriteDF
 #' @export
-#' @return \code{TRUE} for successful write with
+#' @return invisible \code{TRUE} for successful write with
 #'     \code{dbWriteDataFrame}, \code{data.frame} for
 #'     \code{dbReadDataFrame}
 #' @examples
@@ -78,8 +78,7 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
   if (!only.defs) {
     if (dbExistsTable(conn, name, table.only = TRUE)) {
       if (!overwrite) {
-        stop("Table ", paste(nameque, collapse = "."),
-             " already exists. Use overwrite = TRUE to replace it.")
+        cli::cli_abort("Table {paste(nameque, collapse = '.')} already exists. Use overwrite = TRUE to replace it.")
       } else {
         dbDrop(conn, name, type = "table")
       }
@@ -105,18 +104,18 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
       dbComment(conn, c(name[1], ".R_df_defs"), comment = "Table holding R data frame column definitions
                 (for import/export using rpostgis::db(Read/Write)DataFrame).")
     })
-    message(paste0("New R data frame definitions table created (", nameque[1], ".\".R_df_defs\")."))
+    cli::cli_alert_info("New R data frame definitions table created ({nameque[1]}.\'.R_df_defs\').")
   }
 
 
   ## get data types
-  types <- purrr::map_vec(d, \(x) class(x)[1])
+  types <- sapply(d, class)
 
   ## MODULAR HANDING OF DIFFERENT DATA TYPES -----------------------------
 
   ## handle attribute (time zones)
-  attr2 <- purrr::map(d[1,], \(x) attr(x, "tzone")[1])
-  badtz <- purrr::map_vec(attr2, \(x) any(is.null(x), !x %in% OlsonNames()))
+  attr2 <- sapply(d, function(x) attr(x, "tzone")[1])
+  badtz <- sapply(attr2, function(x) any(is.null(x), !x %in% OlsonNames()))
   attr2[badtz] <- "NULL"
   attr2 <- unlist(attr2)
 
@@ -128,8 +127,9 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
   }
 
   ## handle attribute (FACTOR levels)
-  fact <- purrr::map_vec(d, \(x)
-                         paste0("/*/", paste(levels(x), collapse = "/*/"), "/*/"))
+  fact <- sapply(d,
+    function(x) paste0("/*/", paste(levels(x), collapse = "/*/"), "/*/")
+  )
 
   fact <- gsub(",", "\\,", fact, fixed = TRUE)
   attr2[!fact == "/*//*/"] <- fact[!fact == "/*//*/"]
@@ -138,8 +138,8 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
   ## handle spatial p4s (found using .rpostgis.geom. in column name, from pgWriteGeom)
   sp.index <- grep(".rpostgis.geom.",names(d))
   if (length(sp.index) > 0) {
-    types[sp.index] <- "Spatial"
-    attr2[sp.index] <- paste0('"',d[,sp.index][1],'"') # double quote for array
+    types[sp.index]    <- "Spatial"
+    attr2[sp.index]    <- paste0('"',d[,sp.index][1],'"') # double quote for array
     names(d)[sp.index] <- gsub(".rpostgis.geom.","",names(d)[sp.index])
   }
   ## end spatial
@@ -171,13 +171,14 @@ dbWriteDataFrame <- function(conn, name, df, overwrite = FALSE,
       pgWriteGeom(conn, name, data.obj = d)
       dbAddKey(conn, name, colname = ".db_pkid", type = "primary")
     })
-    message("Data frame written to table ",
-            paste(nameque, collapse = "."), ".")
+    cli::cli_alert_success("Data frame written to table {paste(nameque, collapse = '.')}.")
+    return(invisible(TRUE))
+  } else {
+    cli::cli_alert_success('Table definitions written to "pg".".R_df_defs"')
+    return(d)
   }
 
 
-  if (only.defs)
-    return(d) else return(TRUE)
 }
 
 
@@ -195,7 +196,7 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
 
   ## Check if table exists (throw error if not)
   if (!dbExistsTable(conn, name)) {
-    stop("Table ", paste(name, collapse = "."), " not found.")
+    cli::cli_abort("Table {paste(name, collapse = '.')} not found.")
   }
 
   ## Check definitions
@@ -208,9 +209,9 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
 
     ## Message depending on condition
     if (!dbExistsTable(conn, c(name[1], ".R_df_defs"), table.only = TRUE)) {
-      message("R data frame definitions table not found. Using standard import...")
+      cli::cli_alert_info("R data frame definitions table not found. Using standard import...")
     } else {
-      message("R data frame definitions not found. Using standard import...")
+      cli::cli_alert_info("R data frame definitions not found. Using standard import...")
     }
 
     ## Read data depending on is.null(df) ----------------------------
@@ -244,13 +245,11 @@ dbReadDataFrame <- function(conn, name, df = NULL) {
     ## Get data depending on df is NULL
     if (is.null(df)) {
       d <- NULL
-      sql_query <- paste0("SELECT * FROM ",
-                          paste(nameque, collapse = "."), " ORDER BY \".db_pkid\";")
+      sql_query <- paste0("SELECT * FROM ", paste(nameque, collapse = "."), " ORDER BY \".db_pkid\";")
       try(d <- dbGetQuery(conn, sql_query), silent = TRUE)
 
       if (is.null(d)) {
-        sql_query <- paste0("SELECT * FROM ",
-                            paste(nameque, collapse = "."), ";")
+        sql_query <- paste0("SELECT * FROM ", paste(nameque, collapse = "."), ";")
         d <- dbGetQuery(conn, sql_query)
       }
 

@@ -28,14 +28,14 @@ overwriting a view must be done manually (e.g., with \code{\link[rpostgis]{dbDro
 definitions will be written.}
 }
 \value{
-\code{TRUE} for successful write with
+invisible \code{TRUE} for successful write with
     \code{dbWriteDataFrame}, \code{data.frame} for
     \code{dbReadDataFrame}
 }
 \description{
-Write \code{data.frame} or similar (e.g. \code{tibble}) to database table, 
-with column definitions, row names, and a new integer primary key column. 
-Read back into R with \code{dbReadDataFrame}, which recreates original 
+Write \code{data.frame} or similar (e.g. \code{tibble}) to database table,
+with column definitions, row names, and a new integer primary key column.
+Read back into R with \code{dbReadDataFrame}, which recreates original
 data.
 }
 \details{

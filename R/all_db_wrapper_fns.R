@@ -25,7 +25,7 @@
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the key was successfully added.
+##' @return If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the key was successfully added.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
 ##' @author Mathieu Basille \email{mathieu@@basille.org}
@@ -75,14 +75,16 @@ dbAddKey <- function(conn, name, colname, type = c("primary",
         " KEY (", colname, ")", references, ";")
     ## Display the query
     if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
+      cli::cli_alert_info(tmp.query)
     }
     ## Execute the query and return TRUE
     if (exec) {
-        dbConnCheck(conn)
-        dbExecute(conn, tmp.query)
-        return(TRUE)
+      dbConnCheck(conn)
+      dbExecute(conn, tmp.query)
+      cli::cli_alert_success("Query executed")
+      return(invisible(TRUE))
+    } else {
+      cli::cli_alert_danger("Query not executed")
     }
 }
 
@@ -103,7 +105,7 @@ dbAddKey <- function(conn, name, colname, type = c("primary",
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the
+##' @return If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the
 ##'     conversion was successful.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/datatype-datetime.html}
@@ -138,15 +140,17 @@ dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
         "::timestamp", tz, ";")
     ## Display the query
     if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
+        cli::cli_alert_info(tmp.query)
         #message("--")
     }
     ## Execute the query and return TRUE
     if (exec) {
-        dbConnCheck(conn)
-        dbExecute(conn, tmp.query)
-        return(TRUE)
+      dbConnCheck(conn)
+      dbExecute(conn, tmp.query)
+      cli::cli_alert_success("Query executed")
+      return(invisible(TRUE))
+    } else {
+      cli::cli_alert_danger("Query not executed")
     }
 }
 
@@ -170,7 +174,7 @@ dbAsDate <- function(conn, name, date = "date", tz = NULL, display = TRUE,
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the column was
+##' @return If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the column was
 ##' successfully added or removed.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-altertable.html}
@@ -201,17 +205,17 @@ dbColumn <- function(conn, name, colname, action = c("add", "drop"),
         colname, " ", args, ";")
     ## Display the query
     if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
-        #message("--")
+        cli::cli_alert_info(tmp.query)
     }
-    ## Execute the query
+    ## execute query
     if (exec) {
-        dbConnCheck(conn)
-        dbExecute(conn, tmp.query)
+      dbConnCheck(conn)
+      dbExecute(conn, tmp.query)
+      cli::cli_alert_success("Query executed")
+      return(invisible(TRUE))
+    } else {
+      cli::cli_alert_danger("Query not executed")
     }
-    ## Return TRUE
-    if (exec) return(TRUE)
 }
 
 ## dbComment
@@ -230,7 +234,7 @@ dbColumn <- function(conn, name, colname, action = c("add", "drop"),
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the comment was
+##' @return If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the comment was
 ##' successfully applied.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-comment.html}
@@ -253,7 +257,7 @@ dbComment <- function(conn, name, comment, type = c("table",
       name <- dbTableNameFix(conn,name)
       nameque <- paste(name, collapse = ".")
     } else {
-      if (length(name) > 1) {stop("Schemas should be a character of length = 1.")}
+      if (length(name) > 1) {cli::cli_abort("Schemas should be a character of length = 1.")}
       nameque <- DBI::dbQuoteIdentifier(conn,name)
     }
     ## Escape single "'"
@@ -263,17 +267,17 @@ dbComment <- function(conn, name, comment, type = c("table",
         comment, "';")
     ## Display the query
     if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
-        #message("--")
+      cli::cli_alert_info(tmp.query)
     }
     ## Execute the query
     if (exec) {
-        dbConnCheck(conn)
-        dbExecute(conn, tmp.query)
+      dbConnCheck(conn)
+      dbExecute(conn, tmp.query)
+      cli::cli_alert_success("Query executed")
+      return(invisible(TRUE))
+    } else {
+      cli::cli_alert_danger("Query not executed")
     }
-    ## Return true
-    if (exec) return(TRUE)
 }
 
 ## dbDrop
@@ -294,7 +298,7 @@ dbComment <- function(conn, name, comment, type = c("table",
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the table/schema/view
+##' @return If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the table/schema/view
 ##' was successfully dropped.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-droptable.html},
@@ -316,7 +320,7 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
       name <- dbTableNameFix(conn,name)
       nameque <- paste(name, collapse = ".")
     } else {
-      if (length(name) > 1) {stop("Schemas should be a character of length = 1.")}
+      if (length(name) > 1) {cli::cli_abort("Schemas should be a character of length = 1.")}
       nameque <- DBI::dbQuoteIdentifier(conn,name)
     }
     ## Argument IF EXISTS
@@ -324,21 +328,24 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
     ## Argument CASCADE
     cascade <- ifelse(cascade, " CASCADE", "")
     ## Build the query
-    tmp.query <- paste0("DROP ", type, ifexists, nameque, cascade,
-        ";")
+    tmp.query <- paste0("DROP ", type, ifexists, nameque, cascade, ";")
     ## Display the query
     if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
-        #message("--")
+      cli::cli_alert_info(tmp.query)
     }
     ## Execute the query
     if (exec) {
-        dbConnCheck(conn)
+      dbConnCheck(conn)
+      tryCatch({
         dbExecute(conn, tmp.query)
+      },
+      error = function(e) cli::cli_abort("{tolower(type)} {paste0(name, collapse = '.')} does not exist.")
+      )
+      cli::cli_alert_success("Query executed")
+      return(invisible(TRUE))
+    } else {
+      cli::cli_alert_danger("Query not executed")
     }
-    ## Return true
-    if (exec) return(TRUE)
 }
 
 
@@ -373,7 +380,7 @@ dbDrop <- function(conn, name, type = c("table", "schema", "view", "materialized
 ##'     \code{TRUE}).
 ##' @param exec Logical. Whether to execute the query (defaults to
 ##'     \code{TRUE}).
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the index was
+##' @return If \code{exec = TRUE}, returns (invisibly) \code{TRUE} if the index was
 ##' successfully created.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-createindex.html};
@@ -417,15 +424,16 @@ dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
         " ON ", nameque, usemeth, " (", colname, ");")
     ## Display the query
     if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
-        message("--")
+        cli::cli_alert_info(tmp.query)
     }
     ## Execute the query and return TRUE
     if (exec) {
-        dbConnCheck(conn)
-        dbExecute(conn, tmp.query)
-        return(TRUE)
+      dbConnCheck(conn)
+      dbExecute(conn, tmp.query)
+      cli::cli_alert_success("Query executed")
+      return(invisible(TRUE))
+    } else {
+      cli::cli_alert_danger("Query not executed")
     }
 }
 
@@ -448,7 +456,7 @@ dbIndex <- function(conn, name, colname, idxname, unique = FALSE,
 ##'     it does not exists.
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-createschema.html}
-##' @return If \code{exec = TRUE}, returns \code{TRUE} if the schema exists
+##' @return If \code{exec = TRUE}, returns (invisible) \code{TRUE} if the schema exists
 ##' (whether it was already available or was just created).
 ##' @author Mathieu Basille \email{mathieu@@basille.org}
 ##' @export
@@ -461,7 +469,7 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
     dbConnCheck(conn)
     ## Check the name of the schema
     if (length(name) != 1)
-        stop("The schema name should be of length 1.")
+        cli::cli_abort("The schema name should be of length 1.")
     ## make schema name
     namechar <- DBI::dbQuoteString(conn,name)
     nameque <- DBI::dbQuoteIdentifier(conn,name)
@@ -470,22 +478,24 @@ dbSchema <- function(conn, name, display = TRUE, exec = TRUE) {
         namechar, ");")
     schema <- dbGetQuery(conn, tmp.query)[1, 1]
     ## If exists, return TRUE, otherwise create the schema
-    if (isTRUE(schema))
-        return(TRUE) else {
-        ## Build the query
-        tmp.query <- paste0("CREATE SCHEMA ", nameque[1], ";")
-        ## Display the query
-        if (display) {
-            message(paste0("Query ", ifelse(exec, "", "not "),
-                "executed:"))
-            message(tmp.query)
-            #message("--")
-        }
-        ## Execute the query
-        if (exec)
-            dbExecute(conn, tmp.query)
-        ## Return true
-        if (exec) return(TRUE)
+    if (isTRUE(schema)) {
+      cli::cli_alert_info("Schema already exists.")
+      return(invisible(TRUE))
+    } else {
+      ## Build the query
+      tmp.query <- paste0("CREATE SCHEMA ", nameque[1], ";")
+      ## Display the query
+      if (display) {
+          cli::cli_alert_info(tmp.query)
+      }
+      ## Return true
+      if (exec) {
+        dbExecute(conn, tmp.query)
+        cli::cli_alert_success("Query executed")
+        return(invisible(TRUE))
+      } else {
+        cli::cli_alert_danger("Query not executed")
+      }
     }
 }
 
@@ -547,7 +557,7 @@ dbTableInfo <- function(conn, name, allinfo = FALSE) {
 ##'     \code{TRUE}).
 ##' @seealso The PostgreSQL documentation:
 ##'     \url{http://www.postgresql.org/docs/current/static/sql-vacuum.html}
-##' @return If \code{exec = TRUE}, returns TRUE if query is successfully executed.
+##' @return If \code{exec = TRUE}, returns (invisibly) TRUE if query is successfully executed.
 ##' @author Mathieu Basille \email{mathieu@@basille.org}
 ##' @export
 ##' @examples
@@ -571,15 +581,15 @@ dbVacuum <- function(conn, name, full = FALSE, verbose = FALSE,
         ";")
     ## Display the query
     if (display) {
-        message(paste0("Query ", ifelse(exec, "", "not "), "executed:"))
-        message(tmp.query)
-        #message("--")
+        cli::cli_alert_info(tmp.query)
     }
     ## Execute the query
     if (exec) {
-        dbConnCheck(conn)
-        dbExecute(conn, tmp.query)
+      dbConnCheck(conn)
+      dbExecute(conn, tmp.query)
+      cli::cli_alert_success("Query executed")
+      return(invisible(TRUE))
+    } else {
+      cli::cli_alert_danger("Query not executed")
     }
-    ## Return true
-    if (exec) return(TRUE)
 }

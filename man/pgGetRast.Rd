@@ -22,7 +22,7 @@ pgGetRast(
 table/view name holding the geometry (e.g., \code{name =
 c("schema","table")})}
 
-\item{rast}{Name of the column in \code{name} holding the raster object. 
+\item{rast}{Name of the column in \code{name} holding the raster object.
 Defaults to "rast".}
 
 \item{bands}{Index number(s) for the band(s) to retrieve (defaults to 1).
@@ -32,9 +32,9 @@ also 'Details'}
 \item{boundary}{\code{sf} object, \code{SpatVector} object, or numeric. If a
 spatial object is provided, its bounding box will be used to select
 the part of the raster to import. Alternatively, a numeric vector
-(\code{c([top], [bottom], [right], [left])}) indicating the 
-projection-specific limits with which to clip the raster. If not value 
-is provided, the default \code{boundary = NULL} will return the 
+(\code{c([top], [bottom], [right], [left])}) indicating the
+projection-specific limits with which to clip the raster. If not value
+is provided, the default \code{boundary = NULL} will return the
 full raster.}
 
 \item{clauses}{character, optional SQL to append to modify select
@@ -52,8 +52,8 @@ bar mark the progress of reading bands from the database.}
 Retrieve rasters from a PostGIS table into a \code{terra SpatRaster} object
 }
 \details{
-Since version 1.5.0, this function retrieve SpatRaster objects from 
-\code{terra} package by default. The argument \code{returnclass} can be 
+Since version 1.5.0, this function retrieve SpatRaster objects from
+\code{terra} package by default. The argument \code{returnclass} can be
 used to return \code{raster} objects instead.
 
 The argument \code{bands} can take as argument:
