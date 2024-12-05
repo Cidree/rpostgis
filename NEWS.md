@@ -1,5 +1,5 @@
 
-rpostgis 1.6.0 (pre-release)
+rpostgis 1.6.0
 ==============
 
 OVERALL CHANGES
