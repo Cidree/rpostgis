@@ -35,6 +35,8 @@
 <url><loc>https://cidree.github.io/rpostgis/reference/pgSRID.html</loc></url>
 <url><loc>https://cidree.github.io/rpostgis/reference/pgWriteGeom.html</loc></url>
 <url><loc>https://cidree.github.io/rpostgis/reference/pgWriteRast.html</loc></url>
-<url><loc>https://cidree.github.io/rpostgis/reference/rpostgis.html</loc></url>
+<url><loc>https://cidree.github.io/rpostgis/reference/rpostgis-package.html</loc></url>
+<url><loc>https://cidree.github.io/rpostgis/reference/warn_deprecated_rc.html</loc></url>
+<url><loc>https://cidree.github.io/rpostgis/reference/warn_deprecated_sp.html</loc></url>
 </urlset>
 
